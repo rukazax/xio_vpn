@@ -1,0 +1,34 @@
+# Credentials, private fixtures, generated files / Секреты и результаты сборки
+.build-support/
+.signing/
+releases/
+publishing/
+output/
+tmp/
+/verification/*
+!verification/VERIFICATION-*.md
+!verification/BUILD-INFO-*.json
+/lab*/
+/vps-check/
+**/.dart_tool/
+**/build/
+**/.gradle/
+**/.cxx/
+**/ephemeral/
+**/.plugin_symlinks/
+**/__pycache__/
+**/.idea/
+**/.DS_Store
+**/local.properties
+**/.flutter-plugins-dependencies
+**/GeneratedPluginRegistrant.java
+**/Generated.xcconfig
+**/flutter_export_environment.sh
+*.jks
+*.keystore
+*.p12
+*.key
+.env
+.env.*
+# Pinned upstream sources belong in the matching source release archive.
+# The source archive includes all vendor code and licences; see docs/*/build.md.
