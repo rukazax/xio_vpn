@@ -1,0 +1,21 @@
+{
+  "component": "Android RIVET/WireGuard/multi-engine AAR",
+  "runtimeSourceVersion": "0.18.0",
+  "runtimeAarSha256": "176f8902470337a829fc0738f2e0c0f97857b07a3b81bce738d57da717077128",
+  "sourceUrl": "https://econa.su/downloads/xio-0.18.0-9c47ced2b994759c5e6afe50/XIO-0.18.0-source.zip",
+  "sourceSha256": "cad678416affa5ada0b123b852576a4535db1085b743d1dccec3fee7a033ae37",
+  "sourceBytes": 359151364,
+  "publicHeadAndPublishedHashVerified": true,
+  "note": "Historical source URL retained for provenance. Use correspondingSourceDirectory in the corrected 0.20 full source archive for the complete matching Android native source, including restored upstream build-directory files.",
+  "correspondingSourceDirectory": "native-sources/android-runtime-0.18",
+  "originalOwnedSourceFingerprintVerified": true,
+  "allHistoricalGoDependencyCacheEntriesMatch": 348,
+  "upstreamBuildDirectoryFilesRestored": [
+    "vendor/tailscale/cmd/k8s-operator/e2e/build/main.go",
+    "vendor/tailscale/cmd/k8s-operator/e2e/internal/build/build.go",
+    "vendor/tailscale/client/web/build/index.html",
+    "vendor/tailscale/gokrazy/build/build_test.go",
+    "vendor/tailscale/gokrazy/build/build.go"
+  ],
+  "currentDesktopAndIosSourcesAreSeparate": true
+}
