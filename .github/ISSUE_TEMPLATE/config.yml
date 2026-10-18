@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security / Безопасность
+    url: mailto:er-ka@mail.ru
+    about: Report vulnerabilities privately / Об уязвимостях сообщайте лично

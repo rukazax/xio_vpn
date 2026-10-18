@@ -1,0 +1,22 @@
+name: Bug report / Ошибка
+description: Report an XIO problem / Сообщить об ошибке XIO
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets or live profiles. / Не прикладывайте секреты и действующие профили."
+  - type: input
+    id: version
+    attributes:
+      label: Version and platform / Версия и платформа
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Steps, expected and actual result / Шаги, ожидаемый и фактический результат
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted diagnostics / Обезличенная диагностика
