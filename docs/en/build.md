@@ -39,3 +39,6 @@ Build on Windows with Flutter, Go and Visual Studio's desktop C++ workload. Run 
 Use a Mac with Xcode, the iOS SDK, your Apple Developer team and appropriate NetworkExtension registration. Configure App IDs, app group, keychain group and provisioning. Set `XIO_APPLE_TEAM_ID` and `XIO_IOS_EXPORT_OPTIONS`, then run `tooling/cross-platform/build-ios.sh`. Keep certificates and provisioning secrets out of Git. The iOS source integration currently supports only RIVET/H3 and S1 and needs device testing.
 
 [Licence](../../LICENSE) · [Dependency notices](../../THIRD-PARTY-NOTICES.md) · [Contributing](../../CONTRIBUTING.md)
+
+
+The native Android runtime is retained from 0.18. For an exact source rebuild, use `native-sources/android-runtime-0.18` from the full source archive and its README. [Source provenance](../native-source-provenance.md).
