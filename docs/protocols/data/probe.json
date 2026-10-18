@@ -1,0 +1,58 @@
+{
+  "historical": true,
+  "testedAtUtc": "2026-10-18T01:53:16.738880+00:00",
+  "results": [
+    {
+      "cipherSuite": 4865,
+      "curve": 4588,
+      "dnsResponse": true,
+      "gatewayPinVerified": true,
+      "handshakeComplete": true,
+      "protocol": "rivet-s1",
+      "responseBytes": 89,
+      "resumed": false,
+      "tlsVersion": 772,
+      "successfulAttempts": 10,
+      "elapsedMs": [
+        917.3,
+        937.9,
+        921.0,
+        900.7,
+        957.9,
+        1024.6,
+        840.2,
+        1106.4,
+        890.8,
+        868.7
+      ],
+      "medianMs": 919.15
+    },
+    {
+      "cipherSuite": 4865,
+      "curve": 4588,
+      "dnsResponse": true,
+      "gatewayPinVerified": true,
+      "handshakeComplete": true,
+      "protocol": "rivet-h3",
+      "responseBytes": 89,
+      "resumed": false,
+      "tlsVersion": 772,
+      "successfulAttempts": 10,
+      "elapsedMs": [
+        1157.9,
+        714.2,
+        874.4,
+        725.2,
+        737.1,
+        767.0,
+        736.3,
+        758.5,
+        795.3,
+        759.9
+      ],
+      "medianMs": 759.2
+    }
+  ],
+  "serverBinarySha256": "8de85ffe8055cdf77afde5172d40bd9a7f27b043ec328405b6e4d7137f9f86fc",
+  "ephemeralUserRevoked": true
+}

@@ -1,0 +1,37 @@
+{
+  "docsVersion": "1.0",
+  "date": "2026-10-18",
+  "applicationCodeChanged": false,
+  "localLinksChecked": 95,
+  "brokenLinks": [],
+  "figures": 10,
+  "topLevelGoTestsPassed": 15,
+  "goTests": [
+    "TestBothCarriersFullSessionAndFragmentedPacket",
+    "TestNoClassicalGroupFallback",
+    "TestUnauthenticatedPathsAndProxyTarget",
+    "TestCarrierHandshakeHonorsAttemptDeadline",
+    "TestWebSocketAdvertisesHTTP11ALPN",
+    "TestGatewayStopsWhenTunReaderFails",
+    "TestFramesBounded",
+    "TestFragmentsReplayWindow",
+    "TestFragmentOverlapExpiryLimits",
+    "TestSealIdentityBinding",
+    "TestParamsCanonical",
+    "TestSourceAndInfrastructureProtection",
+    "TestHybridAuthenticatedSession",
+    "TestWrongPinRejected",
+    "TestProofCannotCrossTLSOrCarrier"
+  ],
+  "fuzzSeedCasesPassed": [
+    "FuzzFrame/seed#0",
+    "FuzzFragments/seed#0"
+  ],
+  "extendedFuzzCampaignRun": false,
+  "raceDetector": true,
+  "goTestElapsedSeconds": 19.367,
+  "newVPSTests": false,
+  "historicalEvidenceHashesChecked": true,
+  "medianValuesChecked": true,
+  "authBodyBytesChecked": 59
+}

@@ -1,0 +1,30 @@
+{
+  "documentationVersion": "1.0",
+  "appVersion": "0.20.0",
+  "implementationProfile": "0.2",
+  "date": "2026-10-18",
+  "networkExperimentsRerunForPublication": false,
+  "sourceCommit": "90d78b5",
+  "inputs": [
+    {
+      "path": "verification/rivet-vps-probe-0.16.json",
+      "sha256": "217ec49ab07ee91a26a178335c500a9af16045ccd4b122d3da83a7112e953acc"
+    },
+    {
+      "path": "verification/rivet-ndpi-0.16.json",
+      "sha256": "393cb80f0ee0f1fe5ccac21d35bec0e470d217f335a63f837a9e789add436569"
+    },
+    {
+      "path": "verification/rivet-detection-0.16.json",
+      "sha256": "67b6f9943a04687a1dda2524ad771248603baa9920baa1ddf147e61d8f93af3b"
+    },
+    {
+      "path": "verification/android-rivet-outage-0.16.json",
+      "sha256": "1505d16a87b423fbc286158d8723a6caa39a8156539fb34f43a7a199fc9777dd"
+    },
+    {
+      "path": "verification/ubuntu-vm-protocols-019.json",
+      "sha256": "94c2f091ad8b0e2d91ee9943be73f73c8a10a929bdc619061c4ddc9ce430ca1e"
+    }
+  ]
+}
