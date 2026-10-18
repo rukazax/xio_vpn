@@ -1,0 +1,10 @@
+XIO privacy policy — 2026-10-18
+Developer: Konstantin Aleksandrovich Eryomin, er-ka@mail.ru.
+
+Profiles, SSH secrets and the acknowledgement are stored on this device. VPN traffic is encrypted to the endpoint selected by you. Its operator may observe connection addresses, destinations and metadata. The VPS stores managed users, permissions, status and traffic counters. XIO sends administration commands and user settings over SSH. Server addresses may be sent to ipapi.co for country flags. Connectivity checks visit your selected HTTPS endpoint (youtube.com by default). DNS and Tailscale control/DERP servers are selected by the profile.
+
+This build includes no analytics or advertising SDK and no automatic crash upload to the developer. Export sends credentials to your selected recipient. A server export may include administrative access. Never share it as a normal client profile.
+
+Delete local profiles or clear app data to remove local records. This does not remove your VPS, previously exported files or provider backups. Remote users and services require authorised server cleanup. General OS logs are not erased. For third-party VPN data, contact its operator. Support emails are handled to reply to you; do not include secrets.
+
+Android VPN and notification permissions are separate. The app does not request GPS, contacts or an advertising ID. Reading the launcher app list is used for split tunnelling. You can decline VPN and VPS administration. Mandatory rights under applicable law are not waived. This policy must be updated before changes in data handling. A developer-operated VPN requires additional disclosures about that operator’s processing.

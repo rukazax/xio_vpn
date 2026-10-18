@@ -1,0 +1,82 @@
+[
+  {
+    "q": "How do I connect?",
+    "a": "Review the licence notice and separate VPN disclosure. Tap + to paste a client key or select a file. Tap Connect on Home and grant Android VPN permission. A client profile does not grant VPS root access."
+  },
+  {
+    "q": "How do I install on my VPS?",
+    "a": "Tap + → VPN on your own server. Enter host, SSH port, authorised account and password or SSH key. The installer checks the OS and deploys the protocol set. Keep the wizard open until it finishes, then create a user."
+  },
+  {
+    "q": "Which VPS systems are supported?",
+    "a": "The installer requires amd64/x86_64, systemd and /dev/net/tun. It allows Debian12/13; Ubuntu22.04/24.04/26.04; CentOS Stream/Rocky/Alma/RHEL9/10. Allowlisting is not evidence that every version was tested. ARM VPS and Windows Server are not supported."
+  },
+  {
+    "q": "How is a protocol selected?",
+    "a": "Managed users have multiple profiles. The preferred protocol in Settings → Connection is tried first, then the available alternatives. Attempt time is configurable from5 to60seconds. OS permission and service startup may add time. A standalone imported profile has no other credentials to fall back to."
+  },
+  {
+    "q": "Why a connectivity website?",
+    "a": "XIO checks the configured HTTPS site after starting the tunnel; default youtube.com. A site unavailable from your VPS may cause a good tunnel to fail validation. Choose a suitable reachable endpoint. An HTTP200 does not prove all leak protection."
+  },
+  {
+    "q": "What is RIVET/H3?",
+    "a": "An experimental XIO transport: outer HTTP/3 CONNECT-UDP/MASQUE, inner QUIC/TLS1.3 and IP packets over QUIC DATAGRAM. It composes established cryptography rather than inventing an encryption algorithm. IP addresses, UDP usage and flow characteristics remain observable."
+  },
+  {
+    "q": "What is RIVET/S1?",
+    "a": "An experimental XIO transport: outer HTTPS/WebSocket with http/1.1 ALPN, inner independent TLS1.3 with device authentication. It provides a TCP option when UDP is unavailable. Timing, packet sizes and TLS fingerprints can differ from browsers."
+  },
+  {
+    "q": "Does RIVET bypass all blocking?",
+    "a": "No. IP/ASN blocks, allowlists, traffic correlation and active probing may interfere. No independent cryptographic audit or universal DPI indistinguishability is claimed. Separate entry/device secrets and session-bound authentication address specific risks only."
+  },
+  {
+    "q": "How do I create a user?",
+    "a": "Tap + → Add user or Settings → Users. Select a managed server and name. The owner can assign admin and an active-user limit. The bundle includes this user’s protocol settings; old profiles do not automatically receive newly generated secrets."
+  },
+  {
+    "q": "What can a delegated admin do?",
+    "a": "Create users within the active-user quota and revoke authorised profiles. This is not root access or permission to create further administrators. Revocation frees quota capacity."
+  },
+  {
+    "q": "How do I share or revoke?",
+    "a": "Settings → Users → Share sends a file or text containing secrets. Use a trusted recipient and secure channel. Revoke removes server access. Changes to Xray/Cloak users may restart their services and interrupt other sessions."
+  },
+  {
+    "q": "What is monthly traffic?",
+    "a": "A server snapshot of recorded user traffic for the current month, refreshed once per app process when reachable. Failed refresh retains the last snapshot. Offline is a server observation, not a statement that the person has no Internet connection."
+  },
+  {
+    "q": "How does split tunnelling work?",
+    "a": "Settings → Application: include or exclude applications or IP networks. Disconnect before saving. Engine limitations apply; platform IKEv2 does not support these rules here. If XIO itself is excluded, its own connectivity check cannot prove other apps’ route."
+  },
+  {
+    "q": "Does closing the app stop VPN?",
+    "a": "Removing the UI task should leave the service running. Force-stop, reboot and vendor battery restrictions can interrupt it. Configure background permission if needed. Always-on VPN and blocking connections without VPN are separate Android settings."
+  },
+  {
+    "q": "How do I use the Quick Settings tile?",
+    "a": "Add XIO VPN in Android Quick Settings or through the app button. After initial permissions and acknowledgement, the tile toggles the saved connection without opening XIO. Open XIO first if no profile or permission is available."
+  },
+  {
+    "q": "How do I transfer or remove a server?",
+    "a": "Settings → Servers allows rename, export, local removal or remote XIO cleanup. A server export can contain SSH credentials. Cleanup deletes users and XIO-owned files/packages/rules. It does not erase general OS logs or unrelated services."
+  },
+  {
+    "q": "Which third-party profiles can I import?",
+    "a": "WireGuard/AmneziaWG; supported VLESS REALITY/TLS, VMess AEAD, Trojan TLS and safe Xray JSON; Shadowsocks SIP002/JSON; inline OpenVPN credentials; IKEv2 EAP with trusted CA; Tailscale/Headscale control URL and exit-node profiles. Engine selection is automatic. Scripts, disabled TLS verification and arbitrary Tailscale OAuth are unsupported."
+  },
+  {
+    "q": "Does every Android device work?",
+    "a": "Builds support ARM64, ARMv7 and x86_64 on Android8/API26+. IKEv2 needs Android11/API30+ and IPsec support. 32-bit x86, Wear OS, Android Auto and every vendor firmware are not claimed. Tablet/foldable layouts adapt, but the system VPN API remains required."
+  },
+  {
+    "q": "Where is my acknowledgement?",
+    "a": "Settings → Licence and liability shows revision, UTC device time, text SHA-256, full GPLv3 and component licences. This device-only record is not an electronic signature and is cleared with app data. Contact er-ka@mail.ru."
+  },
+  {
+    "q": "Where do I change language and icon?",
+    "a": "Settings → Application provides language and icon choices. Theme follows the system. Rotated and colour icon variants are available; some launchers update with a delay."
+  }
+]
