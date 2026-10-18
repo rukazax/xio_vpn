@@ -1,0 +1,39 @@
+{
+  "tool": "nDPI6.0.0-1-1a52933",
+  "upstreamCommit": "1a5293396337f9a72dfee1fa070b2c4b0a0a3aaf",
+  "source": "https://github.com/ntop/nDPI/releases/tag/6.0",
+  "binarySha256": "f4f5b52bd432c59e8628e1c9b754fa657af65af263a03bd0896b9f1a6857173c",
+  "beforeALPNFix": {
+    "protocols": {
+      "QUIC": 11,
+      "TLS": 10,
+      "Unknown": 1
+    },
+    "missingALPNWarnings": 10,
+    "notHTTPSWarnings": 10,
+    "nonstandardPortWarnings": 21,
+    "dpiConfidenceFlows": 21
+  },
+  "afterALPNFix": {
+    "protocols": {
+      "QUIC": 10,
+      "TLS": 10
+    },
+    "missingALPNWarnings": 0,
+    "notHTTPSWarnings": 0,
+    "nonstandardPortWarnings": 20,
+    "dpiConfidenceFlows": 20
+  },
+  "wireguardPositiveControl": {
+    "protocols": {
+      "WireGuard": 1
+    },
+    "missingALPNWarnings": 0,
+    "notHTTPSWarnings": 0,
+    "nonstandardPortWarnings": 0,
+    "dpiConfidenceFlows": 1
+  },
+  "convertedCaptureSha256": "2fc5d9da925a187246e01e82af88dadbcc1737bc5d03b61caeb84433592f35d6",
+  "conversion": "SLL2 to synthetic Ethernet envelope only; IP packets unchanged",
+  "limits": "Short controlled sessions; one old midstream QUIC flow lacked Initial; labels do not prove indistinguishability or cross-country resistance; tool not bundled in APK"
+}

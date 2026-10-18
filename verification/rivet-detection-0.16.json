@@ -1,0 +1,35 @@
+{
+  "captureBytes": 416610,
+  "captureSha256": "ce309ea5414f21cc1a6dc262cd47666d4e3eca8f2df671c1b2c5e2b00b0d9feb",
+  "clientHelloCount": 20,
+  "visibleSNI": [
+    "econa.su"
+  ],
+  "visibleALPN": [
+    "h3",
+    "http/1.1"
+  ],
+  "observedJA3": {
+    "03117a8ed39ef02427ebbc39f121275c": 10,
+    "aeb4a42cd7925b343b143434a712dd00": 10
+  },
+  "plaintextMarkersPresent": {
+    "rivet/1": false,
+    "XIO": false,
+    "example.com": false
+  },
+  "deviceCredentialsNotFoundAsPlaintext": true,
+  "unauthenticatedWebSocketProbes": [
+    {
+      "path": "/api/stream",
+      "status": 404,
+      "bodySha256": "b16e15764b8bc06c5c3f9f19bc8b99fa48e7894aa5a6ccdad65da49bbf564793"
+    },
+    {
+      "path": "/unknown",
+      "status": 404,
+      "bodySha256": "b16e15764b8bc06c5c3f9f19bc8b99fa48e7894aa5a6ccdad65da49bbf564793"
+    }
+  ],
+  "classification": "No universal indistinguishability established. SNI, port 8443, Go TLS/QUIC fingerprints, sizes and timing remain observable. No real censorship-network or independent DPI product test performed."
+}

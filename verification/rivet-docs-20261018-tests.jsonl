@@ -1,0 +1,108 @@
+{"Time":"2026-10-18T20:26:19.864350747+03:00","Action":"start","Package":"xio.local/rivet/internal/rivet"}
+{"Time":"2026-10-18T20:26:19.871519147+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket"}
+{"Time":"2026-10-18T20:26:19.871561232+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket","Output":"=== RUN   TestBothCarriersFullSessionAndFragmentedPacket\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:19.895542511+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1"}
+{"Time":"2026-10-18T20:26:19.895565336+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1","Output":"=== RUN   TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:19.895681458+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1","Output":"2026/10/18 20:26:19 http: TLS handshake error from 127.0.0.1:56550: EOF\n"}
+{"Time":"2026-10-18T20:26:19.93158688+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1","Output":"2026/10/18 20:26:19 http: TLS handshake error from 127.0.0.1:56592: remote error: tls: bad certificate\n"}
+{"Time":"2026-10-18T20:26:20.005970181+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1","Output":"2026/10/18 20:26:20 http: TLS handshake error from 127.0.0.1:56600: remote error: tls: bad certificate\n"}
+{"Time":"2026-10-18T20:26:24.920966955+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1","Output":"--- PASS: TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1 (5.03s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:24.920989035+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-s1","Elapsed":5.03}
+{"Time":"2026-10-18T20:26:24.922390548+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3"}
+{"Time":"2026-10-18T20:26:24.922397238+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"=== RUN   TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:24.931048014+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:24 connection doesn't allow setting of receive buffer size. Not a *net.UDPConn?. See https://github.com/quic-go/quic-go/wiki/UDP-Buffer-Sizes for details.\n"}
+{"Time":"2026-10-18T20:26:24.962246022+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:24 reading from request stream failed: quic: transport closed\n"}
+{"Time":"2026-10-18T20:26:24.999533494+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:24 reading from request stream failed: EOF\n"}
+{"Time":"2026-10-18T20:26:24.999598582+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:24 proxying receive side to 127.0.0.1:7444 failed: read udp 127.0.0.1:51927-\u003e127.0.0.1:7444: use of closed network connection\n"}
+{"Time":"2026-10-18T20:26:29.946717559+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:29 reading from request stream failed: EOF\n"}
+{"Time":"2026-10-18T20:26:29.9468279+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:29 proxying receive side to 127.0.0.1:7444 failed: read udp 127.0.0.1:52916-\u003e127.0.0.1:7444: use of closed network connection\n"}
+{"Time":"2026-10-18T20:26:30.013074657+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"2026/10/18 20:26:30 reading from request stream failed: quic: transport closed\n"}
+{"Time":"2026-10-18T20:26:30.013550281+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Output":"--- PASS: TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3 (5.09s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.013583131+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket/rivet-h3","Elapsed":5.09}
+{"Time":"2026-10-18T20:26:30.013749716+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket","Output":"2026/10/18 20:26:30 proxying send side to 127.0.0.1:7444 failed: H3_CONNECT_ERROR (local)\n"}
+{"Time":"2026-10-18T20:26:30.01392547+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket","Output":"2026/10/18 20:26:30 proxying send side to 127.0.0.1:7444 failed: H3_CONNECT_ERROR (local)\n"}
+{"Time":"2026-10-18T20:26:30.01779609+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket","Output":"--- PASS: TestBothCarriersFullSessionAndFragmentedPacket (10.15s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.01781447+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestBothCarriersFullSessionAndFragmentedPacket","Elapsed":10.15}
+{"Time":"2026-10-18T20:26:30.017823127+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestNoClassicalGroupFallback"}
+{"Time":"2026-10-18T20:26:30.017827008+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestNoClassicalGroupFallback","Output":"=== RUN   TestNoClassicalGroupFallback\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.022734539+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestNoClassicalGroupFallback","Output":"--- PASS: TestNoClassicalGroupFallback (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.022772754+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestNoClassicalGroupFallback","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.02278164+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestUnauthenticatedPathsAndProxyTarget"}
+{"Time":"2026-10-18T20:26:30.022785351+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestUnauthenticatedPathsAndProxyTarget","Output":"=== RUN   TestUnauthenticatedPathsAndProxyTarget\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.024362095+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestUnauthenticatedPathsAndProxyTarget","Output":"--- PASS: TestUnauthenticatedPathsAndProxyTarget (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.024391702+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestUnauthenticatedPathsAndProxyTarget","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.024403562+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestCarrierHandshakeHonorsAttemptDeadline"}
+{"Time":"2026-10-18T20:26:30.02440757+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestCarrierHandshakeHonorsAttemptDeadline","Output":"=== RUN   TestCarrierHandshakeHonorsAttemptDeadline\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.086418994+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestCarrierHandshakeHonorsAttemptDeadline","Output":"--- PASS: TestCarrierHandshakeHonorsAttemptDeadline (0.06s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.086521648+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestCarrierHandshakeHonorsAttemptDeadline","Elapsed":0.06}
+{"Time":"2026-10-18T20:26:30.086552967+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestWebSocketAdvertisesHTTP11ALPN"}
+{"Time":"2026-10-18T20:26:30.086564179+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestWebSocketAdvertisesHTTP11ALPN","Output":"=== RUN   TestWebSocketAdvertisesHTTP11ALPN\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.12604839+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestWebSocketAdvertisesHTTP11ALPN","Output":"--- PASS: TestWebSocketAdvertisesHTTP11ALPN (0.04s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.126148358+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestWebSocketAdvertisesHTTP11ALPN","Elapsed":0.04}
+{"Time":"2026-10-18T20:26:30.126186527+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestGatewayStopsWhenTunReaderFails"}
+{"Time":"2026-10-18T20:26:30.126204105+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestGatewayStopsWhenTunReaderFails","Output":"=== RUN   TestGatewayStopsWhenTunReaderFails\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.134643031+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestGatewayStopsWhenTunReaderFails","Output":"--- PASS: TestGatewayStopsWhenTunReaderFails (0.01s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.134718938+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestGatewayStopsWhenTunReaderFails","Elapsed":0.01}
+{"Time":"2026-10-18T20:26:30.134742178+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestFramesBounded"}
+{"Time":"2026-10-18T20:26:30.134752248+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestFramesBounded","Output":"=== RUN   TestFramesBounded\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.135007075+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestFramesBounded","Output":"--- PASS: TestFramesBounded (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.135045399+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestFramesBounded","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.135064427+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentsReplayWindow"}
+{"Time":"2026-10-18T20:26:30.135073842+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentsReplayWindow","Output":"=== RUN   TestFragmentsReplayWindow\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.135623497+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentsReplayWindow","Output":"--- PASS: TestFragmentsReplayWindow (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.135660845+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentsReplayWindow","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.13567876+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentOverlapExpiryLimits"}
+{"Time":"2026-10-18T20:26:30.135689003+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentOverlapExpiryLimits","Output":"=== RUN   TestFragmentOverlapExpiryLimits\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.175626727+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentOverlapExpiryLimits","Output":"--- PASS: TestFragmentOverlapExpiryLimits (0.04s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.175662653+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestFragmentOverlapExpiryLimits","Elapsed":0.04}
+{"Time":"2026-10-18T20:26:30.175683636+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestSealIdentityBinding"}
+{"Time":"2026-10-18T20:26:30.17568824+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestSealIdentityBinding","Output":"=== RUN   TestSealIdentityBinding\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.175808963+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestSealIdentityBinding","Output":"--- PASS: TestSealIdentityBinding (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.175823723+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestSealIdentityBinding","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.175829109+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestParamsCanonical"}
+{"Time":"2026-10-18T20:26:30.175832251+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestParamsCanonical","Output":"=== RUN   TestParamsCanonical\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.176051136+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestParamsCanonical","Output":"--- PASS: TestParamsCanonical (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.176069022+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestParamsCanonical","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.176073542+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestSourceAndInfrastructureProtection"}
+{"Time":"2026-10-18T20:26:30.176089726+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestSourceAndInfrastructureProtection","Output":"=== RUN   TestSourceAndInfrastructureProtection\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.176183435+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestSourceAndInfrastructureProtection","Output":"--- PASS: TestSourceAndInfrastructureProtection (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.176196294+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestSourceAndInfrastructureProtection","Elapsed":0}
+{"Time":"2026-10-18T20:26:30.176200778+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession"}
+{"Time":"2026-10-18T20:26:30.176203943+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession","Output":"=== RUN   TestHybridAuthenticatedSession\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:30.176207154+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/valid"}
+{"Time":"2026-10-18T20:26:30.17621044+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/valid","Output":"=== RUN   TestHybridAuthenticatedSession/valid\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:35.186482424+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/valid","Output":"--- PASS: TestHybridAuthenticatedSession/valid (5.01s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:35.186559759+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/valid","Elapsed":5.01}
+{"Time":"2026-10-18T20:26:35.186581181+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/wrong-secret"}
+{"Time":"2026-10-18T20:26:35.186591643+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/wrong-secret","Output":"=== RUN   TestHybridAuthenticatedSession/wrong-secret\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:35.209699034+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/wrong-secret","Output":"--- PASS: TestHybridAuthenticatedSession/wrong-secret (0.02s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:35.209744146+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession/wrong-secret","Elapsed":0.02}
+{"Time":"2026-10-18T20:26:35.209773803+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession","Output":"--- PASS: TestHybridAuthenticatedSession (5.03s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:35.209784796+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestHybridAuthenticatedSession","Elapsed":5.03}
+{"Time":"2026-10-18T20:26:35.209898519+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestWrongPinRejected"}
+{"Time":"2026-10-18T20:26:35.209917419+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestWrongPinRejected","Output":"=== RUN   TestWrongPinRejected\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.214246426+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestWrongPinRejected","Output":"--- PASS: TestWrongPinRejected (3.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.214352479+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestWrongPinRejected","Elapsed":3}
+{"Time":"2026-10-18T20:26:38.214384459+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"TestProofCannotCrossTLSOrCarrier"}
+{"Time":"2026-10-18T20:26:38.214402109+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestProofCannotCrossTLSOrCarrier","Output":"=== RUN   TestProofCannotCrossTLSOrCarrier\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.214973014+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"TestProofCannotCrossTLSOrCarrier","Output":"--- PASS: TestProofCannotCrossTLSOrCarrier (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.215027514+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"TestProofCannotCrossTLSOrCarrier","Elapsed":0}
+{"Time":"2026-10-18T20:26:38.215059573+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame"}
+{"Time":"2026-10-18T20:26:38.215101499+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame","Output":"=== RUN   FuzzFrame\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.215451591+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame/seed#0"}
+{"Time":"2026-10-18T20:26:38.215495949+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame/seed#0","Output":"=== RUN   FuzzFrame/seed#0\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.21569994+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame/seed#0","Output":"--- PASS: FuzzFrame/seed#0 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.215744181+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame/seed#0","Elapsed":0}
+{"Time":"2026-10-18T20:26:38.215784763+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame","Output":"--- PASS: FuzzFrame (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.215820393+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFrame","Elapsed":0}
+{"Time":"2026-10-18T20:26:38.215862373+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments"}
+{"Time":"2026-10-18T20:26:38.215879922+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments","Output":"=== RUN   FuzzFragments\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.216118302+03:00","Action":"run","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments/seed#0"}
+{"Time":"2026-10-18T20:26:38.216160386+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments/seed#0","Output":"=== RUN   FuzzFragments/seed#0\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.216345732+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments/seed#0","Output":"--- PASS: FuzzFragments/seed#0 (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.216417143+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments/seed#0","Elapsed":0}
+{"Time":"2026-10-18T20:26:38.216449374+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments","Output":"--- PASS: FuzzFragments (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:38.216476165+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Test":"FuzzFragments","Elapsed":0}
+{"Time":"2026-10-18T20:26:38.216498914+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Output":"PASS\n","OutputType":"frame"}
+{"Time":"2026-10-18T20:26:39.23097468+03:00","Action":"output","Package":"xio.local/rivet/internal/rivet","Output":"ok  \txio.local/rivet/internal/rivet\t19.366s\n"}
+{"Time":"2026-10-18T20:26:39.231044967+03:00","Action":"pass","Package":"xio.local/rivet/internal/rivet","Elapsed":19.367}

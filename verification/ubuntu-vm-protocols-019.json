@@ -1,0 +1,228 @@
+[
+  {
+    "protocol": "wireguard",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 77
+      }
+    },
+    "elapsed": 0.13,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332940137,
+        "id": "qa019",
+        "protocol": "wireguard",
+        "rx": 11852,
+        "tx": 4628
+      }
+    }
+  },
+  {
+    "protocol": "awg",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 69
+      }
+    },
+    "elapsed": 0.1,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332943448,
+        "id": "qa019",
+        "protocol": "awg",
+        "rx": 11772,
+        "tx": 5583
+      }
+    }
+  },
+  {
+    "protocol": "rivet-h3",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 797
+      }
+    },
+    "elapsed": 0.81,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332947093,
+        "id": "qa019",
+        "ip": "10.79.0.2",
+        "phase": "connected",
+        "protocol": "rivet-h3",
+        "rx": 10916,
+        "secure": true,
+        "tx": 3534
+      }
+    }
+  },
+  {
+    "protocol": "rivet-s1",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 810
+      }
+    },
+    "elapsed": 0.82,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332951207,
+        "id": "qa019",
+        "ip": "10.79.0.2",
+        "phase": "connected",
+        "protocol": "rivet-s1",
+        "rx": 10420,
+        "secure": true,
+        "tx": 3420
+      }
+    }
+  },
+  {
+    "protocol": "xray",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 37
+      }
+    },
+    "elapsed": 0.06,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332959256,
+        "id": "qa019",
+        "protocol": "xray",
+        "rx": 9112,
+        "secure": true,
+        "tx": 1678
+      }
+    }
+  },
+  {
+    "protocol": "shadowsocks",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 27
+      }
+    },
+    "elapsed": 0.04,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332962989,
+        "id": "qa019",
+        "protocol": "shadowsocks",
+        "rx": 9087,
+        "secure": true,
+        "tx": 1678
+      }
+    }
+  },
+  {
+    "protocol": "tailscale",
+    "connect": {
+      "ok": true,
+      "value": {
+        "connectMillis": 3038
+      }
+    },
+    "elapsed": 3.05,
+    "ip": {
+      "code": 0,
+      "response": "81.177.142.37 HTTP:200",
+      "error": ""
+    },
+    "web": {
+      "code": 0,
+      "response": " HTTP:200",
+      "error": ""
+    },
+    "status": {
+      "ok": true,
+      "value": {
+        "active": true,
+        "handshake": 1792332969056,
+        "id": "qa019",
+        "protocol": "tailscale",
+        "rx": 10458,
+        "secure": true,
+        "tx": 4183
+      }
+    }
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "physicalDeviceTested": false,
+  "server": "81.177.142.37",
+  "apkSha256": "665661e2b50b23ad5be3aefb9bef012ff2c1255249a67c1c7ad64c51c69c4d5d",
+  "before": "HTTP 200\nfl=904f176\nh=1.1.1.1\nip=81.177.142.37\nts=1792288998.000\nvisit_scheme=https\nuag=Dalvik/2.1.0 (Linux; U; Android 15; Android SDK built for x86_64 Build/AE3A.240806.019)\ncolo=DME\nsliver=none\nhttp=http/1.1\nloc=RU\ntls=TLSv1.3\nsni=off\nwarp=off\ngateway=off\nrbi=of\nms=463\n\n\nXIO Network QA",
+  "during": "BLOCKED SocketTimeoutException\nms=6009\n\n\nXIO Network QA",
+  "tunRetained": true,
+  "after": "HTTP 200\nfl=903f53\nh=1.1.1.1\nip=81.177.142.37\nts=1792289044.000\nvisit_scheme=https\nuag=Dalvik/2.1.0 (Linux; U; Android 15; Android SDK built for x86_64 Build/AE3A.240806.019)\ncolo=DME\nsliver=none\nhttp=http/1.1\nloc=RU\ntls=TLSv1.3\nsni=off\nwarp=off\ngateway=off\nrbi=off\nms=1509\n\n\nXIO Network QA",
+  "tunRetainedAfterRecovery": true,
+  "recoveryElapsedSeconds": 45.57
+}
