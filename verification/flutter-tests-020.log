@@ -1,0 +1,113 @@
+Resolving dependencies...
+Downloading packages...
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.3 available)
+Got dependencies!
+4 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/vps_debian_test.dart
+00:00 +0: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/vps_debian_test.dart: real Debian VPS SSH pin, preflight and application WG installer
+00:00 +0 ~1: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/desktop_adapter_test.dart: read-only inspection of the installed Tailscale service
+00:00 +0 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+00:00 +1 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+00:00 +2 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+00:01 +3 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+00:01 +4 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+00:01 +5 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+00:01 +6 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/ssh_trust_test.dart: VPS setup needs address and credentials without fingerprint field
+00:02 +7 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:02 +8 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:02 +9 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:02 +10 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +11 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +12 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +13 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +14 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +15 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +16 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +17 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+00:03 +18 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/server_actions_test.dart: local deletion needs confirmation, no SSH and preserves remote choice
+00:04 +19 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:04 +20 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:04 +21 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:05 +22 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:05 +23 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:05 +24 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:05 +25 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+00:05 +26 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +27 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +28 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +28 ~2: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/desktop_profile_test.dart: desktop encrypted import/export keeps all ten protocols
+  Skip: Private isolated profile required
+00:05 +28 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +29 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +30 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +31 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +32 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +33 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +34 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:05 +35 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +36 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +37 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +38 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +39 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +40 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +41 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +42 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:06 +43 ~3: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:06 +43 ~4: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:06 +43 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +44 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +45 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +46 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +47 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +48 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +49 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +50 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +51 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +52 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +53 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+00:07 +54 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:07 +55 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:07 +56 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:07 +57 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:08 +58 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:08 +59 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:08 +60 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:08 +61 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:08 +62 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:08 +63 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:09 +64 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:09 +65 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:09 +66 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:09 +67 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:09 +68 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:09 +69 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +70 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +71 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +72 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +73 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +74 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +75 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +76 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +77 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +78 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:10 +79 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/legal_consent_test.dart: first run needs two separate unchecked acknowledgements and persists receipt
+00:11 +80 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:11 +81 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:11 +82 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:11 +83 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:11 +84 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:12 +85 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:12 +86 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:13 +87 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:13 +88 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:13 +89 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:14 +90 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:14 +91 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:14 +92 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:15 +93 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:21 +94 ~5: /home/abx/Documents/Codex/2026-10-16-vpn-vps/x1o/app/test/l10n_test.dart: (tearDownAll)
+00:21 +94 ~5: All tests passed!

@@ -1,0 +1,9 @@
+{
+  "version": "0.20.0+5002",
+  "change": "Shared settings hierarchy and bilingual project documentation",
+  "android": "Three signed APKs, package checks passed; physical device not tested",
+  "ubuntu": "Release DEB and tar.gz; helper unchanged from 0.19",
+  "windows": "New Windows AOT with previous runner/helper; native Windows network testing pending",
+  "ios": "Source only, no signed IPA",
+  "vps": "No new installation or protocol test in this update"
+}
