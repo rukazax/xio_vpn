@@ -1,0 +1,25 @@
+{
+  "publishedAtUtc": "2026-10-18T17:46:43.803006+00:00",
+  "platform": "Telegraph",
+  "posts": [
+    {
+      "language": "ru",
+      "url": "https://telegra.ph/XIO-otkrytyj-klient-dlya-svoego-VPN-servera-i-ehksperimentalnye-transporty-RIVET-10-18",
+      "path": "XIO-otkrytyj-klient-dlya-svoego-VPN-servera-i-ehksperimentalnye-transporty-RIVET-10-18",
+      "title": "XIO: открытый клиент для своего VPN-сервера и экспериментальные транспорты RIVET",
+      "publicHttp200": true,
+      "contentRoundTripVerified": true,
+      "inputSha256": "dbd47bee28d2920e147b6cdeb314881ad331fb4576b6c01d7bf997f335539040"
+    },
+    {
+      "language": "en",
+      "url": "https://telegra.ph/XIO-an-open-client-for-your-own-VPN-server-and-experimental-RIVET-transports-10-18",
+      "path": "XIO-an-open-client-for-your-own-VPN-server-and-experimental-RIVET-transports-10-18",
+      "title": "XIO: an open client for your own VPN server and experimental RIVET transports",
+      "publicHttp200": true,
+      "contentRoundTripVerified": true,
+      "inputSha256": "6cb4fddc2ff9d5545dce24b62832e8ab28624bc6844f29337a3719dfec470bf0"
+    }
+  ],
+  "trafficOrIndependentEndorsementClaimed": false
+}
