@@ -1,3 +1,11 @@
+# Public launch — 2026-10-18
+
+RU: Репозиторий открыт. Добавлены topics, Discussions и русская/английская публикации Telegraph. Код и версия приложения не менялись.
+
+EN: Repository made public. Added topics, Discussions and Russian/English Telegraph introductions. Application code and version are unchanged.
+
+[Блог / Blog](docs/blog/2026-10-18-public-launch.md).
+
 # Documentation 1.0 — 2026-10-18
 
 RU: Подробная двуязычная библиотека RIVET/H3 и RIVET/S1, схемы, графики, источники данных и эксплуатационные ограничения. Код приложения 0.20.0 не изменён.
