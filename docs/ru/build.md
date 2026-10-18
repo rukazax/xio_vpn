@@ -39,3 +39,6 @@ flutter build appbundle --release
 Нужны Mac/Xcode, iOS SDK, ваша команда Apple Developer и подходящая регистрация NetworkExtension. Настройте App IDs, app group, keychain group и provisioning. Затем задайте `XIO_APPLE_TEAM_ID`, `XIO_IOS_EXPORT_OPTIONS` и выполните `tooling/cross-platform/build-ios.sh`. Не помещайте сертификаты и provisioning-секреты в репозиторий. Исходная интеграция iOS поддерживает только RIVET/H3 и S1 и требует реального тестирования.
 
 [Лицензия](../../LICENSE) · [Условия компонентов](../../THIRD-PARTY-NOTICES.md) · [Помощь разработчикам](../../CONTRIBUTING.md)
+
+
+Нативный Android runtime сохранён из 0.18. Для его точной пересборки используйте `native-sources/android-runtime-0.18` из полного исходного архива и README этого каталога. [Происхождение исходников](../native-source-provenance.md).
