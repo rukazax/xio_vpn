@@ -1,3 +1,11 @@
+# Documentation 1.0 — 2026-10-18
+
+RU: Подробная двуязычная библиотека RIVET/H3 и RIVET/S1, схемы, графики, источники данных и эксплуатационные ограничения. Код приложения 0.20.0 не изменён.
+
+EN: Detailed bilingual RIVET/H3 and RIVET/S1 library, diagrams, charts, evidence inputs and operational boundaries. Application 0.20.0 code is unchanged.
+
+[Блог / Blog](docs/blog/2026-10-18-rivet.md).
+
 # Changelog / История изменений
 
 ## 0.20.0
