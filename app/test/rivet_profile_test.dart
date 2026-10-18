@@ -1,0 +1,85 @@
+import 'dart:convert';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:x1o/core.dart';
+
+Map<String, dynamic> fixture(String protocol) => {
+  'protocol': protocol,
+  'endpoint': 'vpn.example:8443',
+  'serverName': 'vpn.example',
+  'pin': base64Encode(List.filled(32, 1)),
+  'gatewayId': base64Encode(List.filled(16, 2)),
+  'id': 'a' * 32,
+  'secret': base64Encode(List.filled(32, 3)),
+  'entryToken': base64Encode(List.filled(32, 4)),
+  'ip': '10.79.0.2',
+};
+void main() {
+  test(
+    'protocol preference keeps paired RIVET fallback before legacy paths',
+    () {
+      final paths = ['wireguard', 'awg', 'rivet-h3', 'rivet-s1'];
+      paths.sort(
+        (a, b) => protocolPreference(
+          a,
+          'rivet-h3',
+        ).compareTo(protocolPreference(b, 'rivet-h3')),
+      );
+      expect(paths, ['rivet-h3', 'rivet-s1', 'awg', 'wireguard']);
+      expect(protocolPreference('rivet-h3', 'rivet-h3'), 0);
+    },
+  );
+  test(
+    'RIVET client profiles detect both transports without engine selection',
+    () {
+      for (final p in rivetProtocols) {
+        final raw = jsonEncode(fixture(p));
+        expect(ClientImport.parse(raw).protocol, p);
+        expect(ClientImport.detect(raw), p);
+      }
+    },
+  );
+  test('multi-protocol export preserves all four keys without SSH access', () {
+    final b = UserBundle('A', 'a' * 32, 's', {
+      'rivet-h3': jsonEncode(fixture('rivet-h3')),
+      'rivet-s1': jsonEncode(fixture('rivet-s1')),
+      'wireguard': 'wg',
+      'awg': 'awg',
+    });
+    final decoded = UserBundle.decode(b.encode());
+    expect(decoded.configs.keys.toSet(), {
+      'rivet-h3',
+      'rivet-s1',
+      'wireguard',
+      'awg',
+    });
+    expect(decoded.adminAccess, isNull);
+  });
+  test(
+    'reject unsafe endpoints, unsupported fields and inconsistent credentials',
+    () {
+      for (final patch in <Map<String, dynamic>>[
+        {'endpoint': 'u:p@vpn.example:8443'},
+        {'endpoint': 'vpn.example:8443/path'},
+        {'endpoint': 'vpn.example:8443?q=x'},
+        {'endpoint': 'vpn.example'},
+        {'ip': '10.79.0.1'},
+        {'ip': '10.79.0.255'},
+        {'ip': '192.168.1.2'},
+        {'pin': base64Encode(List.filled(31, 1))},
+        {'id': '../x'},
+        {'entryToken': base64Encode(List.filled(32, 3))},
+        {'insecureSkipVerify': true},
+        {'secret': 'bad'},
+      ]) {
+        expect(
+          () => RivetProfile.parse(
+            jsonEncode({...fixture('rivet-h3'), ...patch}),
+          ),
+          throwsFormatException,
+          reason: patch.keys.join(','),
+        );
+      }
+    },
+  );
+}
