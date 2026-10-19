@@ -65,8 +65,11 @@ flowchart TD
 <img src="docs/images/settings-ru.png" alt="Settings" width="260"> <img src="docs/images/about-ru.png" alt="About XIO" width="260">
 
 
-Полный комплект исходников и зависимостей находится в `XIO-0.20.0-source.zip` на [странице релиза](https://github.com/rukazax/xio_vpn/releases/tag/v0.20.0). Точные исходники встроенного Android runtime находятся в `native-sources/android-runtime-0.18` внутри архива. [Происхождение компонентов](docs/native-source-provenance.md).
+Полный комплект исходников и зависимостей находится в `XIO-0.21.0-source.zip` на [странице релиза](https://github.com/rukazax/xio_vpn/releases/tag/v0.21.0). Точные исходники встроенного Android runtime находятся в `native-sources/android-runtime-0.18` внутри архива. [Происхождение компонентов](docs/native-source-provenance.md).
 
 [Статьи о RIVET: схемы, форматы и испытания](docs/protocols/README.md) · [Блог разработки](docs/blog/2026-10-18-rivet.md).
 
 [Представление проекта и открытое обсуждение](publishing/public-launch/README.md).
+
+
+[Обновления приложения](docs/ru/updates.md) · [Блог 0.21](docs/blog/2026-10-19-updates.md).

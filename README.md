@@ -65,8 +65,11 @@ Screenshots from the shared Flutter UI test.
 <img src="docs/images/settings-en.png" alt="Settings" width="260"> <img src="docs/images/about-en.png" alt="About XIO" width="260">
 
 
-The complete source and dependency bundle is `XIO-0.20.0-source.zip` on the [release page](https://github.com/rukazax/xio_vpn/releases/tag/v0.20.0). The exact shipped Android runtime source is under `native-sources/android-runtime-0.18` inside that archive. [Component provenance](docs/native-source-provenance.md).
+The complete source and dependency bundle is `XIO-0.21.0-source.zip` on the [release page](https://github.com/rukazax/xio_vpn/releases/tag/v0.21.0). The exact shipped Android runtime source is under `native-sources/android-runtime-0.18` inside that archive. [Component provenance](docs/native-source-provenance.md).
 
 [RIVET articles: diagrams, wire formats and tests](docs/protocols/README.md) · [Development blog](docs/blog/2026-10-18-rivet.md).
 
 [Project introduction and public discussion](publishing/public-launch/README.md).
+
+
+[Application updates](docs/en/updates.md) · [0.21 blog](docs/blog/2026-10-19-updates.md).
