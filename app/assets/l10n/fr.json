@@ -375,5 +375,22 @@
   "Установить VPN": "Install VPN",
   "Установка всех доступных протоколов XIO на совместимый Linux VPS. Нужны x86_64, systemd, TUN и права администратора. Будут добавлены пакеты, сетевые службы и правила firewall. Создаётся отдельный профиль пользователя для подключения; чужие службы и общие журналы ОС не стираются.": "Install all available XIO protocols on a compatible Linux VPS. Requires x86_64, systemd, TUN and administrative privileges. Packages, network services and firewall rules will be added. A separate user profile provides connectivity. Unrelated services and general OS logs are preserved.",
   "Политика конфиденциальности": "Privacy policy",
-  "XIO · X in 1 out\nВерсия 0.20.0": "XIO · X in 1 out\nVersion 0.20.0"
+  "XIO · X in 1 out\nВерсия 0.20.0": "XIO · X in 1 out\nVersion 0.20.0",
+  "Проверить обновления": "Rechercher des mises à jour",
+  "Автоматически раз в неделю, в случайное время": "Chaque semaine, à une heure aléatoire",
+  "Поделиться приложением": "Partager l’application",
+  "Ссылка на приложение скопирована": "Lien copié",
+  "Доступно обновление {0}": "Mise à jour {0} disponible",
+  "Позже": "Plus tard",
+  "Пропустить релиз": "Ignorer cette version",
+  "Обновить": "Mettre à jour",
+  "Обновление XIO": "Mise à jour de XIO",
+  "Установлена последняя версия": "La dernière version est installée",
+  "Не удалось проверить обновления. Повторите позже.": "Recherche impossible. Réessayez plus tard.",
+  "Установка обновления не завершена": "Installation de la mise à jour inachevée",
+  "Для этой платформы откроется страница релиза": "La page de la version s’ouvrira pour cette plateforme",
+  "Android запросит разрешение на установку. После установки пакет будет удалён.": "Android demandera l’autorisation d’installer. Le paquet sera supprimé après installation.",
+  "Приложение перезапустится после установки. Настройки сохранятся.": "L’application redémarrera après installation. Les réglages seront conservés.",
+  "Разрешите установку приложений из XIO и нажмите «Обновить» ещё раз.": "Autorisez XIO à installer des applications, puis appuyez de nouveau sur Mettre à jour.",
+  "XIO · X in 1 out\nВерсия 0.21.0": "XIO · X in 1 out\nVersion 0.21.0"
 }
