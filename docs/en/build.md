@@ -42,3 +42,14 @@ Use a Mac with Xcode, the iOS SDK, your Apple Developer team and appropriate Net
 
 
 The native Android runtime is retained from 0.18. For an exact source rebuild, use `native-sources/android-runtime-0.18` from the full source archive and its README. [Source provenance](../native-source-provenance.md).
+
+
+## Windows AOT packaging on Linux
+
+Do not reuse a Dart kernel compiled for Android or Linux: its operating-system constant is fixed during kernel generation. `tooling/cross-platform/build-windows-on-linux.py` accepts a prebuilt Windows runner and Windows gen_snapshot matching the Flutter revision. Its running Windows probe checks `Platform.isWindows`, seven helper capabilities and ZIP extraction. It then separately compiles `lib/main.dart` with `--target-platform=windows-x64`.
+
+```sh
+python3 tooling/cross-platform/build-windows-on-linux.py --runner BUNDLE_PATH --gen-snapshot GEN_SNAPSHOT_EXE_PATH --wine-prefix WINE_PREFIX_PATH
+```
+
+This does not replace native Windows validation: Wintun, UAC and PowerShell file replacement still require a real Windows host. The primary supported build path remains `tools/build-windows.ps1` on Windows.
