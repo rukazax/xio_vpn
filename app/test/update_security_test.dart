@@ -1,3 +1,5 @@
+import 'package:crypto/crypto.dart' as hash;
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -24,6 +26,35 @@ void main() {
       },
     },
   };
+  test('published envelope verifies with the pinned key and matches final packages', () async {
+    final release = await verifyReleaseEnvelope(
+      await File('../releases/XIO-update.json').readAsBytes(),
+      base64Decode(
+        (await File(
+          'assets/security/update-ed25519.pub',
+        ).readAsString()).trim(),
+      ),
+    );
+    expect(release.version, xioVersion);
+    expect(release.build, xioBuild);
+    for (final platform in [
+      'android-arm64-v8a',
+      'android-armeabi-v7a',
+      'android-x86_64',
+      'linux-x64',
+      'windows-x64',
+    ]) {
+      final asset = release.forPlatform(platform)!;
+      final file = File(
+        '../releases/${Uri.parse(asset.url).pathSegments.last}',
+      );
+      expect(await file.length(), asset.size);
+      expect(
+        (await hash.sha256.bind(file.openRead()).first).toString(),
+        asset.sha256,
+      );
+    }
+  }, skip: !File('../releases/XIO-update.json').existsSync());
   test(
     'only strictly newer semantic versions qualify, never documentation tags',
     () {
