@@ -237,6 +237,28 @@ class MainActivity : FlutterActivity() {
                         ) { code -> result.success(code) }
                     } else result.success(-1)
                 }
+                "prepareUpdateInstall" -> {
+                    val allowed=packageManager.canRequestPackageInstalls()
+                    if(!allowed)startActivity(Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,android.net.Uri.parse("package:$packageName")))
+                    result.success(allowed)
+                }
+                "consumeUpdateRequest" -> { val requested=intent.getBooleanExtra("checkUpdates",false);intent.removeExtra("checkUpdates");result.success(requested) }
+                "updateAbi" -> result.success(android.os.Build.SUPPORTED_ABIS.firstOrNull { it in listOf("arm64-v8a","armeabi-v7a","x86_64") } ?: "unsupported")
+                "scheduleUpdateCheck" -> { UpdateJob.schedule(this,call.argument<Number>("at")?.toLong()); result.success(null) }
+                "installUpdate" -> {
+                    try { UpdateInstaller.install(this, call.argument<String>("path") ?: ""); result.success(null) }
+                    catch (_: Exception) { result.error("UPDATE", "Установка обновления не завершена", null) }
+                }
+                "openExternalLink" -> {
+                    try {
+                        val uri = android.net.Uri.parse(call.argument<String>("url") ?: "")
+                        require(uri.scheme == "https" && uri.userInfo == null)
+                        startActivity(Intent(Intent.ACTION_VIEW,uri)); result.success(null)
+                    } catch (_: Exception) { result.error("LINK","Не удалось открыть ссылку",null) }
+                }
+                "shareApplication" -> {
+                    startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type="text/plain";putExtra(Intent.EXTRA_TEXT,call.argument<String>("text")) },"XIO"));result.success(null)
+                }
                 "openSupportLink" -> {
                     try {
                         startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://x1o.org/pay")))
@@ -355,6 +377,7 @@ class MainActivity : FlutterActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if(intent.getBooleanExtra("checkUpdates",false) && ::engineChannel.isInitialized) engineChannel.invokeMethod("requestUpdates",null)
         handleTileIntent()
     }
     override fun onPostResume() {
