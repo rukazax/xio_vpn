@@ -1,0 +1,76 @@
+{
+  "tag": "v0.22.0",
+  "allTenAssetsVerified": true,
+  "files": [
+    {
+      "name": "XIO-0.22.0-android-arm64-v8a.apk",
+      "size": 60563283,
+      "sha256": "414a25e3388194894c7a86be155e220f6d5d866a51da40072ede40e605163bad",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-arm64-v8a.apk"
+    },
+    {
+      "name": "XIO-0.22.0-android-armeabi-v7a.apk",
+      "size": 60516909,
+      "sha256": "f4551ec25642947dbf41b9366c5d3df2bda6468e77ddf7a3794c36cbd6738b54",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-armeabi-v7a.apk"
+    },
+    {
+      "name": "XIO-0.22.0-android-x86_64.apk",
+      "size": 61842708,
+      "sha256": "43c33092c06274337a14201c17490b7345d9a009e2cac8ef75efa0d72eb2b187",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-x86_64.apk"
+    },
+    {
+      "name": "XIO-0.22.0-google-play.aab",
+      "size": 183435683,
+      "sha256": "1347c1e5b28d5dd2895234edcf1305676de98ab67bf794cec407acca45b1d082",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-google-play.aab"
+    },
+    {
+      "name": "XIO-0.22.0-source.zip",
+      "size": 373970769,
+      "sha256": "224aeb404441c24859634b02b09e527471dc648404d9bd1bcf5e669abeb02839",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-source.zip"
+    },
+    {
+      "name": "XIO-0.22.0-ubuntu-amd64.deb",
+      "size": 53912862,
+      "sha256": "311d65f37230087907482c103547dde3ede04d3fedfd7c00df90d55cd52ae6b7",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-amd64.deb"
+    },
+    {
+      "name": "XIO-0.22.0-ubuntu-x64.tar.gz",
+      "size": 60557060,
+      "sha256": "549838530a01dbde7edefac8f66c67553676cdd8b450241a6710fb516a737e11",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-x64.tar.gz"
+    },
+    {
+      "name": "XIO-0.22.0-windows-x64.zip",
+      "size": 63653921,
+      "sha256": "5538e6ce9620771d9f31a49fb9f4fa5251cc6959b3a0b3dd2e8ca5c7072fabac",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-windows-x64.zip"
+    },
+    {
+      "name": "XIO-update.json",
+      "size": 2650,
+      "sha256": "b8e1fa3c2fbfcfb7be3a7e2e12f5158349a69ddd1042b2f334929b13ae67da6b",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-update.json"
+    },
+    {
+      "name": "SHA256SUMS-0.22.0.txt",
+      "size": 841,
+      "sha256": "fc1ef9c3c033be877721be52be4e2be2902a7b9b7417173dfedac276b78dd77c",
+      "remoteDigestMatches": true,
+      "url": "https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/SHA256SUMS-0.22.0.txt"
+    }
+  ]
+}

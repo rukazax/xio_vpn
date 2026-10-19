@@ -1,0 +1,45 @@
+{
+  "unauthenticatedLinks": [
+    {
+      "name": "XIO-0.22.0-android-arm64-v8a.apk",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-android-armeabi-v7a.apk",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-android-x86_64.apk",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-google-play.aab",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-source.zip",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-ubuntu-amd64.deb",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-ubuntu-x64.tar.gz",
+      "status": 200
+    },
+    {
+      "name": "XIO-0.22.0-windows-x64.zip",
+      "status": 200
+    },
+    {
+      "name": "XIO-update.json",
+      "status": 200
+    },
+    {
+      "name": "SHA256SUMS-0.22.0.txt",
+      "status": 200
+    }
+  ],
+  "androidArm64DownloadedAndHashMatched": true
+}
