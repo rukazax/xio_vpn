@@ -136,10 +136,11 @@ try {
   Start-Process -FilePath (Join-Path \$target 'XIO.exe')
   for (\$i=0; \$i -lt 90 -and !(Test-Path -LiteralPath \$ack); \$i++) { Start-Sleep -Seconds 1 }
   if (!(Test-Path -LiteralPath \$ack)) { throw 'New version did not confirm startup; backup retained' }
-  Remove-Item -LiteralPath \$backup -Recurse -Force
   Remove-Item -LiteralPath ${psLiteral(file.path)} -Force
   Remove-Item -LiteralPath ${psLiteral(stage.path)} -Recurse -Force
   Remove-Item -LiteralPath \$ack -Force
+  # A running VPN helper can keep old files mapped. It must not block ZIP cleanup.
+  Remove-Item -LiteralPath \$backup -Recurse -Force -ErrorAction SilentlyContinue
   Remove-Item -LiteralPath \$PSCommandPath -Force
 } catch { \$_ | Out-String | Set-Content -LiteralPath ${psLiteral('${file.parent.path}/install-error.txt')} }
 ''';
