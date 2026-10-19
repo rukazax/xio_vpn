@@ -1,0 +1,90 @@
+{
+  "url": "https://github.com/rukazax/xio_vpn/releases/tag/v0.21.0",
+  "draft": false,
+  "prerelease": true,
+  "assets": [
+    {
+      "file": "SHA256SUMS-0.21.0",
+      "bytes": 841,
+      "sha256": "dacf4fa86c9340e639e48dbb3f2f2076f2783335a72e3dc12c9040722a61b9af",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 841,
+      "wholePublicDownloadVerified": true
+    },
+    {
+      "file": "XIO-0.21.0-android-arm64-v8a.apk",
+      "bytes": 66206889,
+      "sha256": "aa0129481b59e7f7ef54d0149162f802fe48f6529fa10b113291c9a908492ec0",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": true
+    },
+    {
+      "file": "XIO-0.21.0-android-armeabi-v7a.apk",
+      "bytes": 66281979,
+      "sha256": "b1c76e3901be0ff88a3d1b95fb90ffde5889b8a8926a70ee6258f5251a6e92be",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-0.21.0-android-x86_64.apk",
+      "bytes": 67865406,
+      "sha256": "093d1028aee60c2ea8363010e404cf8d26066326c93a75517f2a6e2b4ddcb9c4",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-0.21.0-google-play.aab",
+      "bytes": 213860592,
+      "sha256": "5020727c967253a3f4bcc033ebcd37e1cd62380e3370ad4b89df89749310d52c",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-0.21.0-source.zip",
+      "bytes": 374341223,
+      "sha256": "9006ac1c0cfe8b0ad586af4ec1cf6a8dd9ff4a3787a1c451472d6541f69e2c3a",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-0.21.0-ubuntu-amd64.deb",
+      "bytes": 59295740,
+      "sha256": "3a8892be08ef1960b76fe34715eea0b203bc7e17f5945ce18c34f48a3790f46f",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-0.21.0-ubuntu-x64.tar.gz",
+      "bytes": 67041066,
+      "sha256": "295aec48cc35006a82855e114d4895e298eac9247e5803d04b82f9f921291b1c",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-0.21.0-windows-x64.zip",
+      "bytes": 69714133,
+      "sha256": "23d41752363af98923a773853a3994a6b357230b87c4f2adb844935a2bb7b8cd",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 65536,
+      "wholePublicDownloadVerified": false
+    },
+    {
+      "file": "XIO-update.json",
+      "bytes": 2238,
+      "sha256": "63248ea864eae6bbe35d28dd32b43978b0b795d237e1cc8448f69b9eb869f548",
+      "serverDigestMatched": true,
+      "publicRangeGetMatchedBytes": 2238,
+      "wholePublicDownloadVerified": true
+    }
+  ],
+  "tagCommit": "0dfe287eb2b8b02b96969ff8491c2138366da897",
+  "tagSourceFilesMatched": 58,
+  "scope": "All ten server SHA256/size values matched; public unauthenticated range GETs matched local bytes. Full ARM64 APK and SHA256SUMS were also downloaded and hashed. An attempted full next-asset transfer timed out; remaining large files were checked by range and server digest."
+}
