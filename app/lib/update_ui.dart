@@ -10,7 +10,17 @@ import 'update_service.dart';
 import 'update_installer.dart';
 import 'l10n.dart';
 
-Future<void> checkForUpdates(BuildContext context, {bool manual = true}) async {
+Future<void>? _updateInteraction;
+Future<void> checkForUpdates(BuildContext context, {bool manual = true}) =>
+    _updateInteraction ??= _checkForUpdates(
+      context,
+      manual: manual,
+    ).whenComplete(() => _updateInteraction = null);
+
+Future<void> _checkForUpdates(
+  BuildContext context, {
+  bool manual = true,
+}) async {
   final updater = UpdateService.instance;
   if (playDistribution) {
     await openExternalLink(

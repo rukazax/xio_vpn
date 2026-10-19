@@ -80,14 +80,16 @@ Future<void> installUpdate(File file, XioRelease release) async {
     return;
   }
   if (Platform.isLinux) {
-    // dpkg maintains package ownership, desktop integration and installation locking.
+    // APT maintains package ownership and resolves newly required dependencies.
     if (!File('/var/lib/dpkg/status').existsSync() ||
         !file.path.endsWith('.deb')) {
       throw StateError('Откройте страницу релиза');
     }
     final result = await Process.run('pkexec', [
-      '/usr/bin/dpkg',
-      '--install',
+      '/usr/bin/apt-get',
+      '--yes',
+      '--no-remove',
+      'install',
       file.path,
     ]);
     if (result.exitCode != 0) {
@@ -95,7 +97,12 @@ Future<void> installUpdate(File file, XioRelease release) async {
     }
     await file.delete();
     // The current process remains usable until the OS completed installation.
-    await Process.start('/opt/xio/XIO', [], mode: ProcessStartMode.detached);
+    await Process.start(
+      '/opt/xio/XIO',
+      [],
+      mode: ProcessStartMode.detached,
+      workingDirectory: file.parent.path,
+    );
     exit(0);
   }
   if (Platform.isWindows) {
@@ -142,14 +149,19 @@ try {
     final encoded = base64Encode(
       command.codeUnits.expand((v) => [v & 255, v >> 8]).toList(),
     );
-    await Process.start('powershell.exe', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-ExecutionPolicy',
-      'Bypass',
-      '-EncodedCommand',
-      encoded,
-    ], mode: ProcessStartMode.detached);
+    await Process.start(
+      'powershell.exe',
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-EncodedCommand',
+        encoded,
+      ],
+      mode: ProcessStartMode.detached,
+      workingDirectory: file.parent.path,
+    );
     exit(0);
   }
 }
