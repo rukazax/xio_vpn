@@ -42,3 +42,14 @@ flutter build appbundle --release
 
 
 Нативный Android runtime сохранён из 0.18. Для его точной пересборки используйте `native-sources/android-runtime-0.18` из полного исходного архива и README этого каталога. [Происхождение исходников](../native-source-provenance.md).
+
+
+## Сборка Windows AOT на Linux
+
+Не используйте ядро Dart, собранное для Android или Linux: имя ОС фиксируется при генерации kernel. Для упаковки через Wine предусмотрен `tooling/cross-platform/build-windows-on-linux.py`. Он требует готовый Windows runner и Windows gen_snapshot той же версии Flutter, проверяет `Platform.isWindows`, доступность семи движков и распаковку ZIP в запущенном Windows-ядре. Затем отдельно компилирует `lib/main.dart` с `--target-platform=windows-x64`.
+
+```sh
+python3 tooling/cross-platform/build-windows-on-linux.py --runner ПУТЬ_К_BUNDLE --gen-snapshot ПУТЬ_К_GEN_SNAPSHOT_EXE --wine-prefix ПУТЬ_К_WINE_PREFIX
+```
+
+Это не заменяет нативную проверку Windows: Wintun, UAC и PowerShell-замена файлов требуют настоящей Windows. Основной поддерживаемый способ сборки — `tools/build-windows.ps1` на Windows.
