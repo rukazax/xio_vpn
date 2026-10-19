@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.util.Base64
 import org.gradle.api.tasks.compile.JavaCompile
 
 plugins {
@@ -24,6 +25,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "app.x1o.x1o"
+        val playBuild = (project.findProperty("dart-defines") as String?).orEmpty().split(",").filter { it.isNotEmpty() }.any {
+            runCatching { String(Base64.getDecoder().decode(it)) == "XIO_PLAY_BUILD=true" }.getOrDefault(false)
+        }
+        manifestPlaceholders["externalUpdates"] = (!playBuild).toString()
+        manifestPlaceholders["installPermission"] = if (playBuild) "app.x1o.x1o.permission.NO_EXTERNAL_INSTALL" else "android.permission.REQUEST_INSTALL_PACKAGES"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26
