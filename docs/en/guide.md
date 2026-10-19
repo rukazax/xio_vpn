@@ -67,3 +67,6 @@ Images rendered from the Flutter UI test, without a live VPS connection.
 
 <img src="../images/protocols-en.png" alt="Protocols" width="260">
 
+
+
+[Application updates: checking, installing and skipping releases](updates.md).
