@@ -1,4 +1,4 @@
-XIO privacy policy — 2026-10-18
+XIO privacy policy — 2026-10-19
 Developer: Konstantin Aleksandrovich Eryomin, er-ka@mail.ru.
 
 Profiles, SSH secrets and the acknowledgement are stored on this device. VPN traffic is encrypted to the endpoint selected by you. Its operator may observe connection addresses, destinations and metadata. The VPS stores managed users, permissions, status and traffic counters. XIO sends administration commands and user settings over SSH. Server addresses may be sent to ipapi.co for country flags. Connectivity checks visit your selected HTTPS endpoint (youtube.com by default). DNS and Tailscale control/DERP servers are selected by the profile.
@@ -8,3 +8,7 @@ This build includes no analytics or advertising SDK and no automatic crash uploa
 Delete local profiles or clear app data to remove local records. This does not remove your VPS, previously exported files or provider backups. Remote users and services require authorised server cleanup. General OS logs are not erased. For third-party VPN data, contact its operator. Support emails are handled to reply to you; do not include secrets.
 
 Android VPN and notification permissions are separate. The app does not request GPS, contacts or an advertising ID. Reading the launcher app list is used for split tunnelling. You can decline VPN and VPS administration. Mandatory rights under applicable law are not waived. This policy must be updated before changes in data handling. A developer-operated VPN requires additional disclosures about that operator’s processing.
+
+Application updates
+
+Builds distributed through GitHub check public github.com/rukazax/xio_vpn releases approximately weekly at a randomized time and when you request a check. GitHub receives ordinary HTTPS request metadata, including the source IP address and client information. Checks do not send VPN profiles, SSH secrets or acknowledgement records. The next check time, skipped release and response metadata are stored locally. Package downloads require your approval and are deleted after successful installation. Android separately requires installation permission and confirmation for APKs. Google Play builds use the store instead of the external installer.
