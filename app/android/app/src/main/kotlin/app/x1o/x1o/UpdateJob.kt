@@ -25,11 +25,13 @@ class UpdateJob: JobService() {
                     val releases=JSONArray(buffer.toString("UTF-8"))
                     val skipped=runCatching { org.json.JSONObject(java.io.File(filesDir,"updates.json").readText()).optString("skip") }.getOrDefault("")
                     @Suppress("DEPRECATION") val current=packageManager.getPackageInfo(packageName,0).versionName ?: "0.0.0"
-                    val available=(0 until releases.length()).any { i ->
+                    var latest=""
+                    for(i in 0 until releases.length()) {
                         val r=releases.getJSONObject(i);val tag=r.optString("tag_name")
-                        tag != skipped && !r.optBoolean("draft") && Regex("""v[0-9]+[.][0-9]+[.][0-9]+""").matches(tag) && newer(tag.drop(1),current) && r.optJSONArray("assets")?.let { a -> (0 until a.length()).any { a.getJSONObject(it).optString("name")=="XIO-update.json" } } == true
+                        val signedAsset=r.optJSONArray("assets")?.let { assets -> (0 until assets.length()).any { assets.getJSONObject(it).optString("name")=="XIO-update.json" } } == true
+                        if(!r.optBoolean("draft") && Regex("""v[0-9]+[.][0-9]+[.][0-9]+""").matches(tag) && newer(tag.drop(1),current) && signedAsset && (latest.isEmpty() || newer(tag.drop(1),latest.drop(1)))) latest=tag
                     }
-                    if(available && !stopped) notifyUpdate()
+                    if(latest.isNotEmpty() && latest!=skipped && !stopped) notifyUpdate()
                 }
             } catch(_:Exception) { /* No retry storm on network errors. */ }
             finally { connection?.disconnect();if(!stopped){ jobFinished(params,false);android.os.Handler(mainLooper).postDelayed({schedule(this,null,true)},1000) } }
