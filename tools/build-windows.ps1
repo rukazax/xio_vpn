@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $XioRoot = Split-Path $PSScriptRoot -Parent
-$Version = '0.20.0'
+$Version = '0.21.0'
 Push-Location (Join-Path $XioRoot 'app')
 try {
     flutter pub get
@@ -34,5 +34,9 @@ try {
     Copy-Item (Join-Path $XioRoot 'CROSS-PLATFORM-0.19.ru.md') $Bundle
     $Output = Join-Path $XioRoot 'releases'
     New-Item -ItemType Directory -Force -Path $Output | Out-Null
-    Compress-Archive -Path (Join-Path $Bundle '*') -DestinationPath (Join-Path $Output "XIO-$Version-windows-x64.zip") -Force
+    $PortableRoot = Join-Path $Cache 'portable'
+    if (Test-Path $PortableRoot) { Remove-Item $PortableRoot -Recurse -Force }
+    New-Item -ItemType Directory -Path $PortableRoot | Out-Null
+    Copy-Item -LiteralPath $Bundle -Destination (Join-Path $PortableRoot 'XIO') -Recurse
+    Compress-Archive -Path (Join-Path $PortableRoot 'XIO') -DestinationPath (Join-Path $Output "XIO-$Version-windows-x64.zip") -Force
 } finally { Pop-Location }
