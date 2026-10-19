@@ -1,0 +1,8 @@
+{
+  "packageVersion": "0.21.0",
+  "installedPackageMatchesReleaseSha256": true,
+  "aptInstalledMissingGlesDependency": true,
+  "uiStartedAsUnprivilegedUser": true,
+  "headlessXvfbSmokeSeconds": 12,
+  "scope": "Isolated Ubuntu VM, APT installation/dependency resolution and startup; not a complete in-app future-release upgrade through polkit."
+}

@@ -1,0 +1,19 @@
+{
+  "operatingSystem": "windows",
+  "isWindows": true,
+  "scope": "Windows runtime under Wine, not a native Windows driver/UAC test",
+  "engines": [
+    "awg",
+    "rivet-h3",
+    "rivet-s1",
+    "shadowsocks",
+    "tailscale",
+    "wireguard",
+    "xray"
+  ],
+  "archiveExtractionPassed": true,
+  "passed": true,
+  "archiveSha256": "23d41752363af98923a773853a3994a6b357230b87c4f2adb844935a2bb7b8cd",
+  "powershellSyntaxCheckedOnLinux": true,
+  "nativeWindowsInstallerTested": false
+}

@@ -1,0 +1,54 @@
+{
+  "version": "0.21.0",
+  "build": 5003,
+  "flutter": "3.47.7",
+  "dart": "3.13.5",
+  "tests": {
+    "passed": 105,
+    "conditionallySkipped": 5,
+    "analysis": "clean"
+  },
+  "artifacts": [
+    {
+      "file": "XIO-0.21.0-android-arm64-v8a.apk",
+      "bytes": 66206889,
+      "sha256": "aa0129481b59e7f7ef54d0149162f802fe48f6529fa10b113291c9a908492ec0"
+    },
+    {
+      "file": "XIO-0.21.0-android-armeabi-v7a.apk",
+      "bytes": 66281979,
+      "sha256": "b1c76e3901be0ff88a3d1b95fb90ffde5889b8a8926a70ee6258f5251a6e92be"
+    },
+    {
+      "file": "XIO-0.21.0-android-x86_64.apk",
+      "bytes": 67865406,
+      "sha256": "093d1028aee60c2ea8363010e404cf8d26066326c93a75517f2a6e2b4ddcb9c4"
+    },
+    {
+      "file": "XIO-0.21.0-google-play.aab",
+      "bytes": 213860592,
+      "sha256": "5020727c967253a3f4bcc033ebcd37e1cd62380e3370ad4b89df89749310d52c"
+    },
+    {
+      "file": "XIO-0.21.0-ubuntu-amd64.deb",
+      "bytes": 59295740,
+      "sha256": "3a8892be08ef1960b76fe34715eea0b203bc7e17f5945ce18c34f48a3790f46f"
+    },
+    {
+      "file": "XIO-0.21.0-ubuntu-x64.tar.gz",
+      "bytes": 67041066,
+      "sha256": "295aec48cc35006a82855e114d4895e298eac9247e5803d04b82f9f921291b1c"
+    },
+    {
+      "file": "XIO-0.21.0-windows-x64.zip",
+      "bytes": 69714133,
+      "sha256": "23d41752363af98923a773853a3994a6b357230b87c4f2adb844935a2bb7b8cd"
+    }
+  ],
+  "updateManifest": "Ed25519; pinned public key in app/assets/security/update-ed25519.pub",
+  "windows": "Explicit Windows kernel target; prebuilt matching native runner reused. Wine capabilities/extraction checked. Native Windows driver/UAC/PowerShell replacement pending.",
+  "ios": "Updated source project only; no Xcode compilation or signed IPA on Linux.",
+  "android": "Release APK manifest/signature/16KiB checks; API35 replacement cleanup; API26 real installer exercised with mocked HTTP and a private debug fixture.",
+  "privacy": "GitHub update-check metadata disclosed in bundled privacy policy. No signing key or private profile is published.",
+  "androidSameSigningCertificateAs020": true
+}

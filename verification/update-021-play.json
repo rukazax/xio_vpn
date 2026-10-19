@@ -1,0 +1,6 @@
+{
+  "buildFlag": "XIO_PLAY_BUILD=true",
+  "requestInstallPackagesInCompiledManifest": false,
+  "playListingPublished": false,
+  "scope": "Compiled manifest permission check; Google Play moderation and in-app Play update flow not validated."
+}

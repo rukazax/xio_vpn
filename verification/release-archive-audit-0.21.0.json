@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "filesAndArchiveEntriesScanned": 17181,
+  "bytesScanned": 1880193360,
+  "findings": [],
+  "scope": "Known local signing/VPS/lab credentials, user-provided project credentials and the update private key. Current source, APK/AAB/DEB/ZIP/tar.gz contents; not a universal secret-detection or cryptographic-audit claim."
+}

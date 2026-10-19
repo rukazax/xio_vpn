@@ -1,0 +1,10 @@
+{
+  "api": 26,
+  "abi": "x86_64",
+  "signedManifestAndPackageHashPassed": true,
+  "systemInstallConfirmationObserved": true,
+  "newVersionCode": 5004,
+  "stagingDeletedAfterReplacement": true,
+  "permissionSettingsReturnPreservesUpdateDialog": true,
+  "scope": "Android8 emulator with mocked GitHub HTTP and private debug-signed future APK. Real Android installer, permission settings and replacement receiver; not a physical device test. Test APK/feed are not published."
+}

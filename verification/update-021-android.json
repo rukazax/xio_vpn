@@ -1,0 +1,12 @@
+{
+  "platform": "Android emulator API35 x86_64",
+  "version": "0.21.0",
+  "installedOverPreviousRelease": true,
+  "cleanupReceiverRemovedStagedSentinel": true,
+  "persistedJob": true,
+  "nextJobDelay": "+7d3h7m30s785ms",
+  "physicalDeviceTested": false,
+  "backgroundJobForcedAndRescheduled": true,
+  "nextJobDelayAfterTest": "+7d14h48m50s672ms",
+  "scope": "Upgrade/cleanup and job registration/rescheduling tested in API35 emulator; in-app future-release installation confirmation awaits a newer signed release."
+}
