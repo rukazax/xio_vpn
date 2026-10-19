@@ -20,21 +20,18 @@ object Engine {
     lateinit var backend: GoBackend
     lateinit var app: android.content.Context
     @Volatile var backgroundBusy = false
-    var kind = "wireguard"
+    var kind = "awg"
     var lastConnectMillis=0L
-    fun isUp()=(kind=="ikev2"&&IkeBackend.isUp(app)) || TailscaleBackend.established || OpenVpnBackend.established || XrayBackend.established || RivetBackend.established || backend.getState(tunnel)==Tunnel.State.UP
+    fun isUp()=OpenVpnBackend.established || XrayBackend.established || RivetBackend.established || backend.getState(tunnel)==Tunnel.State.UP
     fun handshake():Long {
-        if(kind=="tailscale"){val v=TailscaleBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
-        if(kind=="ikev2")return IkeBackend.handshake(app)
-        if(kind=="openvpn"||kind=="cloak"){val v=OpenVpnBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
-        if(kind=="xray"||kind=="shadowsocks"){val v=XrayBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
+        if(kind=="cloak"){val v=OpenVpnBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
+        if(kind=="xray"){val v=XrayBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
         if(kind.startsWith("rivet-")){val v=RivetBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
         val stats=backend.getStatistics(tunnel);return stats.peers().mapNotNull{stats.peer(it)?.latestHandshakeEpochMillis()}.maxOrNull()?:0L
     }
     fun status():Map<String,Any?> {
         val prefs=app.getSharedPreferences("x1o",0);val up=isUp()
-        if(kind=="xray"||kind=="shadowsocks"||kind=="openvpn"||kind=="cloak"||kind=="tailscale"){val v=if(kind=="tailscale")TailscaleBackend.status() else if(kind=="openvpn"||kind=="cloak")OpenVpnBackend.status() else XrayBackend.status();if(!up)prefs.edit().remove("activeId").commit();return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to v.optLong("rx"),"tx" to v.optLong("tx"),"handshake" to handshake(),"protocol" to kind)}
-        if(kind=="ikev2"){if(!up)prefs.edit().remove("activeId").commit();return mapOf("active" to up,"id" to prefs.getString("activeId",null),"protocol" to kind,"handshake" to handshake())}
+        if(kind=="xray"||kind=="cloak"){val v=if(kind=="cloak")OpenVpnBackend.status() else XrayBackend.status();if(!up)prefs.edit().remove("activeId").commit();return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to v.optLong("rx"),"tx" to v.optLong("tx"),"handshake" to handshake(),"protocol" to kind)}
         if(kind.startsWith("rivet-")){
             val value=RivetBackend.status();val actual=value.optString("protocol",kind);kind=actual
             if(up){
@@ -69,18 +66,16 @@ object Engine {
     }
     @Synchronized fun initialize(context: android.content.Context) {
         app = context.applicationContext
-        if(app.getSharedPreferences("x1o",0).getString("activeId","")!!.startsWith("ik"))kind="ikev2"
         GoBackend.setVpnServiceClass(X1oVpnService::class.java)
         if (!::backend.isInitialized) backend = GoBackend(app)
     }
     fun disconnect() {
         app.getSharedPreferences("x1o",0).edit().putBoolean("vpnWanted",false).commit()
-        if(kind=="ikev2")IkeBackend.stop(app)
-        TailscaleBackend.stop()
         OpenVpnBackend.stop()
         XrayBackend.stop()
         if(kind.startsWith("rivet-") || RivetBackend.established) RivetBackend.stop()
         backend.setState(tunnel, Tunnel.State.DOWN, null)
+        VpnSharing.schedule(app,true)
         app.stopService(Intent(app,X1oVpnService::class.java))
         X1oVpnService.awaitStopped()
         app.getSharedPreferences("x1o", 0).edit().remove("activeId").commit()
@@ -112,27 +107,8 @@ object Engine {
         val previousNetworks=vpnNetworks()
         if(!allowExistingService) X1oVpnService.awaitStopped()
         val raw=ConfigVault(app).readSecret(id)
-        if(id.startsWith("ts")){
-            kind="tailscale"
-            app.startForegroundService(Intent(app,X1oVpnService::class.java))
-            val service=X1oVpnService.awaitCreated()
-            val budget=org.json.JSONObject(app.getSharedPreferences("x1o",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-            TailscaleBackend.connect(service,id,raw,budget-(android.os.SystemClock.elapsedRealtime()-started))
-            awaitNetworkReady(previousNetworks,started)
-            lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return
-        }
-        if(id.startsWith("ik")){
-            kind="ikev2"
-            val budget=org.json.JSONObject(app.getSharedPreferences("x1o",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-            IkeBackend.connect(app,id,budget)
-            // Platform CONNECTED can precede UID routes and active network readiness.
-            awaitNetworkReady(previousNetworks,started)
-            lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return
-        }
-        if(id.startsWith("ov")||id.startsWith("ck")){
-            kind=if(id.startsWith("ck"))"cloak" else "openvpn"
+        if(id.startsWith("ck")){
+            kind="cloak"
             app.startForegroundService(Intent(app,X1oVpnService::class.java))
             val service=X1oVpnService.awaitCreated()
             val budget=org.json.JSONObject(app.getSharedPreferences("x1o",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
@@ -141,8 +117,8 @@ object Engine {
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
             VpnTileService.refresh(app);return
         }
-        if(id.startsWith("xr")||id.startsWith("ss")){
-            kind=if(id.startsWith("xr"))"xray" else "shadowsocks"
+        if(id.startsWith("xr")){
+            kind="xray"
             require(org.json.JSONObject(raw).getString("protocol")==kind)
             app.startForegroundService(Intent(app,X1oVpnService::class.java))
             val service=X1oVpnService.awaitCreated()
@@ -165,7 +141,7 @@ object Engine {
             VpnTileService.refresh(app);return
         }
         val config = Config.parse(ByteArrayInputStream(raw.toByteArray()))
-        kind = if (id.startsWith("awg")) "awg" else "wireguard"
+        require(id.startsWith("awg"));kind = "awg"
         val routing = SplitRouting(app)
         val policy = routing.read()
         val effective = routing.apply(config, policy)
@@ -192,7 +168,9 @@ class MainActivity : FlutterActivity() {
         engineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.x1o/engine")
         engineChannel.setMethodCallHandler { call, result ->
             when (call.method) {
-                "supportedProtocols" -> result.success(listOf("wireguard","awg","rivet-h3","rivet-s1","xray","shadowsocks","openvpn","cloak","tailscale") + if(android.os.Build.VERSION.SDK_INT>=30 && packageManager.hasSystemFeature(android.content.pm.PackageManager.FEATURE_IPSEC_TUNNELS))listOf("ikev2") else emptyList())
+                "supportedProtocols" -> result.success(listOf("awg","rivet-h3","rivet-s1","xray","cloak"))
+                "sharingStatus" -> result.success(VpnSharing.status(this))
+                "sharingSet" -> Engine.worker.execute { try { val value=VpnSharing.set(this,call.argument<Boolean>("enabled")==true,call.argument<String>("interface")?:"");runOnUiThread{result.success(value)} } catch(e:Exception){runOnUiThread{result.error("SHARING",e.message?:"Не удалось настроить раздачу",null)}} }
                 "connectionBusy" -> result.success(Engine.backgroundBusy)
                 "getAppIcon" -> result.success(AppIcons.current(this))
                 "setAppIcon" -> {
@@ -310,7 +288,7 @@ class MainActivity : FlutterActivity() {
                                 val id = call.argument<String>("id")!!
                                 val raw = call.argument<String>("config")!!
                                 require(raw.length <= 65536)
-                                if(id.startsWith("ts"))Mobile.tailscaleValidate(raw) else if(id.startsWith("ik"))IkeBackend.validate(raw) else if(id.startsWith("ov")||id.startsWith("ck"))OpenVpnBackend.validate(raw) else if(id.startsWith("xr")||id.startsWith("ss"))Mobile.xrayValidate(raw) else if(id.startsWith("rvh")||id.startsWith("rvs"))Mobile.validate(raw) else Config.parse(ByteArrayInputStream(raw.toByteArray()))
+                                if(id.startsWith("ck"))OpenVpnBackend.validate(raw) else if(id.startsWith("xr"))Mobile.xrayValidate(raw) else if(id.startsWith("rvh")||id.startsWith("rvs"))Mobile.validate(raw) else { require(id.startsWith("awg")); Config.parse(ByteArrayInputStream(raw.toByteArray())) }
                                 ConfigVault(this).writeSecret(id, raw); null
                             }
                             "credentialRead" -> {
@@ -331,7 +309,7 @@ class MainActivity : FlutterActivity() {
                                 prefs.edit().putString("connectionPlan", raw).commit(); null
                             }
                             "readConfig" -> ConfigVault(this).readSecret(call.argument<String>("id")!!)
-                            "deleteConfig" -> { val id=call.argument<String>("id")!!;if(id.startsWith("ik"))IkeBackend.delete(this,id);if(id.startsWith("ts"))TailscaleBackend.deleteState(this,id);ConfigVault(this).delete(id);null }
+                            "deleteConfig" -> { ConfigVault(this).delete(call.argument<String>("id")!!);null }
                             "activeId" -> prefs.getString("activeId", null)
                             "disconnect" -> {
                                 Engine.disconnect(); null
@@ -360,7 +338,7 @@ class MainActivity : FlutterActivity() {
 
     private fun preparePendingVpn() {
         val id=pendingId?:return
-        val intent=try{if(id.startsWith("ik"))IkeBackend.prepare(this,id) else VpnService.prepare(this)}catch(e:Exception){android.util.Log.w("XIO/IKE",e.javaClass.simpleName);val callback=pending;pending=null;pendingId=null;callback?.error("IKE","Профиль IKEv2 недоступен или несовместим с правилами туннелирования",null);return}
+        val intent=VpnService.prepare(this)
         if (intent != null) {
             @Suppress("DEPRECATION") startActivityForResult(intent, 871)
         } else {

@@ -1,22 +1,18 @@
 import 'dart:convert';
 
 const rivetProtocols = ['rivet-h3', 'rivet-s1'];
-const nativeProtocols = [
-  'rivet-h3',
-  'rivet-s1',
-  'awg',
-  'wireguard',
-  'xray',
-  'shadowsocks',
-  'openvpn',
-  'cloak',
-  'ikev2',
-  'tailscale',
-];
 
-Set<String> availableAndroidProtocols = nativeProtocols
-    .where((p) => p != 'ikev2')
-    .toSet();
+/// Conservative automatic candidates for restricted networks. This is a policy,
+/// not a claim that a protocol works on every Russian operator or allowlist.
+const restrictedNetworkProtocols = [
+  'xray',
+  'rivet-s1',
+  'cloak',
+  'awg',
+  'rivet-h3',
+];
+const nativeProtocols = ['xray', 'rivet-s1', 'cloak', 'awg', 'rivet-h3'];
+Set<String> availableAndroidProtocols = nativeProtocols.toSet();
 
 /// Client material only. Secrets are passed to the encrypted native vault.
 class RivetProfile {
@@ -102,8 +98,13 @@ class RivetProfile {
   }
 }
 
-int protocolPreference(String protocol, String preferred) {
+int protocolPreference(
+  String protocol,
+  String preferred, {
+  bool restricted = false,
+}) {
   if (protocol == preferred) return 0;
-  final index = nativeProtocols.indexOf(protocol);
+  final index = (restricted ? restrictedNetworkProtocols : nativeProtocols)
+      .indexOf(protocol);
   return index < 0 ? 100 : index + 1;
 }

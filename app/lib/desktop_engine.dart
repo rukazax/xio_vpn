@@ -252,9 +252,7 @@ class DesktopEngine {
           );
         }
         final config = saved['config']!;
-        final protocol = id.startsWith('wg')
-            ? 'wireguard'
-            : id.startsWith('awg')
+        final protocol = id.startsWith('awg')
             ? 'awg'
             : jsonDecode(config)['protocol'] as String;
         if (!supported.contains(protocol)) {
@@ -269,6 +267,18 @@ class DesktopEngine {
           'Protocol': protocol,
           'Config': config,
           'TimeoutMillis': a['timeoutMillis'] ?? 15000,
+        });
+      case 'sharingStatus':
+        if (!Platform.isWindows) return {'supported': false, 'enabled': false};
+        if (_worker == null || !await _authenticate(_worker!)) {
+          return {'supported': true, 'enabled': false, 'candidates': []};
+        }
+        return await _rpc('sharingStatus');
+      case 'sharingSet':
+        await _ensureWorker();
+        return await _rpc('sharingSet', {
+          'SharingEnabled': a['enabled'] == true,
+          'SharingInterface': a['interface'] ?? '',
         });
       case 'routingSummary':
         return {'enabled': false, 'supported': false};

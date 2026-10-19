@@ -1,22 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-const extendedProtocols = [
-  'xray',
-  'shadowsocks',
-  'openvpn',
-  'cloak',
-  'ikev2',
-  'tailscale',
-];
-const nativePrefix = {
-  'xray': 'xr',
-  'shadowsocks': 'ss',
-  'openvpn': 'ov',
-  'cloak': 'ck',
-  'ikev2': 'ik',
-  'tailscale': 'ts',
-};
+const extendedProtocols = ['xray', 'cloak'];
+const nativePrefix = {'xray': 'xr', 'cloak': 'ck'};
 
 /// Normalized client material. No listeners, API servers, executable commands,
 /// filesystem references or direct/freedom outbounds are accepted from imports.
@@ -66,7 +52,15 @@ class ExtendedProfile {
     if (node is Map) {
       for (final e in node.entries) {
         final key = '${e.key}'.toLowerCase();
-        if (key.endsWith('file') || key == 'allowinsecure' && e.value == true) {
+        if (key.endsWith('file') ||
+            key == 'allowinsecure' && e.value != false ||
+            const {
+              'sockopt',
+              'dialerproxy',
+              'proxysettings',
+              'downloadsettings',
+              'reverse',
+            }.contains(key)) {
           throw const FormatException('Небезопасная конфигурация');
         }
         _noUnsafeFiles(e.value);
@@ -89,7 +83,7 @@ class ExtendedProfile {
       throw const FormatException('Неподдерживаемая конфигурация Xray');
     }
     final kind = o['protocol'];
-    if (!['vless', 'vmess', 'trojan', 'shadowsocks'].contains(kind)) {
+    if (!['vless', 'vmess', 'trojan'].contains(kind)) {
       throw const FormatException('Неподдерживаемый протокол');
     }
     final settings = Map<String, dynamic>.from(o['settings'] as Map);
@@ -105,7 +99,7 @@ class ExtendedProfile {
       if (users.length != 1) throw const FormatException();
       final u = Map<String, dynamic>.from(users.single as Map);
       u['id'] = _uuid(_text(u['id'], max: 64));
-      if (kind == 'vless' && u['encryption'] != 'none') {
+      if (kind == 'vless' && !_vlessEncryption(u['encryption'])) {
         throw const FormatException('Неподдерживаемое шифрование VLESS');
       }
       if (kind == 'vmess' &&
@@ -126,22 +120,35 @@ class ExtendedProfile {
       host = _host(server['address']);
       port = _port(server['port']);
       _text(server['password'], max: 2048);
-      if (kind == 'shadowsocks' &&
-          ![
-            'aes-128-gcm',
-            'aes-256-gcm',
-            'chacha20-ietf-poly1305',
-            '2022-blake3-aes-128-gcm',
-            '2022-blake3-aes-256-gcm',
-            '2022-blake3-chacha20-poly1305',
-          ].contains(server['method'])) {
-        throw const FormatException('Неподдерживаемое шифрование Shadowsocks');
-      }
     }
     final stream = Map<String, dynamic>.from(
       (o['streamSettings'] ?? {}) as Map,
     );
     final security = stream['security'] ?? 'none';
+    if (!const {
+      'tcp',
+      'raw',
+      'ws',
+      'grpc',
+      'httpupgrade',
+      'xhttp',
+      'splithttp',
+    }.contains(stream['network'] ?? 'tcp')) {
+      throw const FormatException('Неподдерживаемый транспорт Xray');
+    }
+    if (const {'xhttp', 'splithttp'}.contains(stream['network'])) {
+      final xhttp =
+          stream['xhttpSettings'] ?? stream['splithttpSettings'] ?? {};
+      if (xhttp is! Map ||
+          !const {
+            'auto',
+            'packet-up',
+            'stream-up',
+            'stream-one',
+          }.contains(xhttp['mode'] ?? 'auto')) {
+        throw const FormatException('Некорректный режим XHTTP');
+      }
+    }
     if ((kind == 'vless' && !['tls', 'reality'].contains(security)) ||
         (kind == 'trojan' && security != 'tls')) {
       throw const FormatException('Требуется TLS или REALITY');
@@ -171,7 +178,7 @@ class ExtendedProfile {
     }
     o['settings'] = settings;
     o['tag'] = 'proxy';
-    final p = kind == 'shadowsocks' ? 'shadowsocks' : 'xray';
+    const p = 'xray';
     return ExtendedProfile._(p, _endpoint(host, port), {
       'protocol': p,
       'outbound': o,
@@ -180,6 +187,36 @@ class ExtendedProfile {
 
   static String _decode64(String s) =>
       utf8.decode(base64Url.decode(base64Url.normalize(s)));
+  // Match the pinned Xray core's supported key format; cryptography stays in
+  // upstream Xray. Keep outer TLS/REALITY mandatory, including with Encryption.
+  static bool _vlessEncryption(dynamic value) {
+    if (value == 'none') return true;
+    if (value is! String || value.length > 8192) return false;
+    final fields = value.split('.');
+    if (fields.length < 4 ||
+        fields[0] != 'mlkem768x25519plus' ||
+        !const {'native', 'xorpub', 'random'}.contains(fields[1]) ||
+        !const {'0rtt', '1rtt'}.contains(fields[2])) {
+      return false;
+    }
+    var keys = 0;
+    for (final field in fields.skip(3)) {
+      if (field.length < 20) {
+        if (!RegExp(r'^[0-9-]*$').hasMatch(field)) return false;
+        continue;
+      }
+      try {
+        if (!RegExp(r'^[A-Za-z0-9_-]+$').hasMatch(field)) return false;
+        final bytes = base64Url.decode(base64Url.normalize(field));
+        if (bytes.length != 32 && bytes.length != 1184) return false;
+        keys++;
+      } catch (_) {
+        return false;
+      }
+    }
+    return keys > 0;
+  }
+
   static ExtendedProfile parse(String input) {
     try {
       final raw = input.trim();
@@ -266,36 +303,6 @@ class ExtendedProfile {
           'streamSettings': stream,
         }, name: Uri.decodeComponent(u.fragment));
       }
-      if (raw.startsWith('ss://')) {
-        var payload = raw.substring(5);
-        if (!payload.contains('@')) {
-          payload =
-              _decode64(payload.split('#').first) +
-              (payload.contains('#') ? '#${payload.split('#').last}' : '');
-        }
-        final u = Uri.parse('ss://$payload');
-        if (u.queryParameters['plugin'] != null) {
-          throw const FormatException('Плагин Shadowsocks не поддерживается');
-        }
-        final info = u.userInfo.contains(':')
-            ? Uri.decodeComponent(u.userInfo)
-            : _decode64(Uri.decodeComponent(u.userInfo));
-        final i = info.indexOf(':');
-        if (i < 1) throw const FormatException();
-        return outbound({
-          'protocol': 'shadowsocks',
-          'settings': {
-            'servers': [
-              {
-                'address': _host(u.host),
-                'port': _port(u.port),
-                'method': info.substring(0, i),
-                'password': info.substring(i + 1),
-              },
-            ],
-          },
-        }, name: Uri.decodeComponent(u.fragment));
-      }
       if (raw.startsWith('vmess://')) {
         final j = Map<String, dynamic>.from(
           jsonDecode(_decode64(raw.substring(8))) as Map,
@@ -349,38 +356,12 @@ class ExtendedProfile {
         if (j['protocol'] == null && j['config'] is String) {
           return parse(j['config'] as String);
         }
-        if (j['server'] is String &&
-            j['server_port'] != null &&
-            j['method'] is String &&
-            j['password'] is String) {
-          if (j['plugin'] != null && j['plugin'] != '') {
-            throw const FormatException('Плагин Shadowsocks не поддерживается');
-          }
-          return outbound({
-            'protocol': 'shadowsocks',
-            'settings': {
-              'servers': [
-                {
-                  'address': j['server'],
-                  'port': _port(j['server_port']),
-                  'method': j['method'],
-                  'password': j['password'],
-                },
-              ],
-            },
-          });
-        }
         if (j['outbounds'] is List) {
           final a = (j['outbounds'] as List)
               .where(
                 (v) =>
                     v is Map &&
-                    [
-                      'vless',
-                      'vmess',
-                      'trojan',
-                      'shadowsocks',
-                    ].contains(v['protocol']),
+                    ['vless', 'vmess', 'trojan'].contains(v['protocol']),
               )
               .toList();
           if (a.length != 1) {
@@ -388,13 +369,12 @@ class ExtendedProfile {
           }
           return outbound(Map<String, dynamic>.from(a.single as Map));
         }
-        if (j['protocol'] == 'openvpn' || j['protocol'] == 'cloak') {
-          final p = openVpn(
+        if (j['protocol'] == 'cloak') {
+          final p = _cloakPayload(
             j['config'] as String,
             username: j['username'] as String? ?? '',
             password: j['password'] as String? ?? '',
           );
-          if (j['protocol'] == 'openvpn') return p;
           final c = Map<String, dynamic>.from(j['cloak'] as Map);
           _host(c['RemoteHost']);
           c['RemotePort'] = '${_port(c['RemotePort'])}';
@@ -417,64 +397,6 @@ class ExtendedProfile {
             },
           );
         }
-        if (j['protocol'] == 'ikev2') {
-          final server = _host(j['server']);
-          _text(j['identity'], max: 253);
-          _text(j['username'], max: 128);
-          _text(j['password'], max: 512);
-          final ca = j['ca'];
-          if (ca is! String ||
-              ca.length > 16384 ||
-              !ca.contains('-----BEGIN CERTIFICATE-----')) {
-            throw const FormatException('Требуется сертификат CA');
-          }
-          return ExtendedProfile._('ikev2', server, {
-            'protocol': 'ikev2',
-            'server': server,
-            'identity': j['identity'],
-            'username': j['username'],
-            'password': j['password'],
-            'ca': ca,
-          });
-        }
-        if (j['protocol'] == 'tailscale') {
-          final url = Uri.parse(j['controlURL'] as String);
-          if (url.scheme != 'https' ||
-              url.host.isEmpty ||
-              url.userInfo.isNotEmpty ||
-              url.hasQuery ||
-              url.hasFragment) {
-            throw const FormatException('Требуется HTTPS control URL');
-          }
-          final exit = _text(j['exitNode'], max: 253);
-          _text(j['authKey'], max: 1024);
-          final hostname = _text(j['hostname'] ?? 'xio', max: 63);
-          return ExtendedProfile._('tailscale', url.host, {
-            'protocol': 'tailscale',
-            'controlURL': url.toString(),
-            'authKey': j['authKey'],
-            'exitNode': exit,
-            'hostname': hostname,
-            if (j['controlCA'] != null) 'controlCA': j['controlCA'],
-          });
-        }
-        // strongSwan portable IKEv2/EAP export.
-        if (j['vpn_type'] == 'ikev2-eap' && j['remote'] is Map) {
-          final remote = j['remote'] as Map;
-          return parse(
-            jsonEncode({
-              'protocol': 'ikev2',
-              'server': remote['addr'],
-              'identity': remote['id'] ?? remote['addr'],
-              'username': j['local']?['eap_id'],
-              'password': j['local']?['eap_secret'],
-              'ca': remote['cert'],
-            }),
-          );
-        }
-      }
-      if (RegExp(r'^\s*client\s*$', multiLine: true).hasMatch(raw)) {
-        return openVpn(raw);
       }
       throw const FormatException('Неподдерживаемая конфигурация');
     } on FormatException {
@@ -484,7 +406,7 @@ class ExtendedProfile {
     }
   }
 
-  static ExtendedProfile openVpn(
+  static ExtendedProfile _cloakPayload(
     String raw, {
     String username = '',
     String password = '',

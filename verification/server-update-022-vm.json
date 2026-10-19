@@ -1,0 +1,19 @@
+{
+  "scope": "isolated Ubuntu 24.04 x86_64 VM; SSH loopback only",
+  "baseline": "0.21 recipe17",
+  "result": "0.22 recipe18",
+  "realBadBinaryRollback": true,
+  "usersPreserved": true,
+  "serverKeysPreserved": true,
+  "idempotent": true,
+  "activeServices": [
+    "x1o-managed-awg",
+    "xio-rivet-entry",
+    "xio-rivet-gateway",
+    "xio-stack",
+    "xio-cloak"
+  ],
+  "rollbackSeconds": 1.73,
+  "updateSeconds": 1.38,
+  "countryNetworkTest": false
+}

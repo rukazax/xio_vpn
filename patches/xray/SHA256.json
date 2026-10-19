@@ -1,0 +1,7 @@
+{
+  "transport/internet/splithttp/client.go": "206b8da611d918b8938f2aad1968e662a9e58d6d3d7107bd19bc760dc98bc980",
+  "transport/internet/splithttp/dialer.go": "30bf65caa17396a1a0d5713da35bfae63345151a68274362a5101fcabdd2cf11",
+  "infra/conf/xray.go": "e9d50d7c2bfdd404bc0766b763d29d710ad0bc4ec36aff9aa38d0ac236366ea5",
+  "infra/conf/shadowsocks.go.disabled": "a8a6a77c4a2d1f8cc372fb3fa4f824cfbe82c4b083b38af37bef98c163b9fca6",
+  "infra/conf/wireguard.go.disabled": "860ff2f88199dcb3a39d20bca331ef255712aea6120fc1de6f2183316fb631e9"
+}

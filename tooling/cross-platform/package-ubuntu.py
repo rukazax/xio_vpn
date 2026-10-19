@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 from pathlib import Path
-import shutil,subprocess,os,tarfile
-r=Path(__file__).resolve().parents[2];bundle=r/'app/build/linux/x64/release/bundle';out=r/'releases';stage=r/'.build-support/ubuntu021/deb';out.mkdir(exist_ok=True)
+import shutil,subprocess,os,tarfile,re
+r=Path(__file__).resolve().parents[2];bundle=r/'app/build/linux/x64/release/bundle';out=r/'releases';stage=r/'.build-support/ubuntu022/deb';out.mkdir(exist_ok=True)
+version=re.search(r'^version: ([0-9.]+)',(r/'app/pubspec.yaml').read_text(),re.M).group(1)
 assert (bundle/'XIO').exists() and (bundle/'libexec/xio-tunnel').exists()
 shutil.rmtree(stage,ignore_errors=True);target=stage/'opt/xio';target.parent.mkdir(parents=True);shutil.copytree(bundle,target)
-for name in ['LICENSE','COPYRIGHT','THIRD-PARTY-0.18.md','THIRD-PARTY-0.19.md','CROSS-PLATFORM-0.19.ru.md']:
+for name in ['LICENSE','COPYRIGHT','THIRD-PARTY-0.22.md','THIRD-PARTY-0.21.md','THIRD-PARTY-0.18.md','THIRD-PARTY-0.19.md','CROSS-PLATFORM-0.19.ru.md']:
  if (r/name).exists():shutil.copy2(r/name,target/name)
 desktop=stage/'usr/share/applications';desktop.mkdir(parents=True)
 (desktop/'app.xio.client.desktop').write_text('[Desktop Entry]\nType=Application\nName=XIO\nComment=VPN client\nExec=/opt/xio/XIO\nIcon=app.xio.client\nTerminal=false\nCategories=Network;Security;\nStartupWMClass=app.x1o.x1o\n')
@@ -15,7 +16,7 @@ bindir=stage/'usr/bin';bindir.mkdir(parents=True);os.symlink('/opt/xio/XIO',bind
 control=stage/'DEBIAN';control.mkdir()
 size=sum(p.stat().st_size for p in target.rglob('*') if p.is_file())//1024
 (control/'control').write_text(f'''Package: xio-vpn
-Version: 0.21.0
+Version: {version}
 Section: net
 Priority: optional
 Architecture: amd64
@@ -28,6 +29,6 @@ Description: XIO VPN desktop client
 # No setuid executable, no service started at install, no existing VPN removed.
 for path in stage.rglob('*'):
  if path.is_file() and not path.is_symlink():path.chmod(0o755 if path.name in ['XIO','xio-tunnel'] else 0o644)
-subprocess.run(['dpkg-deb','--root-owner-group','--build',str(stage),str(out/'XIO-0.21.0-ubuntu-amd64.deb')],check=True)
-with tarfile.open(out/'XIO-0.21.0-ubuntu-x64.tar.gz','w:gz') as tar:tar.add(target,arcname='XIO')
+subprocess.run(['dpkg-deb','--root-owner-group','--build',str(stage),str(out/f'XIO-{version}-ubuntu-amd64.deb')],check=True)
+with tarfile.open(out/f'XIO-{version}-ubuntu-x64.tar.gz','w:gz') as tar:tar.add(target,arcname='XIO')
 print('Ubuntu DEB and portable archive packaged')

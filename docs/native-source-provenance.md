@@ -1,4 +1,12 @@
-# Native source provenance / Происхождение нативных исходников
+# Native source provenance / Происхождение исходников
+
+## XIO 0.22
+
+The Android AAR, server and desktop helpers use the current `protocol/rivet`, local `vendor/xray` (MPL-2.0 synchronization and reduced-loader patches), `vendor/tun2socks` (Apache-2.0 optional registrations removed), `vendor/cloak` and `vendor/anet`. Exact current inputs are mirrored in `native-sources/android-runtime-0.22`; their fingerprint matches `vendor-metadata/rivet-build.json`. Legacy Tailscale source snapshots are archival, not registered runtime engines. Go package-dependency inspection excludes Tailscale and Shadowsocks proxy engines from current mobile/desktop binaries. Shared AWG/Wintun infrastructure remains.
+
+Android AAR, сервер и настольные помощники 0.22 пересобраны из актуальных исходников. Точный снимок и fingerprint позволяют сверить происхождение. Старые исходные снимки сохранены для воспроизведения прежних выпусков; они не включают старые движки в новую сборку. Проверка зависимостей Go исключает Tailscale и прокси Shadowsocks из текущих мобильных/настольных бинарных файлов. Общая инфраструктура AWG/Wintun остаётся.
+
+## Historical 0.18–0.21 / История 0.18–0.21
 
 XIO 0.20 uses the updated shared Flutter UI and the existing platform-specific network components. The Android AAR is byte-identical to the released 0.18 AAR. Its exact corresponding module and modified compatibility forks are included in the full source release under `native-sources/android-runtime-0.18`. The original owned-source fingerprint was verified. The top-level `protocol/rivet` contains the later desktop/iOS source.
 

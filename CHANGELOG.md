@@ -22,7 +22,14 @@ EN: Detailed bilingual RIVET/H3 and RIVET/S1 library, diagrams, charts, evidence
 
 [Блог / Blog](docs/blog/2026-10-18-rivet.md).
 
-# Changelog / История изменений
+# Changelog
+
+## 0.22.0 — 2026-10-19
+
+RU: удалены отдельные WireGuard/OpenVPN/IKEv2/Shadowsocks/Tailscale; «Протоколы» перенесены в «Соединение». Добавлены раздача через VPN с root на Android и экспериментальная Windows ICS, миграция управляемого сервера с откатом, проверенный импорт XHTTP/VLESS Encryption и два исправления гонок Xray. Названия загрузок типовые. Переписаны RU/EN инструкции. [Статья](docs/blog/2026-10-19-restricted-networks.md).
+
+EN: retired standalone WireGuard/OpenVPN/IKEv2/Shadowsocks/Tailscale; moved Protocols to Connection. Added rooted Android tethering and experimental Windows ICS, managed-server migration with rollback, checked XHTTP/VLESS Encryption import and two Xray race fixes. Generic download names and rewritten RU/EN guides. [Article](docs/blog/2026-10-19-restricted-networks.md#english).
+ / История изменений
 
 ## 0.20.0
 

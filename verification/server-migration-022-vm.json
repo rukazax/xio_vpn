@@ -1,0 +1,12 @@
+{
+  "scope": "isolated Ubuntu 24.04 VM, loopback SSH",
+  "fromRecipe": 18,
+  "toRecipe": 19,
+  "badRuntimeRollback": true,
+  "originalConfigurationRestoredOnFailure": true,
+  "usersAndKeysPreserved": true,
+  "bareShadowsocksRemoved": true,
+  "idempotent": true,
+  "createUserAfterMigration": true,
+  "realVpsModified": false
+}

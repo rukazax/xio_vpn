@@ -6841,3 +6841,5 @@ func TestLicenseHeaders(t *testing.T) {
 	}
 }
 
+
+XIO 0.22 compatibility modifications (2026-10-19): Xray WaitReadCloser synchronization and upload buffer ownership fix. Patched files remain MPL-2.0. Corresponding source: vendor/xray; reproducible patch: patches/xray.

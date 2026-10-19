@@ -31,7 +31,15 @@ class StartupStatistics {
               saved['key'] ?? '',
               saved['passphrase'] ?? '',
             );
-            await ManagedService(ssh).refresh(store, server);
+            final service = ManagedService(ssh);
+            try {
+              await service.ensureUpdated(store, server);
+            } catch (_) {
+              store.log(
+                'Не удалось обновить сервер XIO; повтор при следующем запуске',
+              );
+            }
+            await service.refresh(store, server);
           } finally {
             await ssh.close();
           }

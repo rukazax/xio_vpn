@@ -55,37 +55,23 @@ Future<Directory> applicationDirectory() async {
 class Protocol {
   final String id, name, detail, family;
   const Protocol(this.id, this.name, this.detail, this.family);
-  bool get available =>
-      (platformProtocols.contains(id) && platformTunnel) ||
-      (!DesktopEngine.enabled &&
-          id == 'tailscale' &&
-          (Platform.isLinux || Platform.isWindows));
+  bool get available => platformProtocols.contains(id) && platformTunnel;
 }
 
 const protocols = [
-  Protocol('wireguard', 'WireGuard', 'Нативный туннель · импорт .conf', 'VPN'),
-  Protocol(
-    'tailscale',
-    'Tailscale / Headscale',
-    'Mesh · exit node · DERP · Peer Relay',
-    'Mesh',
-  ),
-  Protocol('awg', 'AmneziaWG 3.1', 'Обфускация WireGuard', 'Amnezia'),
-  Protocol('xray', 'VLESS / REALITY', 'Xray · TLS · Vision', 'Amnezia'),
-  Protocol('openvpn', 'OpenVPN', 'TCP / UDP', 'VPN'),
-  Protocol('cloak', 'OpenVPN / Cloak', 'TLS / TCP', 'Amnezia'),
-  Protocol('ikev2', 'IKEv2 / IPsec', 'Системная интеграция', 'VPN'),
-  Protocol('shadowsocks', 'Shadowsocks', 'Прокси и транспорт', 'Proxy'),
-  Protocol(
-    'rivet-h3',
-    'RIVET / H3',
-    'Экспериментальный · QUIC / CONNECT-UDP',
-    'RIVET',
-  ),
+  Protocol('xray', 'Xray / VLESS', 'TLS · REALITY · XHTTP', 'Xray'),
   Protocol(
     'rivet-s1',
     'RIVET / S1',
     'Экспериментальный · TLS / WebSocket',
+    'RIVET',
+  ),
+  Protocol('cloak', 'Cloak', 'TLS / TCP', 'Cloak'),
+  Protocol('awg', 'AmneziaWG 3.1', 'Обфускация WireGuard', 'Amnezia'),
+  Protocol(
+    'rivet-h3',
+    'RIVET / H3',
+    'Экспериментальный · QUIC / CONNECT-UDP',
     'RIVET',
   ),
 ];
@@ -366,7 +352,10 @@ class ClientImport {
       }
     }
     WireGuardProfile.parse(raw, amnezia: awg);
-    return awg ? 'awg' : 'wireguard';
+    if (!awg) {
+      throw const FormatException('WireGuard удалён из этой версии XIO');
+    }
+    return 'awg';
   }
 
   static String _clientConfig(Map client, Map root) {
@@ -524,10 +513,7 @@ class ClientImport {
         if (container is! Map) throw const FormatException();
         final kind = switch (container['container']) {
           'amnezia-awg' => 'awg',
-          'amnezia-wireguard' => 'wireguard',
           'amnezia-xray' => 'xray',
-          'amnezia-openvpn' => 'openvpn',
-          'amnezia-shadowsocks' => 'shadowsocks',
           'amnezia-openvpn-cloak' => 'cloak',
           _ => throw const FormatException(),
         };
@@ -539,7 +525,7 @@ class ClientImport {
           throw const FormatException();
         }
         String config;
-        if (['xray', 'openvpn', 'shadowsocks', 'cloak'].contains(kind)) {
+        if (['xray', 'cloak'].contains(kind)) {
           if (kind == 'cloak') {
             final cloakNode = container['cloak'];
             if (cloakNode is! Map) throw const FormatException();
@@ -665,12 +651,13 @@ class AppStore extends ChangeNotifier {
   final List<ManagedUser> users = [];
   final Map<String, String> endpointCountries = {};
   String checkSite = 'https://youtube.com';
-  String priorityProtocol = 'rivet-h3';
+  String priorityProtocol = Platform.isIOS ? 'rivet-s1' : 'xray';
   int protocolTimeoutSeconds = 15;
   String? connectionCheck;
   String? selectedId;
   TunnelStatus status = const TunnelStatus();
   bool busy = false, ready = false;
+  bool serverMaintenance = false;
   String? error;
   Directory? directory;
   Timer? _timer;
@@ -706,6 +693,7 @@ class AppStore extends ChangeNotifier {
             (p) => Profile.fromJson(Map<String, dynamic>.from(p)),
           ),
         );
+        profiles.removeWhere((p) => !nativeProtocols.contains(p.protocol));
         AppLanguages.set(
           AppLanguages.names.containsKey(j['language'])
               ? j['language'] as String
@@ -727,6 +715,13 @@ class AppStore extends ChangeNotifier {
             (v) => ManagedUser.fromJson(Map<String, dynamic>.from(v)),
           ),
         );
+        final profileIds = profiles.map((p) => p.id).toSet();
+        for (final user in users) {
+          user.profileIds.removeWhere((_, id) => !profileIds.contains(id));
+        }
+        if (!profileIds.contains(selectedId)) {
+          selectedId = profiles.firstOrNull?.id;
+        }
         checkSite = validateCheckSite(j['checkSite'] ?? 'https://youtube.com')
             .toString();
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
@@ -734,7 +729,9 @@ class AppStore extends ChangeNotifier {
             .clamp(5, 60);
         priorityProtocol = nativeProtocols.contains(j['priorityProtocol'])
             ? j['priorityProtocol']
-            : 'rivet-h3';
+            : Platform.isIOS
+            ? 'rivet-s1'
+            : 'xray';
       }
       if (nativeTunnel) {
         final id = await native.invokeMethod<String>('activeId');
@@ -982,23 +979,45 @@ class AppStore extends ChangeNotifier {
     return 'xio-server://${base64Url.encode(utf8.encode(jsonEncode({'schema': 1, 'server': server.toJson(), 'credentials': credentials})))}';
   }
 
+  /// The same plan drives foreground connection and Android's background tile.
+  List<Profile> connectionCandidates(Profile? initial) {
+    if (serverMaintenance || initial == null) return [];
+    final user = users
+        .where((u) => u.profileIds.values.contains(initial.id))
+        .firstOrNull;
+    if (user?.revoked == true) return [];
+    final candidates =
+        (user == null
+                ? [initial]
+                : profiles
+                      .where(
+                        (p) =>
+                            user.profileIds.values.contains(p.id) &&
+                            nativeProtocols.contains(p.protocol),
+                      )
+                      .toList())
+            .where(
+              (p) =>
+                  nativeProtocols.contains(p.protocol) &&
+                  (!nativeTunnel || supportedProtocols.contains(p.protocol)),
+            )
+            .toList();
+    candidates.sort(
+      (a, b) =>
+          protocolPreference(
+            a.protocol,
+            priorityProtocol,
+            restricted: true,
+          ).compareTo(
+            protocolPreference(b.protocol, priorityProtocol, restricted: true),
+          ),
+    );
+    return candidates;
+  }
+
   Future<void> saveNativePlan() async {
     if (!Platform.isAndroid) return;
-    final p = selected;
-    final user = users
-        .where((u) => u.profileIds.values.contains(p?.id))
-        .firstOrNull;
-    final candidates = user?.revoked == true
-        ? <Profile>[]
-        : user == null
-        ? (p == null ? <Profile>[] : [p])
-        : profiles.where((v) => user.profileIds.values.contains(v.id)).toList();
-    candidates.sort(
-      (a, b) => protocolPreference(
-        a.protocol,
-        priorityProtocol,
-      ).compareTo(protocolPreference(b.protocol, priorityProtocol)),
-    );
+    final candidates = connectionCandidates(selected);
     await native.invokeMethod<void>(
       'saveConnectionPlan',
       jsonEncode({
@@ -1112,12 +1131,15 @@ class AppStore extends ChangeNotifier {
   Future<void> addWireGuard(
     String name,
     String raw, {
-    bool amnezia = false,
+    bool amnezia = true,
   }) async {
     if (!nativeTunnel) {
       throw UnsupportedError('The platform tunnel engine is unavailable');
     }
-    final parsed = WireGuardProfile.parse(raw, amnezia: amnezia);
+    if (!amnezia) {
+      throw const FormatException('WireGuard удалён из этой версии XIO');
+    }
+    final parsed = WireGuardProfile.parse(raw, amnezia: true);
     await resolveCountry(parsed.endpoint);
     final protocol = amnezia ? 'awg' : 'wireguard';
     final id =
@@ -1453,30 +1475,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTailscale(String name) async {
-    if (!(Platform.isLinux || Platform.isWindows)) {
-      throw UnsupportedError('Desktop-адаптер доступен на Ubuntu и Windows');
-    }
-    final existing = profiles
-        .where((p) => p.protocol == 'tailscale')
-        .firstOrNull;
-    if (existing != null) {
-      await select(existing.id);
-      return;
-    }
-    final p = Profile(
-      id: 'tailscale',
-      name: name,
-      protocol: 'tailscale',
-      endpoint: AppLanguages.text('Локальная служба Tailscale'),
-    );
-    profiles.add(p);
-    if (!status.active) selectedId = p.id;
-    await save();
-    await refresh();
-    notifyListeners();
-  }
-
   Future<void> remove(String id) async {
     if (busy || _activeId == id) throw StateError('Сначала отключите профиль');
     final previous = profiles.toList();
@@ -1498,37 +1496,6 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  static String get tailscalePath => Platform.isWindows
-      ? [
-          Platform.environment['ProgramFiles'] ?? r'C:\Program Files',
-          'Tailscale',
-          'tailscale.exe',
-        ].join(Platform.pathSeparator)
-      : '/usr/bin/tailscale';
-
-  Future<String> tailscale(
-    List<String> args, {
-    Duration timeout = const Duration(seconds: 12),
-  }) async {
-    final process = await Process.start(tailscalePath, args, runInShell: false);
-    final out = process.stdout.transform(utf8.decoder).join();
-    final err = process.stderr.transform(utf8.decoder).join();
-    final code = await process.exitCode.timeout(
-      timeout,
-      onTimeout: () {
-        process.kill();
-        throw TimeoutException('Tailscale не ответил');
-      },
-    );
-    final stdout = await out, stderr = await err;
-    if (code != 0) {
-      throw StateError(
-        stderr.trim().isEmpty ? 'Tailscale: код $code' : stderr.trim(),
-      );
-    }
-    return stdout;
-  }
-
   Future<void> connect() async {
     if (enforceConsent && !consentReady) {
       throw StateError("Сначала ознакомьтесь с лицензией и уведомлением VPN");
@@ -1538,7 +1505,7 @@ class AppStore extends ChangeNotifier {
       return;
     }
     final initial = selected;
-    if (initial == null || busy || status.active) return;
+    if (initial == null || busy || serverMaintenance || status.active) return;
     final user = users
         .where((u) => u.profileIds.values.contains(initial.id))
         .firstOrNull;
@@ -1547,21 +1514,7 @@ class AppStore extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    final candidates = user == null
-        ? [initial]
-        : profiles
-              .where(
-                (p) =>
-                    user.profileIds.values.contains(p.id) &&
-                    (!nativeTunnel || supportedProtocols.contains(p.protocol)),
-              )
-              .toList();
-    candidates.sort(
-      (a, b) => protocolPreference(
-        a.protocol,
-        priorityProtocol,
-      ).compareTo(protocolPreference(b.protocol, priorityProtocol)),
-    );
+    final candidates = connectionCandidates(initial);
     busy = true;
     error = null;
     connectionCheck = null;
@@ -1605,27 +1558,6 @@ class AppStore extends ChangeNotifier {
                 (status.handshake ?? 0) < started - 2000) {
               throw StateError('Проверка соединения не пройдена');
             }
-          } else if (p.protocol == 'tailscale') {
-            final attempt = Stopwatch()..start();
-            final budget = Duration(seconds: protocolTimeoutSeconds);
-            Duration remaining() {
-              final left = budget - attempt.elapsed;
-              if (left <= Duration.zero) {
-                throw TimeoutException('Connection deadline');
-              }
-              return left;
-            }
-
-            await tailscale(['set', '--accept-dns=true'], timeout: remaining());
-            await tailscale([
-              'up',
-              '--timeout=${protocolTimeoutSeconds}s',
-            ], timeout: remaining());
-            _activeId = p.id;
-            await refresh(fresh: true);
-            if (!await checkConnection(timeout: remaining())) {
-              throw StateError('Сайт недоступен');
-            }
           } else {
             continue;
           }
@@ -1635,8 +1567,6 @@ class AppStore extends ChangeNotifier {
         } catch (e) {
           if (nativeTunnel) {
             await native.invokeMethod('disconnect');
-          } else if (p.protocol == 'tailscale') {
-            await tailscale(['down']);
           }
           _activeId = null;
           status = const TunnelStatus();
@@ -1647,7 +1577,9 @@ class AppStore extends ChangeNotifier {
           }
         }
       }
-      throw StateError('Ни один протокол не прошёл проверку сайта');
+      throw StateError(
+        'Ни один доступный маршрут не прошёл проверку сайта. Проверьте точку входа: смена протокола не снимает блокировку IP.',
+      );
     } catch (e) {
       selectedId = initial.id;
       error = e is StateError
@@ -1668,8 +1600,6 @@ class AppStore extends ChangeNotifier {
     try {
       if (nativeTunnel) {
         await native.invokeMethod('disconnect');
-      } else {
-        await tailscale(['down']);
       }
       _activeId = null;
       status = const TunnelStatus();
@@ -1678,24 +1608,6 @@ class AppStore extends ChangeNotifier {
       log('Туннель отключён');
     } catch (_) {
       error = 'Не удалось отключить туннель. Проверьте системную службу.';
-    } finally {
-      busy = false;
-      notifyListeners();
-    }
-  }
-
-  Future<void> setExitNode(String id) async {
-    if (busy) return;
-    busy = true;
-    notifyListeners();
-    try {
-      await tailscale([
-        'set',
-        '--exit-node=$id',
-        '--exit-node-allow-lan-access=false',
-      ]);
-      await refresh();
-      log('Изменён выбор exit node');
     } finally {
       busy = false;
       notifyListeners();
@@ -1730,26 +1642,6 @@ class AppStore extends ChangeNotifier {
         } else {
           _activeId = null;
         }
-      } else if (p?.protocol == 'tailscale') {
-        final j = jsonDecode(
-          await tailscale(['status', '--json']),
-        ) as Map<String, dynamic>;
-        final up = j['BackendState'] == 'Running';
-        final exit = j['ExitNodeStatus'];
-        status = TunnelStatus(
-          active: up,
-          state: up
-              ? (exit == null
-                    ? 'Mesh активен · выход не выбран'
-                    : 'Mesh · exit node выбран')
-              : 'Tailscale: ${j['BackendState']}',
-          path: exit == null ? 'Mesh' : 'Путь зависит от peer',
-        );
-        if (up) {
-          _activeId = p!.id;
-        } else {
-          _activeId = null;
-        }
       }
     } catch (_) {
       status = TunnelStatus(
@@ -1764,7 +1656,7 @@ class AppStore extends ChangeNotifier {
 
   Map<String, dynamic> diagnosticReport(List<Map<String, dynamic>> checks) => {
     'application': 'XIO',
-    'version': '0.18.0',
+    'version': '0.22.0',
     'createdAt': DateTime.now().toUtc().toIso8601String(),
     'platform': Platform.operatingSystem,
     'tunnelState': status.state,

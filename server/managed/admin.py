@@ -43,6 +43,8 @@ def packages_install(d):
  actual_before=installed_packages(manager);previous_added=set(d.get('packagesAdded',[]))
  save(d);env=dict(os.environ,DEBIAN_FRONTEND='noninteractive',LC_ALL='C')
  commands=[['apt-get','update'],['apt-get','install','-y','--no-install-recommends','wireguard-tools','iptables','iproute2','ca-certificates','openvpn','strongswan-charon','strongswan-swanctl','libcharon-extra-plugins','libcharon-extauth-plugins','libstrongswan-standard-plugins']] if manager=='apt' else [['dnf','--setopt=install_weak_deps=False','install','-y','epel-release'],['dnf','--setopt=install_weak_deps=False','install','-y','wireguard-tools','iptables','iproute','ca-certificates','openvpn','strongswan','checkpolicy','policycoreutils-python-utils']]
+ if d.get('restrictedNetwork'):
+  commands=[[arg for arg in cmd if arg not in {'strongswan-charon','strongswan-swanctl','libcharon-extra-plugins','libcharon-extauth-plugins','libstrongswan-standard-plugins','strongswan'}] for cmd in commands]
  try:
   with (ROOT/'install.log').open('a') as log:
    for cmd in commands:subprocess.run(cmd,env=env,stdout=log,stderr=log,check=True)
@@ -165,7 +167,7 @@ def awg_uapi(lines):
 def render(d):
  lines=['[Interface]','PrivateKey = '+(ROOT/'wg.key').read_text().strip(),'Address = 10.77.0.1/24, fd77:1::1/64','ListenPort = 51820','MTU = 1280']
  for user in d['users'].values():
-  if not user.get('revoked'):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
+  if not user.get('revoked') and not d.get('restrictedNetwork'):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
  write('/etc/wireguard/x1o0.conf','\n'.join(lines)+'\n')
 def apply(d):
  render(d)
@@ -270,7 +272,7 @@ def rivet_install(d):
    if 'cert' in request:break
  except Exception:pass
  run('python3',str(base/'setup.py'),'install',input=json.dumps(request))
- d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=17;save(d)
+ d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=19;save(d)
  if changed:
   dest=Path('/usr/local/bin/xio-rivet.new');shutil.copyfile(LIB/'rivet',dest);dest.chmod(0o755);os.replace(dest,Path('/usr/local/bin/xio-rivet'))
   if shutil.which('restorecon'):run('restorecon','/usr/local/bin/xio-rivet')
@@ -317,7 +319,11 @@ def stats(d):
    u['online']=not u.get('revoked') and (u['online'] or (ms.get('online') and 0<=time.time()-ms.get('sampledAt',0)<=20))
   u.setdefault('trackingSince',int(time.time()))
  save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':int(time.time()),'statisticsNote':'Server counters; sampled every 30s. Unsampled traffic before a service crash may be lost.'}
-def public(d):return {**{k:d[k] for k in ['id','host','protocols','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'protocols':d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else []),**({'rivet':d['rivet']} if d.get('rivet') else {})}
+def public(d):
+ protocols=d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else [])
+ if d.get('restrictedNetwork'):protocols=[p for p in protocols if p in ['xray','rivet-s1','cloak','awg','rivet-h3']]
+ return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'protocols':protocols,**({'rivet':d['rivet']} if d.get('rivet') else {})}
+
 def init(req):
  if (ROOT/'deployment.json').exists():
   existing=load()
@@ -336,7 +342,7 @@ def init(req):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['fd77:1::/64','fd78:1::/64']),'IPv6 subnet conflict'
  host=req['host'];assert re.fullmatch(r'[a-zA-Z0-9.:-]{1,253}',host)
  installed='wireguard-tools' in installed_packages(platform['manager'])
- d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':16,'phase':'installing','country':country()}
+ d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':19,'restrictedNetwork':True,'phase':'installing','country':country()}
  assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',d['outbound']);save(d)
  packages_install(d);firewall_prepare(d)
  binary=Path('/usr/local/bin/xio-amneziawg-go');assert not binary.exists(),'Existing XIO binary path'

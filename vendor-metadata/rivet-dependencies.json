@@ -1,0 +1,194 @@
+[
+  {
+    "Path": "github.com/amnezia-vpn/amneziawg-go/v3",
+    "Version": "v3.1.20260814"
+  },
+  {
+    "Path": "github.com/coder/websocket",
+    "Version": "v1.8.15"
+  },
+  {
+    "Path": "github.com/davecgh/go-spew",
+    "Version": "v1.1.1"
+  },
+  {
+    "Path": "github.com/dunglas/httpsfv",
+    "Version": "v1.1.0"
+  },
+  {
+    "Path": "github.com/fxamacker/cbor/v2",
+    "Version": "v2.9.6"
+  },
+  {
+    "Path": "github.com/go-task/slim-sprig",
+    "Version": "v0.0.0-20230315185526-52ccab3ef572"
+  },
+  {
+    "Path": "github.com/goccy/go-yaml",
+    "Version": "v1.17.1"
+  },
+  {
+    "Path": "github.com/google/btree",
+    "Version": "v1.1.3"
+  },
+  {
+    "Path": "github.com/google/go-cmp",
+    "Version": "v0.6.0"
+  },
+  {
+    "Path": "github.com/google/pprof",
+    "Version": "v0.0.0-20211214055906-6f57359322fd"
+  },
+  {
+    "Path": "github.com/gorilla/websocket",
+    "Version": "v1.5.3"
+  },
+  {
+    "Path": "github.com/jordanlewis/gcassert",
+    "Version": "v0.0.0-20250430164644-389ef753e22e"
+  },
+  {
+    "Path": "github.com/onsi/ginkgo/v2",
+    "Version": "v2.12.0"
+  },
+  {
+    "Path": "github.com/pmezard/go-difflib",
+    "Version": "v1.0.0"
+  },
+  {
+    "Path": "github.com/quic-go/go-ossfuzz-seeds",
+    "Version": "v0.1.0"
+  },
+  {
+    "Path": "github.com/quic-go/masque-go",
+    "Version": "v0.6.0"
+  },
+  {
+    "Path": "github.com/quic-go/qpack",
+    "Version": "v0.6.0"
+  },
+  {
+    "Path": "github.com/quic-go/quic-go",
+    "Version": "v0.64.0"
+  },
+  {
+    "Path": "github.com/shadowsocks/go-shadowsocks2",
+    "Version": "v0.1.5"
+  },
+  {
+    "Path": "github.com/stretchr/testify",
+    "Version": "v1.12.1"
+  },
+  {
+    "Path": "github.com/x448/float16",
+    "Version": "v0.8.4"
+  },
+  {
+    "Path": "github.com/yosida95/uritemplate/v3",
+    "Version": "v3.0.2"
+  },
+  {
+    "Path": "github.com/yuin/goldmark",
+    "Version": "v1.4.13"
+  },
+  {
+    "Path": "go.uber.org/atomic",
+    "Version": "v1.11.0"
+  },
+  {
+    "Path": "go.uber.org/goleak",
+    "Version": "v1.3.0"
+  },
+  {
+    "Path": "go.uber.org/mock",
+    "Version": "v0.5.2"
+  },
+  {
+    "Path": "go.yaml.in/yaml/v3",
+    "Version": "v3.0.5"
+  },
+  {
+    "Path": "golang.getoutline.org/sdk",
+    "Version": "v0.0.23"
+  },
+  {
+    "Path": "golang.getoutline.org/sdk/x",
+    "Version": "v0.2.0"
+  },
+  {
+    "Path": "golang.org/x/crypto",
+    "Version": "v0.58.0"
+  },
+  {
+    "Path": "golang.org/x/exp",
+    "Version": "v0.0.0-20240506185415-9bf2ced13842"
+  },
+  {
+    "Path": "golang.org/x/exp/shiny",
+    "Version": "v0.0.0-20261009195045-ca0d7ba23607"
+  },
+  {
+    "Path": "golang.org/x/image",
+    "Version": "v0.47.0"
+  },
+  {
+    "Path": "golang.org/x/mobile",
+    "Version": "v0.0.0-20261011034528-197770444867"
+  },
+  {
+    "Path": "golang.org/x/mod",
+    "Version": "v0.42.0"
+  },
+  {
+    "Path": "golang.org/x/net",
+    "Version": "v0.61.0"
+  },
+  {
+    "Path": "golang.org/x/sync",
+    "Version": "v0.24.0"
+  },
+  {
+    "Path": "golang.org/x/sys",
+    "Version": "v0.49.0"
+  },
+  {
+    "Path": "golang.org/x/telemetry",
+    "Version": "v0.0.0-20261009151841-97e8ea77aa2a"
+  },
+  {
+    "Path": "golang.org/x/term",
+    "Version": "v0.47.0"
+  },
+  {
+    "Path": "golang.org/x/text",
+    "Version": "v0.43.0"
+  },
+  {
+    "Path": "golang.org/x/time",
+    "Version": "v0.9.0"
+  },
+  {
+    "Path": "golang.org/x/tools",
+    "Version": "v0.52.0"
+  },
+  {
+    "Path": "golang.org/x/tools/go/expect",
+    "Version": "v0.1.1-deprecated"
+  },
+  {
+    "Path": "golang.org/x/tools/go/packages/packagestest",
+    "Version": "v0.1.1-deprecated"
+  },
+  {
+    "Path": "golang.zx2c4.com/wintun",
+    "Version": "v0.0.0-20230126152724-0fa3db229ce2"
+  },
+  {
+    "Path": "gopkg.in/yaml.v3",
+    "Version": "v3.0.1"
+  },
+  {
+    "Path": "gvisor.dev/gvisor",
+    "Version": "v0.0.0-20231202080848-1f7806d17489"
+  }
+]

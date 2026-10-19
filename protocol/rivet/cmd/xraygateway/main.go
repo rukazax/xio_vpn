@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/stats"
-	_ "github.com/xtls/xray-core/main/distro/all"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
+	_ "xio.local/rivet/internal/xrayregistry"
 )
 
 type counter struct {

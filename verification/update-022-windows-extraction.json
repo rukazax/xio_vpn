@@ -1,0 +1,14 @@
+{
+  "operatingSystem": "windows",
+  "isWindows": true,
+  "scope": "Windows runtime under Wine, not a native Windows driver/UAC test",
+  "engines": [
+    "awg",
+    "rivet-h3",
+    "rivet-s1",
+    "xray"
+  ],
+  "archiveExtractionPassed": true,
+  "passed": true,
+  "archiveSha256": "5538e6ce9620771d9f31a49fb9f4fa5251cc6959b3a0b3dd2e8ca5c7072fabac"
+}

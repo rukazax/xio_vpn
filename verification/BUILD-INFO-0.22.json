@@ -1,0 +1,26 @@
+{
+  "release": "0.22.0+5004",
+  "scope": "local builds and isolated VM; not Russian ISP or native Windows/Apple validation",
+  "flutterTestsPassed": 105,
+  "flutterConditionalSkips": 4,
+  "serverUnitTests": 18,
+  "xhttpRaceEnabledExchanges": 80,
+  "serverRecipe": 19,
+  "androidProtocols": [
+    "xray",
+    "rivet-s1",
+    "rivet-h3",
+    "awg",
+    "cloak"
+  ],
+  "desktopProtocols": [
+    "xray",
+    "rivet-s1",
+    "rivet-h3",
+    "awg"
+  ],
+  "nativeGoSourceSha256": "ad36283743cd28a11d5f860f94d23e3c80f7ae4803264e4d2146b98110843bb1",
+  "sharingVm": "sharing-022-vm.json",
+  "serverMigrationVm": "server-migration-022-vm.json",
+  "windowsWine": "update-022-windows-extraction.json"
+}

@@ -53,3 +53,5 @@ python3 tooling/cross-platform/build-windows-on-linux.py --runner BUNDLE_PATH --
 ```
 
 This does not replace native Windows validation: Wintun, UAC and PowerShell file replacement still require a real Windows host. The primary supported build path remains `tools/build-windows.ps1` on Windows.
+
+Runtime 0.22 is rebuilt from current `protocol/rivet` and local Xray/tun2socks forks. Exact snapshot: `native-sources/android-runtime-0.22`. `tools/prepare-xray.py` restores and verifies the pinned Xray patch. Run `tools/build-rivet.py --go /path/to/go --gomobile /path/to/gomobile` before packaging the server. OpenVPN is built for internal Cloak; Tailscale is not linked into the new client.

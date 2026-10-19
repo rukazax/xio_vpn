@@ -1,72 +1,50 @@
 # Using XIO
 
-[Русский](../ru/guide.md) · [Home](../../README.md)
+[Русский](../ru/guide.md) · [Downloads](downloads.md)
 
-## Install
+## Installation
 
-Choose a build on the [download page](downloads.md). Honor Magic V3 uses Android ARM64. Open the APK and allow installation for your chosen source in Android settings. Keep app data when updating. On Ubuntu, run `sudo apt install ./XIO-0.20.0-ubuntu-amd64.deb`. On Windows, extract the entire ZIP and run XIO.exe. iOS currently provides a project to build on a Mac; a source ZIP cannot be installed on an iPhone.
+Choose Android ARM64, ARMv7 or x86_64. ARM64 fits most modern phones. Android 8+ is required; individual firmware compatibility is not guaranteed. Install updates over the existing app to keep data. Ubuntu: `sudo apt install ./XIO-0.22.0-ubuntu-amd64.deb`. Windows: extract the entire ZIP and run XIO.exe. iPhone/iPad currently has an Xcode source project, not an installable IPA.
 
-On first launch, read the licence, responsibility notice and VPN disclosure. Acknowledgements are saved on the device. View the record under Settings → About XIO → Licence and responsibility.
+Read the licence and terms on first launch. The acknowledgement receipt is stored locally under Settings → About XIO → Licence and responsibility.
 
-## Set up your VPS
+## Your server or an existing profile
 
-1. Prepare an amd64 VPS with systemd and TUN. The installer detects the OS family and package manager. This does not establish support for every distribution and release.
-2. Select + → VPN on your own server. Enter the host, SSH port, user and login method. Enter passwords in the app, never in GitHub.
-3. Start installation with administrative permissions. Read the result and log. An engine is available only after its components install successfully.
-4. Select the server on Home. Set a preferred protocol, attempt timeout and test site under Connection settings.
-5. Connect and approve the system VPN permission or separate network helper prompt.
-
-## Import an existing or third-party profile
-
-Select + → Paste key or configuration, paste the profile and confirm import. XIO detects the engine from supported formats. Arbitrary formats from other apps are not guaranteed. Importing a profile does not add an engine missing from the current platform.
-
-## Automatic selection
-
-XIO first tries the preferred supported protocol in the user profile, then tries the next one after failure or timeout. The default HTTPS test site is youtube.com. If the VPS itself cannot reach it, temporarily use https://example.com for diagnosis. A successful response does not establish the absence of all leaks or correct routing for every application.
+1. Press “+”. Enter a VPS address and SSH credentials for a managed installation, or paste a third-party key/configuration. XIO detects supported formats automatically.
+2. Use a dedicated VPS without unrelated VPN services. The installer recognises supported Debian/Ubuntu and RHEL/CentOS families and package managers. Not every release/derivative has been tested; current system-level verification uses an Ubuntu x64 VM.
+3. SSH credentials use protected client storage and are reused for administration. A changed SSH host key stops maintenance pending owner verification.
+4. Server installation deploys Xray, RIVET/S1, RIVET/H3, AWG and Cloak. Client support depends on the platform. Keep SSH access until installation finishes.
+5. Select a server on Home and connect. XIO tries an available preferred protocol and an HTTPS test. The default site is youtube.com; change it and the attempt timeout under Connection.
 
 ```mermaid
 flowchart LR
-  A[User profile] --> B[Preferred protocol]
-  B --> C{Tunnel and HTTPS successful?}
+  A[User bundle] --> B[Available preferred protocol]
+  B --> C{Connection and HTTPS pass?}
   C -->|Yes| D[Connected]
-  C -->|Error or timeout| E[Next supported engine]
+  C -->|Failure or timeout| E[Next user configuration]
   E --> C
 ```
 
-## Users
+## Users and servers
 
-Create a user for a managed server under Settings → Users. Their profile includes configurations for supported protocols. Share grants access: send the profile only to its intended recipient. Revoke removes server access. The admin option delegates user creation within a limit on concurrently active users; revoking one frees a place.
+Open Settings → Users or “+ → User”. One user bundle includes all supported configurations for that user. Share sends access secrets; send it only to the intended recipient. Revoke disables server access. The admin flag delegates user creation within a limit on simultaneously active users; revocation frees a slot. Cards show admin when applicable, online/offline, monthly traffic and actions. Statistics refresh once at startup and represent a server-counter snapshot.
 
-Cards show the admin role where applicable, online/offline status, current-month traffic and actions. Statistics refresh once at launch. They are a snapshot of server data, not a continuous presence indicator. Accounting depends on engine support and server counters.
+Server settings offer rename, configuration export, local-only deletion, or removal of XIO-owned server components followed by local deletion. Server cleanup revokes every user on that deployment. Shared packages needed by unrelated applications must stay. Administrative exports contain management secrets and differ from ordinary user bundles.
 
-## Settings
+## Connection settings and tethering
 
-- Servers: selection, renaming, export, local removal and separate cleanup of XIO-owned server components. Read the confirmation: cleanup removes VPN access and server settings. Shared SSH, web and mail services should be preserved.
-- Connection: test site, priority and timeout; Diagnostics and session log are inside this section.
-- Application: language and system theme; Android also includes icons, split tunneling and system controls.
-- About XIO: protocols, help, FAQ, licence and acknowledgement record.
+Settings → Connection contains Diagnostics, **Protocols**, test site, priority, timeout and **VPN for tethering**. About XIO contains help, licensing, GitHub and app sharing.
 
-Administrative server exports contain secrets. Share them only with someone authorised to manage the VPS. User profiles and administrative exports grant different permissions.
+Android tethering **requires root**. On a stock phone the switch displays “Root required” and remains off. On a rooted device, enable the hotspot/tethering, deliberately select its downstream interface, disable split tunnelling, enable this feature and approve root locally. Restart the hotspot after the offload setting changes. Connect the VPN and verify the external IP from a tethered device. IPv6 forwarding is blocked; IPv4 uses the tunnel, with DNS redirected to 9.9.9.9 through it. Without a tunnel, forwarding rules block IPv4. Vendor offload, reboot and system rule resets need separate validation. A switch alone is not proof of protected traffic.
 
-## Background use and disconnecting
+Windows: connect the VPN, enable the mobile hotspot, select its interface and enable sharing with administrator rights. XIO configures ICS for its adapter and refuses to replace unrelated sharing. Native Windows ICS has not yet been validated on a Windows PC; this feature is experimental. Check the tethered device’s external IP and behaviour on VPN disconnect. This control is unavailable on Ubuntu and iOS.
 
-Android uses a VPN service. The Quick Settings tile toggles the connection once system permissions have been granted. Closing the UI is not disconnecting. Force-stop, firmware restrictions and device restart can affect behaviour. Ubuntu and Windows use a separate helper that can continue after the window closes. Disconnect before uninstalling the client.
+## Background and updates
 
-[FAQ](faq.md) · [Protocols](protocols.md) · [Platform details in Russian](../../CROSS-PLATFORM-0.19.ru.md)
+Android uses a separate VPN service; the quick-settings tile toggles it after system VPN permission is granted. Force-stop, reboot and firmware restrictions can interrupt it. Ubuntu/Windows use a separate privileged helper.
 
+Check updates under Settings → Application. Automatic checks run weekly with a random offset; a release can be skipped. Android installation requires system confirmation, and iOS does not install unsigned updates. Metadata signatures and package hashes are checked first. Managed-server maintenance runs at startup/administration when the VPN is disconnected, saved owner SSH credentials work and the host key matches. Users and keys are preserved; service failure triggers rollback. Recipe 19 disables retired connections. OS package upgrades are not performed.
 
-## Updated page structure
+<img src="../images/settings-en.png" alt="Settings" width="260"> <img src="../images/connection-en.png" alt="Connection" width="260"> <img src="../images/about-en.png" alt="About" width="260">
 
-Images rendered from the Flutter UI test, without a live VPS connection.
-
-<img src="../images/settings-en.png" alt="Settings" width="260">
-
-<img src="../images/about-en.png" alt="About XIO" width="260">
-
-<img src="../images/connection-en.png" alt="Connection" width="260">
-
-<img src="../images/protocols-en.png" alt="Protocols" width="260">
-
-
-
-[Application updates: checking, installing and skipping releases](updates.md).
+Screenshots come from Flutter UI tests. [FAQ](faq.md) · [Protocols](protocols.md) · [Updates](updates.md)

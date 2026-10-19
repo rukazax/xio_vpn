@@ -1,0 +1,10 @@
+{
+  "scope": "local loopback; pinned patched Xray; race enabled",
+  "counts": {
+    "auto": 20,
+    "packet-up": 20,
+    "stream-up": 20,
+    "stream-one": 20
+  },
+  "rfNetworkTested": false
+}

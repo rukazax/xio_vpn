@@ -106,9 +106,13 @@ void main() {
       );
       final first = Completer<bool>();
       var probes = 0;
-      final store = ProbeStore(
-        siteProbe: (_) => ++probes == 1 ? first.future : Future.value(true),
-      )..protocolTimeoutSeconds = 5;
+      final store =
+          ProbeStore(
+              siteProbe: (_) =>
+                  ++probes == 1 ? first.future : Future.value(true),
+            )
+            ..protocolTimeoutSeconds = 5
+            ..priorityProtocol = 'awg';
       store.profiles.addAll([
         const Profile(
           id: 'awg1',
@@ -117,9 +121,9 @@ void main() {
           endpoint: 'test.invalid:1',
         ),
         const Profile(
-          id: 'wg2',
+          id: 'xr2',
           name: 'B',
-          protocol: 'wireguard',
+          protocol: 'rivet-s1',
           endpoint: 'test.invalid:2',
         ),
       ]);
@@ -128,7 +132,7 @@ void main() {
           id: 'a' * 32,
           name: 'A',
           serverId: 's',
-          profileIds: {'awg': 'awg1', 'wireguard': 'wg2'},
+          profileIds: {'awg': 'awg1', 'rivet-s1': 'xr2'},
         ),
       );
       store.selectedId = 'awg1';
@@ -139,12 +143,12 @@ void main() {
       expect(connected, ['awg1']);
       await tester.pump(const Duration(seconds: 2));
       await operation;
-      expect(connected, ['awg1', 'wg2']);
-      expect(store.selectedId, 'wg2');
+      expect(connected, ['awg1', 'xr2']);
+      expect(store.selectedId, 'xr2');
       expect(store.error, isNull);
       first.complete(false);
       await tester.pump();
-      expect(store.selectedId, 'wg2');
+      expect(store.selectedId, 'xr2');
       expect(store.connectionCheck, 'Сайт доступен');
       store.dispose();
     },

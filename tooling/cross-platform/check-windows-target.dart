@@ -19,7 +19,7 @@ Future<void> main() async {
       throw StateError('Kernel compiled for the wrong operating system');
     await DesktopEngine.initialise();
     result['engines'] = DesktopEngine.supported.toList()..sort();
-    if (DesktopEngine.supported.length != 7)
+    if (DesktopEngine.supported.length != 4)
       throw StateError('Desktop helper capabilities unavailable');
     final package = Platform.environment['XIO_KERNEL_CHECK_ARCHIVE'];
     if (package != null) {

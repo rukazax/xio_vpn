@@ -345,7 +345,7 @@ class _ImportDialogState extends State<ImportDialog> {
               ),
             ),
             const SizedBox(height: 16),
-            if (Platform.isAndroid) ...[
+            ...[
               const SizedBox(height: 12),
               TextButton.icon(
                 onPressed: busy
@@ -374,11 +374,6 @@ class _ImportDialogState extends State<ImportDialog> {
                 ),
               ),
             ],
-            if (!Platform.isAndroid)
-              LText(
-                'Этот профиль управляет уже установленным Tailscale. Сначала авторизуйте службу штатным клиентом. Установка Headscale-клиента: tailscale up --login-server=https://ваш-сервер.\n\nВ этой версии поддерживается одна локальная служба Tailscale; смена координатора выполняется штатным клиентом.',
-                style: TextStyle(color: context.muted),
-              ),
             if (error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 14),
@@ -399,18 +394,10 @@ class _ImportDialogState extends State<ImportDialog> {
             : () async {
                 setState(() => busy = true);
                 try {
-                  if (Platform.isAndroid) {
-                    await widget.store.importConnection(
-                      config.text,
-                      name: name.text,
-                    );
-                  } else {
-                    await widget.store.addTailscale(
-                      name.text.trim().isEmpty
-                          ? AppLanguages.text('Моя tailnet')
-                          : name.text.trim(),
-                    );
-                  }
+                  await widget.store.importConnection(
+                    config.text,
+                    name: name.text,
+                  );
                   if (context.mounted) Navigator.pop(context);
                 } catch (e) {
                   if (mounted) {

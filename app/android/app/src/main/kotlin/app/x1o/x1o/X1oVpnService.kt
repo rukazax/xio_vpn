@@ -58,6 +58,7 @@ class X1oVpnService : GoBackend.VpnService() {
     private val phaseWatch=object:Runnable {
         override fun run(){
             if(instance!==this@X1oVpnService)return
+            VpnSharing.schedule(this@X1oVpnService)
             if(RivetBackend.established){
                 val value=RivetBackend.status();val key=value.optString("phase")+value.optString("protocol")
                 if(key!=lastRivetPhase){lastRivetPhase=key;Engine.worker.execute{
@@ -94,7 +95,7 @@ class X1oVpnService : GoBackend.VpnService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val builder = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_vpn).setContentTitle("XIO VPN")
-            .setContentText(if(overrideText!=null)L10n.text(this,overrideText) else if (up) L10n.text(this, "VPN-интерфейс активен · {0}", when(Engine.kind){"rivet-h3"->"RIVET / H3";"rivet-s1"->"RIVET / S1";"awg"->"AmneziaWG";"tailscale"->"Tailscale / Headscale";"openvpn"->"OpenVPN";"cloak"->"OpenVPN / Cloak";"xray"->"Xray";"shadowsocks"->"Shadowsocks";else->"WireGuard"}) else L10n.text(this, "Запуск VPN…"))
+            .setContentText(if(overrideText!=null)L10n.text(this,overrideText) else if (up) L10n.text(this, "VPN-интерфейс активен · {0}", when(Engine.kind){"rivet-h3"->"RIVET / H3";"rivet-s1"->"RIVET / S1";"awg"->"AmneziaWG";"cloak"->"OpenVPN / Cloak";"xray"->"Xray";else->"AmneziaWG"}) else L10n.text(this, "Запуск VPN…"))
             .setContentIntent(open).setOngoing(true).setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_SERVICE).setVisibility(Notification.VISIBILITY_PRIVATE)
             .addAction(Notification.Action.Builder(null, L10n.text(this, "Отключить"), stop).build())
@@ -129,7 +130,6 @@ class X1oVpnService : GoBackend.VpnService() {
     }
     override fun onDestroy() {
         phaseHandler.removeCallbacks(phaseWatch)
-        TailscaleBackend.stop()
         OpenVpnBackend.stop()
         XrayBackend.stop()
         if(Engine.kind.startsWith("rivet-")) RivetBackend.stop()

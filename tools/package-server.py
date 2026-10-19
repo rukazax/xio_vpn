@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import tarfile,hashlib,json
+import tarfile,hashlib,json,argparse
 from native_fingerprint import fingerprint
 root=Path(__file__).resolve().parent.parent
+parser=argparse.ArgumentParser();parser.add_argument('--native-source-root',type=Path);args=parser.parse_args()
+native_root=args.native_source_root or root
 binary=root/'vendor-server/amneziawg-go-linux-amd64'
 expected='fc1a1f9fae43cd8b8a4ac969b49bf80db9ed8d536d935166286cad53fcf34c9a'
 assert hashlib.sha256(binary.read_bytes()).hexdigest()==expected
 metadata=json.loads((root/'vendor-metadata/rivet-build.json').read_text())
 assert hashlib.sha256((root/'vendor-server/xio-rivet-linux-amd64').read_bytes()).hexdigest()==metadata['serverSha256'],'Rebuild RIVET server'
-assert fingerprint(root)==metadata['sourceSha256'],'Native sources changed; run tools/build-rivet.py'
+assert fingerprint(native_root)==metadata['sourceSha256'],'Native sources changed; run tools/build-rivet.py'
 for name,key in [('xio-xray-linux-amd64','xrayServerSha256'),('xio-cloak-linux-amd64','cloakServerSha256')]:
  assert hashlib.sha256((root/'vendor-server'/name).read_bytes()).hexdigest()==metadata[key],'Native server mismatch'
 assert hashlib.sha256((root/'app/android/app/libs/rivet.aar').read_bytes()).hexdigest()==metadata['androidAarSha256'],'RIVET AAR mismatch'
@@ -23,4 +25,6 @@ for p in (root/'server/managed/xio_vici').iterdir():
 for source,target in [('admin.py','xio-admin.py'),('stack.py','xio-stack.py'),('network_stack.py','xio-network-stack.py'),('mesh_stack.py','xio-mesh-stack.py'),('mesh-pins.json','mesh-pins.json')]:
  (root/'app/assets'/target).write_bytes((root/'server/managed'/source).read_bytes())
 (root/'app/assets/xio-bootstrap.sh').write_bytes((root/'server/managed/bootstrap.sh').read_bytes())
+(root/'app/assets/xio-server-update.py').write_bytes((root/'server/managed/update.py').read_bytes())
+(root/'app/assets/xio-server-release.json').write_text(json.dumps({'schema':1,'recipeVersion':19,'sha256':hashlib.sha256((root/'app/assets/x1o-server.tar.gz').read_bytes()).hexdigest()})+'\n')
 print('Packaged owned installer with pinned AWG and RIVET server binaries')

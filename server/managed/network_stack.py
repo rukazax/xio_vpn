@@ -219,6 +219,7 @@ def install(d):
  if 'strongswan-starter' in d.get('packagesAdded',[]):subprocess.run(['systemctl','disable','--now','strongswan-starter'],capture_output=True)
  STATE.mkdir(mode=0o700,exist_ok=True);RUN.mkdir(mode=0o700,exist_ok=True);selinux_setup()
  for port,kind,unit in [(1194,socket.SOCK_DGRAM,'xio-openvpn-udp'),(1195,socket.SOCK_STREAM,'xio-openvpn-tcp'),(500,socket.SOCK_DGRAM,'xio-ikev2'),(4500,socket.SOCK_DGRAM,'xio-ikev2'),(9443,socket.SOCK_STREAM,'xio-cloak')]:
+  if d.get('restrictedNetwork') and unit not in ['xio-openvpn-tcp','xio-cloak']:continue
   service_file=Path('/etc/systemd/system/'+unit+'.service')
   if service_file.exists():assert 'Description=XIO managed '+unit in service_file.read_text(),'Unowned VPN service'
   else:
@@ -228,9 +229,9 @@ def install(d):
  pki(d)
  if not (ROOT/'tls-crypt-v2.key').exists():run('openvpn','--genkey','tls-crypt-v2-server',str(ROOT/'tls-crypt-v2.key'))
  openvpn_configs()
- for transport in ['udp','tcp']:service('xio-openvpn-'+transport,shutil.which('openvpn')+' --config '+str(ROOT/(transport+'.ovpn')),'ExecStartPre=+'+shutil.which('python3')+' /usr/local/lib/x1o-managed/network_stack.py firewall\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW\n')
+ for transport in (['tcp'] if d.get('restrictedNetwork') else ['udp','tcp']):service('xio-openvpn-'+transport,shutil.which('openvpn')+' --config '+str(ROOT/(transport+'.ovpn')),'ExecStartPre=+'+shutil.which('python3')+' /usr/local/lib/x1o-managed/network_stack.py firewall\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW\n')
  firewall(d);run('systemctl','daemon-reload')
- for unit in ['xio-openvpn-udp','xio-openvpn-tcp']:run('systemctl','enable','--now',unit);run('systemctl','restart',unit);run('systemctl','is-active','--quiet',unit)
+ for unit in (['xio-openvpn-tcp'] if d.get('restrictedNetwork') else ['xio-openvpn-udp','xio-openvpn-tcp']):run('systemctl','enable','--now',unit);run('systemctl','restart',unit);run('systemctl','is-active','--quiet',unit)
 def create(d,uid):
  pki(d)
  with tempfile.TemporaryDirectory(prefix='client-',dir=ROOT) as temp:

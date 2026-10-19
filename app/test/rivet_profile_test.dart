@@ -16,6 +16,38 @@ Map<String, dynamic> fixture(String protocol) => {
 };
 void main() {
   test(
+    'automatic plan contains only supported engines and respects maintenance',
+    () {
+      final store = AppStore(nativeTunnelOverride: true);
+      for (final id in nativeProtocols) {
+        store.profiles.add(
+          Profile(id: id, name: id, protocol: id, endpoint: 'test.invalid:443'),
+        );
+      }
+      store.users.add(
+        ManagedUser(
+          id: 'a' * 32,
+          name: 'test',
+          serverId: 's',
+          profileIds: {for (final id in nativeProtocols) id: id},
+        ),
+      );
+      expect(
+        store.connectionCandidates(store.profiles.first).map((p) => p.protocol),
+        restrictedNetworkProtocols,
+      );
+      store.serverMaintenance = true;
+      expect(store.connectionCandidates(store.profiles.first), isEmpty);
+      store.serverMaintenance = false;
+      store.users.clear();
+      expect(
+        store.connectionCandidates(store.profiles.first).single.protocol,
+        nativeProtocols.first,
+      );
+      store.dispose();
+    },
+  );
+  test(
     'protocol preference keeps paired RIVET fallback before legacy paths',
     () {
       final paths = ['wireguard', 'awg', 'rivet-h3', 'rivet-s1'];
@@ -47,12 +79,7 @@ void main() {
       'awg': 'awg',
     });
     final decoded = UserBundle.decode(b.encode());
-    expect(decoded.configs.keys.toSet(), {
-      'rivet-h3',
-      'rivet-s1',
-      'wireguard',
-      'awg',
-    });
+    expect(decoded.configs.keys.toSet(), {'rivet-h3', 'rivet-s1', 'awg'});
     expect(decoded.adminAccess, isNull);
   });
   test(

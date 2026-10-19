@@ -12,7 +12,6 @@ import (
 	"github.com/amnezia-vpn/amnezia-tun2socks/v2/tunnel/statistic"
 	xnet "github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/core"
-	_ "github.com/xtls/xray-core/main/distro/all"
 	"github.com/xtls/xray-core/transport/internet"
 	"io"
 	"net"
@@ -23,6 +22,7 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+	_ "xio.local/rivet/internal/xrayregistry"
 )
 
 type Protector interface {
@@ -72,7 +72,7 @@ func Parse(raw string) (Config, error) {
 	if d.Decode(new(any)) != io.EOF {
 		return c, ErrConfig
 	}
-	if (c.Protocol != "xray" && c.Protocol != "shadowsocks") || unsafe(c.Outbound) {
+	if c.Protocol != "xray" || unsafe(c.Outbound) {
 		return c, ErrConfig
 	}
 	for k := range c.Outbound {
@@ -81,10 +81,7 @@ func Parse(raw string) (Config, error) {
 		}
 	}
 	kind, _ := c.Outbound["protocol"].(string)
-	if kind != "vless" && kind != "vmess" && kind != "trojan" && kind != "shadowsocks" {
-		return c, ErrConfig
-	}
-	if (kind == "shadowsocks") != (c.Protocol == "shadowsocks") {
+	if kind != "vless" && kind != "vmess" && kind != "trojan" {
 		return c, ErrConfig
 	}
 	stream, _ := c.Outbound["streamSettings"].(map[string]any)

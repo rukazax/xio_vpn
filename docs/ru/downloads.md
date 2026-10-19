@@ -1,17 +1,17 @@
-# Скачать XIO 0.21.0
+# Скачать XIO 0.22.0
 
 [English](../en/downloads.md) · [Главная](../../README.ru.md)
 
 
 | Сборка | Скачать |
 |---|---|
-| Android ARM64 · Honor Magic V3 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-android-arm64-v8a.apk) |
-| Android ARMv7 · 32-bit ARM | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-android-armeabi-v7a.apk) |
-| Android x86_64 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-android-x86_64.apk) |
-| Ubuntu x64 · DEB | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-ubuntu-amd64.deb) |
-| Ubuntu x64 · tar.gz | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-ubuntu-x64.tar.gz) |
-| Windows x64 · ZIP | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-windows-x64.zip) |
-| Исходники всех платформ, включая iOS | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.21.0/XIO-0.21.0-source.zip) |
+| Android ARM64 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-arm64-v8a.apk) |
+| Android ARMv7 · 32-bit ARM | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-armeabi-v7a.apk) |
+| Android x86_64 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-x86_64.apk) |
+| Ubuntu x64 · DEB | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-amd64.deb) |
+| Ubuntu x64 · tar.gz | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-x64.tar.gz) |
+| Windows x64 · ZIP | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-windows-x64.zip) |
+| Исходники всех платформ, включая iOS | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-source.zip) |
 
 [Все релизы](https://github.com/rukazax/xio_vpn/releases)
 

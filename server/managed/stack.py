@@ -19,6 +19,7 @@ def receipt():
 def firewall(r,remove=False):
  f=r.get('firewall')
  ports=['4443/tcp','8388/tcp','8388/udp','1194/udp','9443/tcp','500/udp','4500/udp','18443/tcp','3478/udp','41641/udp']
+ if r.get('restrictedNetwork'):ports=['4443/tcp','9443/tcp']
  if not f:
   if subprocess.run(['systemctl','is-active','--quiet','firewalld'],capture_output=True).returncode==0:
    f={'kind':'firewalld','zone':run('firewall-cmd','--get-default-zone').decode().strip(),'added':[]}
@@ -51,6 +52,7 @@ def config(d):
  ssclients=[{'password':u['ssKey'],'email':uid+'@xio','level':0} for uid,u in users]
  if not ssclients:ssclients=[{'password':r['inactiveKey'],'email':'inactive@xio'}]
  j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':'0.0.0.0','port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':'0.0.0.0','port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
+ if d.get('restrictedNetwork'):j['inbounds']=[inbound for inbound in j['inbounds'] if inbound['protocol']!='shadowsocks']
  write(ROOT/'config.json',json.dumps(j))
 def apply(d):
  config(d)
@@ -76,6 +78,7 @@ def install(d):
  dest=Path('/usr/local/bin/xio-stack');src=LIB/'xraygateway';tmp=dest.with_suffix('.new');shutil.copyfile(src,tmp);tmp.chmod(0o755);tmp.replace(dest)
  if shutil.which('restorecon'):run('restorecon',str(dest))
  network.STATE.mkdir(mode=0o700,exist_ok=True);network.RUN.mkdir(mode=0o700,exist_ok=True);network.selinux_setup()
+ r['restrictedNetwork']=d.get('restrictedNetwork',False);write(ROOT/'receipt.json',json.dumps(r))
  firewall(r)
  config(d)
  write('/etc/systemd/system/xio-stack.service','''[Unit]
@@ -102,15 +105,19 @@ UMask=0077
 WantedBy=multi-user.target
 ''',0o644)
  run('systemctl','daemon-reload');subprocess.run(['systemctl','reset-failed','xio-stack'],capture_output=True);run('systemctl','enable','--now','xio-stack');run('systemctl','restart','xio-stack');run('systemctl','is-active','--quiet','xio-stack')
- network.install(d);network.ike_install(d);network.cloak_install(d);mesh.install(d)
- d['stack']={'protocols':['xray','shadowsocks','openvpn','cloak','ikev2'],'publicKey':r['publicKey'],'shortId':r['shortId'],'serverName':r['serverName']}
+ network.install(d);network.cloak_install(d)
+ if not d.get('restrictedNetwork'):network.ike_install(d);mesh.install(d)
+ d['stack']={'protocols':(['xray','cloak'] if d.get('restrictedNetwork') else ['xray','shadowsocks','openvpn','cloak','ikev2']),'publicKey':r['publicKey'],'shortId':r['shortId'],'serverName':r['serverName']}
 def create(d,uid):
- u={'uuid':str(uuid.uuid4()),'ssKey':base64.b64encode(secrets.token_bytes(32)).decode()};d['users'][uid]['stack']=u;apply(d);configs=network.create(d,uid);configs.update(network.ike_profile(d,uid));configs.update(network.cloak_profile(d,uid,configs['openvpn']));
+ u={'uuid':str(uuid.uuid4()),'ssKey':base64.b64encode(secrets.token_bytes(32)).decode()};d['users'][uid]['stack']=u;apply(d);configs=network.create(d,uid)
+ if not d.get('restrictedNetwork'):configs.update(network.ike_profile(d,uid))
+ configs.update(network.cloak_profile(d,uid,configs['openvpn']))
+ if d.get('restrictedNetwork'):configs.pop('openvpn',None)
  if d.get('mesh'):configs.update(mesh.create(d,uid))
  return dict(profiles(d,uid),**configs)
 def profiles(d,uid):
  r=receipt();u=d['users'][uid]['stack'];host=d['host']
- return {p:json.dumps({'protocol':p,'outbound':out}) for p,out in {'xray':{'protocol':'vless','settings':{'vnext':[{'address':host,'port':4443,'users':[{'id':u['uuid'],'encryption':'none','flow':'xtls-rprx-vision'}]}]},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'serverName':r['serverName'],'fingerprint':'chrome','publicKey':r['publicKey'],'shortId':r['shortId']}}},'shadowsocks':{'protocol':'shadowsocks','settings':{'servers':[{'address':host,'port':8388,'method':'2022-blake3-aes-256-gcm','password':r['ssKey']+':'+u['ssKey']}]}}}.items()}
+ return {p:json.dumps({'protocol':p,'outbound':out}) for p,out in {'xray':{'protocol':'vless','settings':{'vnext':[{'address':host,'port':4443,'users':[{'id':u['uuid'],'encryption':'none','flow':'xtls-rprx-vision'}]}]},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'serverName':r['serverName'],'fingerprint':'chrome','publicKey':r['publicKey'],'shortId':r['shortId']}}},'shadowsocks':{'protocol':'shadowsocks','settings':{'servers':[{'address':host,'port':8388,'method':'2022-blake3-aes-256-gcm','password':r['ssKey']+':'+u['ssKey']}]}}}.items() if not d.get('restrictedNetwork') or p!='shadowsocks'}
 def stats():
  try:return json.loads((STATE/'stats.json').read_text())
  except FileNotFoundError:return {}

@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"xio.local/rivet/internal/rivet"
-	"xio.local/rivet/internal/tailclient"
 	"xio.local/rivet/internal/xrayclient"
 )
 
@@ -38,9 +37,9 @@ func ParseProfile(protocol, raw string) (p Profile, err error) {
 		}
 		p.Addresses = []netip.Prefix{netip.PrefixFrom(netip.MustParseAddr(c.IP), 32)}
 		p.Endpoints = []string{c.Endpoint}
-	case "wireguard", "awg":
+	case "awg":
 		return parseWG(p)
-	case "xray", "shadowsocks":
+	case "xray":
 		c, e := xrayclient.Parse(raw)
 		if e != nil || c.Protocol != protocol {
 			return p, ErrProfile
@@ -54,13 +53,6 @@ func ParseProfile(protocol, raw string) (p Profile, err error) {
 		port := int(a["port"].(float64))
 		p.Endpoints = []string{net.JoinHostPort(a["address"].(string), strconv.Itoa(port))}
 		p.Addresses = []netip.Prefix{netip.MustParsePrefix("10.80.0.2/32")}
-	case "tailscale":
-		c, e := tailclient.Parse(raw)
-		if e != nil {
-			return p, ErrProfile
-		}
-		_ = c
-		p.Addresses = nil
 	default:
 		return p, ErrProfile
 	}

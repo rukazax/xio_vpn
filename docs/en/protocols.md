@@ -1,32 +1,22 @@
-# XIO protocols
+# XIO 0.22 protocols
 
-[Русский](../ru/protocols.md) · [Home](../../README.md)
+[Русский](../ru/protocols.md) · [Guide](guide.md)
 
-| Engine | Android | Ubuntu / Windows | iOS |
+| Connection | Android | Ubuntu / Windows | Purpose and limits |
 |---|---|---|---|
-| WireGuard | Yes | Yes | No |
-| AmneziaWG 3.1 | Yes | Yes | No |
-| Xray / REALITY | Yes | Yes | No |
-| Shadowsocks | Yes | Yes | No |
-| OpenVPN | Yes | No | No |
-| OpenVPN / Cloak | Yes | No | No |
-| IKEv2 / IPsec | Yes | No | No |
-| Tailscale / Headscale | Yes | Yes | No |
-| RIVET / H3 | Yes | Yes | Source integration |
-| RIVET / S1 | Yes | Yes | Source integration |
+| Xray: VLESS, VMess, Trojan | Yes | Yes | TLS/REALITY with supported XHTTP, TCP, WebSocket, gRPC and HTTP Upgrade settings matching the server |
+| RIVET/S1 | Yes | Yes | Experimental XIO TLS/WebSocket transport with a pinned server certificate |
+| RIVET/H3 | Yes | Yes | Experimental HTTP/3/QUIC transport; requires reachable UDP |
+| AmneziaWG | Yes | Yes | AWG transport obfuscation, including validated 3.1 fields; cannot restore blocked UDP or a blocked IP |
+| Cloak | Yes | No | Cloak with internal OpenVPN; no standalone OpenVPN connection |
+| RIVET for iOS | Source project | — | S1/H3 implemented in source; no signed IPA or Apple-device validation |
 
-Yes means an integrated engine, not guaranteed connectivity in every network. See the main page for Windows and iOS verification limits. Tailscale/Headscale integrates a mesh client and control server; it is not a cryptographic protocol invented by XIO.
+Plain WireGuard, OpenVPN, IKEv2, Shadowsocks and Tailscale are removed from supported client connections. Their old standalone profiles cannot connect. Mixed user bundles retain supported configurations. Cloak's internal OpenVPN and shared AWG infrastructure remain. This product choice does not prove that removed protocols fail everywhere.
 
-## RIVET/H3
+Automatic selection uses available configurations belonging to the same user. Default order: Xray → RIVET/S1 → Cloak → AWG → RIVET/H3; unavailable platform engines are skipped. A preferred protocol can change the order. An unsuccessful attempt is disconnected before fallback. An imported single profile does not acquire imaginary backup configurations.
 
-An experimental IP-packet transport: inner QUIC/TLS 1.3 passes through outer HTTP/3 CONNECT-UDP (MASQUE). The entry checks a token; the gateway uses a pin and device HMAC. Inner TLS uses X25519MLKEM768 from the Go standard library. It uses established libraries. The project defines transport and management behaviour, rather than independently audited new cryptography. Networks can block UDP, and using HTTP/3 does not by itself conceal a VPN.
+RIVET uses established cryptographic libraries. Its wire format is unchanged in 0.22. VLESS Encryption support uses Xray cryptography, not a new XIO cipher. RIVET has no independent security audit or proven browser indistinguishability. Read the [network limitations article](../blog/2026-10-19-restricted-networks.md#english) and [video review](../research/2026-10-19-video-protocols.en.md).
 
-## RIVET/S1
+![Reachable entry and transport](../images/allowlist-entry-en.svg)
 
-An experimental fallback transport: inner TLS 1.3 is carried by WebSocket over outer TLS/TCP (WSS). The client checks the outer server certificate and gateway pin and authenticates with its credentials. It is intended for paths where UDP does not work. Ordered TCP delivery can increase latency under packet loss. TLS alone does not establish a browser-like traffic fingerprint.
-
-## Implementation and evidence
-
-[RIVET sources](../../protocol/rivet/) · [Original architecture and threat model, Russian](../../research/RIVET-1-ARCHITECTURE.ru.md) · [0.19 verification, Russian](../../verification/VERIFICATION-0.19.0.ru.md).
-
-The architecture document includes design proposals and hypotheses. Code and version-specific reports define implemented behaviour. There is no claim of independent auditing, resistance to every blocking method or absolute anonymity. The desktop version does not yet have a full system kill switch between attempts; IPv6 is blocked during a connection.
+TLS still exposes the entry IP. A strict allowlist needs a reachable ingress and a working path to the exit. XIO does not automatically supply a reachable CDN or turn an unrelated website into a relay.

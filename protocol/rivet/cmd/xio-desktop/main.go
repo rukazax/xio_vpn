@@ -24,12 +24,18 @@ import (
 type request struct {
 	Method, ID, Protocol, Config string
 	TimeoutMillis                int64
+	SharingEnabled               bool
+	SharingInterface             string
 }
 
 func run(r *desktop.Runtime, q request) (any, error) {
 	switch q.Method {
 	case "capabilities":
 		return desktop.Protocols, nil
+	case "sharingStatus":
+		return r.SharingStatus()
+	case "sharingSet":
+		return r.SetSharing(q.SharingEnabled, q.SharingInterface)
 	case "status":
 		return r.Status(), nil
 	case "disconnect":

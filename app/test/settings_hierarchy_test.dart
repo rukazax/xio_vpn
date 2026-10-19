@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:x1o/core.dart';
+import 'package:x1o/desktop_engine.dart';
 import 'package:x1o/main.dart';
 import 'package:x1o/l10n.dart';
 
@@ -32,6 +33,9 @@ void main() {
       String t(String value) => AppLanguages.text(value);
       tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
       addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      DesktopEngine.enabled = true;
+      DesktopEngine.supported = {'xray','awg','rivet-s1','rivet-h3'};
+      addTearDown(() { DesktopEngine.enabled = false; DesktopEngine.supported = {}; });
       final store = AppStore();
       final boundaryKey = GlobalKey();
       Future<void> capture(String name) async {
@@ -74,12 +78,7 @@ void main() {
       );
       expect(find.text(t('WireGuard')).hitTestable(), findsNothing);
       await capture('about');
-      await tester.tap(find.text(t('Протоколы')).hitTestable());
-      await tester.pumpAndSettle();
-      expect(find.text(t('WireGuard')).hitTestable(), findsOneWidget);
-      await capture('protocols');
-      await tester.tap(find.byType(BackButton).hitTestable());
-      await tester.pumpAndSettle();
+      expect(find.text(t('Протоколы')).hitTestable(), findsNothing);
       await tester.tap(find.text(t('Справка и FAQ')).hitTestable());
       await tester.pumpAndSettle();
       expect(find.text(t('Справка и FAQ')).hitTestable(), findsOneWidget);
@@ -97,6 +96,14 @@ void main() {
       );
       await tester.pumpAndSettle();
       await capture('connection');
+      expect(find.text(t('VPN при раздаче')), findsOneWidget);
+      await tester.tap(find.text(t('Протоколы')).hitTestable());
+      await tester.pumpAndSettle();
+      expect(find.text('Xray / VLESS').hitTestable(), findsOneWidget);
+      expect(find.text('WireGuard').hitTestable(), findsNothing);
+      await capture('protocols');
+      await tester.tap(find.byType(BackButton).hitTestable());
+      await tester.pumpAndSettle();
       await tester.tap(find.text(t('Диагностика')).hitTestable());
       await tester.pumpAndSettle();
       expect(find.text(t('Журнал сеанса')), findsOneWidget);

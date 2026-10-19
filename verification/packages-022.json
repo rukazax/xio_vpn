@@ -1,0 +1,32 @@
+[
+  {
+    "name": "XIO-0.22.0-android-arm64-v8a.apk",
+    "launcher": true,
+    "signature": true,
+    "alignment16KiB": true,
+    "currentNativePayload": true,
+    "currentBundledAssets": true,
+    "publisherCertificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+    "sha256": "414a25e3388194894c7a86be155e220f6d5d866a51da40072ede40e605163bad"
+  },
+  {
+    "name": "XIO-0.22.0-android-armeabi-v7a.apk",
+    "launcher": true,
+    "signature": true,
+    "alignment16KiB": true,
+    "currentNativePayload": true,
+    "currentBundledAssets": true,
+    "publisherCertificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+    "sha256": "f4551ec25642947dbf41b9366c5d3df2bda6468e77ddf7a3794c36cbd6738b54"
+  },
+  {
+    "name": "XIO-0.22.0-android-x86_64.apk",
+    "launcher": true,
+    "signature": true,
+    "alignment16KiB": true,
+    "currentNativePayload": true,
+    "currentBundledAssets": true,
+    "publisherCertificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+    "sha256": "43c33092c06274337a14201c17490b7345d9a009e2cac8ef75efa0d72eb2b187"
+  }
+]

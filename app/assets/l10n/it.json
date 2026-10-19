@@ -392,5 +392,15 @@
   "Android запросит разрешение на установку. После установки пакет будет удалён.": "Android richiederà il permesso di installare. Il pacchetto verrà eliminato dopo l’installazione.",
   "Приложение перезапустится после установки. Настройки сохранятся.": "L’app si riavvierà dopo l’installazione. Le impostazioni verranno mantenute.",
   "Разрешите установку приложений из XIO и нажмите «Обновить» ещё раз.": "Consenti a XIO di installare app e premi di nuovo Aggiorna.",
-  "XIO · X in 1 out\nВерсия 0.21.0": "XIO · X in 1 out\nVersione 0.21.0"
+  "XIO · X in 1 out\nВерсия 0.22.0": "XIO · X in 1 out\nVersione 0.22.0",
+  "Ограниченная сеть": "Rete limitata",
+  "Автовыбор: Xray, RIVET, Cloak и AmneziaWG. Доступность точки входа проверяется вашей сетью.": "Selezione automatica: Xray, RIVET, Cloak e AmneziaWG. La rete determina se il punto di ingresso è raggiungibile.",
+  "Обновление сервера XIO…": "Aggiornamento del server XIO…",
+  "VPN при раздаче": "VPN per tethering",
+  "Необходим root": "Root necessario",
+  "Необходим root. Сначала включите модем или точку доступа телефона.": "È necessario root. Attiva prima il tethering o l’hotspot del telefono.",
+  "Необходимы права администратора. Сначала включите мобильный хот-спот Windows и VPN.": "Servono i diritti di amministratore. Attiva l’hotspot Windows e la VPN.",
+  "Интерфейс раздачи": "Interfaccia tethering",
+  "Проверить интерфейсы": "Aggiorna interfacce",
+  "Эта платформа не поддерживает VPN при раздаче в XIO": "XIO non supporta il tethering VPN su questa piattaforma"
 }

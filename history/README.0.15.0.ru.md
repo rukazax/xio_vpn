@@ -1,6 +1,6 @@
 # XIO 0.15 — автоматическое переключение и компактный интерфейс
 
-[APK ARM64 для Honor Magic V3](releases/XIO-0.15.0-android-arm64-v8a.apk) · [исходники](releases/XIO-0.15.0-source.zip) · [отчёт о проверке](verification/VERIFICATION-0.15.ru.md) · [предыдущий выпуск](history/README.0.14.0.ru.md)
+[APK Android ARM64](releases/XIO-0.15.0-android-arm64-v8a.apk) · [исходники](releases/XIO-0.15.0-source.zip) · [отчёт о проверке](verification/VERIFICATION-0.15.ru.md) · [предыдущий выпуск](history/README.0.14.0.ru.md)
 
 XIO означает **X in 1 out**. Рабочие Android-движки: WireGuard и AmneziaWG3.1. Полный ранее запрошенный набор AmneziaVPN, Android Tailscale/Headscale и экспериментальные RIVET пока не реализованы. Они не выдаются за работающие протоколы.
 

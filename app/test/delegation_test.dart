@@ -35,7 +35,7 @@ void main() {
         'Admin',
         id,
         'server',
-        {'wireguard': 'test fixture'},
+        {'awg': 'test fixture'},
         adminAccess: {
           'server': server.toJson(),
           'key': generated.$1,
@@ -50,7 +50,7 @@ void main() {
       expect(
         () => UserBundle.decode(
           UserBundle('Bad', id, 'server', {
-            'wireguard': 'fixture',
+            'awg': 'fixture',
           }, adminAccess: bad).encode(),
         ),
         throwsFormatException,

@@ -24,12 +24,12 @@ def stage(name,entry):
  run(['xvfb-run','-a','wine',str(a.gen_snapshot.resolve()),'--deterministic','--snapshot_kind=app-aot-elf','--elf='+win(target/'data/app.so'),'--strip',win(dill)],env=env,timeout=180)
  return target
 probe=stage('probe',r/'tooling/cross-platform/check-windows-target.dart')
-proof=r/'verification/update-021-windows-extraction.json';proof.unlink(missing_ok=True)
+proof=r/'verification/update-022-windows-extraction.json';proof.unlink(missing_ok=True)
 probe_env=dict(env,XIO_KERNEL_CHECK_OUTPUT=win(proof))
 run(['xvfb-run','-a','wine',str(probe/'XIO.exe')],env=probe_env,timeout=150)
 result=json.loads(proof.read_text());assert result['passed'] and result['isWindows'],result
 bundle=stage('production',r/'app/lib/main.dart')
-for name in ['LICENSE','COPYRIGHT','CHANGELOG.md','THIRD-PARTY-0.21.md']:shutil.copy2(r/name,bundle/name)
+for name in ['LICENSE','COPYRIGHT','CHANGELOG.md','THIRD-PARTY-0.21.md','THIRD-PARTY-0.22.md']:shutil.copy2(r/name,bundle/name)
 out=r/f'releases/XIO-{version}-windows-x64.zip';part=out.with_suffix('.zip.part')
 with zipfile.ZipFile(part,'w',zipfile.ZIP_DEFLATED) as z:
  for f in sorted(bundle.rglob('*')):

@@ -3,13 +3,19 @@ package xrayclient
 import (
 	"bufio"
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"github.com/amnezia-vpn/amnezia-tun2socks/v2/metadata"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/transport/internet"
 	"io"
+	"math/big"
 	"net"
 	"net/netip"
 	"os"
@@ -19,8 +25,19 @@ import (
 	"time"
 )
 
+var fixtureCert, fixtureKey []string
+
+func init() {
+	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	cert := &x509.Certificate{SerialNumber: big.NewInt(1), DNSNames: []string{"localhost"}, NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(time.Hour), KeyUsage: x509.KeyUsageDigitalSignature, ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth}, BasicConstraintsValid: true, IsCA: true}
+	der, _ := x509.CreateCertificate(rand.Reader, cert, cert, &key.PublicKey, key)
+	secret, _ := x509.MarshalPKCS8PrivateKey(key)
+	fixtureCert = strings.Split(strings.TrimSpace(string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: der}))), "\n")
+	fixtureKey = strings.Split(strings.TrimSpace(string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: secret}))), "\n")
+}
 func profile(port int) string {
-	return fmt.Sprintf(`{"protocol":"shadowsocks","outbound":{"protocol":"shadowsocks","settings":{"servers":[{"address":"127.0.0.1","port":%d,"method":"aes-128-gcm","password":"test-only-long-password"}]}}}`, port)
+	cert, _ := json.Marshal(fixtureCert)
+	return fmt.Sprintf(`{"protocol":"xray","outbound":{"protocol":"vless","settings":{"vnext":[{"address":"127.0.0.1","port":%d,"users":[{"id":"b3b2eb49-e41f-41df-9761-0956785a236b","encryption":"none"}]}]},"streamSettings":{"network":"tcp","security":"tls","tlsSettings":{"serverName":"localhost","disableSystemRoot":true,"certificates":[{"certificate":%s,"usage":"verify"}]}}}}`, port, cert)
 }
 
 type protect bool
@@ -28,9 +45,9 @@ type protect bool
 func (p protect) Protect(int64) bool    { return bool(p) }
 func (p protect) Resolve(string) string { return "127.0.0.1" }
 func TestRejectUnsafe(t *testing.T) {
-	for _, raw := range []string{`{}`, profile(0), strings.Replace(profile(8388), `"aes-128-gcm"`, `"none"`, 1), strings.Replace(profile(8388), `"outbound":{`, `"outbound":{"proxySettings":{},`, 1), strings.Replace(profile(8388), `"outbound":{`, `"outbound":{"streamSettings":{"tlsSettings":{"allowInsecure":true}},`, 1), profile(8388) + ` {}`, strings.Replace(profile(8388), `"shadowsocks","settings"`, `"freedom","settings"`, 1)} {
+	for _, raw := range []string{`{}`, profile(0), strings.Replace(profile(8388), `"security":"tls"`, `"security":"none"`, 1), strings.Replace(profile(8388), `"outbound":{`, `"outbound":{"proxySettings":{},`, 1), strings.Replace(profile(8388), `"serverName":"localhost"`, `"allowInsecure":true,"serverName":"localhost"`, 1), profile(8388) + ` {}`, strings.Replace(profile(8388), `"vless","settings"`, `"freedom","settings"`, 1)} {
 		if _, e := Parse(raw); e == nil {
-			t.Fatal("unsafe profile accepted")
+			t.Fatalf("unsafe profile accepted: %s", raw)
 		}
 	}
 }
@@ -47,7 +64,7 @@ func TestServerFixture(t *testing.T) {
 	fmt.Println("READY")
 	select {}
 }
-func TestProtectedShadowsocksRoundTrip(t *testing.T) {
+func TestProtectedVLESSTLSRoundTrip(t *testing.T) {
 	echo, e := net.Listen("tcp", "127.0.0.1:0")
 	if e != nil {
 		t.Fatal(e)
@@ -83,7 +100,9 @@ func TestProtectedShadowsocksRoundTrip(t *testing.T) {
 	}
 	port := listener.Addr().(*net.TCPAddr).Port
 	listener.Close()
-	cfg := fmt.Sprintf(`{"log":{"loglevel":"debug"},"inbounds":[{"listen":"127.0.0.1","port":%d,"protocol":"shadowsocks","settings":{"method":"aes-128-gcm","password":"test-only-long-password","network":"tcp,udp"}}],"outbounds":[{"protocol":"freedom","settings":{"finalRules":[{"action":"allow","ip":["127.0.0.1"]}]}}]}`, port)
+	cert, _ := json.Marshal(fixtureCert)
+	secret, _ := json.Marshal(fixtureKey)
+	cfg := fmt.Sprintf(`{"log":{"loglevel":"none"},"inbounds":[{"listen":"127.0.0.1","port":%d,"protocol":"vless","settings":{"clients":[{"id":"b3b2eb49-e41f-41df-9761-0956785a236b"}],"decryption":"none"},"streamSettings":{"network":"tcp","security":"tls","tlsSettings":{"certificates":[{"certificate":%s,"key":%s}]}}}],"outbounds":[{"protocol":"freedom","settings":{"finalRules":[{"action":"allow","ip":["127.0.0.1"]}]}}]}`, port, cert, secret)
 	child := exec.Command(os.Args[0], "-test.run=^TestServerFixture$")
 	child.Env = append(os.Environ(), "XIO_TEST_SERVER="+cfg)
 	out, e := child.StdoutPipe()

@@ -1,23 +1,19 @@
-# Help and FAQ
+# Questions and answers
 
-[Русский](../ru/faq.md) · [Home](../../README.md)
+[Русский](../ru/faq.md) · [Guide](guide.md)
 
-**Cannot connect.** Check VPS reachability, profile validity, ports, device clock and the test site. Open Settings → Connection → Diagnostics. Never post a full access profile or SSH password with a log.
+**Why do all protocols fail?** Check entry IP reachability, SSH, DNS, device time and Connection diagnostics. Protocol changes do not restore a blocked IP. A timeout alone does not identify filtering.
 
-**The tunnel works, but XIO switches protocols.** The VPS may be unable to reach the test site. Try https://example.com while diagnosing the problem, then choose a suitable site.
+**Where are protocols?** Settings → Connection → Protocols. Automatic selection uses available platform engines and configurations belonging to the selected user.
 
-**Where are protocols, help and the licence?** Under Settings → About XIO. All engine entries are grouped under Protocols.
+**Why did a previous profile disappear?** Version 0.22 removes standalone WireGuard, OpenVPN, IKEv2, Shadowsocks and Tailscale. Import a supported profile. Internal OpenVPN for Cloak remains.
 
-**Where is Diagnostics?** Settings → Connection → Diagnostics.
+**Does ordinary VPN require root?** No. Android VPN tethering requires root. A stock phone displays “Root required”; a switch cannot add this system capability.
 
-**Why is there no IPA?** iPhone builds require a Mac, Xcode, an Apple Developer team and signed NetworkExtension provisioning. This release includes source, not an installable IPA.
+**How do I verify tethering?** Check the external IP from the tethered device and loss of access after VPN disconnect. Restart the hotspot after the offload setting changes. Vendor bypasses of netfilter need separate validation. Windows ICS is experimental and requires administrator rights and an active hotspot.
 
-**Can XIO import any VPN?** Only supported formats and engines. Availability differs by platform.
+**Does the server update with the client?** Managed-server maintenance runs at startup/administration when the VPN is off, saved SSH works and the host key matches. Active VPN defers it. Recipe 19 disables legacy XIO services; a service-start failure triggers rollback.
 
-**Can I share an administrative export?** Yes, but it includes secrets and server-management access. Share a user profile for ordinary VPN access.
+**Where is the iOS app?** A source project is available; there is no signed IPA yet.
 
-**Why is user status not continuously refreshed?** Statistics load once when the app launches. They are a snapshot rather than constant monitoring.
-
-**What does cleanup remove?** XIO-owned VPN components and configuration covered by the installer. It cannot guarantee erasure from provider backups or all system logs.
-
-**Does a VPN guarantee anonymity?** No. Your provider, VPS operator and destination services can see different metadata. HTTPS protects content separately from the VPN.
+**Is circumvention guaranteed?** No. This build has no Russian-operator field measurements or independent RIVET audit. Entry reachability and transport camouflage are separate problems.

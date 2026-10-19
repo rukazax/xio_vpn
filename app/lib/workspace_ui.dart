@@ -18,19 +18,15 @@ import 'core.dart';
 import 'managed_service.dart';
 import 'main.dart' show BrandMark, ImportDialog, AndroidControls, LabPage;
 import 'split_routing.dart';
+import 'vpn_sharing_ui.dart';
 
 String protocolName(String id) =>
     const {
-      'wireguard': 'WireGuard',
       'awg': 'AmneziaWG 3.1',
       'rivet-h3': 'RIVET / H3',
       'rivet-s1': 'RIVET / S1',
       'xray': 'Xray / REALITY',
-      'shadowsocks': 'Shadowsocks',
-      'openvpn': 'OpenVPN',
       'cloak': 'OpenVPN / Cloak',
-      'ikev2': 'IKEv2 / IPsec',
-      'tailscale': 'Tailscale / Headscale',
     }[id] ??
     id;
 String traffic(num bytes) => bytes < 1024
@@ -292,7 +288,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-              onPressed: store.busy
+              onPressed: store.busy || store.serverMaintenance
                   ? null
                   : store.profiles.isEmpty
                   ? () => select(2)
@@ -318,7 +314,11 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           ),
         ),
         const SizedBox(height: 20),
-        LText(store.status.state),
+        LText(
+          store.serverMaintenance
+              ? 'Обновление сервера XIO…'
+              : store.status.state,
+        ),
         if (store.connectionCheck != null)
           Padding(
             padding: const EdgeInsets.all(8),
@@ -473,7 +473,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
         Card(
           child: ListTile(
             title: Text(server.label),
-            subtitle: const Text('RIVET · WireGuard · AmneziaWG'),
+            subtitle: const Text('XIO VPN'),
             trailing: PopupMenuButton<String>(
               constraints: BoxConstraints.tightFor(
                 width: (MediaQuery.sizeOf(context).width - 24)
@@ -614,6 +614,22 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           'Настройки соединения',
           ConnectionSettings(
             store: store,
+            onProtocols: () => push(
+              'Протоколы',
+              Column(
+                children: [
+                  for (final p in protocols)
+                    ListTile(
+                      title: Text(p.name),
+                      subtitle: LText(
+                        p.available
+                            ? 'Доступен в этой платформе'
+                            : 'Движок ещё не интегрирован',
+                      ),
+                    ),
+                ],
+              ),
+            ),
             onDiagnostics: () => push('Диагностика', diagnostics()),
           ),
         ),
@@ -682,7 +698,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const LText('XIO · X in 1 out\nВерсия 0.21.0'),
+              const LText('XIO · X in 1 out\nВерсия 0.22.0'),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.code),
@@ -705,27 +721,6 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                     );
                   }
                 }),
-              ),
-              ListTile(
-                leading: const Icon(Icons.route_outlined),
-                title: const LText('Протоколы'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => push(
-                  'Протоколы',
-                  Column(
-                    children: [
-                      for (final p in protocols)
-                        ListTile(
-                          title: Text(p.name),
-                          subtitle: LText(
-                            p.available
-                                ? 'Доступен в этой платформе'
-                                : 'Движок ещё не интегрирован',
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
               ),
               ListTile(
                 leading: const Icon(Icons.help_outline),
@@ -787,11 +782,12 @@ class _CachedPageState extends State<_CachedPage>
 
 class ConnectionSettings extends StatefulWidget {
   final AppStore store;
-  final VoidCallback? onDiagnostics;
+  final VoidCallback? onDiagnostics, onProtocols;
   const ConnectionSettings({
     super.key,
     required this.store,
     this.onDiagnostics,
+    this.onProtocols,
   });
   @override
   State<ConnectionSettings> createState() => _ConnectionSettingsState();
@@ -821,6 +817,14 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         const Divider(),
       ],
 
+      ListTile(
+        leading: const Icon(Icons.route_outlined),
+        title: const LText('Протоколы'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: widget.onProtocols,
+      ),
+      const VpnSharingControl(),
+      const SizedBox(height: 16),
       TextField(
         controller: site,
         keyboardType: TextInputType.url,
@@ -837,7 +841,9 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
           labelText: tr(context, 'Приоритетный протокол'),
         ),
         items: [
-          for (final p in nativeProtocols.where(platformProtocols.contains))
+          for (final p in nativeProtocols.where(
+            (p) => platformProtocols.contains(p),
+          ))
             DropdownMenuItem(value: p, child: Text(protocolName(p))),
         ],
         onChanged: (v) {
@@ -1298,6 +1304,9 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     key.clear();
     passphrase.clear();
     setState(() => authenticated = true);
+    if (server != null && !server!.delegated && widget.action != 'uninstall') {
+      await service.ensureUpdated(widget.store, server!);
+    }
     if (server == null) {
       try {
         final known = await service.command({'action': 'inspect'});

@@ -7,13 +7,15 @@ import 'package:x1o/core.dart';
 import 'security_test.dart' show profile;
 
 void main() {
-  test('foreign WireGuard detection ignores misleading names and comments', () {
-    final c = ClientImport.parse(
-      '\uFEFF  # Exported by foreign provider\n${profile()}\n# Jc = 9\n',
-    );
-    expect(c.protocol, 'wireguard');
-    expect(c.config, contains('PrivateKey'));
-  });
+  test(
+    'plain WireGuard and comments pretending to enable AWG are rejected',
+    () {
+      expect(
+        () => ClientImport.parse('${profile()}\n# Jc = 9'),
+        throwsFormatException,
+      );
+    },
+  );
   test('AWG extensions including zero and empty fields select AWG', () {
     for (final field in ['Jc = 0', 'I2 =', 'S4 = 0', 'H1 = 1-2']) {
       expect(ClientImport.parse(profile(extra: field)).protocol, 'awg');
@@ -39,7 +41,7 @@ void main() {
   );
   test('new XIO exports retain legacy import and detect protocol mismatch', () {
     final b = UserBundle('Name', 'a' * 32, 'external', {
-      'wireguard': profile(),
+      'awg': profile(extra: 'Jc = 4'),
     });
     expect(b.encode(), startsWith('xio://'));
     expect(ClientImport.parse(b.encode()).bundle!.name, 'Name');

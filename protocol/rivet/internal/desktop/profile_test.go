@@ -8,7 +8,7 @@ import (
 func TestPrivilegedProfileRejectsScriptsAndUnsafeAWG(t *testing.T) {
 	base := "[Interface]\nPrivateKey = AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=\nAddress = 10.77.0.2/32\nDNS = 1.1.1.1\n%s\n[Peer]\nPublicKey = AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=\nEndpoint = 203.0.113.4:51820\nAllowedIPs = 0.0.0.0/0, ::/0\n"
 	good := strings.Replace(base, "%s", "", 1)
-	if _, e := ParseProfile("wireguard", good); e != nil {
+	if _, e := ParseProfile("awg", good); e != nil {
 		t.Fatal(e)
 	}
 	for _, field := range []string{"PostUp = touch /tmp/xio", "PreDown = true", "Jc = 99999999", "Jmin = -1", "H1 = 4294967296", "H1 = 20-10", "Jmin = 200\nJmax = 100"} {

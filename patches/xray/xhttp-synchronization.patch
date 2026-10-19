@@ -1,0 +1,125 @@
+--- a/transport/internet/splithttp/client.go
++++ b/transport/internet/splithttp/client.go
+@@ -8,6 +8,7 @@
+ 	"net/http"
+ 	"net/http/httptrace"
+ 	"sync"
++	"sync/atomic"
+ 
+ 	"github.com/apernet/quic-go/http3"
+ 	"github.com/xtls/xray-core/common"
+@@ -67,7 +68,7 @@
+ 	}
+ 	c.transportConfig.FillStreamRequest(req, sessionId, "")
+ 
+-	wrc = &WaitReadCloser{Wait: make(chan struct{})}
++	wrc = &WaitReadCloser{wait: done.New()}
+ 	go func() {
+ 		resp, err := c.client.Do(req)
+ 		if err != nil {
+@@ -186,39 +187,36 @@
+ 	return nil
+ }
+ 
++// XIO compatibility backport: synchronize response publication and close.
++// Equivalent to current upstream XTLS atomic reader + done.Instance design.
+ type WaitReadCloser struct {
+-	Wait chan struct{}
+-	io.ReadCloser
++	wait   *done.Instance
++	reader atomic.Pointer[io.ReadCloser]
+ }
+ 
+ func (w *WaitReadCloser) Set(rc io.ReadCloser) {
+-	w.ReadCloser = rc
+-	defer func() {
+-		if recover() != nil {
+-			rc.Close()
++	w.reader.Store(&rc)
++	if w.wait.Done() {
++		if p := w.reader.Swap(nil); p != nil {
++			(*p).Close()
+ 		}
+-	}()
+-	close(w.Wait)
++	}
++	w.wait.Close()
+ }
+-
+ func (w *WaitReadCloser) Read(b []byte) (int, error) {
+-	if w.ReadCloser == nil {
+-		if <-w.Wait; w.ReadCloser == nil {
++	rc := w.reader.Load()
++	if rc == nil {
++		<-w.wait.Wait()
++		if rc = w.reader.Load(); rc == nil {
+ 			return 0, io.ErrClosedPipe
+ 		}
+ 	}
+-	return w.ReadCloser.Read(b)
++	return (*rc).Read(b)
+ }
+-
+ func (w *WaitReadCloser) Close() error {
+-	if w.ReadCloser != nil {
+-		return w.ReadCloser.Close()
++	w.wait.Close()
++	if p := w.reader.Swap(nil); p != nil {
++		return (*p).Close()
+ 	}
+-	defer func() {
+-		if recover() != nil && w.ReadCloser != nil {
+-			w.ReadCloser.Close()
+-		}
+-	}()
+-	close(w.Wait)
+ 	return nil
+ }
+--- a/transport/internet/splithttp/dialer.go
++++ b/transport/internet/splithttp/dialer.go
+@@ -595,11 +595,13 @@
+ 
+ 	var writed int
+ 	for _, buff := range buffer.MultiBuffer {
++		// Ownership transfers to the pipe; its reader may release buff immediately.
++		size := int(buff.Len())
+ 		err := w.WriteMultiBuffer(buf.MultiBuffer{buff})
+ 		if err != nil {
+ 			return writed, err
+ 		}
+-		writed += int(buff.Len())
++		writed += size
+ 	}
+ 	return writed, nil
+ }
+--- a/infra/conf/xray.go
++++ b/infra/conf/xray.go
+@@ -23,13 +23,11 @@
+ 		"tunnel":        func() interface{} { return new(DokodemoConfig) },
+ 		"dokodemo-door": func() interface{} { return new(DokodemoConfig) },
+ 		"http":          func() interface{} { return new(HTTPServerConfig) },
+-		"shadowsocks":   func() interface{} { return new(ShadowsocksServerConfig) },
+ 		"mixed":         func() interface{} { return new(SocksServerConfig) },
+ 		"socks":         func() interface{} { return new(SocksServerConfig) },
+ 		"vless":         func() interface{} { return new(VLessInboundConfig) },
+ 		"vmess":         func() interface{} { return new(VMessInboundConfig) },
+ 		"trojan":        func() interface{} { return new(TrojanServerConfig) },
+-		"wireguard":     func() interface{} { return &WireGuardConfig{IsClient: false} },
+ 		"hysteria":      func() interface{} { return new(HysteriaServerConfig) },
+ 		"tun":           func() interface{} { return new(TunConfig) },
+ 	}, "protocol", "settings")
+@@ -41,14 +39,12 @@
+ 		"direct":      func() interface{} { return new(FreedomConfig) },
+ 		"freedom":     func() interface{} { return new(FreedomConfig) },
+ 		"http":        func() interface{} { return new(HTTPClientConfig) },
+-		"shadowsocks": func() interface{} { return new(ShadowsocksClientConfig) },
+ 		"socks":       func() interface{} { return new(SocksClientConfig) },
+ 		"vless":       func() interface{} { return new(VLessOutboundConfig) },
+ 		"vmess":       func() interface{} { return new(VMessOutboundConfig) },
+ 		"trojan":      func() interface{} { return new(TrojanClientConfig) },
+ 		"hysteria":    func() interface{} { return new(HysteriaClientConfig) },
+ 		"dns":         func() interface{} { return new(DNSOutboundConfig) },
+-		"wireguard":   func() interface{} { return &WireGuardConfig{IsClient: true} },
+ 	}, "protocol", "settings")
+ )
+ 

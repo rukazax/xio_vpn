@@ -22,7 +22,7 @@ object OpenVpnBackend {
  @Volatile private var secure=false
  fun validate(raw:String){
   require(raw.length<=65536)
-  val j=JSONObject(raw);require(j.getString("protocol")=="openvpn"||j.getString("protocol")=="cloak")
+  val j=JSONObject(raw);require(j.getString("protocol")=="cloak")
   val cfg=j.getString("config");require(cfg.length<=60000)
   var block=""
   for(original in cfg.lineSequence()){

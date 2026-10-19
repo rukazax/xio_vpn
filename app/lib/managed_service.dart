@@ -59,6 +59,64 @@ Future<(String, String)> newManagementKey() async {
 class ManagedService {
   final VpsService ssh;
   ManagedService(this.ssh);
+
+  /// Only an owner with a previously verified SSH identity may update an
+  /// existing installation. Delegated users cannot replace server executables.
+  Future<void> ensureUpdated(AppStore store, ManagedServer server) async {
+    if (server.delegated) return;
+    if (store.status.active || store.busy) {
+      store.log('Обновление сервера отложено до отключения VPN');
+      return;
+    }
+    if (server.hostKey.isEmpty || ssh.verifiedFingerprint != server.hostKey) {
+      throw StateError(
+        'Для обновления нужна сохранённая SSH-идентичность сервера',
+      );
+    }
+    final local = Map<String, dynamic>.from(
+      jsonDecode(await rootBundle.loadString('assets/xio-server-release.json')),
+    );
+    final remote = await command({'action': 'inspect'});
+    final metadata = Map<String, dynamic>.from(remote['server']);
+    if (metadata['id'] != server.id) {
+      throw StateError('Идентичность сервера изменилась');
+    }
+    final revision = metadata['recipeVersion'] as int? ?? 13;
+    if (revision > (local['recipeVersion'] as int)) return; // Never downgrade.
+    if (revision == local['recipeVersion'] &&
+        metadata['bundleSha256'] == local['sha256']) {
+      return;
+    }
+    final archive = await rootBundle.load('assets/x1o-server.tar.gz');
+    final program = await rootBundle.loadString('assets/xio-server-update.py');
+    String quoted(String value) => "'${value.replaceAll("'", "'\\''")}'";
+    if (store.status.active || store.busy || store.serverMaintenance) return;
+    store.serverMaintenance = true;
+    store.changed();
+    try {
+      await store.saveNativePlan();
+      final bytes = await ssh.executeInput(
+        'python3 -c ${quoted(program)} ${quoted(local['sha256'] as String)} ${quoted(server.id)}',
+        archive.buffer.asUint8List(
+          archive.offsetInBytes,
+          archive.lengthInBytes,
+        ),
+        timeout: const Duration(minutes: 12),
+      );
+      final result = Map<String, dynamic>.from(jsonDecode(utf8.decode(bytes)));
+      if (result['ok'] != true) {
+        throw StateError(
+          'Не удалось обновить сервер. Проверьте его состояние; обновление будет повторено.',
+        );
+      }
+    } finally {
+      store.serverMaintenance = false;
+      await store.saveNativePlan();
+      store.changed();
+    }
+    store.log('Сервер XIO обновлён; пользователи и ключи сохранены');
+  }
+
   Future<Map<String, dynamic>> command(
     Map<String, dynamic> request, {
     Duration timeout = const Duration(minutes: 6),
@@ -96,6 +154,7 @@ class ManagedService {
     final result = await command({
       'action': 'init',
       'host': ssh.target!.host,
+      'restrictedNetwork': true,
     }, timeout: const Duration(minutes: 30));
     final server = ManagedServer(
       id: result['server']['id'],
@@ -160,6 +219,7 @@ class ManagedService {
     final slot = response['user']['slot'] as int;
     final configs = <String, String>{};
     for (final p in ['wireguard', 'awg']) {
+      if (p == 'wireguard') continue;
       final subnet = p == 'awg' ? 78 : 77;
       final v6 = p == 'awg' ? 'fd78:1' : 'fd77:1';
       final extras = p == 'awg'
@@ -192,14 +252,7 @@ class ManagedService {
     for (final e in Map<String, dynamic>.from(
       response['configs'] ?? {},
     ).entries) {
-      if ([
-        'xray',
-        'shadowsocks',
-        'openvpn',
-        'cloak',
-        'ikev2',
-        'tailscale',
-      ].contains(e.key)) {
+      if (['xray', 'cloak'].contains(e.key)) {
         configs[e.key] = e.value as String;
       }
     }

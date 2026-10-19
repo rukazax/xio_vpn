@@ -8,7 +8,7 @@
 
 Выберите файл в Assets:
 
-- Honor Magic V3 и другие ARM64: `XIO-0.20.0-android-arm64-v8a.apk`.
+- Android ARM64: `XIO-0.20.0-android-arm64-v8a.apk`.
 - Android ARMv7: `XIO-0.20.0-android-armeabi-v7a.apk`.
 - Android x86_64: `XIO-0.20.0-android-x86_64.apk`.
 - Ubuntu x64: DEB или tar.gz.
@@ -25,7 +25,7 @@ Added project descriptions, instructions, FAQ, diagrams and images in Russian an
 
 Choose an asset:
 
-- Honor Magic V3 and other ARM64 devices: `XIO-0.20.0-android-arm64-v8a.apk`.
+- Android ARM64 devices: `XIO-0.20.0-android-arm64-v8a.apk`.
 - Android ARMv7: `XIO-0.20.0-android-armeabi-v7a.apk`.
 - Android x86_64: `XIO-0.20.0-android-x86_64.apk`.
 - Ubuntu x64: DEB or tar.gz.

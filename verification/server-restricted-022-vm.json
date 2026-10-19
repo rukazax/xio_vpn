@@ -1,0 +1,18 @@
+{
+  "scope": "isolated Ubuntu 24.04 x86_64 VM",
+  "recipeVersion": 19,
+  "restrictedNetwork": true,
+  "advertisedProtocols": [
+    "awg",
+    "rivet-h3",
+    "rivet-s1",
+    "xray",
+    "cloak"
+  ],
+  "bareShadowsocksListener": false,
+  "openvpnTcpBackend": "127.0.0.1",
+  "bareOpenvpnUdpService": false,
+  "ikev2Service": false,
+  "meshService": false,
+  "rfNetworkTested": false
+}

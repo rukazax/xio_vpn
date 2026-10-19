@@ -7,9 +7,6 @@ import (
 	awgconn "github.com/amnezia-vpn/amneziawg-go/v3/conn"
 	awgdev "github.com/amnezia-vpn/amneziawg-go/v3/device"
 	awgtun "github.com/amnezia-vpn/amneziawg-go/v3/tun"
-	wgconn "golang.zx2c4.com/wireguard/conn"
-	wgdev "golang.zx2c4.com/wireguard/device"
-	wgtun "golang.zx2c4.com/wireguard/tun"
 	"io"
 	"net"
 	"net/netip"
@@ -17,14 +14,13 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"xio.local/rivet/internal/tailclient"
 	"xio.local/rivet/internal/xrayclient"
 	"xio.local/rivet/mobile"
 )
 
 const deviceName = "xio019"
 
-var Protocols = []string{"wireguard", "awg", "rivet-h3", "rivet-s1", "xray", "shadowsocks", "tailscale"}
+var Protocols = []string{"awg", "rivet-h3", "rivet-s1", "xray"}
 
 type packetDevice interface {
 	Read([][]byte, []int, int) (int, error)
@@ -88,8 +84,10 @@ func (d *deviceIO) Close() error              { return d.dev.Close() }
 func (d *deviceIO) WritePacket(b []byte) bool { _, e := d.Write(b); return e == nil }
 
 type Runtime struct {
-	mu      sync.Mutex
-	current *session
+	mu               sync.Mutex
+	current          *session
+	sharingWanted    bool
+	sharingInterface string
 }
 type session struct {
 	id, protocol string
@@ -101,6 +99,9 @@ type session struct {
 func (r *Runtime) Disconnect() { r.mu.Lock(); defer r.mu.Unlock(); r.stop() }
 func (r *Runtime) stop() {
 	if s := r.current; s != nil {
+		if r.sharingWanted {
+			_ = applySharing(false, r.sharingInterface)
+		}
 		r.current = nil
 		s.stop()
 		s.network.close()
@@ -190,21 +191,6 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 				mobile.PacketInput(buf[:size])
 			}
 		}()
-	case "wireguard":
-		t, e := wgtun.CreateTUN(deviceName, p.MTU)
-		if e != nil {
-			return nil, e
-		}
-		d := wgdev.NewDevice(t, wgconn.NewDefaultBind(), &wgdev.Logger{Verbosef: func(string, ...any) {}, Errorf: func(string, ...any) {}})
-		s.stop = d.Close
-		s.status = func() string { v, _ := d.IpcGet(); return wgStatus(v) }
-		p.IPC = resolvedIPC(p.IPC, p.Endpoints[0])
-		if e = d.IpcSet(platformFwmark() + p.IPC); e != nil {
-			return nil, ErrProfile
-		}
-		if e = d.Up(); e != nil {
-			return nil, e
-		}
 	case "awg":
 		t, e := awgtun.CreateTUN(deviceName, p.MTU)
 		if e != nil {
@@ -220,7 +206,7 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 		if e = d.Up(); e != nil {
 			return nil, e
 		}
-	case "xray", "shadowsocks":
+	case "xray":
 		x, e := xrayclient.Start(raw, n, time.Duration(timeout)*time.Millisecond)
 		if e != nil {
 			return nil, e
@@ -230,42 +216,6 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 		if e = x.AttachDevice(deviceName); e != nil {
 			return nil, e
 		}
-	case "tailscale":
-		store, e := newStore(raw)
-		if e != nil {
-			return nil, e
-		}
-		x, e := tailclient.Start(raw, store.dir, n, store, nil, time.Duration(timeout)*time.Millisecond)
-		if e != nil {
-			return nil, e
-		}
-		s.stop = x.Close
-		s.status = x.Status
-		t, e := awgtun.CreateTUN(deviceName, p.MTU)
-		if e != nil {
-			return nil, e
-		}
-		d := newDeviceIO(t)
-		s.stop = func() { x.Close(); d.Close() }
-		if e = x.AttachIO(d); e != nil {
-			return nil, e
-		}
-		var addresses []string
-		if json.Unmarshal([]byte(x.Addresses()), &addresses) != nil {
-			return nil, ErrProfile
-		}
-		for _, a := range addresses {
-			ip, e := netip.ParsePrefix(a)
-			if e != nil {
-				if addr, err := netip.ParseAddr(a); err == nil {
-					ip = netip.PrefixFrom(addr, addr.BitLen())
-					e = nil
-				}
-			}
-			if e == nil && ip.Addr().Is4() {
-				p.Addresses = append(p.Addresses, ip)
-			}
-		}
 	default:
 		return nil, ErrProfile
 	}
@@ -274,6 +224,11 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 	}
 	if e = n.configure(p); e != nil {
 		return nil, e
+	}
+	if r.sharingWanted {
+		if e = applySharing(true, r.sharingInterface); e != nil {
+			return nil, e
+		}
 	}
 	r.current = s
 	failed = false

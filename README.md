@@ -4,72 +4,39 @@
 
 <img src="docs/images/logo.png" alt="XIO" width="96">
 
-Your VPN, your servers, one interface. Connect a VPS, import configurations, create users and share access. XIO selects a supported protocol automatically and tries the next one when a connection attempt fails.
+Your VPN, your servers, one interface. Connect a VPS, import supported configurations, create users and share access. When an attempt times out, XIO tries the next available configuration for that user.
 
-[Download](docs/en/downloads.md) · [User guide](docs/en/guide.md) · [Protocols](docs/en/protocols.md) · [Build](docs/en/build.md) · [FAQ](docs/en/faq.md)
+[Download](docs/en/downloads.md) · [Guide](docs/en/guide.md) · [Protocols](docs/en/protocols.md) · [Build](docs/en/build.md) · [FAQ](docs/en/faq.md)
 
-![XIO overview](docs/images/overview.svg)
+![XIO](docs/images/overview.svg)
 
 ## Features
 
-- Manage your VPS over SSH: installation, users, export and removal of XIO components.
-- Import third-party configurations and detect the supported engine automatically.
-- Set a preferred protocol, connection timeout and HTTPS test site. The default is youtube.com.
-- Share a user profile containing several protocol configurations. Delegate administration with a limit on active users.
-- Android split tunneling, system theme, launcher icon choices and 13 interface languages.
-- On-device licence acknowledgement, help and connection diagnostics.
+- SSH installation and maintenance of your VPS, user management, revocation and export.
+- Automatic detection of supported third-party configuration formats.
+- Protocol priority, attempt timeout and HTTPS test; youtube.com is the default.
+- Multi-protocol user bundles and delegated administration with active-user limits.
+- Android split tunnelling, system theme, icon choices, quick-settings tile and 13 languages.
+- VPN tethering on rooted Android; experimental Windows ICS integration with administrator rights.
+- Signed client-update metadata and managed-server maintenance with rollback.
 
-## Platforms
+## Version 0.22 builds
 
-| Platform | Status | Protocols |
+| Platform | Availability | Client protocols |
 |---|---|---|
-| Android 8+ | ARM64, ARMv7 and x86_64 APKs; the physical Honor phone has not been checked | 10 engines |
-| Ubuntu x64 22.04+ | DEB and portable archive | 7 engines |
-| Windows 10/11 x64 | Test ZIP; UI checked in Wine, native networking still needs testing | 7 engines |
-| iPhone/iPad iOS 15+ | Xcode source project; no installable IPA | Two RIVET transports integrated in source, Apple testing pending |
+| Android 8+ | ARM64, ARMv7, x86_64 APKs; physical devices not individually validated | Xray, RIVET/S1, RIVET/H3, AWG, Cloak |
+| Ubuntu x64 | DEB and portable archive; system tests on Ubuntu 24.04 | Xray, RIVET/S1, RIVET/H3, AWG |
+| Windows 10/11 x64 | Test ZIP; UI tested in Wine, native driver and ICS still need a Windows test | Xray, RIVET/S1, RIVET/H3, AWG |
+| iPhone/iPad | Xcode source project, no signed IPA | RIVET/S1/H3 in source; Apple validation pending |
 
-See [engine availability and limits](docs/en/protocols.md). Our RIVET/H3 and RIVET/S1 transports are experimental. Independent auditing and traffic indistinguishability from ordinary HTTPS have not been established.
+**Protocols is under Settings → Connection**. Help and licensing remain under About XIO. Standalone WireGuard, OpenVPN, IKEv2, Shadowsocks and Tailscale are removed; OpenVPN remains an internal Cloak dependency.
 
-## Settings
+## What a VPN cannot promise 🔎
 
-About XIO contains Protocols, Help and FAQ, Licence and responsibility, and component licences. Diagnostics is under Connection. The main navigation stays compact.
+The ISP can observe the entry IP even with TLS. A strict allowlist requires reachable ingress; changing a website name alone cannot reach a blocked VPS. This build has not been field-tested on Russian operator networks. RIVET is experimental, without an independent audit or proven browser indistinguishability.
 
-```mermaid
-flowchart TD
-  S[Settings] --> C[Connection]
-  C --> D[Diagnostics and log]
-  S --> A[About XIO]
-  A --> P[Protocols]
-  A --> H[Help and FAQ]
-  A --> L[Licence and responsibility]
-  S --> V[Servers]
-  S --> U[Users]
-  S --> AP[Application]
-```
+![Network limits](docs/images/allowlist-entry-en.svg)
 
-## Source, licence and feedback
+[Changes and reasoning](docs/blog/2026-10-19-restricted-networks.md#english) · [Video review and primary sources](docs/research/2026-10-19-video-protocols.en.md) · [Releases](https://github.com/rukazax/xio_vpn/releases)
 
-`app/` contains the shared UI and native adapters. `protocol/rivet/` contains tunnels, client engines and the desktop helper. `server/` handles VPS setup and management. `native/`, `vendor/` and `vendor-metadata/` contain bridges, dependencies and provenance. `tools/` and `tooling/` contain build and verification tools.
-
-Original code: [GPL-3.0-only](LICENSE). Dependencies retain [their own licences](THIRD-PARTY-NOTICES.md). Copyright holder: Константин Александрович Ерёмин (Konstantin Eryomin), [er-ka@mail.ru](mailto:er-ka@mail.ru). The Russian spelling in COPYRIGHT is authoritative.
-
-[Report a bug](https://github.com/rukazax/xio_vpn/issues/new/choose) · [Security](SECURITY.md) · [Contribute](CONTRIBUTING.md) · [Changelog](CHANGELOG.md).
-
-Do not post SSH passwords, private keys or access profiles in issues. Administrative exports contain secrets.
-
-
-### Interface
-
-Screenshots from the shared Flutter UI test.
-
-<img src="docs/images/settings-en.png" alt="Settings" width="260"> <img src="docs/images/about-en.png" alt="About XIO" width="260">
-
-
-The complete source and dependency bundle is `XIO-0.21.0-source.zip` on the [release page](https://github.com/rukazax/xio_vpn/releases/tag/v0.21.0). The exact shipped Android runtime source is under `native-sources/android-runtime-0.18` inside that archive. [Component provenance](docs/native-source-provenance.md).
-
-[RIVET articles: diagrams, wire formats and tests](docs/protocols/README.md) · [Development blog](docs/blog/2026-10-18-rivet.md).
-
-[Project introduction and public discussion](publishing/public-launch/README.md).
-
-
-[Application updates](docs/en/updates.md) · [0.21 blog](docs/blog/2026-10-19-updates.md).
+Owned code: [GPL-3.0-only](LICENSE). Dependencies keep their licences: [0.22 notices](THIRD-PARTY-0.22.md). Copyright: Константин Александрович Ерёмин, er-ka@mail.ru. [Support XIO](https://x1o.org/pay).

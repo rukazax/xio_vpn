@@ -69,3 +69,8 @@ class InstallerTests(unittest.TestCase):
   self.assertIn(unittest.mock.call('ufw','--force','route','delete',*rule[1:]),calls.call_args_list)
   self.assertEqual(len(calls.call_args_list),2)
 if __name__=='__main__':unittest.main()
+
+class RestrictedPolicyTests(unittest.TestCase):
+ def test_public_profiles_advertise_only_restricted_candidates(self):
+  d={'id':'s','host':'vpn.example','publicKeys':{},'awg':{},'protocols':['wireguard','awg'],'restrictedNetwork':True,'rivet':{'serverName':'vpn.example'},'stack':{'protocols':['xray','cloak']}}
+  self.assertEqual(set(m.public(d)['protocols']),{'awg','xray','cloak','rivet-h3','rivet-s1'})

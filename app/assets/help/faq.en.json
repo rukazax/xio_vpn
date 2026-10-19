@@ -65,7 +65,7 @@
   },
   {
     "q": "Which third-party profiles can I import?",
-    "a": "WireGuard/AmneziaWG; supported VLESS REALITY/TLS, VMess AEAD, Trojan TLS and safe Xray JSON; Shadowsocks SIP002/JSON; inline OpenVPN credentials; IKEv2 EAP with trusted CA; Tailscale/Headscale control URL and exit-node profiles. Engine selection is automatic. Scripts, disabled TLS verification and arbitrary Tailscale OAuth are unsupported."
+    "a": "AmneziaWG, supported VLESS TLS/REALITY, VMess, Trojan and safe Xray JSON, RIVET/S1/H3 and Cloak profiles. The engine is detected automatically. Standalone WireGuard, OpenVPN, IKEv2, Shadowsocks and Tailscale are removed. OpenVPN remains an internal Cloak dependency."
   },
   {
     "q": "Does every Android device work?",
@@ -78,5 +78,21 @@
   {
     "q": "Where do I change language and icon?",
     "a": "Settings → Application provides language and icon choices. Theme follows the system. Rotated and colour icon variants are available; some launchers update with a delay."
+  },
+  {
+    "q": "Will a different protocol bypass an allowlist?",
+    "a": "If the network cannot reach the entry point IP, changing protocols on that same server will not fix it. You need an entry point reachable from your network. SNI and HTTPS do not hide its IP. Conditions vary by operator, region and time."
+  },
+  {
+    "q": "Why were legacy protocols removed?",
+    "a": "The supported set is Xray, RIVET/S1, Cloak, AWG and RIVET/H3. Retired standalone profiles cannot connect. This product choice is not proof that a protocol fails in every network."
+  },
+  {
+    "q": "How is the server updated with the application?",
+    "a": "On launch, the owner app checks managed servers through saved SSH access. Updates come from the installed app bundle, are checked with SHA256, preserve users and keys, and restore replaced files on failure. Updates are deferred while the VPN is active: disconnect, then reopen server management or restart the app. SSH must be reachable. Guest and delegated profiles cannot update servers. New installation recipes may require a separate migration."
+  },
+  {
+    "q": "How do I enable VPN tethering?",
+    "a": "Settings → Connection → VPN for tethering. Android requires root; stock devices display “Root required”. Enable the hotspot, select its interface, disable split tunnelling and approve root locally. Restart the hotspot and verify the external IP from a tethered device. Windows ICS requires administrator rights, VPN and an active hotspot; native validation is pending. This feature is experimental."
   }
 ]

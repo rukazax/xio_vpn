@@ -1,0 +1,11 @@
+{
+  "scope": "isolated Ubuntu VM network namespaces, Linux netfilter only; not Android vendor offload or Windows ICS",
+  "ipv4ThroughTunnelInterface": true,
+  "disconnectBlocksForwarding": true,
+  "reconnectRestoresForwarding": true,
+  "lostPolicyRuleRestored": true,
+  "ipv6ForwardingBlocked": true,
+  "ownedFirewallCleanup": true,
+  "physicalAndroidRootTest": false,
+  "nativeWindowsICSTest": false
+}

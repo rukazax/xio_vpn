@@ -1,0 +1,25 @@
+{
+  "retrieved": "2026-10-18",
+  "source": "https://curl.se/ca/cacert.pem",
+  "sourceSha256": "a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505",
+  "license": "MPL-2.0",
+  "scope": "Four current public roots absent from legacy Android: three GTS roots and SSL.com Root Certification Authority ECC. TLS chain and hostname validation remain enabled. These are not server pins.",
+  "roots": [
+    {
+      "subject": "SSL.com Root Certification Authority ECC",
+      "sha256": "51aee96d2c54b2d92af6534c126437e1576df78fe7740c5e0374252b6710cc71"
+    },
+    {
+      "subject": "GTS Root R1",
+      "sha256": "c2a278e10ab284628ed21b673fcc574b31e94e4f57edfcbdb63fdab5d48f846e"
+    },
+    {
+      "subject": "GTS Root R3",
+      "sha256": "0ba6b8750abe22b366cffa7d2d3c92af70b12ef44d27c7a758dced04f3fb8085"
+    },
+    {
+      "subject": "GTS Root R4",
+      "sha256": "cc506b1e8f94414acd6afecc6784758cd3204be35426754646b6f1863dfdb158"
+    }
+  ]
+}

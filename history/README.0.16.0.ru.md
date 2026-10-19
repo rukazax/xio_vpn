@@ -1,6 +1,6 @@
 # XIO 0.16 — RIVET на Android и VPS
 
-[APK ARM64 для Honor Magic V3](releases/XIO-0.16.0-android-arm64-v8a.apk) · [исходники](releases/XIO-0.16.0-source.zip) · [отчёт испытаний](verification/VERIFICATION-0.16.ru.md) · [профиль протокола](RIVET-IMPLEMENTATION-0.2.ru.md) · [предыдущий выпуск](history/README.0.15.0.ru.md)
+[APK Android ARM64](releases/XIO-0.16.0-android-arm64-v8a.apk) · [исходники](releases/XIO-0.16.0-source.zip) · [отчёт испытаний](verification/VERIFICATION-0.16.ru.md) · [профиль протокола](RIVET-IMPLEMENTATION-0.2.ru.md) · [предыдущий выпуск](history/README.0.15.0.ru.md)
 
 XIO означает **X in 1 out**. В Android работают WireGuard, AmneziaWG3.1 и два новых экспериментальных транспорта RIVET. RIVET-S1 переносит внутренний TLS1.3 через WSS; RIVET-H3 — внутренний QUIC/TLS1.3 через HTTP/3 CONNECT-UDP. Это собственная композиция стандартных криптографических примитивов, а не новый шифр. Полный набор остальных движков AmneziaVPN и Android Tailscale/Headscale пока не интегрирован.
 

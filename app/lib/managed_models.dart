@@ -133,20 +133,19 @@ class UserBundle {
         throw const FormatException('Invalid metadata');
       }
       final configs = Map<String, String>.from(j['configs']);
+      configs.removeWhere(
+        (key, _) => const {
+          'wireguard',
+          'openvpn',
+          'ikev2',
+          'shadowsocks',
+          'tailscale',
+        }.contains(key),
+      );
       if (configs.isEmpty ||
           configs.keys.any(
-            (p) => ![
-              'awg',
-              'wireguard',
-              'rivet-h3',
-              'rivet-s1',
-              'xray',
-              'shadowsocks',
-              'openvpn',
-              'cloak',
-              'ikev2',
-              'tailscale',
-            ].contains(p),
+            (p) =>
+                !['awg', 'rivet-h3', 'rivet-s1', 'xray', 'cloak'].contains(p),
           ) ||
           configs.values.any((v) => v.length > 65536)) {
         throw const FormatException('Invalid protocols');

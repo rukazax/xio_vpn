@@ -25,7 +25,7 @@ void main() {
     'bundle round trip carries both protocol keys without SSH credentials',
     () {
       final b = UserBundle('Алиса', 'a' * 32, 'server-123', {
-        'wireguard': 'private WG material',
+        'rivet-s1': 'private RIVET material',
         'awg': 'private AWG material',
       });
       final encoded = b.encode();
@@ -141,14 +141,14 @@ void main() {
       );
       await store.saveConnectionSettings(
         'example.org/check',
-        'wireguard',
+        'awg',
         timeoutSeconds: 30,
       );
       final data = jsonDecode(
         await File('${dir.path}/profiles.json').readAsString(),
       );
       expect(data['checkSite'], 'https://example.org/check');
-      expect(data['priorityProtocol'], 'wireguard');
+      expect(data['priorityProtocol'], 'awg');
       expect(data['protocolTimeoutSeconds'], 30);
       expect(
         ManagedUser.fromJson(Map<String, dynamic>.from(data['users'][0]))

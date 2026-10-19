@@ -18,3 +18,15 @@ class CloakAdministrationTests(unittest.TestCase):
    reset=events.index(('systemctl','reset-failed','xio-cloak'));restart=events.index(('systemctl','restart','xio-cloak'));self.assertLess(reset,restart)
    self.assertIn(('systemctl','is-active','--quiet','xio-cloak'),events)
 if __name__=='__main__':unittest.main()
+
+class RestrictedInstallTests(unittest.TestCase):
+ def test_restricted_profiles_exclude_bare_shadowsocks(self):
+  fixture={'host':'vpn.example','restrictedNetwork':True,'users':{'u':{'stack':{'uuid':'00000000-0000-0000-0000-000000000001','ssKey':'fixture'}}}}
+  with patch.object(stack,'receipt',return_value={'publicKey':'fixture','shortId':'aabb','serverName':'vpn.example','ssKey':'fixture'}):
+   self.assertEqual(set(stack.profiles(fixture,'u')),{'xray'})
+ def test_restricted_gateway_has_no_shadowsocks_listener(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory)
+   fixture={'host':'vpn.example','restrictedNetwork':True,'users':{}}
+   with patch.object(stack,'ROOT',root),patch.object(stack,'receipt',return_value={'inactiveKey':'fixture','target':'vpn.example:443','serverName':'vpn.example','privateKey':'fixture','shortId':'aabb','ssKey':'fixture'}):stack.config(fixture)
+   self.assertEqual([v['protocol'] for v in json.loads((root/'config.json').read_text())['inbounds']],['vless'])

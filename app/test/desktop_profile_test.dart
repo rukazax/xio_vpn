@@ -12,24 +12,16 @@ String canonical(String protocol, String raw) =>
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final path = Platform.environment['XIO_DESKTOP_PRIVATE_BUNDLE'];
-  test('desktop encrypted import/export keeps all ten protocols', () async {
+  test('desktop encrypted import/export keeps supported protocols', () async {
     DesktopEngine.enabled = true;
-    DesktopEngine.supported = {
-      'wireguard',
-      'awg',
-      'rivet-h3',
-      'rivet-s1',
-      'xray',
-      'shadowsocks',
-      'tailscale',
-    };
+    DesktopEngine.supported = {'awg', 'rivet-h3', 'rivet-s1', 'xray'};
     final bundle = UserBundle.decode(await File(path!).readAsString());
     final store = AppStore();
     try {
       await store.load();
       final user = await store.importBundle(bundle);
       final exported = await store.exportUser(user);
-      expect(exported.configs.length, 10);
+      expect(exported.configs.length, bundle.configs.length);
       expect(
         bundle.configs.keys.every(
           (p) => canonical(p, bundle.configs[p]!) == exported.configs[p],
@@ -41,7 +33,7 @@ void main() {
         store.profiles
             .where((p) => DesktopEngine.supported.contains(p.protocol))
             .length,
-        7,
+        4,
       );
       final state = File(
         '${(await applicationDirectory()).path}/profiles.json',
@@ -50,7 +42,7 @@ void main() {
       final reload = AppStore();
       try {
         await reload.load();
-        expect(reload.profiles.length, 10);
+        expect(reload.profiles.length, bundle.configs.length);
         final again = await reload.exportUser(reload.users.single);
         expect(
           bundle.configs.keys.every(

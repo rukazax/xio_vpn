@@ -22,17 +22,15 @@ void main() {
       'example.com',
     );
   });
-  test('Shadowsocks SIP002 passwords with colon and IPv6', () {
-    final user = base64Url
-        .encode(utf8.encode('aes-256-gcm:a:password'))
-        .replaceAll('=', '');
-    final p = ExtendedProfile.parse('ss://$user@[2001:db8::1]:8388#SS');
-    expect(p.protocol, 'shadowsocks');
-    expect(p.endpoint, '[2001:db8::1]:8388');
-    expect(
-      p.data['outbound']['settings']['servers'][0]['password'],
-      'a:password',
-    );
+  test('removed protocols cannot be imported', () {
+    for (final raw in [
+      'ss://YWVzLTI1Ni1nY206cGFzcw@example.org:8388',
+      'client\ndev tun\nremote example.org 1194',
+      '{"protocol":"ikev2"}',
+      '{"protocol":"tailscale"}',
+    ]) {
+      expect(() => ExtendedProfile.parse(raw), throwsFormatException);
+    }
   });
   test('reject insecure TLS, plain VLESS and local API/import files', () {
     for (final raw in [
@@ -43,46 +41,71 @@ void main() {
       expect(() => ExtendedProfile.parse(raw), throwsFormatException);
     }
   });
-  const ovpn =
-      'client\ndev tun\nremote example.org 1194\nremote-cert-tls server\n<auth-user-pass>\nusername\npassword\n</auth-user-pass>\n<ca>\nCERTIFICATE-FIXTURE\n</ca>\n<cert>\nCLIENT-CERT-FIXTURE\n</cert>\n<tls-crypt-v2>\nTLS-CRYPT-FIXTURE\n</tls-crypt-v2>\n';
-  test(
-    'OpenVPN embedded credentials do not drop following certificate blocks',
-    () {
-      final p = ExtendedProfile.parse(ovpn);
-      expect(p.protocol, 'openvpn');
-      expect(p.data['username'], 'username');
-      expect(
-        p.data['config'],
-        contains('<cert>\nCLIENT-CERT-FIXTURE\n</cert>'),
+  test('XHTTP modes preserve upstream Encryption and reject unsafe extras', () {
+    final key = base64Url.encode(List.filled(1184, 1)).replaceAll('=', '');
+    for (final mode in ['auto', 'packet-up', 'stream-up', 'stream-one']) {
+      final encryption = 'mlkem768x25519plus.native.1rtt.$key';
+      final uri = Uri(
+        scheme: 'vless',
+        userInfo: uuid,
+        host: 'vpn.example',
+        port: 443,
+        queryParameters: {
+          'security': 'tls',
+          'sni': 'vpn.example',
+          'type': 'xhttp',
+          'mode': mode,
+          'encryption': encryption,
+        },
       );
-      expect(p.data['config'], contains('auth-user-pass\n'));
-      expect(p.data['config'], isNot(contains('password')));
-    },
-  );
-  test('OpenVPN rejects scripts, compression and referenced files', () {
-    for (final extra in [
-      'up /tmp/run',
-      'ca /etc/passwd',
-      'compress lz4',
-      'auth-user-pass /tmp/secret',
-    ]) {
+      final parsed = ExtendedProfile.parse(uri.toString());
       expect(
-        () => ExtendedProfile.parse('$ovpn\n$extra'),
+        parsed
+            .data['outbound']['settings']['vnext'][0]['users'][0]['encryption'],
+        encryption,
+      );
+      expect(
+        parsed.data['outbound']['streamSettings']['xhttpSettings']['mode'],
+        mode,
+      );
+      expect(
+        () => ExtendedProfile.parse(
+          uri
+              .replace(
+                queryParameters: {...uri.queryParameters, 'mode': 'invalid'},
+              )
+              .toString(),
+        ),
         throwsFormatException,
       );
+      for (final extra in [
+        {
+          'downloadSettings': {'address': 'elsewhere.example'},
+        },
+        {
+          'sockopt': {'dialerProxy': 'direct'},
+        },
+      ]) {
+        expect(
+          () => ExtendedProfile.parse(
+            uri
+                .replace(
+                  queryParameters: {
+                    ...uri.queryParameters,
+                    'extra': jsonEncode(extra),
+                  },
+                )
+                .toString(),
+          ),
+          throwsFormatException,
+        );
+      }
     }
-  });
-  test('XIO bundle accepts all integrated engines without engine selector', () {
-    final key = base64Url.encode(utf8.encode('aes-256-gcm:test'));
-    final p = ExtendedProfile.parse('ss://$key@example.org:8388');
-    final b = UserBundle(
-      'test',
-      '0123456789abcdef0123456789abcdef',
-      'b3b2eb49-e41f-41df-9761-0956785a236b',
-      {'shadowsocks': p.encoded},
+    expect(
+      () => ExtendedProfile.parse(
+        'vless://$uuid@vpn.example:443?security=tls&encryption=mlkem768x25519plus.native.1rtt.bad',
+      ),
+      throwsFormatException,
     );
-    expect(ClientImport.parse(b.encode()).bundle!.configs.keys, [
-      'shadowsocks',
-    ]);
   });
 }
