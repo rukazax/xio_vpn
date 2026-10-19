@@ -1,3 +1,4 @@
+import 'update_service.dart';
 import 'desktop_engine.dart';
 import 'help_legal_ui.dart';
 import 'l10n.dart';
@@ -151,6 +152,8 @@ Future<void> main() async {
       ('StrongSwan VICI Python', 'VICI-MIT.txt'),
       ('anet', 'Anet-license.txt'),
       ('WireGuard native', 'WireGuard-MIT.txt'),
+      ('archive 4.5.2', 'archive-MIT.txt'),
+      ('posix 6.5.2', 'posix-MIT.txt'),
       ('Noto Sans', 'Noto-fonts.txt'),
       ('Noto Sans CJK', 'Noto-CJK-OFL.txt'),
       ('Noto Sans Arabic / Devanagari', 'Noto-additional-OFL.txt'),
@@ -163,12 +166,14 @@ Future<void> main() async {
   await AppLanguages.load();
   final store = AppStore()..enforceConsent = true;
   native.setMethodCallHandler((call) async {
+    if (call.method == 'requestUpdates') onUpdateRequest?.call();
     if (call.method == 'requestConnect' && store.ready) {
       if (await native.invokeMethod<bool>('consumeConnectRequest') == true) {
         await store.connect();
       }
     }
   });
+  automaticUpdatesEnabled = true;
   runApp(X1oApp(store: store, requireConsent: true));
   final statistics = StartupStatistics();
   void refreshAfterConsent() {

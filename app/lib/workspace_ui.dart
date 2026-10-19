@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'update_service.dart';
+import 'update_ui.dart';
 import 'help_legal_ui.dart';
 import 'credentials.dart';
 import 'app_icons.dart';
@@ -105,11 +109,53 @@ class _WorkspaceShellState extends State<WorkspaceShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (automaticUpdatesEnabled) {
+      onUpdateRequest = automaticCheck;
+      WidgetsBinding.instance.addPostFrameCallback((_) => automaticCheck());
+      updateTimer = Timer.periodic(
+        const Duration(minutes: 30),
+        (_) => automaticCheck(),
+      );
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     store.setForeground(state == AppLifecycleState.resumed);
+    if (automaticUpdatesEnabled && state == AppLifecycleState.resumed) {
+      automaticCheck();
+    }
+  }
+
+  Timer? updateTimer;
+  bool updatePrompt = false;
+  Future<void> automaticCheck() async {
+    if (!mounted ||
+        !store.ready ||
+        !store.consentReady ||
+        updatePrompt ||
+        playDistribution) {
+      return;
+    }
+    updatePrompt = true;
+    try {
+      await UpdateService.instance.initialize();
+      final requested =
+          Platform.isAndroid &&
+          await native.invokeMethod<bool>('consumeUpdateRequest') == true;
+      if (mounted && (requested || UpdateService.instance.due)) {
+        await checkForUpdates(context, manual: requested);
+      }
+      if (Platform.isAndroid) {
+        await native.invokeMethod<void>('scheduleUpdateCheck', {
+          'at': UpdateService.instance.next!.millisecondsSinceEpoch,
+        });
+      }
+    } catch (_) {
+      /* Network errors do not cause rapid retries. */
+    } finally {
+      updatePrompt = false;
+    }
   }
 
   final pager = PageController();
@@ -124,6 +170,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    onUpdateRequest = null;
+    updateTimer?.cancel();
     pager.dispose();
     super.dispose();
   }
@@ -577,6 +625,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           Column(
             children: [
               LanguageSetting(store: store),
+              const UpdateSettingsTile(),
               if (Platform.isAndroid) ...[
                 ListTile(
                   leading: const Icon(Icons.palette_outlined),
@@ -630,8 +679,30 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const LText('XIO · X in 1 out\nВерсия 0.20.0'),
+              const LText('XIO · X in 1 out\nВерсия 0.21.0'),
               const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.code),
+                title: const Text('GitHub'),
+                subtitle: const Text('github.com/rukazax/xio_vpn'),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () =>
+                    actionGuard(context, () => openExternalLink(githubUrl)),
+              ),
+              ListTile(
+                leading: const Icon(Icons.share_outlined),
+                title: const LText('Поделиться приложением'),
+                onTap: () => actionGuard(context, () async {
+                  await shareApplication();
+                  if (mounted && !Platform.isAndroid && !Platform.isIOS) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: LText('Ссылка на приложение скопирована'),
+                      ),
+                    );
+                  }
+                }),
+              ),
               ListTile(
                 leading: const Icon(Icons.route_outlined),
                 title: const LText('Протоколы'),
@@ -674,7 +745,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                 onPressed: () => showLicensePage(
                   context: context,
                   applicationName: 'XIO',
-                  applicationVersion: '0.20.0',
+                  applicationVersion: xioVersion,
                 ),
                 child: const LText('Лицензии компонентов'),
               ),
