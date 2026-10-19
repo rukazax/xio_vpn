@@ -112,10 +112,12 @@ class _WorkspaceShellState extends State<WorkspaceShell>
     if (automaticUpdatesEnabled) {
       onUpdateRequest = automaticCheck;
       WidgetsBinding.instance.addPostFrameCallback((_) => automaticCheck());
-      updateTimer = Timer.periodic(
-        const Duration(minutes: 30),
-        (_) => automaticCheck(),
-      );
+      if (!Platform.isAndroid) {
+        updateTimer = Timer.periodic(
+          const Duration(minutes: 30),
+          (_) => automaticCheck(),
+        );
+      }
     }
   }
 
@@ -143,7 +145,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
       final requested =
           Platform.isAndroid &&
           await native.invokeMethod<bool>('consumeUpdateRequest') == true;
-      if (mounted && (requested || UpdateService.instance.due)) {
+      if (mounted &&
+          (requested || (!Platform.isAndroid && UpdateService.instance.due))) {
         await checkForUpdates(context, manual: requested);
       }
       if (Platform.isAndroid) {
