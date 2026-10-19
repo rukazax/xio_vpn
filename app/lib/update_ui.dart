@@ -42,6 +42,7 @@ Future<void> _checkForUpdates(
     final key = await updater.platformKey();
     final asset = release.forPlatform(key);
     if (!context.mounted) return;
+    var permissionChecking = false;
     final choice = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
@@ -75,7 +76,37 @@ Future<void> _checkForUpdates(
             child: const LText('Пропустить релиз'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(c, 'update'),
+            onPressed: () async {
+              if (permissionChecking) return;
+              permissionChecking = true;
+              try {
+                if (Platform.isAndroid &&
+                    asset != null &&
+                    !await nativeUpdatePermission()) {
+                  if (c.mounted) {
+                    ScaffoldMessenger.of(c).showSnackBar(
+                      const SnackBar(
+                        content: LText(
+                          'Разрешите установку приложений из XIO и нажмите «Обновить» ещё раз.',
+                        ),
+                      ),
+                    );
+                  }
+                  return;
+                }
+                if (c.mounted) Navigator.pop(c, 'update');
+              } catch (_) {
+                if (c.mounted) {
+                  ScaffoldMessenger.of(c).showSnackBar(
+                    const SnackBar(
+                      content: LText('Установка обновления не завершена'),
+                    ),
+                  );
+                }
+              } finally {
+                permissionChecking = false;
+              }
+            },
             child: const LText('Обновить'),
           ),
         ],
@@ -88,18 +119,6 @@ Future<void> _checkForUpdates(
     if (choice != 'update' || !context.mounted) return;
     if (Platform.isIOS || asset == null) {
       await openExternalLink(release.page);
-      return;
-    }
-    if (Platform.isAndroid && await nativeUpdatePermission() == false) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: LText(
-              'Разрешите установку приложений из XIO и нажмите «Обновить» ещё раз.',
-            ),
-          ),
-        );
-      }
       return;
     }
     if (!context.mounted) return;
