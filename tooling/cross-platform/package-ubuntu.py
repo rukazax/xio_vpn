@@ -21,7 +21,7 @@ Priority: optional
 Architecture: amd64
 Maintainer: Ерёмин Константин Александрович <er-ka@mail.ru>
 Installed-Size: {size}
-Depends: libc6 (>= 2.34), libgtk-3-0 | libgtk-3-0t64, libstdc++6, libglu1-mesa, libegl1, libgl1, iproute2, pkexec | policykit-1, systemd-resolved | systemd
+Depends: libc6 (>= 2.34), libgtk-3-0 | libgtk-3-0t64, libstdc++6, libglu1-mesa, libegl1, libgl1, libgles2, iproute2, pkexec | policykit-1, systemd-resolved | systemd
 Description: XIO VPN desktop client
  Flutter client with separate privileged VPN helper and seven tunnel engines.
 ''')
