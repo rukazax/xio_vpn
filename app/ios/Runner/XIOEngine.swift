@@ -61,11 +61,14 @@ final class XIOEngine: NSObject, UIDocumentPickerDelegate {
         let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data, .plainText], asCopy: true)
         picker.delegate = self; picker.allowsMultipleSelection = false; pickerResult = result
         guard let controller = topController() else { pickerResult = nil; result(error("No active window.")); return }; controller.present(picker, animated: true)
-      case "shareBundle":
-        guard let raw = args["bundle"] as? String, let controller = topController() else { result(error("Nothing to share.")); return }
+      case "shareBundle", "shareApplication":
+        guard let raw = (args["bundle"] ?? args["text"]) as? String, let controller = topController() else { result(error("Nothing to share.")); return }
         let sheet = UIActivityViewController(activityItems: [raw], applicationActivities: nil)
         if let pop = sheet.popoverPresentationController { pop.sourceView = controller.view; pop.sourceRect = CGRect(x: controller.view.bounds.midX, y: controller.view.bounds.midY, width: 1, height: 1) }
         controller.present(sheet, animated: true); result(nil)
+      case "openExternalLink":
+        guard let raw = args["url"] as? String, let url = URL(string: raw), url.scheme == "https", url.user == nil else { result(error("Invalid URL.")); return }
+        UIApplication.shared.open(url, options: [:]); result(nil)
       case "openSupportLink":
         UIApplication.shared.open(URL(string: "https://x1o.org/pay")!, options: [:]); result(nil)
       default: result(FlutterMethodNotImplemented)
