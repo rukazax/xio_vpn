@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="760" viewBox="0 0 1500 760" role="img"><rect width="1500" height="760" fill="#0c1119"/>
+<rect x="50" y="45" width="290" height="52" rx="26" fill="#273a28"/>
+<text x="74" y="58" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">XIO / 21.10.2026</text>
+<text x="55" y="137" font-family="DejaVu Sans,sans-serif" font-size="68" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">XIO на реальном</text>
+<text x="55" y="222" font-family="DejaVu Sans,sans-serif" font-size="78" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">Android</text>
+<text x="59" y="339" font-family="DejaVu Sans,sans-serif" font-size="29" font-weight="400" fill="#e7efde" dominant-baseline="text-before-edge">Пять протоколов. Найденная ошибка.</text>
+<text x="59" y="390" font-family="DejaVu Sans,sans-serif" font-size="29" font-weight="400" fill="#6dd8e8" dominant-baseline="text-before-edge">Исправление. Повторная проверка.</text>
+<rect x="55" y="492" width="330" height="146" rx="22" fill="#172130"/>
+<text x="79" y="510" font-family="DejaVu Sans,sans-serif" font-size="53" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">5</text>
+<text x="79" y="581" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">протоколов</text>
+<rect x="410" y="492" width="330" height="146" rx="22" fill="#172130"/>
+<text x="434" y="510" font-family="DejaVu Sans,sans-serif" font-size="53" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">1</text>
+<text x="434" y="581" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">телефон</text>
+<rect x="765" y="492" width="330" height="146" rx="22" fill="#172130"/>
+<text x="789" y="510" font-family="DejaVu Sans,sans-serif" font-size="53" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">1</text>
+<text x="789" y="581" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">сеть</text>
+<rect x="1120" y="492" width="330" height="146" rx="22" fill="#172130"/>
+<text x="1144" y="510" font-family="DejaVu Sans,sans-serif" font-size="53" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">20</text>
+<text x="1144" y="581" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">ревизия VPS</text>
+<text x="59" y="688" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">POCO X6 5G · Android 16 · 0.22.0 → 0.22.1 · HTTP 200 ≠ аудит безопасности</text>
+</svg>

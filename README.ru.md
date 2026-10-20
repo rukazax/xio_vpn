@@ -2,6 +2,8 @@
 
 > **Android-патч 0.22.1:** исправлена активация новых пользователей Cloak, серверный пакет обновлён до ревизии 20. [Скачать и посмотреть изменения](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.1) · [Отчёт о проверке на телефоне](docs/verification/android-physical-2026-10-21.ru.md). Версия сборок для ПК — 0.22.0.
 
+📱 [Натурные тесты Android: пять протоколов, ошибка Cloak и результаты](docs/blog/2026-10-21-physical-android.ru.md)
+
 [English](README.md) · **Русский**
 
 <img src="docs/images/logo.png" alt="XIO" width="96">
@@ -26,7 +28,7 @@
 
 | Платформа | Доступность | Клиентские протоколы |
 |---|---|---|
-| Android 8+ | ARM64, ARMv7, x86_64 APK; физические устройства отдельно не проверены | Xray, RIVET/S1, RIVET/H3, AWG, Cloak |
+| Android 8+ | ARM64, ARMv7, x86_64 APK; ARM64 проверена на одном POCO X6 5G | Xray, RIVET/S1, RIVET/H3, AWG, Cloak |
 | Ubuntu x64 | DEB и переносимый архив; системный стенд Ubuntu 24.04 | Xray, RIVET/S1, RIVET/H3, AWG |
 | Windows 10/11 x64 | Тестовый ZIP; интерфейс в Wine, драйвер и ICS требуют проверки на Windows | Xray, RIVET/S1, RIVET/H3, AWG |
 | iPhone/iPad | Исходный проект Xcode, подписанной IPA нет | RIVET/S1/H3 в исходниках, Apple-проверка впереди |

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="875" viewBox="0 0 1500 875" role="img"><rect width="1500" height="875" fill="#0c1119"/>
+<text x="55" y="38" font-family="DejaVu Sans,sans-serif" font-size="39" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Почему Cloak не пускал нового пользователя</text>
+<text x="58" y="106" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">Ошибка порядка активации. Криптографические алгоритмы не менялись.</text>
+<text x="59" y="190" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="700" fill="#ffb38c" dominant-baseline="text-before-edge">ДО</text>
+<rect x="55" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="78" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Создать</text>
+<text x="78" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">пользователя</text>
+<path d="M384,316 L406,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M397,308 L406,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M397,324 L406,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<rect x="410" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="433" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Применить</text>
+<text x="433" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">список без UID</text>
+<path d="M739,316 L761,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M752,308 L761,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M752,324 L761,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<rect x="765" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="788" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Выдать</text>
+<text x="788" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">Cloak UID</text>
+<path d="M1094,316 L1116,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M1107,308 L1116,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M1107,324 L1116,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<rect x="1120" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="1143" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Доступ</text>
+<text x="1143" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">отклонён</text>
+<text x="59" y="495" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">ПОСЛЕ</text>
+<rect x="55" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="78" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Создать</text>
+<text x="78" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">пользователя</text>
+<path d="M384,621 L406,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M397,613 L406,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M397,629 L406,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<rect x="410" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="433" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Сформировать</text>
+<text x="433" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">профили и UID</text>
+<path d="M739,621 L761,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M752,613 L761,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M752,629 L761,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<rect x="765" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="788" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Применить</text>
+<text x="788" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">список с UID</text>
+<path d="M1094,621 L1116,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M1107,613 L1116,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M1107,629 L1116,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<rect x="1120" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="1143" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">HTTPS</text>
+<text x="1143" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">HTTP 200</text>
+<text x="58" y="781" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">Регрессионный тест + новый пользователь на VPS + проверка на телефоне</text>
+</svg>

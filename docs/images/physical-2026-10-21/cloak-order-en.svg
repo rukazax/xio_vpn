@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="875" viewBox="0 0 1500 875" role="img"><rect width="1500" height="875" fill="#0c1119"/>
+<text x="55" y="38" font-family="DejaVu Sans,sans-serif" font-size="39" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Why Cloak rejected a new user</text>
+<text x="58" y="106" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">Activation order bug. Cryptographic algorithms were unchanged.</text>
+<text x="59" y="190" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="700" fill="#ffb38c" dominant-baseline="text-before-edge">BEFORE</text>
+<rect x="55" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="78" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Create</text>
+<text x="78" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">user</text>
+<path d="M384,316 L406,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M397,308 L406,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M397,324 L406,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<rect x="410" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="433" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Apply</text>
+<text x="433" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">list without UID</text>
+<path d="M739,316 L761,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M752,308 L761,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M752,324 L761,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<rect x="765" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="788" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Generate</text>
+<text x="788" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">Cloak UID</text>
+<path d="M1094,316 L1116,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M1107,308 L1116,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<path d="M1107,324 L1116,316" fill="none" stroke="#ffb38c" stroke-width="4"/>
+<rect x="1120" y="246" width="325" height="140" rx="22" fill="#172130"/>
+<text x="1143" y="273" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Access</text>
+<text x="1143" y="318" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#ffb38c" dominant-baseline="text-before-edge">rejected</text>
+<text x="59" y="495" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="700" fill="#c0f57b" dominant-baseline="text-before-edge">AFTER</text>
+<rect x="55" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="78" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Create</text>
+<text x="78" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">user</text>
+<path d="M384,621 L406,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M397,613 L406,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M397,629 L406,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<rect x="410" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="433" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Generate</text>
+<text x="433" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">profiles and UID</text>
+<path d="M739,621 L761,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M752,613 L761,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M752,629 L761,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<rect x="765" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="788" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">Apply</text>
+<text x="788" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">list with UID</text>
+<path d="M1094,621 L1116,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M1107,613 L1116,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<path d="M1107,629 L1116,621" fill="none" stroke="#c0f57b" stroke-width="4"/>
+<rect x="1120" y="551" width="325" height="140" rx="22" fill="#172130"/>
+<text x="1143" y="578" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="700" fill="#e7efde" dominant-baseline="text-before-edge">HTTPS</text>
+<text x="1143" y="623" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#c0f57b" dominant-baseline="text-before-edge">HTTP 200</text>
+<text x="58" y="781" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="400" fill="#a6b5c6" dominant-baseline="text-before-edge">Regression test + new VPS user + physical phone check</text>
+</svg>

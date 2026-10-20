@@ -2,6 +2,8 @@
 
 > **Android patch 0.22.1:** fixes new Cloak user activation and includes server package revision 20. [Downloads and notes](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.1) · [Physical Android report](docs/verification/android-physical-2026-10-21.en.md). Desktop packages remain at 0.22.0.
 
+📱 [Physical Android tests: five protocols, the Cloak fix, and the results](docs/blog/2026-10-21-physical-android.en.md)
+
 **English** · [Русский](README.ru.md)
 
 <img src="docs/images/logo.png" alt="XIO" width="96">
@@ -26,7 +28,7 @@ Your VPN, your servers, one interface. Connect a VPS, import supported configura
 
 | Platform | Availability | Client protocols |
 |---|---|---|
-| Android 8+ | ARM64, ARMv7, x86_64 APKs; physical devices not individually validated | Xray, RIVET/S1, RIVET/H3, AWG, Cloak |
+| Android 8+ | ARM64, ARMv7, x86_64 APKs; ARM64 physically checked on one POCO X6 5G | Xray, RIVET/S1, RIVET/H3, AWG, Cloak |
 | Ubuntu x64 | DEB and portable archive; system tests on Ubuntu 24.04 | Xray, RIVET/S1, RIVET/H3, AWG |
 | Windows 10/11 x64 | Test ZIP; UI tested in Wine, native driver and ICS still need a Windows test | Xray, RIVET/S1, RIVET/H3, AWG |
 | iPhone/iPad | Xcode source project, no signed IPA | RIVET/S1/H3 in source; Apple validation pending |
