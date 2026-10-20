@@ -112,4 +112,4 @@ For reproducible bugs, [open an issue](https://github.com/rukazax/xio_vpn/issues
 
 ---
 
-Prepared by the project with AI assistance and checked against retained test evidence. This is the developer's account of its own project. [Source](https://github.com/rukazax/xio_vpn/tree/v0.22.1) · [License](../../LICENSE) · [Technical report](../verification/android-physical-2026-10-21.en.md). The diagrams and their [generator](../../tools/editorial/render_physical_article.py) are available in the repository.
+Prepared by the project with AI assistance and checked against retained test evidence. This is the developer's account of its own project. [Source](https://github.com/rukazax/xio_vpn/tree/v0.22.1) · [License](../../LICENSE) · [Technical report](../verification/android-physical-2026-10-21.en.md) · [Discuss the results](https://github.com/rukazax/xio_vpn/discussions/2). The diagrams and their [generator](../../tools/editorial/render_physical_article.py) are available in the repository.

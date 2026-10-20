@@ -112,4 +112,4 @@ Cloak сначала выдавал `TRANSPORT_ERROR`. Приложение пе
 
 ---
 
-Материал подготовлен командой проекта с помощью ИИ и проверен по сохранённым результатам испытаний. Это рассказ разработчика о собственном проекте. [Исходники](https://github.com/rukazax/xio_vpn/tree/v0.22.1) · [Лицензия](../../LICENSE) · [Технический отчёт](../verification/android-physical-2026-10-21.ru.md). Схемы и их [генератор](../../tools/editorial/render_physical_article.py) доступны в репозитории.
+Материал подготовлен командой проекта с помощью ИИ и проверен по сохранённым результатам испытаний. Это рассказ разработчика о собственном проекте. [Исходники](https://github.com/rukazax/xio_vpn/tree/v0.22.1) · [Лицензия](../../LICENSE) · [Технический отчёт](../verification/android-physical-2026-10-21.ru.md) · [Обсудить результаты](https://github.com/rukazax/xio_vpn/discussions/2). Схемы и их [генератор](../../tools/editorial/render_physical_article.py) доступны в репозитории.
