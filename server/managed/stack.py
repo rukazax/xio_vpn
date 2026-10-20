@@ -109,11 +109,13 @@ WantedBy=multi-user.target
  if not d.get('restrictedNetwork'):network.ike_install(d);mesh.install(d)
  d['stack']={'protocols':(['xray','cloak'] if d.get('restrictedNetwork') else ['xray','shadowsocks','openvpn','cloak','ikev2']),'publicKey':r['publicKey'],'shortId':r['shortId'],'serverName':r['serverName']}
 def create(d,uid):
- u={'uuid':str(uuid.uuid4()),'ssKey':base64.b64encode(secrets.token_bytes(32)).decode()};d['users'][uid]['stack']=u;apply(d);configs=network.create(d,uid)
+ u={'uuid':str(uuid.uuid4()),'ssKey':base64.b64encode(secrets.token_bytes(32)).decode()};d['users'][uid]['stack']=u;configs=network.create(d,uid)
  if not d.get('restrictedNetwork'):configs.update(network.ike_profile(d,uid))
  configs.update(network.cloak_profile(d,uid,configs['openvpn']))
  if d.get('restrictedNetwork'):configs.pop('openvpn',None)
  if d.get('mesh'):configs.update(mesh.create(d,uid))
+ # Activate credentials only after every profile, including Cloak UID, exists.
+ apply(d)
  return dict(profiles(d,uid),**configs)
 def profiles(d,uid):
  r=receipt();u=d['users'][uid]['stack'];host=d['host']

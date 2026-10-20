@@ -26,5 +26,5 @@ for source,target in [('admin.py','xio-admin.py'),('stack.py','xio-stack.py'),('
  (root/'app/assets'/target).write_bytes((root/'server/managed'/source).read_bytes())
 (root/'app/assets/xio-bootstrap.sh').write_bytes((root/'server/managed/bootstrap.sh').read_bytes())
 (root/'app/assets/xio-server-update.py').write_bytes((root/'server/managed/update.py').read_bytes())
-(root/'app/assets/xio-server-release.json').write_text(json.dumps({'schema':1,'recipeVersion':19,'sha256':hashlib.sha256((root/'app/assets/x1o-server.tar.gz').read_bytes()).hexdigest()})+'\n')
+(root/'app/assets/xio-server-release.json').write_text(json.dumps({'schema':1,'recipeVersion':20,'sha256':hashlib.sha256((root/'app/assets/x1o-server.tar.gz').read_bytes()).hexdigest()})+'\n')
 print('Packaged owned installer with pinned AWG and RIVET server binaries')

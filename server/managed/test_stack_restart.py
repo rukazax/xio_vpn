@@ -30,3 +30,15 @@ class RestrictedInstallTests(unittest.TestCase):
    fixture={'host':'vpn.example','restrictedNetwork':True,'users':{}}
    with patch.object(stack,'ROOT',root),patch.object(stack,'receipt',return_value={'inactiveKey':'fixture','target':'vpn.example:443','serverName':'vpn.example','privateKey':'fixture','shortId':'aabb','ssKey':'fixture'}):stack.config(fixture)
    self.assertEqual([v['protocol'] for v in json.loads((root/'config.json').read_text())['inbounds']],['vless'])
+
+class UserActivationTests(unittest.TestCase):
+ def test_new_cloak_user_is_authorized_before_first_gateway_activation(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory);(root/'receipt.json').write_text(json.dumps({'cloakPublicKey':'public','serverName':'vpn.example'}))
+   data={'host':'vpn.example','restrictedNetwork':True,'users':{'u':{}}};activated=[]
+   def activate(current):
+    activated.append(current['users']['u']['stack'].get('cloakUID'))
+   with patch.object(stack.network,'ROOT',root),patch.object(stack.network,'create',return_value={'openvpn':json.dumps({'protocol':'openvpn','config':'proto udp\nremote vpn.example 1194\n'})}),patch.object(stack,'apply',side_effect=activate),patch.object(stack,'profiles',return_value={}):
+    result=stack.create(data,'u')
+   uid=json.loads(result['cloak'])['cloak']['UID']
+   self.assertEqual(activated,[uid])

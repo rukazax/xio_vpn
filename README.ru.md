@@ -1,5 +1,7 @@
 # XIO — X in 1 out
 
+> **Android-патч 0.22.1:** исправлена активация новых пользователей Cloak, серверный пакет обновлён до ревизии 20. [Скачать и посмотреть изменения](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.1) · [Отчёт о проверке на телефоне](docs/verification/android-physical-2026-10-21.ru.md). Версия сборок для ПК — 0.22.0.
+
 [English](README.md) · **Русский**
 
 <img src="docs/images/logo.png" alt="XIO" width="96">

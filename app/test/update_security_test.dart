@@ -37,13 +37,9 @@ void main() {
     );
     expect(release.version, xioVersion);
     expect(release.build, xioBuild);
-    for (final platform in [
-      'android-arm64-v8a',
-      'android-armeabi-v7a',
-      'android-x86_64',
-      'linux-x64',
-      'windows-x64',
-    ]) {
+    expect(release.assets, isNotEmpty);
+    // A platform-specific patch need not issue unrelated desktop packages.
+    for (final platform in release.assets.keys) {
       final asset = release.forPlatform(platform)!;
       final file = File(
         '../releases/${Uri.parse(asset.url).pathSegments.last}',

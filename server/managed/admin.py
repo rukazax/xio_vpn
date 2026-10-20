@@ -272,7 +272,7 @@ def rivet_install(d):
    if 'cert' in request:break
  except Exception:pass
  run('python3',str(base/'setup.py'),'install',input=json.dumps(request))
- d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=19;save(d)
+ d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=20;save(d)
  if changed:
   dest=Path('/usr/local/bin/xio-rivet.new');shutil.copyfile(LIB/'rivet',dest);dest.chmod(0o755);os.replace(dest,Path('/usr/local/bin/xio-rivet'))
   if shutil.which('restorecon'):run('restorecon','/usr/local/bin/xio-rivet')
@@ -342,7 +342,7 @@ def init(req):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['fd77:1::/64','fd78:1::/64']),'IPv6 subnet conflict'
  host=req['host'];assert re.fullmatch(r'[a-zA-Z0-9.:-]{1,253}',host)
  installed='wireguard-tools' in installed_packages(platform['manager'])
- d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':19,'restrictedNetwork':True,'phase':'installing','country':country()}
+ d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':20,'restrictedNetwork':True,'phase':'installing','country':country()}
  assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',d['outbound']);save(d)
  packages_install(d);firewall_prepare(d)
  binary=Path('/usr/local/bin/xio-amneziawg-go');assert not binary.exists(),'Existing XIO binary path'

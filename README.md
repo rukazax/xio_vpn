@@ -1,5 +1,7 @@
 # XIO — X in 1 out
 
+> **Android patch 0.22.1:** fixes new Cloak user activation and includes server package revision 20. [Downloads and notes](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.1) · [Physical Android report](docs/verification/android-physical-2026-10-21.en.md). Desktop packages remain at 0.22.0.
+
 **English** · [Русский](README.ru.md)
 
 <img src="docs/images/logo.png" alt="XIO" width="96">
