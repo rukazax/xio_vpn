@@ -1,0 +1,34 @@
+{
+  "sourceCommit": "60aabec88ede2e258f7d44f02d6058504dcbed90",
+  "tag": "v0.22.1",
+  "publicAssetChecks": [
+    {
+      "name": "XIO-0.22.1-android-arm64-v8a.apk",
+      "http": 200
+    },
+    {
+      "name": "XIO-0.22.1-android-armeabi-v7a.apk",
+      "http": 200
+    },
+    {
+      "name": "XIO-0.22.1-android-x86_64.apk",
+      "http": 200
+    },
+    {
+      "name": "XIO-update.json",
+      "http": 200
+    },
+    {
+      "name": "SHA256SUMS-0.22.1.txt",
+      "http": 200
+    }
+  ],
+  "androidArm64DownloadedSha256": "8980aa0b4073a4b51ded937be359d8a7302a36ee7ccbb3d45a30b648dcb50870",
+  "androidArm64DownloadedBytes": 60562895,
+  "githubAssetDigestsMatch": true,
+  "physicalDevice": "POCO X6 5G / Android 16 / ARM64",
+  "serverRecipe": 20,
+  "serverUnitTestsPassed": 19,
+  "selectedFlutterTestsPassed": 14,
+  "kotReleaseAcknowledged": true
+}
