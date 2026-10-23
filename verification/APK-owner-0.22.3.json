@@ -4,8 +4,8 @@
   "artifacts": [
     {
       "file": "XIO-0.22.3-android-arm64-v8a.apk",
-      "bytes": 60611331,
-      "sha256": "bb5f05e4f8e7270338fc487e9d3acd5a6534b6a641b14d423af200266430eb0b",
+      "bytes": 60611419,
+      "sha256": "52213628ace7b429b0035248c3e008280b232e70d2b91340a78736468c1d97e4",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "nativePayload": [
         {
@@ -26,8 +26,8 @@
     },
     {
       "file": "XIO-0.22.3-android-armeabi-v7a.apk",
-      "bytes": 60568353,
-      "sha256": "5ad2607d80893f3b39d2de4f646c79f4f07ae93e296f25d51bb38f7e02a10d85",
+      "bytes": 60568365,
+      "sha256": "4155aeae64b3d437bc8e04243aa4c321c42893c2822a579cc5297b0586ca1d8d",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "nativePayload": [
         {
@@ -48,8 +48,8 @@
     },
     {
       "file": "XIO-0.22.3-android-x86_64.apk",
-      "bytes": 61889672,
-      "sha256": "68cb8ecb0c678d3796af655fb9c3c2b5d3b3b548c6a4d9ecc4ae4cf0d06a7d15",
+      "bytes": 61889676,
+      "sha256": "5617d9ba311af0d4a3e52aae59a42e6d293454f002f798ea6979636fcc641b21",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "nativePayload": [
         {

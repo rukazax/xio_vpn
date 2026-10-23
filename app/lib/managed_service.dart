@@ -230,7 +230,7 @@ class ManagedService {
           : '';
       final host = server.host.contains(':') ? '[${server.host}]' : server.host;
       configs[p] =
-          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = 9.9.9.9\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $host:${p == 'awg' ? 51821 : 51820}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
+          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = 9.9.9.9, 2620:fe::fe\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $host:${p == 'awg' ? 51821 : 51820}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
     }
     if (remote['rivet'] is Map) {
       final meta = Map<String, dynamic>.from(remote['rivet']);

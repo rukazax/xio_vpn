@@ -109,6 +109,9 @@ void main() {
         'serverId',
         'configs',
       });
+      final awg = WireGuardProfile.parse(bundle.configs['awg']!, amnezia: true);
+      expect(awg.endpoint, 'example.org:51821');
+      expect(bundle.configs['awg'], contains('DNS = 9.9.9.9, 2620:fe::fe\n'));
       expect(bundle.adminAccess, isNull);
       expect(bundle.clientAccess, isNull);
       expect(ClientImport.parse(bundle.encode()).bundle!.userId, uid);

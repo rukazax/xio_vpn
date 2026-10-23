@@ -92,5 +92,7 @@
     "Physical split tunnelling and complete Cloak/OpenVPN flow"
   ],
   "publication": "Draft candidate only; no stable release acceptance",
-  "temporaryQaUserRevoked": true
+  "temporaryQaUserRevoked": true,
+  "awgProfilesIncludeIpv4AndIpv6Dns": true,
+  "finalDnsProfileRegressionTestPassed": true
 }
