@@ -1,3 +1,15 @@
+# XIO changes / Изменения
+
+## 0.22.2 — 2026-10-23
+
+- Отдельный Android-клиент для готовых серверов, общий главный экран, переключение серверов и раздельное туннелирование.
+- Субклиенты с ограниченным API-доступом: серверная квота, отзыв своих клиентов, сохранение незавершённой операции.
+- Root/admin SSH-ключи не экспортируются клиенту; серверная ревизия 21.
+- Separate Android client for existing servers, shared home UI, server switching and split tunnelling.
+- Scoped subclients: server-enforced quota, own-child revocation and durable pending operations.
+- No root/admin SSH key export to clients; server recipe 21.
+- Local checks passed; new client/live account API deployment and physical-device validation remain pending.
+
 ## 0.22.1 · 2026-10-21
 
 - RU: Исправлена активация нового пользователя Cloak; серверный пакет — ревизия 20. Все пять протоколов отдельно проверены на физическом Android. [Отчёт](docs/verification/android-physical-2026-10-21.ru.md).

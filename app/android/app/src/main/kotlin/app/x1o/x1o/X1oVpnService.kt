@@ -58,7 +58,7 @@ class X1oVpnService : GoBackend.VpnService() {
     private val phaseWatch=object:Runnable {
         override fun run(){
             if(instance!==this@X1oVpnService)return
-            VpnSharing.schedule(this@X1oVpnService)
+            if (!BuildConfig.CLIENT_ONLY) VpnSharing.schedule(this@X1oVpnService)
             if(RivetBackend.established){
                 val value=RivetBackend.status();val key=value.optString("phase")+value.optString("protocol")
                 if(key!=lastRivetPhase){lastRivetPhase=key;Engine.worker.execute{

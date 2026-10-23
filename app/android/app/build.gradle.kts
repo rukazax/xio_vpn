@@ -8,7 +8,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val clientOnly = (project.findProperty("dart-defines") as String?).orEmpty().split(",").any {
+    runCatching { String(Base64.getDecoder().decode(it)) == "XIO_CLIENT_ONLY=true" }.getOrDefault(false)
+}
+
 android {
+    buildFeatures { buildConfig = true }
     namespace = "app.x1o.x1o"
     // Compress native engines in the distributable APK; Android extracts them
     // on installation. This keeps a multi-engine ARM64 update below bot limits.
@@ -24,12 +29,13 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "app.x1o.x1o"
+        applicationId = if (clientOnly) "app.x1o.client" else "app.x1o.x1o"
+        buildConfigField("boolean", "CLIENT_ONLY", clientOnly.toString())
         val playBuild = (project.findProperty("dart-defines") as String?).orEmpty().split(",").filter { it.isNotEmpty() }.any {
             runCatching { String(Base64.getDecoder().decode(it)) == "XIO_PLAY_BUILD=true" }.getOrDefault(false)
         }
-        manifestPlaceholders["externalUpdates"] = (!playBuild).toString()
-        manifestPlaceholders["installPermission"] = if (playBuild) "app.x1o.x1o.permission.NO_EXTERNAL_INSTALL" else "android.permission.REQUEST_INSTALL_PACKAGES"
+        manifestPlaceholders["externalUpdates"] = (!playBuild && !clientOnly).toString()
+        manifestPlaceholders["installPermission"] = if (playBuild || clientOnly) "app.x1o.x1o.permission.NO_EXTERNAL_INSTALL" else "android.permission.REQUEST_INSTALL_PACKAGES"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26

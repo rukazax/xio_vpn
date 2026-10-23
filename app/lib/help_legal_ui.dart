@@ -1,3 +1,5 @@
+import 'client_policy.dart';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -17,6 +19,7 @@ String _androidVpnText() => AppLanguages.effective == 'ru'
     : 'XIO uses Android VpnService to send selected device traffic through your selected VPN server. Traffic between device and VPN endpoint is encrypted. The server operator may observe your IP address, destinations and network metadata; HTTPS content is protected by HTTPS.\n\nProfiles, SSH secrets and the acknowledgement are stored on this device. VPS administration sends commands, keys and user settings over SSH to that VPS. The server stores users, status and traffic counters. Server addresses may be sent to ipapi.co for country flags. Connectivity checks contact your selected website (youtube.com by default), which sees the exit address.\n\nThis build has no advertising or analytics SDK and does not redirect advertising for monetisation. Exporting profiles shares their secrets with your selected recipient. Only administer servers you are authorised to manage.\n\nAndroid requests separate system VPN permission on first connection. If you do not agree, close the app; no connection starts. These disclosures remain available in the licence section.';
 
 String vpnText() {
+  if (clientOnlyBuild) return clientDisclosure;
   if (Platform.isAndroid) return _androidVpnText();
   final ru = AppLanguages.effective == 'ru';
   final platform = Platform.isIOS

@@ -1,0 +1,12 @@
+XIO Client privacy policy
+Revision: 23 October 2026. Developer: Konstantin Eryomin, er-ka@mail.ru.
+
+The client connects to existing servers using imported client profiles. Profiles and settings remain on the device; profile secrets use encrypted Android Keystore-backed storage excluded from backups. This does not guarantee protection on a compromised device. Acknowledgements record the document revision, device UTC timestamp, language and displayed text SHA-256; they are not sent to the developer.
+
+VpnService encrypts selected traffic to the chosen endpoint. Its operator may observe the connecting IP, destinations and metadata; HTTPS separately protects content. DNS follows the profile. Connectivity checks contact the chosen HTTPS website (youtube.com by default), which sees the exit IP. With split tunnelling, the probe may use a direct route and does not establish protection of other applications. Excluded applications or networks use direct networking unless Android lockdown blocks that traffic.
+
+An explicitly issued account API token can check quota, create and revoke only its own subclients through the selected server HTTPS API with a pinned certificate. The token and unfinished operation are stored encrypted locally. Child exports contain only that child’s VPN keys; parent capability and SSH/root/admin keys are excluded. Subclient records also remain on the server.
+
+This build has no VPS deployment or administration, SSH, VPN sharing, endpoint geolocation, background release checks, advertising or analytics SDK, or automatic crash reporting. A system document picker imports files without broad storage access. Launchable application names are read locally for routing selection and are not sent to the developer. Android FLAG_SECURE blocks application screenshots.
+
+Data remains until profiles are removed, application data is cleared or the application is uninstalled. Local deletion does not remove a server or revoke its credentials. The server operator controls access and server-side processing. Support contact is voluntary; never send passwords or private keys. Android separately requests VPN permission; a new connection requires consent.

@@ -1,6 +1,29 @@
 # XIO — X in 1 out
 
-> **Android patch 0.22.1:** fixes new Cloak user activation and includes server package revision 20. [Downloads and notes](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.1) · [Physical Android report](docs/verification/android-physical-2026-10-21.en.md). Desktop packages remain at 0.22.0.
+## XIO Client 0.22.2 — connect without administering the server
+
+XIO Client is a separate lightweight Android app for existing VPN servers. Get a profile from the owner, import it, select a server and connect. Users do not need to provision a VPS or enter its SSH key. The client installs alongside the full XIO app.
+
+The home screen shares the full app’s theme: a large connection button, status, server picker, protocol and traffic counters. It supports server switching and split tunnelling by application or IP network. Available transports: Xray, RIVET/S1, RIVET/H3, AmneziaWG and Cloak.
+
+| App | Purpose |
+|---|---|
+| Full XIO | Owners provision and maintain servers, create accounts, set quotas and issue access. |
+| XIO Client | Users connect to existing servers. Accounts explicitly granted the right can create and revoke their own subclients within a server-enforced quota. |
+
+**Subclients.** The page appears after importing an account profile with scoped API access. Each operation checks live rights, revocation, ownership and remaining quota on the server. Ordinary VPN profiles grant no such right. A child gets only its own VPN credentials and cannot create further clients.
+
+**Server keys stay with the owner.** Client-profile export rejects root/admin SSH keys. A random token instead permits only account status and creation/revocation of that account’s children. Android stores it encrypted; the server stores its hash. HTTPS pins the exact certificate. A lost creation response never triggers an automatic retry with a new operation ID.
+
+[Download client and full app 0.22.2](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.2) · [Setup and limits](client/README.en.md) · [Design and changes](docs/blog/2026-10-23-client-0.22.2.en.md)
+
+<p><img src="docs/images/client-home-light-0.22.2.png" alt="XIO Client home in light theme" width="280"> <img src="docs/images/client-home-dark-0.22.2.png" alt="XIO Client home in dark theme" width="280"></p>
+
+*Local widget-test previews with synthetic profiles; these are not physical-device screenshots.*
+
+Requires **Android 8.0+**. ARM32, ARM64, x86-64 and universal APKs are provided. Subclients require server recipe 21 and a newly issued account profile with a positive quota, using the full Android app 0.22.2. The owner explicitly confirms the separate HTTPS API on TCP 9444. Ordinary VPN connections do not need this API.
+
+This is a **prerelease**. Local checks passed: analysis, 110 general Flutter tests (5 skipped), separately 10 client-mode and 26 server tests, APK signatures, packaged assets and native alignment. The new client and account API have not been tested on physical Android or a live VPS; earlier full-app 0.22.1 tests do not establish that result. The preliminary API needs installation/load validation and a production transport review before mass deployment. Desktop builds remain at 0.22.0.
 
 📱 [Physical Android tests: five protocols, the Cloak fix, and the results](docs/blog/2026-10-21-physical-android.en.md)
 

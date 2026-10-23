@@ -1,3 +1,5 @@
+import 'account_access.dart';
+import 'client_policy.dart';
 import 'engine_channel.dart';
 import 'desktop_engine.dart';
 import 'probe_tls.dart';
@@ -850,7 +852,7 @@ class AppStore extends ChangeNotifier {
   }
 
   Future<void> resolveCountry(String endpoint) async {
-    if (endpointCountries.containsKey(endpoint)) return;
+    if (clientOnlyBuild || endpointCountries.containsKey(endpoint)) return;
     final host = Uri.tryParse('udp://$endpoint')?.host;
     if (host == null ||
         host.isEmpty ||
@@ -904,6 +906,11 @@ class AppStore extends ChangeNotifier {
     scope: server.actorId,
   );
   Future<void> importServer(String raw) async {
+    if (clientOnlyBuild) {
+      throw const FormatException(
+        'XIO Client принимает только клиентские профили, без доступа к серверу',
+      );
+    }
     if (raw.length > 100000 || !raw.startsWith('xio-server://')) {
       throw const FormatException('Некорректная конфигурация сервера');
     }
@@ -986,6 +993,10 @@ class AppStore extends ChangeNotifier {
         .where((u) => u.profileIds.values.contains(initial.id))
         .firstOrNull;
     if (user?.revoked == true) return [];
+    // The small client connects only to the explicitly selected profile.
+    if (clientOnlyBuild) {
+      return supportedProtocols.contains(initial.protocol) ? [initial] : [];
+    }
     final candidates =
         (user == null
                 ? [initial]
@@ -1046,6 +1057,7 @@ class AppStore extends ChangeNotifier {
           b.serverId,
           b.configs,
           adminAccess: b.adminAccess,
+          clientAccess: b.clientAccess,
         ),
       );
     } else if (extendedProtocols.contains(imported.protocol)) {
@@ -1284,10 +1296,24 @@ class AppStore extends ChangeNotifier {
   }
 
   Future<ManagedUser> importBundle(UserBundle bundle) async {
+    if (clientOnlyBuild && bundle.adminAccess != null) {
+      throw const FormatException(
+        'Нужен клиентский профиль без SSH-доступа администратора',
+      );
+    }
+    final capability = bundle.clientAccess == null
+        ? null
+        : AccountAccess.parse(
+            bundle.clientAccess!,
+            bundle.userId,
+            bundle.serverId,
+          );
     final previousUser = users
         .where((u) => u.id == bundle.userId && u.serverId == bundle.serverId)
         .firstOrNull;
-    if (previousUser != null && previousUser.profileIds.isNotEmpty) {
+    if (previousUser != null &&
+        previousUser.profileIds.isNotEmpty &&
+        capability == null) {
       throw const FormatException('Пользователь уже добавлен');
     }
     if (previousUser?.revoked == true) {
@@ -1326,12 +1352,42 @@ class AppStore extends ChangeNotifier {
         WireGuardProfile.parse(e.value, amnezia: e.key == 'awg');
       }
     }
+    if (previousUser != null &&
+        previousUser.profileIds.isNotEmpty &&
+        capability != null) {
+      final oldRecord = await AccountVault.read(bundle.serverId, bundle.userId);
+      final previousFlag = previousUser.statistics['clientAccount'];
+      await AccountVault.write(bundle.serverId, bundle.userId, {
+        ...?(oldRecord),
+        'access': capability.toJson(),
+      });
+      previousUser.statistics['clientAccount'] = true;
+      try {
+        await save();
+      } catch (_) {
+        if (previousFlag == null) {
+          previousUser.statistics.remove('clientAccount');
+        } else {
+          previousUser.statistics['clientAccount'] = previousFlag;
+        }
+        if (oldRecord == null) {
+          await AccountVault.delete(bundle.serverId, bundle.userId);
+        } else {
+          await AccountVault.write(bundle.serverId, bundle.userId, oldRecord);
+        }
+        rethrow;
+      }
+      notifyListeners();
+      return previousUser;
+    }
     final ids = <String, String>{};
     bool addedAdminServer = false;
     Map<String, String>? previousAdminCredential;
     String? adminCredentialId;
     bool credentialSnapshotReady = false;
     final oldSelected = selectedId;
+    Map<String, dynamic>? previousAccount;
+    bool accountWritten = false;
     try {
       for (final e in bundle.configs.entries) {
         if (extendedProtocols.contains(e.key)) {
@@ -1373,6 +1429,14 @@ class AppStore extends ChangeNotifier {
           'passphrase': '',
         });
       }
+      if (capability != null) {
+        previousAccount = await AccountVault.read(user.serverId, user.id);
+        await AccountVault.write(user.serverId, user.id, {
+          'access': capability.toJson(),
+        });
+        accountWritten = true;
+        user.statistics['clientAccount'] = true;
+      }
       users.add(user);
       imported = user;
       if (!status.active) {
@@ -1382,6 +1446,17 @@ class AppStore extends ChangeNotifier {
       notifyListeners();
       return user;
     } catch (_) {
+      if (accountWritten) {
+        if (previousAccount == null) {
+          await AccountVault.delete(bundle.serverId, bundle.userId);
+        } else {
+          await AccountVault.write(
+            bundle.serverId,
+            bundle.userId,
+            previousAccount,
+          );
+        }
+      }
       if (imported != null) users.remove(imported);
       if (addedAdminServer) servers.remove(adminServer);
       if (adminCredentialId != null && credentialSnapshotReady) {
@@ -1417,32 +1492,25 @@ class AppStore extends ChangeNotifier {
       }))!;
     }
     Map<String, dynamic>? access;
-    if (user.admin) {
-      final server = servers.where((s) => s.id == user.serverId).firstOrNull;
-      if (server != null) {
-        final creds = await CredentialVault.read(
-          CredentialVault.id(
-            server.host,
-            server.port,
-            server.username,
-            scope: user.id,
-          ),
+    if (user.admin && !clientOnlyBuild) {
+      final saved = await AccountVault.read(user.serverId, user.id);
+      if (saved == null) {
+        throw StateError(
+          'Выдайте ограниченный доступ аккаунта из полной версии',
         );
-        if (creds != null && (creds['key'] ?? '').isNotEmpty) {
-          access = {
-            'server': {...server.toJson(), 'actorId': user.id},
-            'key': creds['key'],
-            'limit': user.userLimit,
-          };
-        }
       }
+      access = AccountAccess.parse(
+        Map.from(saved['access']),
+        user.id,
+        user.serverId,
+      ).toJson();
     }
     return UserBundle(
       user.name,
       user.id,
       user.serverId,
       configs,
-      adminAccess: access,
+      clientAccess: access,
     );
   }
 
@@ -1656,7 +1724,7 @@ class AppStore extends ChangeNotifier {
 
   Map<String, dynamic> diagnosticReport(List<Map<String, dynamic>> checks) => {
     'application': 'XIO',
-    'version': '0.22.1',
+    'version': '0.22.2',
     'createdAt': DateTime.now().toUtc().toIso8601String(),
     'platform': Platform.operatingSystem,
     'tunnelState': status.state,

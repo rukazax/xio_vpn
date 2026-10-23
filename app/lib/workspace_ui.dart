@@ -698,7 +698,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const LText('XIO · X in 1 out\nВерсия 0.22.1'),
+              const LText('XIO · X in 1 out\nВерсия 0.22.2'),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.code),
@@ -935,7 +935,7 @@ class _SharingPageState extends State<SharingPage> {
         title: const LText('Поделиться доступом'),
         content: LText(
           user.admin
-              ? 'Профиль администратора содержит VPN-ключи и ограниченный ключ управления пользователями. Root-пароль не передаётся.'
+              ? 'Будет выдан отдельный API-доступ аккаунта с серверным лимитом субклиентов. На сервере включится HTTPS API на TCP 9444. Старый API-токен этого аккаунта будет отозван. SSH/root/admin-ключи в профиль не включаются.'
               : 'Профиль содержит личные VPN-ключи всех протоколов пользователя. Получатель сможет подключаться к VPN. SSH-доступ не передаётся.',
         ),
         actions: [
@@ -952,6 +952,29 @@ class _SharingPageState extends State<SharingPage> {
     );
     if (confirmed != true || !mounted) return;
     await actionGuard(context, () async {
+      if (user.admin) {
+        if (widget.store.status.active || widget.store.busy) {
+          throw StateError('Сначала отключите VPN для выдачи API-доступа');
+        }
+        final ownerServer = widget.store.servers
+            .where((s) => s.id == user.serverId)
+            .firstOrNull;
+        if (ownerServer == null || ownerServer.delegated) {
+          throw StateError(
+            'Для выдачи нового клиентского доступа обратитесь к владельцу сервера',
+          );
+        }
+        await showDialog<void>(
+          context: context,
+          builder: (_) => ManagedAdminDialog(
+            store: widget.store,
+            server: ownerServer,
+            user: user,
+            action: 'client-export',
+          ),
+        );
+        return;
+      }
       final bundle = await widget.store.exportUser(user);
       if (Platform.isAndroid) {
         await native.invokeMethod('shareBundle', {'bundle': bundle.encode()});
@@ -1329,6 +1352,18 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     }
     if (widget.action == 'create') await create();
     if (widget.action == 'uninstall') await uninstall();
+    if (widget.action == 'client-export') {
+      await service.issueClientAccess(widget.store, server!, widget.user!);
+      final bundle = await widget.store.exportUser(widget.user!);
+      if (Platform.isAndroid) {
+        await native.invokeMethod('shareBundle', {'bundle': bundle.encode()});
+      } else {
+        await Clipboard.setData(ClipboardData(text: bundle.encode()));
+      }
+      setState(
+        () => result = 'Клиентский доступ выдан. В профиле только VPN-ключи и ограниченный API-токен аккаунта; ключи сервера не переданы.',
+      );
+    }
     if (widget.action == 'stats') {
       await service.refresh(widget.store, server!);
       setState(() => result = 'Статистика пользователей обновлена.');

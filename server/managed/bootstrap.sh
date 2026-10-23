@@ -45,6 +45,7 @@ trap 'rm -rf "$tmp"' EXIT HUP INT TERM
 tar -xzf - -C "$tmp"
 chmod 700 "$tmp/amneziawg-go"
 mv "$tmp/admin.py" "$lib/admin.py"
+mv "$tmp/client_api.py" "$lib/client_api.py"
 mv "$tmp/amneziawg-go" "$lib/amneziawg-go"
 chmod 755 "$tmp/rivet"
 mv "$tmp/rivet" "$lib/rivet"

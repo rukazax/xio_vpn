@@ -20,7 +20,7 @@ import tempfile
 
 LIB = Path('/usr/local/lib/x1o-managed')
 STATE = Path('/etc/x1o-managed/deployment.json')
-RECIPE = 20
+RECIPE = 21
 OWNER = 'x1o-managed-v1'
 UNITS = ('x1o-managed-stats.timer', 'x1o-managed-awg.service',
          'xio-rivet-entry.service', 'xio-rivet-gateway.service', 'xio-stack.service', 'xio-cloak.service')
@@ -97,7 +97,7 @@ def update(raw, expected, server_id):
     if current == RECIPE and data.get('bundleSha256'):
         raise RuntimeError('Conflicting bundle at the same recipe revision')
     # This release supports only the known schema. Never guess a migration.
-    if current not in (13, 14, 15, 16, 17, 18, 19, 20):
+    if current not in (13, 14, 15, 16, 17, 18, 19, 20, 21):
         raise RuntimeError('Unsupported server recipe')
     with tempfile.TemporaryDirectory(prefix='.update-', dir=LIB.parent) as folder:
         work = Path(folder)

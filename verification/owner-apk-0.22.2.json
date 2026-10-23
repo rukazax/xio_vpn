@@ -1,0 +1,23 @@
+{
+  "file": "XIO-0.22.2-android-arm64-v8a.apk",
+  "bytes": 60571463,
+  "sha256": "1ac9fe5c836689b0f093427f1771dda03bb55411e1cae5acf1407f34b3bca13d",
+  "package": "app.x1o.x1o",
+  "version": "0.22.2+5006",
+  "signatureVerified": true,
+  "zipalign16KiB": true,
+  "nativePayload": [
+    {
+      "abi": "arm64-v8a",
+      "library": "libgojni.so",
+      "allocatedSectionsMatch": true
+    },
+    {
+      "abi": "arm64-v8a",
+      "library": "libxio_openvpn.so",
+      "allocatedSectionsMatch": true
+    }
+  ],
+  "physicalAndroidTested": false,
+  "liveServerApiInstallationTested": false
+}

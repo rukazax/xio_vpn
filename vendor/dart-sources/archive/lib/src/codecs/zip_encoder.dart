@@ -1,0 +1,943 @@
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
+
+import '../archive/archive.dart';
+import '../archive/archive_file.dart';
+import '../archive/compression_type.dart';
+import '../util/aes.dart';
+import '../util/byte_order.dart';
+import '../util/crc32.dart';
+import '../util/file_content.dart';
+import '../util/input_decode_stream.dart';
+import '../util/input_memory_stream.dart';
+import '../util/input_stream.dart';
+import '../util/output_memory_stream.dart';
+import '../util/output_stream.dart';
+import 'bzip2_encoder.dart';
+import 'zip/zip_directory.dart';
+import 'zip/zip_file.dart';
+import 'zip/zip_file_header.dart';
+import 'zlib/_zlib_encoder.dart';
+import 'zlib/deflate.dart';
+import 'zstd_encoder.dart';
+
+class _ZipFileData {
+  late String name;
+  int time = 0;
+  int date = 0;
+  int crc32 = 0;
+  int compressedSize = 0;
+  int uncompressedSize = 0;
+  InputStream? compressedData;
+  CompressionType compression = CompressionType.deflate;
+  String? comment = '';
+  int position = 0;
+  int mode = 0;
+  bool isFile = true;
+
+  /// The general purpose flags the local header was written with, which the
+  /// central directory has to repeat: readers such as 7-Zip check that they
+  /// agree.
+  int flags = 0;
+
+  bool get encrypted => flags & ZipEncoder.fileEncryptionBit != 0;
+}
+
+int? _getTime(DateTime? dateTime) {
+  if (dateTime == null) {
+    return null;
+  }
+  final t1 = ((dateTime.minute & 0x7) << 5) | (dateTime.second ~/ 2);
+  final t2 = (dateTime.hour << 3) | (dateTime.minute >> 3);
+  return ((t2 & 0xff) << 8) | (t1 & 0xff);
+}
+
+int? _getDate(DateTime? dateTime) {
+  if (dateTime == null) {
+    return null;
+  }
+  final d1 = ((dateTime.month & 0x7) << 5) | dateTime.day;
+  final d2 = (((dateTime.year - 1980) & 0x7f) << 1) | (dateTime.month >> 3);
+  return ((d2 & 0xff) << 8) | (d1 & 0xff);
+}
+
+class _ZipEncoderData {
+  int? level;
+  late final int? time;
+  late final int? date;
+  int localFileSize = 0;
+  int centralDirectorySize = 0;
+  int endOfCentralDirectorySize = 0;
+  List<_ZipFileData> files = [];
+
+  _ZipEncoderData(this.level, [DateTime? dateTime]) {
+    time = _getTime(dateTime);
+    date = _getDate(dateTime);
+  }
+}
+
+/// Encode an [Archive] object into a Zip formatted buffer.
+class ZipEncoder {
+  late _ZipEncoderData _data;
+  OutputStream? _output;
+  final Encoding filenameEncoding;
+  // Only a password needs it, and under dart2js on Node creating it throws.
+  late final Random _random = Random.secure();
+  final String? password;
+
+  ZipEncoder({this.filenameEncoding = const Utf8Codec(), this.password});
+
+  /// Bit 1 of the general purpose flag, File encryption flag
+  static const fileEncryptionBit = 1;
+
+  /// Bit 3 of the general purpose flag: the CRC and sizes follow the data in
+  /// a data descriptor, because they were not known when the header was
+  /// written.
+  static const dataDescriptorBit = 8;
+
+  static const _dataDescriptorSignature = 0x08074b50;
+
+  // How much of an entry to read at a time when it is stored or encrypted.
+  static const _chunkSize = 64 * 1024;
+
+  /// Bit 11 of the general purpose flag, Language encoding flag
+  static const languageEncodingBitUtf8 = 2048;
+  static const _aesEncryptionExtraHeaderId = 0x9901;
+
+  void encodeStream(Archive archive, OutputStream output,
+      {int level = DeflateLevel.bestSpeed,
+      DateTime? modified,
+      bool autoClose = false,
+      ArchiveCallback? callback}) {
+    startEncode(output, level: level, modified: modified);
+    for (final file in archive) {
+      add(file, autoClose: autoClose, callback: callback);
+    }
+    endEncode(comment: archive.comment);
+  }
+
+  Uint8List encodeBytes(Archive archive,
+      {int level = DeflateLevel.bestSpeed,
+      OutputStream? output,
+      DateTime? modified,
+      bool autoClose = false,
+      ArchiveCallback? callback}) {
+    output ??= OutputMemoryStream();
+    encodeStream(archive, output,
+        level: level,
+        modified: modified,
+        autoClose: autoClose,
+        callback: callback);
+    return output.getBytes();
+  }
+
+  /// Alias for [encodeBytes], kept for backwards compatibility.
+  List<int> encode(Archive archive,
+          {int level = DeflateLevel.bestSpeed,
+          OutputStream? output,
+          DateTime? modified,
+          bool autoClose = false,
+          ArchiveCallback? callback}) =>
+      encodeBytes(archive,
+          level: level,
+          output: output,
+          modified: modified,
+          autoClose: autoClose,
+          callback: callback);
+
+  void startEncode(OutputStream? output,
+      {int? level = DeflateLevel.bestSpeed, DateTime? modified}) {
+    _data = _ZipEncoderData(level, modified);
+    _output = output;
+  }
+
+  // Whether [file] can be written with its CRC and sizes in its local header
+  // rather than in a data descriptor after the data, which takes a pass over
+  // the content first. That is the most widely read form, and some readers
+  // need it for a stored entry: Java's ZipInputStream refuses a stored entry
+  // with a descriptor, and an OpenDocument or EPUB file's stored mimetype
+  // entry must not have one. So it is used for content already in memory,
+  // and for stored content that can be read twice, which a stream decoding
+  // as it goes cannot.
+  bool _canWriteSizesFirst(ArchiveFile file, CompressionType compression) {
+    final content = file.rawContent;
+    if (content is FileContentMemory) {
+      return true;
+    }
+    return compression == CompressionType.none &&
+        password == null &&
+        content is FileContentStream &&
+        content.stream is! InputDecodeStream;
+  }
+
+  int getFileCrc32(ArchiveFile file) {
+    final content = file.rawContent;
+    if (content == null) {
+      return 0;
+    }
+    final s = content.getStream(decompress: false);
+    s.reset();
+    var crc32 = 0;
+    var size = s.length;
+    const chunkSize = 1024 * 1024;
+    while (size > chunkSize) {
+      final bytes = s.readBytes(chunkSize).toUint8List();
+      crc32 = getCrc32(bytes, crc32);
+      size -= chunkSize;
+    }
+    if (size > 0) {
+      final bytes = s.readBytes(size).toUint8List();
+      crc32 = getCrc32(bytes, crc32);
+    }
+    s.reset();
+    return crc32;
+  }
+
+  // https://stackoverflow.com/questions/62708273/how-unique-is-the-salt-produced-by-this-function
+  // length is for the underlying bytes, not the resulting string.
+  Uint8List _generateSalt([int length = 94]) {
+    return Uint8List.fromList(
+        List<int>.generate(length, (i) => _random.nextInt(256)));
+  }
+
+  Uint8List? _mac;
+  Uint8List? _pwdVer;
+
+  // Derives the keys for [salt], leaving the password verifier in [_pwdVer],
+  // and returns a cipher ready to encrypt the entry.
+  Aes _startEncryption(Uint8List salt) {
+    // keySize = 32 bytes (256 bits), because of 0x3 as compression type
+
+    final keySize = 32;
+
+    final derivedKey =
+        ZipFile.deriveKey(password!, salt, derivedKeyLength: keySize);
+    final keyData = Uint8List.fromList(derivedKey.sublist(0, keySize));
+    final hmacKeyData =
+        Uint8List.fromList(derivedKey.sublist(keySize, keySize * 2));
+
+    _pwdVer = derivedKey.sublist(keySize * 2, keySize * 2 + 2);
+
+    return Aes(keyData, hmacKeyData, keySize, encrypt: true);
+  }
+
+  Uint8List _encryptCompressedData(Uint8List data, Uint8List salt) {
+    final aes = _startEncryption(salt);
+    aes.processData(data, 0, data.length);
+    _mac = aes.mac;
+    return data;
+  }
+
+  void add(ArchiveFile entry,
+      {bool autoClose = true, ArchiveCallback? callback, int? level}) {
+    final fileData = _ZipFileData();
+    _data.files.add(fileData);
+
+    if (callback != null) {
+      callback(entry);
+    }
+
+    final lastModMS = entry.lastModTime * 1000;
+    final lastModTime = DateTime.fromMillisecondsSinceEpoch(lastModMS);
+
+    // The zip format requires forward slashes as the path separator
+    // (APPNOTE 4.4.17). Normalize backslashes that can creep in from
+    // Windows paths so the archive isn't corrupt on other platforms.
+    fileData.name = entry.name.replaceAll('\\', '/');
+    if (!entry.isFile && !fileData.name.endsWith('/')) {
+      fileData.name += '/';
+    }
+    // If the archive modification time was overwritten, use that, otherwise
+    // use the lastModTime from the file.
+    fileData.time = _data.time ?? _getTime(lastModTime)!;
+    fileData.date = _data.date ?? _getDate(lastModTime)!;
+    fileData.mode = entry.mode;
+    fileData.isFile = entry.isFile;
+
+    InputStream? compressedData;
+    int crc32 = 0;
+
+    // A directory has no data, and an empty deflate stream is not valid
+    // deflate, which unzip rejects.
+    var compressionType = entry.isFile
+        ? entry.compression ?? CompressionType.deflate
+        : CompressionType.none;
+
+    if (entry.isFile) {
+      final file = entry;
+      if (!file.isCompressed &&
+          file.rawContent != null &&
+          !_canWriteSizesFirst(file, compressionType)) {
+        // Not compressed yet, so it goes through the compressor straight
+        // into the output rather than through memory first.
+        _writeStreamed(file, fileData, compressionType, level);
+        if (autoClose) {
+          entry.closeSync();
+        }
+        return;
+      }
+      if (file.isCompressed) {
+        if (file.compression == CompressionType.none) {
+          // If the user want's to store the file without compressing it,
+          // make sure it's decompressed.
+          compressedData = file.rawContent?.getStream(decompress: true);
+        } else {
+          // If the file is already compressed, no sense in uncompressing it and
+          // compressing it again, just pass along the already compressed data.
+          // TODO: handle explicit compression level or type.
+          // If the compression level is different, or the compression mode,
+          // then we'll need to decompress the file and recompress it.
+          compressedData = file.rawContent?.getStream(decompress: false);
+          if (file.rawContent is ZipFile) {
+            final zipFile = file.rawContent as ZipFile;
+            compressionType = zipFile.compressionMethod;
+          }
+        }
+
+        if (file.crc32 != null) {
+          crc32 = file.crc32!;
+        } else {
+          crc32 = getFileCrc32(file);
+        }
+      } else {
+        // Otherwise we need to compress it now.
+        crc32 = getFileCrc32(file);
+
+        if (compressionType == CompressionType.deflate) {
+          final content = file.rawContent;
+          final output = OutputMemoryStream();
+          platformZLibEncoder.encodeStream(
+              content!.getStream(decompress: false), output,
+              level: level ?? file.compressionLevel ?? _data.level ?? 6,
+              raw: true);
+          compressedData = InputMemoryStream(output.getBytes());
+        } else if (compressionType == CompressionType.bzip2) {
+          final content = file.rawContent;
+          final output = OutputMemoryStream();
+          final bzip2 = BZip2Encoder();
+          bzip2.encodeStream(content!.getStream(decompress: false), output);
+          compressedData = InputMemoryStream(output.getBytes());
+        } else if (compressionType == CompressionType.zstd) {
+          final content = file.rawContent;
+          final output = OutputMemoryStream();
+          // The zip format's CRC covers the content, so the frame needs no
+          // checksum of its own.
+          ZstdEncoder().encodeStream(
+              content!.getStream(decompress: false), output,
+              level: level ??
+                  file.compressionLevel ??
+                  _data.level ??
+                  zstdDefaultLevel);
+          compressedData = InputMemoryStream(output.getBytes());
+        } else {
+          // no compression
+          compressedData = file.rawContent?.getStream(decompress: false);
+        }
+      }
+    }
+
+    final encodedFilename = filenameEncoding.encode(entry.name);
+    final comment =
+        entry.comment != null ? filenameEncoding.encode(entry.comment!) : null;
+
+    Uint8List? salt;
+
+    if (password != null && compressedData != null) {
+      // https://www.winzip.com/en/support/aes-encryption/#zip-format
+      //
+      // The size of the salt value depends on the length of the encryption key,
+      // as follows:
+      //
+      // Key size Salt size
+      // 128 bits  8 bytes
+      // 192 bits 12 bytes
+      // 256 bits 16 bytes
+      //
+      salt = _generateSalt(16);
+
+      final encryptedBytes =
+          _encryptCompressedData(compressedData.toUint8List(), salt);
+
+      compressedData = InputMemoryStream(encryptedBytes);
+    }
+
+    final dataLen = (compressedData?.length ?? 0) +
+        (salt?.length ?? 0) +
+        (_mac?.length ?? 0) +
+        (_pwdVer?.length ?? 0);
+
+    _data.localFileSize += 30 + encodedFilename.length + dataLen;
+
+    _data.centralDirectorySize +=
+        46 + encodedFilename.length + (comment != null ? comment.length : 0);
+
+    fileData.crc32 = crc32;
+    fileData.compressedSize = dataLen;
+    fileData.compressedData = compressedData;
+    fileData.uncompressedSize = entry.size;
+    fileData.compression = compressionType;
+    fileData.comment = entry.comment;
+    fileData.position = _output!.length;
+
+    _writeFile(fileData, _output!, salt: salt);
+
+    fileData.compressedData = null;
+
+    /*if (entry.isDirectory) {
+      for (final file in entry) {
+        add(file, autoClose: autoClose, callback: callback);
+      }
+    }*/
+
+    if (autoClose) {
+      entry.closeSync();
+    }
+  }
+
+  void endEncode({String? comment = ''}) {
+    // Write Central Directory and End Of Central Directory
+    _writeCentralDirectory(_data.files, comment, _output!);
+    if (_output != null) {
+      _output!.flush();
+    }
+  }
+
+  List<int> _getZip64ExtraData(_ZipFileData fileData) {
+    final out = OutputMemoryStream();
+    // zip64 ID
+    out.writeByte(0x01);
+    out.writeByte(0x00);
+    // field length
+    out.writeByte(0x10);
+    out.writeByte(0x00);
+    // uncompressed size
+    out.writeUint64(fileData.uncompressedSize);
+    // compressed size
+    out.writeUint64(fileData.compressedSize);
+    return out.getBytes();
+  }
+
+  // The zip compression method number for [compression].
+  static int _zipMethod(CompressionType compression) => switch (compression) {
+        CompressionType.deflate => ZipFile.zipCompressionDeflate,
+        CompressionType.bzip2 => ZipFile.zipCompressionBZip2,
+        CompressionType.zstd => ZipFile.zipCompressionZstd,
+        CompressionType.none => ZipFile.zipCompressionStore,
+      };
+
+  List<int> _getAexExtraData(_ZipFileData fileData) {
+    // https://www.winzip.com/en/support/aes-encryption/#zip-format
+    final out = OutputMemoryStream();
+
+    final compressionMethod = _zipMethod(fileData.compression);
+
+    out.writeUint16(_aesEncryptionExtraHeaderId); // AE-x encryption ID
+    out.writeUint16(0x0007); // field length
+    out.writeUint16(0x0001); // AE-1 encryption version
+    out.writeBytes(ascii.encode("AE")); // "vendor ID"
+    out.writeByte(0x0003); // encryption strength (256-bit)
+    out.writeUint16(compressionMethod); // actual compression method
+
+    return out.getBytes();
+  }
+
+  // Compresses [file] from its source straight into the output, computing the
+  // CRC on the way through. The header goes out before the CRC and sizes are
+  // known, so they follow the data in a data descriptor, which every reader
+  // of streamed zips, such as those Java and Go write, understands. For an
+  // entry that may grow past 4 GB the header gets a zip64 extra field, which
+  // is what tells a reader the descriptor's sizes are 8 bytes wide.
+  void _writeStreamed(ArchiveFile file, _ZipFileData fileData,
+      CompressionType compression, int? level) {
+    final output = _output!;
+    fileData.compression = compression;
+    fileData.position = output.length;
+
+    // Whether the sizes could overflow a 32-bit field. The compressed size is
+    // not known yet, so allow for the worst a compressor can do, which is a
+    // few percent of expansion, plus the encryption overhead.
+    final size = file.size;
+    final zip64 = size + (size >> 5) + 4096 > 0xFFFFFFFF;
+
+    var flags = dataDescriptorBit;
+    if (filenameEncoding.name == "utf-8") {
+      flags |= languageEncodingBitUtf8;
+    }
+    if (password != null) {
+      flags |= fileEncryptionBit;
+    }
+    fileData.flags = flags;
+
+    final extra = <int>[];
+    if (zip64) {
+      extra.addAll(_getZip64ExtraData(fileData));
+    }
+    if (password != null) {
+      extra.addAll(_getAexExtraData(fileData));
+    }
+
+    _writeLocalHeader(output,
+        name: fileData.name,
+        flags: flags,
+        compressionMethod: password != null
+            ? ZipFile.zipCompressionAexEncryption
+            : _zipMethod(compression),
+        time: fileData.time,
+        date: fileData.date,
+        crc32: 0,
+        compressedSize: zip64 ? 0xFFFFFFFF : 0,
+        uncompressedSize: zip64 ? 0xFFFFFFFF : 0,
+        extra: extra);
+
+    // The compressed size covers the salt, verifier and authentication code
+    // of an encrypted entry.
+    final dataStart = output.length;
+    _AesOutputStream? encrypted;
+    OutputStream dst = output;
+    if (password != null) {
+      final salt = _generateSalt(16);
+      final aes = _startEncryption(salt);
+      output.writeBytes(salt);
+      output.writeBytes(_pwdVer!);
+      dst = encrypted = _AesOutputStream(output, aes);
+    }
+
+    final src =
+        _Crc32InputStream(file.rawContent!.getStream(decompress: false));
+    switch (compression) {
+      case CompressionType.deflate:
+        platformZLibEncoder.encodeStream(src, dst,
+            level: level ?? file.compressionLevel ?? _data.level ?? 6,
+            raw: true);
+      case CompressionType.bzip2:
+        BZip2Encoder().encodeStream(src, dst);
+      case CompressionType.zstd:
+        // The zip format's CRC covers the content, so the frame needs no
+        // checksum of its own.
+        ZstdEncoder().encodeStream(src, dst,
+            level: level ??
+                file.compressionLevel ??
+                _data.level ??
+                zstdDefaultLevel);
+      case CompressionType.none:
+        while (!src.isEOS) {
+          dst.writeBytes(
+              src.readBytes(min(_chunkSize, src.length)).toUint8List());
+        }
+    }
+    dst.flush();
+    if (encrypted != null) {
+      _mac = encrypted.finish();
+      output.writeBytes(_mac!);
+    }
+
+    final compressedSize = output.length - dataStart;
+    final uncompressedSize = src.count;
+    final crc32 = src.crc32;
+
+    output.writeUint32(_dataDescriptorSignature);
+    output.writeUint32(crc32);
+    if (zip64) {
+      output.writeUint64(compressedSize);
+      output.writeUint64(uncompressedSize);
+    } else {
+      output.writeUint32(compressedSize);
+      output.writeUint32(uncompressedSize);
+    }
+
+    fileData.crc32 = crc32;
+    fileData.compressedSize = compressedSize;
+    fileData.uncompressedSize = uncompressedSize;
+    fileData.comment = file.comment;
+
+    final encodedFilename = filenameEncoding.encode(file.name);
+    final comment =
+        file.comment != null ? filenameEncoding.encode(file.comment!) : null;
+    _data.localFileSize += output.length - fileData.position;
+    _data.centralDirectorySize +=
+        46 + encodedFilename.length + (comment != null ? comment.length : 0);
+  }
+
+  void _writeLocalHeader(OutputStream output,
+      {required String name,
+      required int flags,
+      required int compressionMethod,
+      required int time,
+      required int date,
+      required int crc32,
+      required int compressedSize,
+      required int uncompressedSize,
+      required List<int> extra}) {
+    final encodedFilename = filenameEncoding.encode(name);
+
+    output.writeUint32(ZipFile.zipSignature);
+    output.writeUint16(version);
+    output.writeUint16(flags);
+    output.writeUint16(compressionMethod);
+    output.writeUint16(time);
+    output.writeUint16(date);
+    output.writeUint32(crc32);
+    output.writeUint32(compressedSize);
+    output.writeUint32(uncompressedSize);
+    output.writeUint16(encodedFilename.length);
+    output.writeUint16(extra.length);
+    output.writeBytes(encodedFilename);
+    output.writeBytes(extra);
+  }
+
+  void _writeFile(_ZipFileData fileData, OutputStream output,
+      {Uint8List? salt}) {
+    final needsZip64 = fileData.compressedSize > 0xFFFFFFFF ||
+        fileData.uncompressedSize > 0xFFFFFFFF;
+
+    var flags = 0;
+    if (filenameEncoding.name == "utf-8") {
+      flags |= languageEncodingBitUtf8;
+    }
+    // Only an entry with data is encrypted; a directory has none.
+    if (password != null && salt != null) {
+      flags |= fileEncryptionBit;
+    }
+    fileData.flags = flags;
+    final encrypted = fileData.encrypted;
+
+    final extra = <int>[];
+    if (needsZip64) {
+      extra.addAll(_getZip64ExtraData(fileData));
+    }
+    if (encrypted) {
+      extra.addAll(_getAexExtraData(fileData));
+    }
+
+    final compressedData = fileData.compressedData;
+
+    _writeLocalHeader(output,
+        name: fileData.name,
+        flags: flags,
+        compressionMethod: encrypted
+            ? ZipFile.zipCompressionAexEncryption
+            : _zipMethod(fileData.compression),
+        time: fileData.time,
+        date: fileData.date,
+        crc32: fileData.crc32,
+        compressedSize: needsZip64 ? 0xFFFFFFFF : fileData.compressedSize,
+        uncompressedSize: needsZip64 ? 0xFFFFFFFF : fileData.uncompressedSize,
+        extra: extra);
+
+    if (password != null && salt != null) {
+      output.writeBytes(salt);
+      output.writeBytes(_pwdVer!);
+    }
+
+    if (compressedData != null) {
+      // local file data
+      output.writeStream(compressedData);
+    }
+
+    if (password != null && _mac != null) {
+      output.writeBytes(_mac!);
+    }
+  }
+
+  List<int> _getZip64CfhData(_ZipFileData fileData) {
+    final out = OutputMemoryStream();
+    // zip64 ID
+    out.writeByte(0x01);
+    out.writeByte(0x00);
+    // field length
+    out.writeByte(0x18);
+    out.writeByte(0x00);
+    // uncompressed size
+    out.writeUint64(fileData.uncompressedSize);
+    // compressed size
+    out.writeUint64(fileData.compressedSize);
+    out.writeUint64(fileData.position);
+    return out.getBytes();
+  }
+
+  void _writeCentralDirectory(
+      List<_ZipFileData> files, String? comment, OutputStream output) {
+    comment ??= '';
+    final encodedComment = filenameEncoding.encode(comment);
+
+    final centralDirPosition = output.length;
+    final os = _osMSDos;
+    var zipNeedsZip64 = false;
+
+    for (final fileData in files) {
+      final needsZip64 = fileData.compressedSize > 0xFFFFFFFF ||
+          fileData.uncompressedSize > 0xFFFFFFFF ||
+          fileData.position > 0xFFFFFFFF;
+      zipNeedsZip64 |= needsZip64;
+
+      final versionMadeBy = (os << 8) | version;
+      final versionNeededToExtract = version;
+      final generalPurposeBitFlag = fileData.flags;
+      final compressionMethod = fileData.encrypted
+          ? ZipFile.zipCompressionAexEncryption
+          : _zipMethod(fileData.compression);
+      final lastModifiedFileTime = fileData.time;
+      final lastModifiedFileDate = fileData.date;
+      final crc32 = fileData.crc32;
+      final compressedSize = needsZip64 ? 0xFFFFFFFF : fileData.compressedSize;
+      final uncompressedSize =
+          needsZip64 ? 0xFFFFFFFF : fileData.uncompressedSize;
+      final diskNumberStart = 0;
+      final internalFileAttributes = 0;
+      var externalFileAttributes = fileData.mode << 16;
+      if (!fileData.isFile) {
+        // The MS-DOS directory attribute, which is what readers check for an
+        // archive made on MS-DOS.
+        externalFileAttributes |= 0x10;
+      }
+      final localHeaderOffset = needsZip64 ? 0xFFFFFFFF : fileData.position;
+
+      var extraField = <int>[];
+      if (needsZip64) {
+        extraField.addAll(_getZip64CfhData(fileData));
+      }
+      if (fileData.encrypted) {
+        extraField.addAll(_getAexExtraData(fileData));
+      }
+
+      final fileComment = fileData.comment ?? '';
+
+      final encodedFilename = filenameEncoding.encode(fileData.name);
+      final encodedFileComment = filenameEncoding.encode(fileComment);
+
+      output.writeUint32(ZipFileHeader.signature);
+      output.writeUint16(versionMadeBy);
+      output.writeUint16(versionNeededToExtract);
+      output.writeUint16(generalPurposeBitFlag);
+      output.writeUint16(compressionMethod);
+      output.writeUint16(lastModifiedFileTime);
+      output.writeUint16(lastModifiedFileDate);
+      output.writeUint32(crc32);
+      output.writeUint32(compressedSize);
+      output.writeUint32(uncompressedSize);
+      output.writeUint16(encodedFilename.length);
+      output.writeUint16(extraField.length);
+      output.writeUint16(encodedFileComment.length);
+      output.writeUint16(diskNumberStart);
+      output.writeUint16(internalFileAttributes);
+      output.writeUint32(externalFileAttributes);
+      output.writeUint32(localHeaderOffset);
+      output.writeBytes(encodedFilename);
+      output.writeBytes(extraField);
+      output.writeBytes(encodedFileComment);
+    }
+
+    final numberOfThisDisk = 0;
+    final diskWithTheStartOfTheCentralDirectory = 0;
+    final totalCentralDirectoryEntriesOnThisDisk = files.length;
+    final totalCentralDirectoryEntries = files.length;
+    final centralDirectorySize = output.length - centralDirPosition;
+    final centralDirectoryOffset = centralDirPosition;
+
+    final needsZip64 = zipNeedsZip64 ||
+        totalCentralDirectoryEntriesOnThisDisk > 0xffff ||
+        totalCentralDirectoryEntries > 0xffff ||
+        centralDirectorySize > 0xffffffff ||
+        centralDirPosition > 0xffffffff;
+
+    if (needsZip64) {
+      final eocdOffset = output.length;
+      output.writeUint32(ZipDirectory.zip64EocdSignature);
+      output.writeUint64(0x2c); // size
+      output.writeUint16(0x2d); // version (Creator)
+      output.writeUint16(0x2d); // version (Viewer)
+      output.writeUint32(numberOfThisDisk);
+      output.writeUint32(diskWithTheStartOfTheCentralDirectory);
+      output.writeUint64(totalCentralDirectoryEntriesOnThisDisk);
+      output.writeUint64(totalCentralDirectoryEntries);
+      output.writeUint64(centralDirectorySize);
+      output.writeUint64(centralDirectoryOffset);
+
+      const totalNumberOfDisks = 1;
+
+      output.writeUint32(ZipDirectory.zip64EocdLocatorSignature);
+      output.writeUint32(diskWithTheStartOfTheCentralDirectory);
+      output.writeUint64(eocdOffset);
+      output.writeUint32(totalNumberOfDisks);
+    }
+
+    // End of Central Directory
+    output.writeUint32(ZipDirectory.eocdSignature);
+    output.writeUint16(numberOfThisDisk);
+    output.writeUint16(
+        needsZip64 ? 0xffff : diskWithTheStartOfTheCentralDirectory);
+    output.writeUint16(
+        needsZip64 ? 0xffff : totalCentralDirectoryEntriesOnThisDisk);
+    output.writeUint16(needsZip64 ? 0xffff : totalCentralDirectoryEntries);
+    output.writeUint32(needsZip64 ? 0xffffffff : centralDirectorySize);
+    output.writeUint32(needsZip64 ? 0xffffffff : centralDirectoryOffset);
+    output.writeUint16(encodedComment.length);
+    output.writeBytes(encodedComment);
+  }
+
+  static const version = 20;
+
+  // enum OS
+  static const _osMSDos = 0;
+}
+
+/// Reads through another stream, keeping the CRC-32 and the count of the
+/// bytes read, so that a compressor pulling its input through this one
+/// produces the checksum of the entry in the same pass.
+///
+/// Bytes come back in memory streams, because a compressor asks for the bytes
+/// of what it reads and that would otherwise read a file subset twice.
+class _Crc32InputStream extends InputStream {
+  final InputStream _input;
+  int crc32 = 0;
+  int count = 0;
+  final _one = Uint8List(1);
+
+  _Crc32InputStream(this._input) : super(byteOrder: _input.byteOrder);
+
+  @override
+  int get position => _input.position;
+
+  @override
+  set position(int v) => _input.position = v;
+
+  @override
+  int get length => _input.length;
+
+  @override
+  int get totalLength => _input.totalLength;
+
+  @override
+  bool get isEOS => _input.isEOS;
+
+  @override
+  bool open() => _input.open();
+
+  @override
+  Future<void> close() => _input.close();
+
+  @override
+  void closeSync() => _input.closeSync();
+
+  @override
+  void reset() => _input.reset();
+
+  @override
+  void setPosition(int v) => _input.setPosition(v);
+
+  @override
+  void rewind([int length = 1]) => _input.rewind(length);
+
+  @override
+  void skip(int length) => _input.skip(length);
+
+  @override
+  InputStream subset({int? position, int? length, int? bufferSize}) =>
+      _input.subset(position: position, length: length, bufferSize: bufferSize);
+
+  @override
+  int readByte() {
+    final b = _input.readByte();
+    _one[0] = b;
+    crc32 = getCrc32(_one, crc32);
+    count++;
+    return b;
+  }
+
+  @override
+  InputStream readBytes(int count) {
+    final bytes = _input.readBytes(count).toUint8List();
+    crc32 = getCrc32(bytes, crc32);
+    this.count += bytes.length;
+    return InputMemoryStream(bytes);
+  }
+
+  @override
+  Uint8List toUint8List() {
+    final bytes = _input.toUint8List();
+    crc32 = getCrc32(bytes, crc32);
+    count += bytes.length;
+    return bytes;
+  }
+}
+
+/// Encrypts what is written to it and passes the result on to another
+/// stream. The cipher works in 16 byte blocks, so writes are gathered up and
+/// encrypted in bulk, with whatever is left over handled by [finish].
+class _AesOutputStream extends OutputStream {
+  final OutputStream _output;
+  final Aes _aes;
+  final _buffer = Uint8List(64 * 1024);
+  int _bufferLength = 0;
+  int _length = 0;
+
+  _AesOutputStream(this._output, this._aes)
+      : super(byteOrder: ByteOrder.littleEndian);
+
+  @override
+  int get length => _length;
+
+  @override
+  void writeByte(int value) {
+    if (_bufferLength == _buffer.length) {
+      _encryptBuffer();
+    }
+    _buffer[_bufferLength++] = value;
+    _length++;
+  }
+
+  @override
+  void writeBytes(List<int> bytes, {int? length}) {
+    length ??= bytes.length;
+    var start = 0;
+    while (start < length) {
+      if (_bufferLength == _buffer.length) {
+        _encryptBuffer();
+      }
+      final n = min(length - start, _buffer.length - _bufferLength);
+      _buffer.setRange(_bufferLength, _bufferLength + n, bytes, start);
+      _bufferLength += n;
+      start += n;
+    }
+    _length += length;
+  }
+
+  @override
+  void writeStream(InputStream stream) {
+    while (!stream.isEOS) {
+      writeBytes(
+          stream.readBytes(min(_buffer.length, stream.length)).toUint8List());
+    }
+  }
+
+  // Encrypts the whole buffer, which is a multiple of the block size unless
+  // this is the end of the data.
+  void _encryptBuffer() {
+    if (_bufferLength > 0) {
+      _aes.update(_buffer, 0, _bufferLength);
+      _output.writeBytes(_buffer, length: _bufferLength);
+      _bufferLength = 0;
+    }
+  }
+
+  /// Encrypts whatever is still buffered and returns the authentication code.
+  Uint8List finish() {
+    _encryptBuffer();
+    _output.flush();
+    return _aes.finish();
+  }
+
+  @override
+  void flush() {}
+
+  @override
+  void clear() {
+    _bufferLength = 0;
+    _length = 0;
+  }
+
+  @override
+  Uint8List subset(int start, [int? end]) =>
+      throw UnsupportedError('An encrypting stream cannot be read back');
+}

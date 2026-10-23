@@ -75,7 +75,7 @@ object Engine {
         XrayBackend.stop()
         if(kind.startsWith("rivet-") || RivetBackend.established) RivetBackend.stop()
         backend.setState(tunnel, Tunnel.State.DOWN, null)
-        VpnSharing.schedule(app,true)
+        if (!BuildConfig.CLIENT_ONLY) VpnSharing.schedule(app,true)
         app.stopService(Intent(app,X1oVpnService::class.java))
         X1oVpnService.awaitStopped()
         app.getSharedPreferences("x1o", 0).edit().remove("activeId").commit()
@@ -167,6 +167,14 @@ class MainActivity : FlutterActivity() {
         Engine.initialize(this)
         engineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.x1o/engine")
         engineChannel.setMethodCallHandler { call, result ->
+            if (BuildConfig.CLIENT_ONLY && call.method in setOf(
+                "sharingStatus", "sharingSet", "credentialRead", "credentialWrite", "credentialDelete",
+                "prepareUpdateInstall", "consumeUpdateRequest", "updateAbi", "scheduleUpdateCheck",
+                "installUpdate", "shareBundle", "shareApplication", "openSupportLink"
+            )) {
+                result.error("CLIENT_ONLY", "Недоступно в XIO Client", null)
+                return@setMethodCallHandler
+            }
             when (call.method) {
                 "supportedProtocols" -> result.success(listOf("awg","rivet-h3","rivet-s1","xray","cloak"))
                 "sharingStatus" -> result.success(VpnSharing.status(this))
@@ -186,9 +194,16 @@ class MainActivity : FlutterActivity() {
                     pendingFile = result
                     startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).apply { type = "*/*"; addCategory(Intent.CATEGORY_OPENABLE) }, 873)
                 }
-                "shareBundle" -> {
+                "shareBundle", "shareClientBundle" -> {
                     try {
                         val raw = call.argument<String>("bundle") ?: ""
+                        require(raw.length <= 200000)
+                        if (BuildConfig.CLIENT_ONLY) {
+                            require(call.method == "shareClientBundle" && (raw.startsWith("xio://") || raw.startsWith("x1o://")))
+                            val obj = org.json.JSONObject(String(android.util.Base64.decode(raw.substring(6), android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP)))
+                            require(obj.getInt("schema") == 1 && !obj.has("adminAccess") && !obj.has("clientAccess"))
+                            require(obj.keys().asSequence().toSet() == setOf("schema","name","userId","serverId","configs"))
+                        }
                         require((raw.startsWith("xio://") || raw.startsWith("x1o://") || raw.startsWith("xio-server://")) && raw.length <= 200000)
                         if (call.argument<Boolean>("asText") == true) {
                             startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, raw) }, "XIO"))
@@ -291,6 +306,19 @@ class MainActivity : FlutterActivity() {
                                 if(id.startsWith("ck"))OpenVpnBackend.validate(raw) else if(id.startsWith("xr"))Mobile.xrayValidate(raw) else if(id.startsWith("rvh")||id.startsWith("rvs"))Mobile.validate(raw) else { require(id.startsWith("awg")); Config.parse(ByteArrayInputStream(raw.toByteArray())) }
                                 ConfigVault(this).writeSecret(id, raw); null
                             }
+                            "accountAccessRead" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                if(ConfigVault(this).contains(id)) ConfigVault(this).readSecret(id) else null
+                            }
+                            "accountAccessWrite" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                val value=call.argument<String>("value")!!; require(value.length<=200000)
+                                ConfigVault(this).writeSecret(id,value);null
+                            }
+                            "accountAccessDelete" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                ConfigVault(this).delete(id);null
+                            }
                             "credentialRead" -> {
                                 val id = call.argument<String>("id")!!
                                 if (ConfigVault(this).contains(id)) ConfigVault(this).readSecret(id) else null
@@ -308,8 +336,16 @@ class MainActivity : FlutterActivity() {
                                 require(raw.length <= 32768)
                                 prefs.edit().putString("connectionPlan", raw).commit(); null
                             }
-                            "readConfig" -> ConfigVault(this).readSecret(call.argument<String>("id")!!)
-                            "deleteConfig" -> { ConfigVault(this).delete(call.argument<String>("id")!!);null }
+                            "readConfig" -> {
+                                val id=call.argument<String>("id")!!
+                                if(BuildConfig.CLIENT_ONLY) require(Regex("^(awg|rvh|rvs|xr|ck)[0-9]{1,24}$").matches(id))
+                                ConfigVault(this).readSecret(id)
+                            }
+                            "deleteConfig" -> {
+                                val id=call.argument<String>("id")!!
+                                if(BuildConfig.CLIENT_ONLY) require(Regex("^(awg|rvh|rvs|xr|ck)[0-9]{1,24}$").matches(id))
+                                ConfigVault(this).delete(id);null
+                            }
                             "activeId" -> prefs.getString("activeId", null)
                             "disconnect" -> {
                                 Engine.disconnect(); null

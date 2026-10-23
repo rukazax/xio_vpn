@@ -1,3 +1,4 @@
+import 'account_access.dart';
 import 'credentials.dart';
 
 import 'package:dartssh2/dartssh2.dart';
@@ -279,6 +280,31 @@ class ManagedService {
       await command({'action': 'revoke', 'id': uid, 'serverId': server.id});
       rethrow;
     }
+  }
+
+  Future<void> issueClientAccess(
+    AppStore store,
+    ManagedServer server,
+    ManagedUser user,
+  ) async {
+    if (server.delegated ||
+        server.hostKey.isEmpty ||
+        ssh.verifiedFingerprint != server.hostKey) {
+      throw StateError(
+        'Ограниченный доступ выдаёт владелец сервера с проверенной SSH-идентичностью',
+      );
+    }
+    final result = await command({
+      'action': 'client-grant',
+      'serverId': server.id,
+      'id': user.id,
+    });
+    final access = AccountAccess.parse(
+      Map.from(result['clientAccess']),
+      user.id,
+      server.id,
+    );
+    await AccountVault.write(server.id, user.id, {'access': access.toJson()});
   }
 
   Future<void> refresh(AppStore store, ManagedServer server) async {

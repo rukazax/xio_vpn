@@ -272,7 +272,7 @@ def rivet_install(d):
    if 'cert' in request:break
  except Exception:pass
  run('python3',str(base/'setup.py'),'install',input=json.dumps(request))
- d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=20;save(d)
+ d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=21;save(d)
  if changed:
   dest=Path('/usr/local/bin/xio-rivet.new');shutil.copyfile(LIB/'rivet',dest);dest.chmod(0o755);os.replace(dest,Path('/usr/local/bin/xio-rivet'))
   if shutil.which('restorecon'):run('restorecon','/usr/local/bin/xio-rivet')
@@ -342,7 +342,7 @@ def init(req):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['fd77:1::/64','fd78:1::/64']),'IPv6 subnet conflict'
  host=req['host'];assert re.fullmatch(r'[a-zA-Z0-9.:-]{1,253}',host)
  installed='wireguard-tools' in installed_packages(platform['manager'])
- d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':20,'restrictedNetwork':True,'phase':'installing','country':country()}
+ d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':21,'restrictedNetwork':True,'phase':'installing','country':country()}
  assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',d['outbound']);save(d)
  packages_install(d);firewall_prepare(d)
  binary=Path('/usr/local/bin/xio-amneziawg-go');assert not binary.exists(),'Existing XIO binary path'
@@ -373,6 +373,9 @@ WantedBy=multi-user.target
  write('/etc/systemd/system/x1o-managed-stats.timer','[Unit]\nDescription=x1o periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
  run('systemctl','daemon-reload');run('systemctl','enable','--now','wg-quick@x1o0');run('systemctl','enable','--now','x1o-managed-awg');run('systemctl','enable','--now','x1o-managed-stats.timer');d=load();d['phase']='ready';save(d);rivet_install(d);return {'server':public(d),'existing':False}
 def remove(d):
+ if (ROOT/'client-api').exists():
+  import client_api
+  client_api.remove_transport(sys.modules[__name__],d)
  stack.remove(d)
  if Path('/etc/xio-rivet/install-receipt.json').exists():run('python3','/usr/local/lib/xio-rivet/setup.py','remove')
  for uid,u in d['users'].items():
@@ -397,6 +400,11 @@ def remove(d):
  return {'removed':True,'ownedPackageRemoved':'wireguard-tools' in package_result['packagesRemoved'],**package_result,'forwardingRestored':restored,'otherVirtualInterfaces':other}
 def dispatch(req,actor=None):
  action=req['action']
+ if action=='client-grant':
+  assert actor is None,'Operation not permitted'
+  import client_api
+  d=load();assert req.get('serverId')==d['id'],'Server identity changed'
+  return {'clientAccess':client_api.grant(sys.modules[__name__],d,req.get('id'))}
  if action=='init':
   assert actor is None,'Operation not permitted'
   return init(req)
@@ -450,6 +458,8 @@ def dispatch(req,actor=None):
    if d.get('stack'):stack.network.revoke(d,target)
    if d['users'][target].get('rivet'):rivet_command({'action':'revoke','id':target})
    d['users'][target]['revoked']=True
+   for opid,operation in d.get('clientApiOperations',{}).items():
+    if opid.endswith(':'+target):operation.pop('response',None)
    if d['users'][target].get('role')=='admin':delegation_key(target)
   save(d);apply(d)
   if d.get('stack'):stack.apply(d)
@@ -464,6 +474,10 @@ if __name__=='__main__':
   with open('/run/lock/x1o-managed.lock','a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX)
    if sys.argv[1:]==['sample']:stats(load())
+   elif sys.argv[1:]==['--client-api']:
+    import client_api
+    raw=sys.stdin.buffer.read(32769);assert len(raw)<=32768,'Request too large'
+    print(json.dumps({'ok':True,**client_api.account_request(sys.modules[__name__],json.loads(raw))}))
    else:
     actor=None
     if sys.argv[1:]:

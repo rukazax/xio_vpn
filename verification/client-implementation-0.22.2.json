@@ -1,0 +1,20 @@
+{
+  "version": "0.22.2+5006",
+  "flutterGeneral": {
+    "passed": 110,
+    "skipped": 5
+  },
+  "clientMode": {
+    "passed": 10
+  },
+  "server": {
+    "passed": 26
+  },
+  "analysis": "clean",
+  "serverRecipe": 21,
+  "serverBundleSha256": "488f6e32ff38d9dbc6eaf707a4ac9aacd818e9aa4c87fcc97008854bcacb31b4",
+  "accountRights": "server role/quota/ownership checks",
+  "clientCredentials": "account-scoped token and own VPN profiles; root/admin SSH credentials rejected",
+  "physicalAndroidTested": false,
+  "liveAccountApiInstallationTested": false
+}

@@ -26,6 +26,10 @@ void main() {
       },
     },
   };
+  test('installed version matches the build source', () async {
+    final source = await File('pubspec.yaml').readAsString();
+    expect(source, contains('version: $xioVersion+$xioBuild'));
+  });
   test('published envelope verifies with the pinned key and matches final packages', () async {
     final release = await verifyReleaseEnvelope(
       await File('../releases/XIO-update.json').readAsBytes(),
@@ -35,8 +39,10 @@ void main() {
         ).readAsString()).trim(),
       ),
     );
-    expect(release.version, xioVersion);
-    expect(release.build, xioBuild);
+    // The last published signed fixture may precede a prepared candidate.
+    // Its own asset sizes and digests are still checked below.
+    expect(newerVersion(release.version, xioVersion), false);
+    expect(release.build, lessThanOrEqualTo(xioBuild));
     expect(release.assets, isNotEmpty);
     // A platform-specific patch need not issue unrelated desktop packages.
     for (final platform in release.assets.keys) {

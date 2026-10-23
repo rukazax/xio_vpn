@@ -205,7 +205,7 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const LText(
-                                  'WireGuard и AmneziaWG. Отключите VPN перед сохранением. Правила применяются при следующем подключении, включая плитку XIO.',
+                                  'AmneziaWG, Xray, RIVET и OpenVPN/Cloak. Отключите VPN перед сохранением. Правила применяются при следующем подключении, включая плитку XIO.',
                                 ),
                                 const SizedBox(height: 12),
                                 DropdownButtonFormField<String>(

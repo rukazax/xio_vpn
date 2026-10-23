@@ -1,4 +1,16 @@
-# Скачать XIO 0.22.0
+# Скачать XIO
+
+## Android 0.22.2
+
+- [XIO Client · ARM64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-arm64-v8a.apk)
+- [XIO Client · ARM32](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-armeabi-v7a.apk)
+- [XIO Client · x86-64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-x86_64.apk)
+- [XIO Client · universal](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-universal.apk)
+- [Full XIO / Полный XIO · ARM64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-0.22.2-android-arm64-v8a.apk)
+- [Source / Исходники](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-0.22.2-source.zip)
+- [SHA-256](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/SHA256SUMS-0.22.2.txt)
+
+[Настройка и ограничения](../../client/README.ru.md). Сборки для ПК ниже остаются 0.22.0.
 
 [English](../en/downloads.md) · [Главная](../../README.ru.md)
 

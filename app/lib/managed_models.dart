@@ -1,3 +1,6 @@
+import 'account_access.dart';
+import 'client_policy.dart';
+
 import 'dart:convert';
 
 class ManagedServer {
@@ -104,15 +107,21 @@ class UserBundle {
   final String name, userId, serverId;
   final Map<String, String> configs;
   final Map<String, dynamic>? adminAccess;
+  final Map<String, dynamic>? clientAccess;
   const UserBundle(
     this.name,
     this.userId,
     this.serverId,
     this.configs, {
     this.adminAccess,
+    this.clientAccess,
   });
   String encode() =>
-      'xio://${base64Url.encode(utf8.encode(jsonEncode({'schema': adminAccess == null ? 1 : 2, 'name': name, 'userId': userId, 'serverId': serverId, 'configs': configs, if (adminAccess != null) 'adminAccess': adminAccess})))}';
+      'xio://${base64Url.encode(utf8.encode(jsonEncode({'schema': clientAccess != null
+          ? 3
+          : adminAccess == null
+          ? 1
+          : 2, 'name': name, 'userId': userId, 'serverId': serverId, 'configs': configs, if (adminAccess != null) 'adminAccess': adminAccess, if (clientAccess != null) 'clientAccess': clientAccess})))}';
   static UserBundle decode(String raw) {
     if (raw.length > 200000 ||
         !(raw.startsWith('xio://') || raw.startsWith('x1o://'))) {
@@ -123,7 +132,7 @@ class UserBundle {
         utf8.decode(base64Url.decode(base64Url.normalize(raw.substring(6)))),
       );
       if (j is! Map ||
-          ![1, 2].contains(j['schema']) ||
+          ![1, 2, 3].contains(j['schema']) ||
           j['name'] is! String ||
           j['name'].length > 80 ||
           j['userId'] is! String ||
@@ -131,6 +140,33 @@ class UserBundle {
           j['serverId'] is! String ||
           !RegExp(r'^[a-zA-Z0-9-]{1,80}$').hasMatch(j['serverId'])) {
         throw const FormatException('Invalid metadata');
+      }
+      if (clientOnlyBuild &&
+          (j.containsKey('adminAccess') ||
+              j.keys.toSet().difference({
+                'schema',
+                'name',
+                'userId',
+                'serverId',
+                'configs',
+                'clientAccess',
+              }).isNotEmpty)) {
+        throw const FormatException(
+          'Административный доступ запрещён в клиенте',
+        );
+      }
+      Map<String, dynamic>? clientAccess;
+      if (j['schema'] == 3) {
+        if (j.containsKey('adminAccess')) {
+          throw const FormatException('Mixed credentials');
+        }
+        clientAccess = AccountAccess.parse(
+          Map.from(j['clientAccess']),
+          j['userId'],
+          j['serverId'],
+        ).toJson();
+      } else if (j.containsKey('clientAccess')) {
+        throw const FormatException('Invalid schema');
       }
       final configs = Map<String, String>.from(j['configs']);
       configs.removeWhere(
@@ -173,6 +209,7 @@ class UserBundle {
         j['serverId'],
         configs,
         adminAccess: access,
+        clientAccess: clientAccess,
       );
     } catch (_) {
       throw const FormatException(

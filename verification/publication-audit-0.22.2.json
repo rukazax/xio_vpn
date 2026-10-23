@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "entriesScanned": 28863,
+  "bytesScanned": 1358669012,
+  "findings": [],
+  "scope": "Known local signing/VPS/lab credentials and private update key; staged public files and every entry of all seven APK/source/documentation archives. No private working directories included. Not a universal secret-detection guarantee."
+}
