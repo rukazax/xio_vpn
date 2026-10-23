@@ -32,3 +32,6 @@ tmp/
 .env.*
 # Pinned upstream sources belong in the matching source release archive.
 # The source archive includes all vendor code and licences; see docs/*/build.md.
+
+# Sanitized physical-device evidence for this release only.
+!verification/0.22.3-physical-android.json

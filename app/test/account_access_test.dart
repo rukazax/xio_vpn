@@ -111,12 +111,64 @@ void main() {
       });
       final awg = WireGuardProfile.parse(bundle.configs['awg']!, amnezia: true);
       expect(awg.endpoint, 'example.org:51821');
-      expect(bundle.configs['awg'], contains('DNS = 9.9.9.9, 2620:fe::fe\n'));
+      expect(bundle.configs['awg'], contains('DNS = 9.9.9.9\n'));
       expect(bundle.adminAccess, isNull);
       expect(bundle.clientAccess, isNull);
       expect(ClientImport.parse(bundle.encode()).bundle!.userId, uid);
     },
   );
+  test('IPv6 DNS is issued only with an explicit gateway capability', () {
+    expect(managedDnsServers({}), '9.9.9.9');
+    expect(
+      managedDnsServers({
+        'rivet': {'ipv6': false},
+      }),
+      '9.9.9.9',
+    );
+    expect(
+      managedDnsServers({
+        'rivet': {'ipv6': 'true'},
+      }),
+      '9.9.9.9',
+    );
+    final conf = profile(extra: 'Jc = 4');
+    final private = RegExp(r'PrivateKey = (.+)').firstMatch(conf)![1]!;
+    final public = RegExp(r'PublicKey = (.+)').firstMatch(conf)![1]!;
+    final secret = base64Encode(List.filled(32, 7));
+    final bundle = provisioningBundle(
+      {
+        'user': {'id': uid, 'slot': 4},
+        'server': {
+          'id': 'server',
+          'host': 'example.org',
+          'publicKeys': {'awg': public},
+          'awg': {'Jc': 4},
+          'rivet': {
+            'ipv6': true,
+            'serverName': 'example.org',
+            'pin': secret,
+            'gatewayId': base64Encode(List.filled(16, 8)),
+          },
+        },
+        'configs': {},
+      },
+      {
+        'id': uid,
+        'name': 'Child',
+        'rivet': {
+          'secret': secret,
+          'entryToken': base64Encode(List.filled(32, 9)),
+        },
+      },
+      {'awg': private},
+      'server',
+    );
+    expect(bundle.configs['awg'], contains('DNS = 9.9.9.9, 2620:fe::fe\n'));
+    expect(
+      RivetProfile.parse(bundle.configs['rivet-s1']!).data['ip6'],
+      'fd79:1::4',
+    );
+  });
   test('unknown response retains exact operation and local keys for explicit reconciliation', () async {
     var durable = <String, dynamic>{'access': access()};
     final attempts = <Map<String, dynamic>>[];

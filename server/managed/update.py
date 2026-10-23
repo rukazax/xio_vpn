@@ -20,7 +20,7 @@ import tempfile
 
 LIB = Path('/usr/local/lib/x1o-managed')
 STATE = Path('/etc/x1o-managed/deployment.json')
-RECIPE = 23
+RECIPE = 24
 OWNER = 'x1o-managed-v1'
 UNITS = ('x1o-managed-stats.timer', 'x1o-managed-awg.service',
          'xio-rivet-entry.service', 'xio-rivet-gateway.service', 'xio-stack.service', 'xio-cloak.service', 'xio-openvpn-tcp.service')

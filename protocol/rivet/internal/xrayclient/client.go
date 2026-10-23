@@ -288,7 +288,14 @@ func (s *Session) DialContext(ctx context.Context, m *metadata.Metadata) (net.Co
 	if s.closed.Load() {
 		return nil, net.ErrClosed
 	}
-	dest, e := xnet.ParseDestination("tcp:" + m.DestinationAddress())
+	return s.dialAddress(ctx, m.DestinationAddress())
+}
+
+func (s *Session) dialAddress(ctx context.Context, address string) (net.Conn, error) {
+	if s.closed.Load() {
+		return nil, net.ErrClosed
+	}
+	dest, e := xnet.ParseDestination("tcp:" + address)
 	if e != nil {
 		return nil, e
 	}

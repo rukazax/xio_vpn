@@ -39,9 +39,11 @@ class VpnTileService : TileService() {
     }
     override fun onClick() {
         super.onClick()
+        android.util.Log.i("XIO/Tile", "click locked="+isLocked)
         if (isLocked) unlockAndRun { toggle() } else toggle()
     }
     private fun toggle() {
+        android.util.Log.i("XIO/Tile", "foreground control requested")
         qsTile?.apply { state=Tile.STATE_UNAVAILABLE; if(Build.VERSION.SDK_INT>=29) subtitle=L10n.text(this@VpnTileService,"Запуск VPN…");updateTile() }
         startForegroundService(Intent(this,VpnControlService::class.java))
     }

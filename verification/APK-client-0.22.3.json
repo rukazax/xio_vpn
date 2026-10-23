@@ -1,11 +1,11 @@
 {
   "appId": "app.x1o.client",
-  "version": "0.22.3+5007",
+  "version": "0.22.3+5012",
   "artifacts": [
     {
       "file": "XIO-Client-0.22.3-arm64-v8a.apk",
-      "bytes": 23768966,
-      "sha256": "3db4b04d84678e9f2f900e62a0eb72221617b5a566e4fa957a19e1dceb7b619b",
+      "bytes": 23774986,
+      "sha256": "6ba15e87752bc182cd9fc4d15acc13e8a121288d334e2d5ff9e1edf4a3855138",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "minSdk": 26,
       "targetSdk": 36,
@@ -48,8 +48,8 @@
     },
     {
       "file": "XIO-Client-0.22.3-armeabi-v7a.apk",
-      "bytes": 23641100,
-      "sha256": "964bce85917e40a7c17b9b04eef2375d9654ad699fb6d7cacc6a0f74d6353c6f",
+      "bytes": 23644588,
+      "sha256": "a58505331f0d405c6920327a87b0a8dc1cc081a759f34dec36980c8937a83db7",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "minSdk": 26,
       "targetSdk": 36,
@@ -92,8 +92,8 @@
     },
     {
       "file": "XIO-Client-0.22.3-universal.apk",
-      "bytes": 69788417,
-      "sha256": "f19823faec95359a94408a1058a8e36718de990740df04117ccfa7005cfbf084",
+      "bytes": 69801569,
+      "sha256": "d37c5e9874201d388d16937c85d16ad2be4e05ac5ba47dec72b3852e86b3888e",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "minSdk": 26,
       "targetSdk": 36,
@@ -196,8 +196,8 @@
     },
     {
       "file": "XIO-Client-0.22.3-x86_64.apk",
-      "bytes": 25037715,
-      "sha256": "1bf94ed1d75d5a81c9a63457abfc3e147d4fc90c37e2dcd786b6b2c862cb65f6",
+      "bytes": 25042279,
+      "sha256": "f3357965724c619be9d5e2e840984a9d4276f95c6f1ee0dd9a6c5d2a23f3e82e",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "minSdk": 26,
       "targetSdk": 36,
@@ -239,7 +239,7 @@
       ]
     }
   ],
-  "physicalAndroidTested": false,
+  "physicalAndroidTestedByVerifier": false,
   "realServerConnectionTested": false,
   "limits": [
     "Local build/unit/widget/artifact checks only; no device or server contacted."

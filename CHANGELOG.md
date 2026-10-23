@@ -1,10 +1,10 @@
 # XIO changes / Изменения
 
-## 0.22.3 — candidate / кандидат
+## 0.22.3 — 2026-10-23, prerelease
 
-IPv4/IPv6 endpoint selection, protected physical-network resolution, RIVET IPv6 payloads and reversible server recipe 23. RU/EN client UI. Physical Android and public IPv6 checks pending.
+RU: оба APK0.22.3+5012 проверены на POCO/Android16 через IPv4 VPS; пять протоколов, раздельные маршруты, квота/создание/отзыв субклиента и экспорт без серверных SSH-ключей. Исправлены DNS, права API, Android FileProvider и проверка Xray до TUN. Серверная ревизия24. Публичный IPv6 остаётся непроверенным.
 
-IPv4/IPv6 в endpoint, DNS через физическую сеть, IPv6-пакеты RIVET, обратимая ревизия сервера 23 и RU/EN в клиенте. Физический Android и публичный IPv6 ещё не проверены. См. docs/dualstack.
+EN: both APKs0.22.3+5012 physically checked on POCO/Android16 over the authorized IPv4 VPS; five transports, routing, subclient quota/create/revoke and SSH-free exports. DNS, API permissions, FileProvider and pre-TUN Xray HTTPS checks fixed. Recipe24; public IPv6 remains unverified.
 
 ## 0.22.2 — 2026-10-23
 
@@ -70,3 +70,8 @@ Ubuntu and Windows clients; iOS source integration. See [platform details](CROSS
 ## 0.18.0
 
 Android release, multi-engine client and distribution package. See [historical notes](history/README.0.18.0.ru.md). / Выпуск Android, клиент нескольких протоколов и комплект распространения.
+
+
+Матрица пяти протоколов в обоих приложениях (20 HTTPS-проверок) выполнена на сборке 5011. В финальной 5012 нативное ядро/AAR не менялось: добавлены журналы жизненного цикла плитки без секретов. На 5012 отдельно проверены подключение/отключение основной кнопкой плитки, независимый HTTPS через VPN и контроль Xray в клиенте. Это не повтор всей матрицы на 5012.
+
+The five-protocol matrix in both apps (20 HTTPS checks) ran on build 5011. Final build 5012 uses the unchanged native engine/AAR and adds secret-free tile lifecycle logs. Build5012 separately passed the tile primary connect/disconnect commands, independent VPN HTTPS and a client Xray control. This does not represent a rerun of the entire matrix on 5012.

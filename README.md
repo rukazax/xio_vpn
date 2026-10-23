@@ -1,33 +1,20 @@
 # XIO — X in 1 out
 
-## 0.22.3 candidate: IPv4/IPv6 in both apps
+## XIO and XIO Client 0.22.3
 
-Source and Android builds add IPv4/IPv6 endpoint selection, RIVET IPv6 payloads and server recipe 23. **Physical Android and public IPv6 checks are still pending; no stable release is claimed.** [Both app guides, results, previews and diagrams](docs/dualstack/0.22.3.en.md).
+Full XIO provisions and maintains servers. Lightweight XIO Client connects to existing servers and installs alongside the full app. Both use the same home-screen theme: connection, status, server, protocol and traffic. Russian and English are available in both applications.
 
-## XIO Client 0.22.2 — connect without administering the server
+The client imports profiles, switches connections and applies app or IPv4/IPv6 CIDR rules. Transports are Xray/REALITY, RIVET/H3, RIVET/S1, AmneziaWG and OpenVPN/Cloak. An ordinary profile cannot create other clients. An explicitly authorized account can create and revoke its own children within a server-enforced quota. Child profiles do not inherit the parent token.
 
-XIO Client is a separate lightweight Android app for existing VPN servers. Get a profile from the owner, import it, select a server and connect. Users do not need to provision a VPS or enter its SSH key. The client installs alongside the full XIO app.
+Server SSH/root/admin keys are not passed to the client. Delegation uses a separate restricted HTTPS token and a pinned certificate. Physical tests found and corrected DNS, HTTPS service permissions, Android FileProvider and Xray split-routing verification defects.
 
-The home screen shares the full app’s theme: a large connection button, status, server picker, protocol and traffic counters. It supports server switching and split tunnelling by application or IP network. Available transports: Xray, RIVET/S1, RIVET/H3, AmneziaWG and Cloak.
+**Prerelease 0.22.3+5012, server recipe 24.** Tested on a POCO X6 5G running Android 16 and the authorized IPv4 VPS. Public IPv6 is still unverified because that VPS has no IPv6 route. The test record states the remaining scope and build versions. Android 8.0+, ARM32/ARM64/x86-64, plus a universal client APK. Desktop releases are unchanged.
 
-| App | Purpose |
-|---|---|
-| Full XIO | Owners provision and maintain servers, create accounts, set quotas and issue access. |
-| XIO Client | Users connect to existing servers. Accounts explicitly granted the right can create and revoke their own subclients within a server-enforced quota. |
+[Download both apps](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.3) · [Client and subclients](client/README.en.md) · [Tests, screens and diagrams](docs/dualstack/0.22.3.en.md)
 
-**Subclients.** The page appears after importing an account profile with scoped API access. Each operation checks live rights, revocation, ownership and remaining quota on the server. Ordinary VPN profiles grant no such right. A child gets only its own VPN credentials and cannot create further clients.
+<p><img src="docs/images/physical-owner-ru-0.22.3.png" alt="Full XIO on a physical POCO, Russian UI" width="260"> <img src="docs/images/dualstack-client-en-dark-0.22.3.png" alt="Client widgets with a synthetic profile" width="260"></p>
 
-**Server keys stay with the owner.** Client-profile export rejects root/admin SSH keys. A random token instead permits only account status and creation/revocation of that account’s children. Android stores it encrypted; the server stores its hash. HTTPS pins the exact certificate. A lost creation response never triggers an automatic retry with a new operation ID.
-
-[Download client and full app 0.22.2](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.2) · [Setup and limits](client/README.en.md) · [Design and changes](docs/blog/2026-10-23-client-0.22.2.en.md)
-
-<p><img src="docs/images/client-home-light-0.22.2.png" alt="XIO Client home in light theme" width="280"> <img src="docs/images/client-home-dark-0.22.2.png" alt="XIO Client home in dark theme" width="280"></p>
-
-*Local widget-test previews with synthetic profiles; these are not physical-device screenshots.*
-
-Requires **Android 8.0+**. ARM32, ARM64, x86-64 and universal APKs are provided. Subclients require server recipe 21 and a newly issued account profile with a positive quota, using the full Android app 0.22.2. The owner explicitly confirms the separate HTTPS API on TCP 9444. Ordinary VPN connections do not need this API.
-
-This is a **prerelease**. Local checks passed: analysis, 110 general Flutter tests (5 skipped), separately 10 client-mode and 26 server tests, APK signatures, packaged assets and native alignment. The new client and account API have not been tested on physical Android or a live VPS; earlier full-app 0.22.1 tests do not establish that result. The preliminary API needs installation/load validation and a production transport review before mass deployment. Desktop builds remain at 0.22.0.
+The first image is a physical-device screenshot. The second is a local render of real client widgets using test data. Client FLAG_SECURE remains enabled.
 
 📱 [Physical Android tests: five protocols, the Cloak fix, and the results](docs/blog/2026-10-21-physical-android.en.md)
 
@@ -71,3 +58,6 @@ The ISP can observe the entry IP even with TLS. A strict allowlist requires reac
 [Changes and reasoning](docs/blog/2026-10-19-restricted-networks.md#english) · [Video review and primary sources](docs/research/2026-10-19-video-protocols.en.md) · [Releases](https://github.com/rukazax/xio_vpn/releases)
 
 Owned code: [GPL-3.0-only](LICENSE). Dependencies keep their licences: [0.22 notices](THIRD-PARTY-0.22.md). Copyright: Константин Александрович Ерёмин, er-ka@mail.ru. [Support XIO](https://x1o.org/pay).
+
+
+The five-protocol matrix in both apps (20 HTTPS checks) ran on build 5011. Final build 5012 uses the unchanged native engine/AAR and adds secret-free tile lifecycle logs. Build5012 separately passed the tile primary connect/disconnect commands, independent VPN HTTPS and a client Xray control. This does not represent a rerun of the entire matrix on 5012.

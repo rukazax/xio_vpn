@@ -23,7 +23,7 @@ def call(args):
 for path in sorted(OUTPUT.glob('*.apk')):
     badging = call([SDK / 'aapt', 'dump', 'badging', path])
     assert "name='app.x1o.client'" in badging
-    assert "versionCode='5007'" in badging and "versionName='0.22.3'" in badging
+    assert "versionCode='5012'" in badging and "versionName='0.22.3'" in badging
     assert "sdkVersion:'26'" in badging and "targetSdkVersion:'36'" in badging
     assert "application-label:'XIO Client'" in badging
     assert 'android.permission.REQUEST_INSTALL_PACKAGES' not in badging
@@ -80,8 +80,8 @@ for path in sorted(OUTPUT.glob('*.apk')):
                     'signatureVerified': True, 'zipalign16KiB': True,
                     'nativePayload': native['nativePayload'], 'libraries': libraries})
 assert len(records) == 4, 'Need universal and three architecture APKs'
-report = {'appId': 'app.x1o.client', 'version': '0.22.3+5007',
-          'artifacts': records, 'physicalAndroidTested': False,
+report = {'appId': 'app.x1o.client', 'version': '0.22.3+5012',
+          'artifacts': records, 'physicalAndroidTestedByVerifier': False,
           'realServerConnectionTested': False,
           'limits': ['Local build/unit/widget/artifact checks only; no device or server contacted.']}
 (OUTPUT / 'verification.json').write_text(json.dumps(report, indent=2) + '\n')

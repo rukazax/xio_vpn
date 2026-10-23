@@ -17,7 +17,13 @@ object XrayBackend {
    override fun resolve(host:String):String = PhysicalNetwork.resolve(service,host)
   }
   try {
+   val started=android.os.SystemClock.elapsedRealtime()
    Mobile.xrayStart(raw,protector,timeoutMillis)
+   val plan=JSONObject(service.getSharedPreferences("x1o",0).getString("connectionPlan","{}")!!)
+   val roots=service.assets.open("flutter_assets/assets/security/probe-roots.pem").bufferedReader().use{it.readText()}
+   val remaining=timeoutMillis-(android.os.SystemClock.elapsedRealtime()-started)
+   require(remaining>0){"Connection deadline"}
+   Mobile.xrayCheckHttps(plan.optString("site","https://youtube.com"),roots,remaining)
    val builder=service.rivetBuilder().setSession("XIO VPN").setMtu(1280).addAddress("198.18.0.1",32).addAddress("fd00:7869:6f::1",128).addDnsServer("9.9.9.9").addDnsServer("2620:fe::fe").setBlocking(false)
    SplitRouting(service).applyNative(builder)
    val tun=builder.establish()?:error("VPN permission missing");val fd=tun.detachFd()

@@ -1,0 +1,1199 @@
+{
+  "version": "0.22.3+5012",
+  "deviceModel": "POCO X6 5G",
+  "android": "16 / API36",
+  "physicalDevice": true,
+  "physicalAcceptanceComplete": false,
+  "publicIpv6Tested": false,
+  "cases": {
+    "owner-installation": {
+      "status": "PASS",
+      "detail": "Fresh compatible installation; correct Android package and version 0.22.3+5007",
+      "checkedAtUtc": "2026-10-23T17:58:42.229428+00:00",
+      "limits": [
+        "No pre-existing package; this does not test migration of pre-existing app data"
+      ]
+    },
+    "client-installation": {
+      "status": "PASS",
+      "detail": "Fresh compatible installation; correct Android package and version 0.22.3+5007",
+      "checkedAtUtc": "2026-10-23T17:58:42.354787+00:00",
+      "limits": [
+        "No pre-existing package; this does not test migration of pre-existing app data"
+      ]
+    },
+    "owner-first-run-acknowledgements": {
+      "status": "PASS",
+      "detail": "Separate licence and VPN disclosures accepted before entering home",
+      "checkedAtUtc": "2026-10-23T17:58:42.356016+00:00",
+      "limits": []
+    },
+    "public-ipv6": {
+      "status": "BLOCKED",
+      "detail": "Authorized VPS still has no public IPv6 default route",
+      "checkedAtUtc": "2026-10-23T17:58:42.360367+00:00",
+      "limits": [
+        "Local namespace tests do not count as public IPv6 or Android IPv6 acceptance"
+      ]
+    },
+    "baseline-ipv4-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit unconstrained baseline",
+      "checkedAtUtc": "2026-10-23T18:13:39.384733+00:00",
+      "limits": []
+    },
+    "owner-user-create": {
+      "status": "PASS",
+      "detail": "Ordinary QA user created via physical full-app UI; five profiles saved; immediate refresh completed",
+      "checkedAtUtc": "2026-10-23T18:18:15.978243+00:00",
+      "limits": []
+    },
+    "owner-server-rename": {
+      "status": "PASS",
+      "detail": "QA label persisted across administration and user creation",
+      "checkedAtUtc": "2026-10-23T18:18:15.979755+00:00",
+      "limits": []
+    },
+    "owner-xray-https-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:22:45.193287+00:00",
+      "limits": []
+    },
+    "owner-xray-https-ipv4": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:22:46.409750+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-https-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:25:46.169111+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-https-ipv4": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:25:47.468202+00:00",
+      "limits": []
+    },
+    "owner-xray-ui": {
+      "status": "PASS",
+      "detail": "Physical full-app connection selected Xray / REALITY and reported HTTPS200",
+      "checkedAtUtc": "2026-10-23T18:26:00.176973+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-ui": {
+      "status": "PASS",
+      "detail": "Physical full-app connection selected RIVET / H3 and reported HTTPS200",
+      "checkedAtUtc": "2026-10-23T18:26:00.177520+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected RIVET / S1; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T18:26:47.881252+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-https-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:29:03.833832+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-https-ipv4": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:29:05.078603+00:00",
+      "limits": []
+    },
+    "owner-awg-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected AmneziaWG 3.1; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T19:04:09.111591+00:00",
+      "limits": []
+    },
+    "owner-awg-https-ipv4": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:31:38.468351+00:00",
+      "limits": []
+    },
+    "owner-cloak-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected OpenVPN / Cloak; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T18:32:26.094473+00:00",
+      "limits": []
+    },
+    "owner-cloak-https-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:35:58.114180+00:00",
+      "limits": []
+    },
+    "owner-cloak-https-ipv4": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:35:59.391503+00:00",
+      "limits": []
+    },
+    "owner-awg-dns-before-fix": {
+      "status": "FAIL",
+      "detail": "Build 5007: DNS-based HTTPS did not produce a result within the 23-second observation window; literal IPv4 HTTPS succeeded",
+      "checkedAtUtc": "2026-10-23T18:36:36.945594+00:00",
+      "limits": [
+        "IPv6 DNS was advertised despite absent gateway IPv6 egress; candidate fix requires new-profile physical retest"
+      ]
+    },
+    "app.x1o.x1o-upgrade-5008": {
+      "status": "PASS",
+      "detail": "install -r accepted signed 5008 upgrade; package versionCode verified",
+      "checkedAtUtc": "2026-10-23T18:44:48.842818+00:00",
+      "limits": []
+    },
+    "client-upgrade-5008": {
+      "status": "PASS",
+      "detail": "Signed build5008 installed with -r, version verified",
+      "checkedAtUtc": "2026-10-23T18:45:12.113161+00:00",
+      "limits": []
+    },
+    "client-ordinary-import-5008": {
+      "status": "PASS",
+      "detail": "All five profiles imported; no subclient controls for ordinary capability-free profile",
+      "checkedAtUtc": "2026-10-23T18:50:18.684693+00:00",
+      "limits": []
+    },
+    "client-xray-5008-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T18:52:50.639262+00:00",
+      "limits": []
+    },
+    "client-xray-5008-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:52:51.884332+00:00",
+      "limits": []
+    },
+    "client-xray-5008-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:52:53.093437+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5008-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T18:53:24.989075+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5008-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:53:26.214182+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5008-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:53:27.553124+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5008-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T18:53:59.976170+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5008-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:54:01.257580+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5008-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:54:02.581226+00:00",
+      "limits": []
+    },
+    "client-awg-5008-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T18:54:34.430534+00:00",
+      "limits": []
+    },
+    "client-awg-5008-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:54:35.631858+00:00",
+      "limits": []
+    },
+    "client-awg-5008-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:54:36.851777+00:00",
+      "limits": []
+    },
+    "client-cloak-5008-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T18:55:19.995446+00:00",
+      "limits": []
+    },
+    "client-cloak-5008-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:55:21.229254+00:00",
+      "limits": []
+    },
+    "client-cloak-5008-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T18:55:22.549352+00:00",
+      "limits": []
+    },
+    "client-split-include-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:03:12.057850+00:00",
+      "limits": []
+    },
+    "client-split-include-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:03:13.339278+00:00",
+      "limits": []
+    },
+    "client-split-include-5008": {
+      "status": "PASS",
+      "detail": "Only own QA helper selected in application include routing; DNS and literal HTTPS exit matched VPS",
+      "checkedAtUtc": "2026-10-23T18:56:30.539942+00:00",
+      "limits": []
+    },
+    "client-split-exclude-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched direct baseline",
+      "checkedAtUtc": "2026-10-23T20:03:57.667463+00:00",
+      "limits": []
+    },
+    "client-split-exclude-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched direct baseline",
+      "checkedAtUtc": "2026-10-23T20:03:58.907007+00:00",
+      "limits": []
+    },
+    "client-split-exclude-5008": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T18:57:14.979534+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "client-split-ipInclude-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:04:42.826528+00:00",
+      "limits": []
+    },
+    "client-split-ipInclude-5008": {
+      "status": "PASS",
+      "detail": "IP include1.1.1.1/32 saved through UI; independent HTTPS destination exit matched VPS",
+      "checkedAtUtc": "2026-10-23T18:58:55.754765+00:00",
+      "limits": []
+    },
+    "client-split-ipExclude-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched direct baseline",
+      "checkedAtUtc": "2026-10-23T20:05:27.276548+00:00",
+      "limits": []
+    },
+    "client-split-ipExclude-5008": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T18:59:39.291511+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "owner-create-QA-Owner2-0223-5008": {
+      "status": "PASS",
+      "detail": "Created through full application on existing VPS; ordinary five-protocol profile",
+      "checkedAtUtc": "2026-10-23T19:00:37.927338+00:00",
+      "limits": []
+    },
+    "account-api-status": {
+      "status": "PASS",
+      "detail": "Pinned HTTPS returned server quota1 for own test parent",
+      "checkedAtUtc": "2026-10-23T19:02:45.621633+00:00",
+      "limits": []
+    },
+    "account-api-invalid-token": {
+      "status": "PASS",
+      "detail": "Pinned HTTPS rejected unrelated token with403",
+      "checkedAtUtc": "2026-10-23T19:02:45.782054+00:00",
+      "limits": []
+    },
+    "account-api-forbidden-operation": {
+      "status": "PASS",
+      "detail": "Account token cannot invoke server removal or owner operations",
+      "checkedAtUtc": "2026-10-23T19:02:45.930565+00:00",
+      "limits": []
+    },
+    "account-api-service-isolation": {
+      "status": "PASS",
+      "detail": "Unprivileged frontend can read public service code; cannot read root-managed deployment state; both services active",
+      "checkedAtUtc": "2026-10-23T19:03:46.522152+00:00",
+      "limits": []
+    },
+    "owner-awg-5008-dns-fixed": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:04:10.342352+00:00",
+      "limits": []
+    },
+    "owner-awg-5008-ip-fixed": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:04:11.538099+00:00",
+      "limits": []
+    },
+    "owner-upgrade-5009": {
+      "status": "PASS",
+      "detail": "Signed final candidate installed with -r; package version verified",
+      "checkedAtUtc": "2026-10-23T19:04:53.660915+00:00",
+      "limits": []
+    },
+    "client-upgrade-5009": {
+      "status": "PASS",
+      "detail": "Signed final candidate installed with -r; package version verified",
+      "checkedAtUtc": "2026-10-23T19:04:59.960336+00:00",
+      "limits": []
+    },
+    "owner-data-preserved-5009": {
+      "status": "PASS",
+      "detail": "Profiles and acknowledgments persisted across upgrade; selected temporary user retained",
+      "checkedAtUtc": "2026-10-23T19:05:06.208091+00:00",
+      "limits": []
+    },
+    "server-upgrade-recipe24": {
+      "status": "PASS",
+      "detail": "Physical full app updated authorized VPS23 to24; server identity, public keys, AWG parameters, RIVET pin/identity and existing active users retained",
+      "checkedAtUtc": "2026-10-23T19:06:06.124683+00:00",
+      "limits": []
+    },
+    "owner-create-QA-Parent-0223-5009": {
+      "status": "PASS",
+      "detail": "Admin parent with quota1 created through full app, profiles retained only in full app",
+      "checkedAtUtc": "2026-10-23T19:07:34.218840+00:00",
+      "limits": []
+    },
+    "client-capability-upgrade-5009": {
+      "status": "PASS",
+      "detail": "Added scoped HTTPS token to existing ordinary user through explicit confirmation",
+      "checkedAtUtc": "2026-10-23T19:16:56.931406+00:00",
+      "limits": []
+    },
+    "owner-upgrade-5010": {
+      "status": "PASS",
+      "detail": "Signed5010 candidate installed with -r and package version verified",
+      "checkedAtUtc": "2026-10-23T19:17:31.352884+00:00",
+      "limits": []
+    },
+    "client-upgrade-5010": {
+      "status": "PASS",
+      "detail": "Signed5010 candidate installed with -r and package version verified",
+      "checkedAtUtc": "2026-10-23T19:17:37.615177+00:00",
+      "limits": []
+    },
+    "owner-scoped-export-5010": {
+      "status": "PASS",
+      "detail": "Real signed content-provider export inspected in memory by own helper; schema3; root/admin material absent; raw profile never retained",
+      "checkedAtUtc": "2026-10-23T19:18:07.884282+00:00",
+      "limits": []
+    },
+    "owner-ordinary-export-5010": {
+      "status": "PASS",
+      "detail": "Real signed content-provider export inspected in memory by own helper; schema1; root/admin material absent; raw profile never retained",
+      "checkedAtUtc": "2026-10-23T19:19:23.006287+00:00",
+      "limits": []
+    },
+    "owner-xray-5010-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected Xray / REALITY; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T19:20:06.766251+00:00",
+      "limits": []
+    },
+    "owner-xray-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:20:08.048544+00:00",
+      "limits": []
+    },
+    "owner-xray-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:20:09.292978+00:00",
+      "limits": []
+    },
+    "account-api-before-permission-fix-recipe23": {
+      "status": "FAIL",
+      "detail": "Historical failure: strict installer umask created0700 public frontend directory; fixed in recipe24 and service/API checks passed",
+      "checkedAtUtc": "2026-10-23T19:20:44.320470+00:00",
+      "limits": []
+    },
+    "owner-export-before-provider-fix-5009": {
+      "status": "FAIL",
+      "detail": "Historical failure: Android16 denied FileProvider read to the selected receiver; separate provider components in5010 passed the same scoped export test",
+      "checkedAtUtc": "2026-10-23T19:20:44.321391+00:00",
+      "limits": []
+    },
+    "provider-uri-grant-fix-5010": {
+      "status": "PASS",
+      "detail": "Closed profile/update providers use distinct Android components; normal chooser read grant to signed-export QA receiver now works; neither provider exported",
+      "checkedAtUtc": "2026-10-23T19:20:44.322193+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-5010-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected RIVET / H3; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T19:21:00.945756+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:21:02.237695+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:21:03.564933+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-5010-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected RIVET / S1; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T19:21:54.093751+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:21:55.379478+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:21:56.711121+00:00",
+      "limits": []
+    },
+    "owner-awg-5010-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected AmneziaWG 3.1; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T19:22:47.179767+00:00",
+      "limits": []
+    },
+    "owner-awg-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:22:48.434080+00:00",
+      "limits": []
+    },
+    "owner-awg-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:22:49.752322+00:00",
+      "limits": []
+    },
+    "owner-cloak-5010-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected OpenVPN / Cloak; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T19:23:39.198438+00:00",
+      "limits": []
+    },
+    "owner-cloak-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:23:40.533636+00:00",
+      "limits": []
+    },
+    "owner-cloak-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:23:41.774749+00:00",
+      "limits": []
+    },
+    "owner-split-include-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:24:45.354500+00:00",
+      "limits": []
+    },
+    "owner-split-include-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:24:46.589321+00:00",
+      "limits": []
+    },
+    "owner-split-exclude-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched direct baseline",
+      "checkedAtUtc": "2026-10-23T19:25:32.575710+00:00",
+      "limits": []
+    },
+    "owner-split-exclude-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched direct baseline",
+      "checkedAtUtc": "2026-10-23T19:25:33.900060+00:00",
+      "limits": []
+    },
+    "owner-split-ipInclude-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:26:19.036986+00:00",
+      "limits": []
+    },
+    "owner-split-ipExclude-literal": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched direct baseline",
+      "checkedAtUtc": "2026-10-23T19:27:05.030024+00:00",
+      "limits": []
+    },
+    "owner-split-include-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:24:46.590339+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "owner-split-exclude-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:25:33.901583+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "owner-split-ipInclude-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:26:19.039874+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "owner-split-ipExclude-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:27:05.032429+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "client-account-preserved-5010": {
+      "status": "PASS",
+      "detail": "Existing profiles and account capability persisted from5009 to5010; scoped management control present",
+      "checkedAtUtc": "2026-10-23T19:28:04.865422+00:00",
+      "limits": []
+    },
+    "client-child-create-5010": {
+      "status": "PASS",
+      "detail": "Own parent quota1 created one child through pinned HTTPS UI; new VPN profiles saved",
+      "checkedAtUtc": "2026-10-23T19:29:03.431536+00:00",
+      "limits": []
+    },
+    "client-child-export-5010": {
+      "status": "PASS",
+      "detail": "Real signed content-provider export inspected in memory by own helper; schema1; root/admin material absent; raw profile never retained",
+      "checkedAtUtc": "2026-10-23T19:29:12.425518+00:00",
+      "limits": []
+    },
+    "client-quota-ui-5010": {
+      "status": "PASS",
+      "detail": "UI shows1of1 and disables another creation; child appears in own account",
+      "checkedAtUtc": "2026-10-23T19:29:17.517742+00:00",
+      "limits": []
+    },
+    "account-api-quota-server": {
+      "status": "PASS",
+      "detail": "Actual pinned HTTPS request rejected a second child with403 User quota exceeded; no second child created",
+      "checkedAtUtc": "2026-10-23T19:29:39.931782+00:00",
+      "limits": []
+    },
+    "account-api-ownership-enforcement": {
+      "status": "PASS",
+      "detail": "Scoped account token rejected revoke of a user outside its child set",
+      "checkedAtUtc": "2026-10-23T19:29:40.072524+00:00",
+      "limits": []
+    },
+    "account-api-no-role-escalation": {
+      "status": "PASS",
+      "detail": "Actual HTTPS add request with admin flag rejected before creation",
+      "checkedAtUtc": "2026-10-23T19:29:40.216377+00:00",
+      "limits": []
+    },
+    "client-child-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:30:10.656007+00:00",
+      "limits": []
+    },
+    "client-child-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:30:11.845146+00:00",
+      "limits": []
+    },
+    "client-child-rights-and-vpn-5010": {
+      "status": "PASS",
+      "detail": "Created child connects through VPS; selected child has no subclient-creation control",
+      "checkedAtUtc": "2026-10-23T19:30:11.846513+00:00",
+      "limits": []
+    },
+    "client-child-revoke-5010": {
+      "status": "PASS",
+      "detail": "Revoke through client UI removed own child and released server quota; actual HTTPS status confirmed revoked flag",
+      "checkedAtUtc": "2026-10-23T19:32:02.633831+00:00",
+      "limits": []
+    },
+    "client-revoked-child-blocked-5010": {
+      "status": "PASS",
+      "detail": "Client refused to connect revoked child; tunnel stayed disconnected",
+      "checkedAtUtc": "2026-10-23T19:33:00.829822+00:00",
+      "limits": []
+    },
+    "client-xray-5010-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T19:33:24.089592+00:00",
+      "limits": []
+    },
+    "client-xray-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:33:25.346313+00:00",
+      "limits": []
+    },
+    "client-xray-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:33:26.554017+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5010-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T19:33:55.370205+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:33:56.665562+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:33:57.917644+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5010-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T19:34:28.293734+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:34:29.515802+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:34:30.788457+00:00",
+      "limits": []
+    },
+    "client-awg-5010-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T19:34:59.607704+00:00",
+      "limits": []
+    },
+    "client-awg-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:35:00.876344+00:00",
+      "limits": []
+    },
+    "client-awg-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:35:02.113586+00:00",
+      "limits": []
+    },
+    "client-cloak-5010-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T19:35:31.972818+00:00",
+      "limits": []
+    },
+    "client-cloak-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:35:33.236092+00:00",
+      "limits": []
+    },
+    "client-cloak-5010-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:35:34.475179+00:00",
+      "limits": []
+    },
+    "client-switch-cancel-5010": {
+      "status": "PASS",
+      "detail": "Cancel kept the current Cloak connection active",
+      "checkedAtUtc": "2026-10-23T19:36:29.523746+00:00",
+      "limits": []
+    },
+    "client-switch-confirm-5010-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:36:50.001736+00:00",
+      "limits": []
+    },
+    "client-switch-confirm-5010": {
+      "status": "PASS",
+      "detail": "Confirmed switch stopped Cloak and connected Xray with verified VPS exit",
+      "checkedAtUtc": "2026-10-23T19:36:50.006907+00:00",
+      "limits": [
+        "Two profiles on one authorized VPS; two independent physical servers were not available"
+      ]
+    },
+    "client-split-include-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:37:37.045155+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "client-split-exclude-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:38:22.722293+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "owner-upgrade-5011": {
+      "status": "PASS",
+      "detail": "Final5011 signed APK installed preserving existing profiles and account data",
+      "checkedAtUtc": "2026-10-23T19:48:53.248979+00:00",
+      "limits": []
+    },
+    "client-upgrade-5011": {
+      "status": "PASS",
+      "detail": "Final5011 signed APK installed preserving existing profiles and account data",
+      "checkedAtUtc": "2026-10-23T19:48:59.163374+00:00",
+      "limits": []
+    },
+    "client-split-ipInclude-5010": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T19:49:38.559954+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "xray-split-health-probe-5011": {
+      "status": "PASS",
+      "detail": "Xray native HTTPS check through its own encrypted session enabled an otherwise idle CIDR-only tunnel; independent1.1.1.1 request exited through VPS",
+      "checkedAtUtc": "2026-10-23T19:50:02.269514+00:00",
+      "limits": []
+    },
+    "client-saf-file-import-5011": {
+      "status": "PASS",
+      "detail": "Exact own QA document imported through Android system picker; content matched private fixture; unrelated files not opened",
+      "checkedAtUtc": "2026-10-23T19:56:06.231306+00:00",
+      "limits": []
+    },
+    "client-domain-endpoint-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T19:56:20.149561+00:00",
+      "limits": []
+    },
+    "client-domain-endpoint-5011": {
+      "status": "PASS",
+      "detail": "Approved VPS domain endpoint resolved on Android; Xray HTTPS used same authorized VPS",
+      "checkedAtUtc": "2026-10-23T19:56:20.153460+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5011-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T20:00:37.195092+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:00:38.403412+00:00",
+      "limits": []
+    },
+    "client-rivet-h3-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:00:39.741419+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5011-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T20:01:09.173172+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:01:10.462035+00:00",
+      "limits": []
+    },
+    "client-rivet-s1-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:01:11.701575+00:00",
+      "limits": []
+    },
+    "client-awg-5011-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T20:01:41.088925+00:00",
+      "limits": []
+    },
+    "client-awg-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:01:42.400390+00:00",
+      "limits": []
+    },
+    "client-awg-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:01:43.642461+00:00",
+      "limits": []
+    },
+    "client-cloak-5011-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T20:02:13.336948+00:00",
+      "limits": []
+    },
+    "client-cloak-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:02:14.533391+00:00",
+      "limits": []
+    },
+    "client-cloak-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:02:15.748596+00:00",
+      "limits": []
+    },
+    "client-split-include-5011": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T20:03:13.345778+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "client-split-exclude-5011": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T20:03:58.913489+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "client-split-ipInclude-5011": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T20:04:42.833328+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "client-split-ipExclude-5011": {
+      "status": "PASS",
+      "detail": "Configured routing through UI and checked independent application IP",
+      "checkedAtUtc": "2026-10-23T20:05:27.283791+00:00",
+      "limits": [
+        "Only own QA helper UID and permitted HTTPS endpoint; IP modes check selected destination, not all traffic"
+      ]
+    },
+    "owner-xray-5011-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected Xray / REALITY; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T20:06:32.141050+00:00",
+      "limits": []
+    },
+    "owner-xray-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:06:33.391924+00:00",
+      "limits": []
+    },
+    "owner-xray-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:06:34.586270+00:00",
+      "limits": []
+    },
+    "xray-cidr-check-before-fix-5010": {
+      "status": "FAIL",
+      "detail": "Historical5010 failure: a site check outside selected CIDRs returnedHTTP200 directly but did not authenticate Xray traffic; the fresh-handshake guard correctly disconnected. Fixed by session-bound HTTPS probe in5011; physical CIDR retest passed.",
+      "checkedAtUtc": "2026-10-23T20:06:51.385744+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-5011-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected RIVET / H3; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T20:07:25.129708+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:07:26.461747+00:00",
+      "limits": []
+    },
+    "owner-rivet-h3-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:07:27.722710+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-5011-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected RIVET / S1; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T20:08:18.293584+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:08:19.538198+00:00",
+      "limits": []
+    },
+    "owner-rivet-s1-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:08:20.782083+00:00",
+      "limits": []
+    },
+    "owner-awg-5011-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected AmneziaWG 3.1; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T20:09:12.118982+00:00",
+      "limits": []
+    },
+    "owner-awg-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:09:13.478983+00:00",
+      "limits": []
+    },
+    "owner-awg-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:09:14.810144+00:00",
+      "limits": []
+    },
+    "owner-cloak-5011-ui": {
+      "status": "PASS",
+      "detail": "Fresh connection selected OpenVPN / Cloak; UI reported HTTPS 200",
+      "checkedAtUtc": "2026-10-23T20:10:05.321325+00:00",
+      "limits": []
+    },
+    "owner-cloak-5011-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:10:06.604797+00:00",
+      "limits": []
+    },
+    "owner-cloak-5011-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:10:07.838474+00:00",
+      "limits": []
+    },
+    "final-network-matrix-5011": {
+      "status": "PASS",
+      "detail": "Five transports in each final APK verified using independent DNS/literal HTTPS and VPS exit; four client Xray routing modes retested",
+      "checkedAtUtc": "2026-10-23T20:10:11.986837+00:00",
+      "limits": []
+    },
+    "owner-ru-en-5011": {
+      "status": "PASS",
+      "detail": "Changed full-app UI to English, verified Connect and captured own QA home, then restored Russian",
+      "checkedAtUtc": "2026-10-23T20:13:54.696510+00:00",
+      "limits": []
+    },
+    "client-language-relaunch-5011": {
+      "status": "PASS",
+      "detail": "English UI and selected QA profile persisted across force-stop/relaunch with VPN disconnected",
+      "checkedAtUtc": "2026-10-23T20:14:09.244040+00:00",
+      "limits": []
+    },
+    "client-english-policy-5011": {
+      "status": "PASS",
+      "detail": "Client information dialog displayed its English privacy/disclosure text",
+      "checkedAtUtc": "2026-10-23T20:14:15.005762+00:00",
+      "limits": []
+    },
+    "client-ru-en-5011": {
+      "status": "PASS",
+      "detail": "Client Russian/English switch verified and Russian restored",
+      "checkedAtUtc": "2026-10-23T20:14:21.925691+00:00",
+      "limits": []
+    },
+    "owner-tile-add-5011": {
+      "status": "PASS",
+      "detail": "Own full-app tile added through normal Android confirmation",
+      "checkedAtUtc": "2026-10-23T20:19:03.227658+00:00",
+      "limits": []
+    },
+    "owner-tile-background-5011-dns": {
+      "status": "FAIL",
+      "detail": "Independent Android application HTTPS probe; exit did not match expected route",
+      "checkedAtUtc": "2026-10-23T20:19:13.204119+00:00",
+      "limits": [
+        "Historical probe observed direct baseline without synchronized primary-command evidence; inconclusive tile activation. Superseded by verified primary-command on/off on5012, not treated as a proven product fix."
+      ]
+    },
+    "owner-tile-ui-5011-dns": {
+      "status": "FAIL",
+      "detail": "Independent Android application HTTPS probe; exit did not match expected route",
+      "checkedAtUtc": "2026-10-23T20:22:29.926073+00:00",
+      "limits": [
+        "Historical probe observed direct baseline without synchronized primary-command evidence; inconclusive tile activation. Superseded by verified primary-command on/off on5012, not treated as a proven product fix."
+      ]
+    },
+    "owner-tile-fresh-process-5011": {
+      "status": "FAIL",
+      "detail": "Independent Android application HTTPS probe; exit did not match expected route",
+      "checkedAtUtc": "2026-10-23T20:25:24.647536+00:00",
+      "limits": [
+        "Historical probe observed direct baseline without synchronized primary-command evidence; inconclusive tile activation. Superseded by verified primary-command on/off on5012, not treated as a proven product fix."
+      ]
+    },
+    "owner-tile-verified-5012": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:35:28.289045+00:00",
+      "limits": []
+    },
+    "owner-tile-primary-5012": {
+      "status": "PASS",
+      "detail": "Expanded quick settings and delivered one primary click to the exact owned component; native log showed fresh verification complete; fresh-process HTTPS exited through VPS",
+      "checkedAtUtc": "2026-10-23T20:37:50.136675+00:00",
+      "limits": [
+        "Earlier unsynchronized closed-panel/label-tap samples did not establish a working click; those observations are retained"
+      ]
+    },
+    "owner-tile-off-5012": {
+      "status": "PASS",
+      "detail": "Second primary click disconnected VPN; fresh-process HTTPS returned direct baseline; exact tile created by this test removed",
+      "checkedAtUtc": "2026-10-23T20:37:58.971650+00:00",
+      "limits": []
+    },
+    "client-5012-control": {
+      "status": "PASS",
+      "detail": "Final5012 client installed with retained data; fresh-process DNS/literal HTTPS through Xray matched VPS; disconnected afterward",
+      "checkedAtUtc": "2026-10-23T20:39:53.271270+00:00",
+      "limits": [
+        "Compared with5011,5012 adds non-secret tile lifecycle diagnostics; native AAR and foreground engines are identical"
+      ]
+    },
+    "account-parent-revoked-server": {
+      "status": "PASS",
+      "detail": "Server rejected the previously valid own parent API token after account revocation",
+      "checkedAtUtc": "2026-10-23T20:39:57.469926+00:00",
+      "limits": []
+    },
+    "server-qa-cleanup": {
+      "status": "PASS",
+      "detail": "All five session QA users revoked; original active-user set and recorded server identities preserved; temporary account API units/user/firewall transport removed and9444closed",
+      "checkedAtUtc": "2026-10-23T20:40:00.068078+00:00",
+      "limits": [
+        "Root-only dormant certificate configuration retained rather than deleting an unproven pre-existing private file; revoked QA history retained"
+      ]
+    },
+    "client-qa-profiles-cleanup-5012": {
+      "status": "PASS",
+      "detail": "All11 session-created VPN profiles removed through client UI; no application data reset or uninstall",
+      "checkedAtUtc": "2026-10-23T20:45:20.687467+00:00",
+      "limits": []
+    },
+    "owner-local-qa-cleanup-5012": {
+      "status": "PASS",
+      "detail": "Only local QA server record, owned VPN profiles and saved SSH access forgotten through full-app UI; server installation preserved",
+      "checkedAtUtc": "2026-10-23T20:45:51.776458+00:00",
+      "limits": []
+    },
+    "temporary-helper-removed": {
+      "status": "PASS",
+      "detail": "Only session-created helper removed after installed APK hash and certificate match",
+      "checkedAtUtc": "2026-10-23T20:46:17.892097+00:00",
+      "limits": []
+    },
+    "final-device-state": {
+      "status": "PASS",
+      "detail": "Both production apps retained at5012; owned QA profiles/local server removed; temporary helper removed; own monitor stopped; no owned VPN services running",
+      "checkedAtUtc": "2026-10-23T20:46:21.202080+00:00",
+      "limits": []
+    },
+    "client-xray-5012-dns": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:39:48.035899+00:00",
+      "limits": []
+    },
+    "client-xray-5012-ip": {
+      "status": "PASS",
+      "detail": "Independent Android application HTTPS probe; exit matched test VPS",
+      "checkedAtUtc": "2026-10-23T20:39:49.372904+00:00",
+      "limits": []
+    },
+    "client-xray-5012-ui": {
+      "status": "PASS",
+      "detail": "Explicit client protocol selected and active",
+      "checkedAtUtc": "2026-10-23T20:39:46.730905+00:00",
+      "limits": []
+    },
+    "local-flutter-5012": {
+      "status": "PASS",
+      "detail": "113 tests passed,6 skipped; flutter analyze: no issues; client-only suite13 passed. Suites overlap.",
+      "checkedAtUtc": "2026-10-23T20:48:06.253422+00:00",
+      "limits": []
+    }
+  },
+  "limits": [
+    "Case names identify build5007/5008/5009/5010/5011/5012 where relevant; unqualified early owner cases refer to5007. Historical failures are retained with their fixes, not counted as current passes.",
+    "Public IPv6 unavailable on authorized VPS.",
+    "One physical Android16 device; ARM32/x86_64 verified as signed binaries only.",
+    "No rooted sharing, destructive uninstall, lockdown setting change or unrelated phone data access.",
+    "Client FLAG_SECURE remains enabled; widget previews are not physical screenshots."
+  ]
+}

@@ -169,3 +169,24 @@ class ClientTransportTests(unittest.TestCase):
                     backend.shutdown()
                     for worker in workers:
                         worker.join(timeout=3)
+
+
+class FrontendPermissionsTests(unittest.TestCase):
+    def test_strict_installer_umask_keeps_public_frontend_readable(self):
+        import os
+        import stat
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / 'frontend'
+            old = os.umask(0o077)
+            try:
+                with patch.object(api, 'FRONTEND', target):
+                    api.install_frontend()
+                    # Repeated installation also repairs the existing0700 mode.
+                    target.chmod(0o700)
+                    api.install_frontend()
+            finally:
+                os.umask(old)
+            self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o755)
+            self.assertEqual(stat.S_IMODE((target / 'frontend.py').stat().st_mode), 0o644)
+            self.assertEqual((target / 'frontend.py').read_bytes(), Path(api.__file__).read_bytes())

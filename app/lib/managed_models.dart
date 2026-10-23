@@ -3,6 +3,15 @@ import 'client_policy.dart';
 
 import 'dart:convert';
 
+/// Advertise IPv6 DNS only when the managed gateway confirms IPv6 egress.
+/// An IPv6 DNS black hole can otherwise stall Android's resolver on AWG.
+String managedDnsServers(Map<dynamic, dynamic> server) {
+  final rivet = server['rivet'];
+  return rivet is Map && rivet['ipv6'] == true
+      ? '9.9.9.9, 2620:fe::fe'
+      : '9.9.9.9';
+}
+
 class ManagedServer {
   final String id, host, username;
   String name, country, hostKey;

@@ -44,7 +44,7 @@ def prepare():
     shutil.copy2(ROOT/'app/assets/fonts/NotoSans-Regular.ttf',assets/'fonts/NotoSans-Regular.ttf')
     # System fonts handle scripts: do not bundle the 16 MB CJK font or server tools.
     source = (ROOT / 'app/pubspec.yaml').read_text()
-    assert 'version: 0.22.3+5007' in source, 'Review the client version before using a newer base'
+    assert 'version: 0.22.3+5012' in source, 'Review the client version before using a newer base'
     source = source[:source.index('  assets:')] + '''  assets:
     - assets/help/
     - assets/licenses/

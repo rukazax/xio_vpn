@@ -50,3 +50,14 @@ func XrayStatus() string {
 	}
 	return s.Status()
 }
+
+// XrayCheckHttps uses the active encrypted session, even if routing excludes the app.
+func XrayCheckHttps(site, rootsPEM string, timeoutMillis int64) error {
+	xrayMobile.Lock()
+	s := xrayMobile.s
+	xrayMobile.Unlock()
+	if s == nil {
+		return net.ErrClosed
+	}
+	return s.ProbeHTTPS(site, rootsPEM, time.Duration(timeoutMillis)*time.Millisecond)
+}

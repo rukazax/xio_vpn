@@ -80,9 +80,7 @@ def grant(admin, deployment, uid):
         shutil.copyfile(source, destination)
         os.chown(destination, 0, account.pw_gid)
         destination.chmod(0o640)
-    FRONTEND.mkdir(mode=0o755, exist_ok=True)
-    shutil.copyfile(Path(__file__), FRONTEND / 'frontend.py')
-    (FRONTEND / 'frontend.py').chmod(0o644)
+    install_frontend()
     admin.write(BACKEND_UNIT, '[Unit]\nDescription=XIO bounded account dispatcher\n'
                 '[Service]\nExecStart=/usr/bin/python3 /usr/local/lib/x1o-managed/client_api.py --backend\n'
                 'Restart=on-failure\nNoNewPrivileges=true\nPrivateTmp=true\nUMask=0077\n'
@@ -105,6 +103,15 @@ def grant(admin, deployment, uid):
         host = '[' + host + ']'
     return {'endpoint': f'https://{host}:{PORT}{PATH}', 'certificateSha256': hashlib.sha256(der).hexdigest(),
             'token': token, 'userId': uid, 'serverId': deployment['id']}
+
+
+def install_frontend():
+    # admin.py deliberately uses umask077. Public service code must still be
+    # traversable by the separate unprivileged HTTPS service identity.
+    FRONTEND.mkdir(mode=0o755, exist_ok=True)
+    FRONTEND.chmod(0o755)
+    shutil.copyfile(Path(__file__), FRONTEND / 'frontend.py')
+    (FRONTEND / 'frontend.py').chmod(0o644)
 
 
 def account_request(admin, envelope):

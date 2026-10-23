@@ -1,11 +1,11 @@
 {
-  "version": "0.22.3+5007",
+  "version": "0.22.3+5012",
   "appId": "app.x1o.x1o",
   "artifacts": [
     {
       "file": "XIO-0.22.3-android-arm64-v8a.apk",
-      "bytes": 60611419,
-      "sha256": "52213628ace7b429b0035248c3e008280b232e70d2b91340a78736468c1d97e4",
+      "bytes": 60617283,
+      "sha256": "cea66fb2acb5b62cb364b9b81a8f229e3f75689a27530d0f56b1232789c458ff",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "nativePayload": [
         {
@@ -21,13 +21,13 @@
       ],
       "signatureVerified": true,
       "zipalignVerified": true,
-      "embeddedServerRecipe": 23,
+      "embeddedServerRecipe": 24,
       "embeddedServerArchiveMatchesSource": true
     },
     {
       "file": "XIO-0.22.3-android-armeabi-v7a.apk",
-      "bytes": 60568365,
-      "sha256": "4155aeae64b3d437bc8e04243aa4c321c42893c2822a579cc5297b0586ca1d8d",
+      "bytes": 60572181,
+      "sha256": "ea351c61e70e6048b8014d7cccc41eda8663078a2b155dfdbeb1a879cf5e8236",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "nativePayload": [
         {
@@ -43,13 +43,13 @@
       ],
       "signatureVerified": true,
       "zipalignVerified": true,
-      "embeddedServerRecipe": 23,
+      "embeddedServerRecipe": 24,
       "embeddedServerArchiveMatchesSource": true
     },
     {
       "file": "XIO-0.22.3-android-x86_64.apk",
-      "bytes": 61889676,
-      "sha256": "5617d9ba311af0d4a3e52aae59a42e6d293454f002f798ea6979636fcc641b21",
+      "bytes": 61894416,
+      "sha256": "e093a368a6f4d39e899850aac3b62164140475f0d874d61657ff6454277ee3d4",
       "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
       "nativePayload": [
         {
@@ -65,9 +65,9 @@
       ],
       "signatureVerified": true,
       "zipalignVerified": true,
-      "embeddedServerRecipe": 23,
+      "embeddedServerRecipe": 24,
       "embeddedServerArchiveMatchesSource": true
     }
   ],
-  "physicalAndroidTested": false
+  "physicalAndroidTestedByVerifier": false
 }
