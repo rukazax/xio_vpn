@@ -35,3 +35,9 @@ tmp/
 
 # Sanitized physical-device evidence for this release only.
 !verification/0.22.3-physical-android.json
+
+# Private signing link and pinned dependency supplied by source archive.
+.signing
+/vendor/amneziawg/
+
+!verification/client-0.22.4.json

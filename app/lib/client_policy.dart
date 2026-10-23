@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'l10n.dart';
 
-const clientOnlyBuild = bool.fromEnvironment('XIO_CLIENT_ONLY');
+export 'build_identity.dart';
 
 const clientDisclosureRu = '''XIO Client использует Android VpnService для подключения к выбранному вами существующему VPN-серверу. Между устройством и сервером трафик шифруется. Владелец сервера может видеть ваш IP, назначения и сетевые метаданные; содержимое HTTPS дополнительно защищено HTTPS.
 
@@ -25,5 +27,13 @@ This build has no VPS deployment or administration, SSH, VPN sharing, endpoint g
 
 Data remains until profiles are removed, application data is cleared or the application is uninstalled. Local deletion does not remove a server or revoke its credentials. The server operator controls access and server-side processing. Support contact is voluntary; never send passwords or private keys. Android separately requests VPN permission; a new connection requires consent.
 ''';
-String get clientDisclosure =>
-    AppLanguages.effective == 'ru' ? clientDisclosureRu : clientDisclosureEn;
+String get clientDisclosure {
+  if (Platform.isAndroid) {
+    return AppLanguages.effective == 'ru'
+        ? clientDisclosureRu
+        : clientDisclosureEn;
+  }
+  return AppLanguages.effective == 'ru'
+      ? 'XIO Client подключается к существующему серверу и не принимает SSH/root/admin-ключи сервера. Профили остаются на устройстве: iOS использует Keychain, Windows — DPAPI, Ubuntu — AES-GCM с локальным ключом и правами файлов. Взломанный аккаунт или ОС могут нарушить эту защиту. Оператор сервера видит IP, назначения и метаданные; HTTPS отдельно защищает содержимое. Проверка выбранного HTTPS-сайта раскрывает ему адрес выхода. Ограниченный API аккаунта создаёт и отзывает только своих субклиентов в серверной квоте.\n\nНативные возможности пока различаются: iOS — RIVET/H3 и S1, desktop — также AWG и Xray. Полная совместимость пяти протоколов и общие раздельные маршруты пока не реализованы. Для этих кандидатов не заявлены универсальные kill-switch, запрет снимков экрана или непрерывная работа в фоне. Подробности указаны в политике конфиденциальности.'
+      : 'XIO Client connects to an existing server and does not accept server SSH/root/admin keys. Profiles remain on this device: iOS uses Keychain, Windows uses DPAPI, Ubuntu uses AES-GCM with a local key and file permissions. A compromised account or OS can defeat that protection. The server operator observes addresses, destinations and metadata; HTTPS separately protects content. The selected HTTPS check site sees the exit IP. A restricted account API can create/revoke only its own subclients under the server quota.\n\nNative features still differ: iOS declares RIVET/H3 and S1; desktops also declare AWG and Xray. Full five-protocol parity and common split routing are not implemented yet. Universal kill-switch, screenshot blocking or continuous background persistence is not claimed for these candidates. See the privacy policy for details.';
+}

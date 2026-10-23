@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'desktop_engine.dart';
 import 'app_theme.dart';
 
 import 'dart:async';
@@ -17,7 +20,11 @@ import 'subclients_ui.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!clientOnlyBuild) throw StateError('Build with XIO_CLIENT_ONLY=true');
-  await native.invokeMethod<void>('secureScreen', {'enabled': true});
+  if (Platform.isLinux || Platform.isWindows) {
+    await DesktopEngine.initialise();
+  } else {
+    await native.invokeMethod<void>('secureScreen', {'enabled': true});
+  }
   await AppLanguages.load();
   for (final name in [
     'RIVET-native',
@@ -58,8 +65,8 @@ class ClientApp extends StatelessWidget {
       supportedLocales: const [Locale('ru'), Locale('en')],
       locale: Locale(AppLanguages.effective == 'ru' ? 'ru' : 'en'),
       themeMode: ThemeMode.system,
-      theme: x1oTheme(Brightness.light),
-      darkTheme: x1oTheme(Brightness.dark),
+      theme: x1oTheme(Brightness.light, client: true),
+      darkTheme: x1oTheme(Brightness.dark, client: true),
       home: FirstRunGate(
         store: store,
         child: ClientHome(store: store),
@@ -481,8 +488,12 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                   icon: const Icon(Icons.network_check),
                   label: const LText('Проверка соединения'),
                 ),
-                const LText(
-                  'Android 8.0+ · ARM32 / ARM64 / x86-64',
+                Text(
+                  Platform.isAndroid
+                      ? 'Android 8.0+ · ARM32 / ARM64 / x86-64'
+                      : Platform.isIOS
+                      ? 'iOS · RIVET/H3 / RIVET/S1'
+                      : '${Platform.isWindows ? 'Windows' : 'Ubuntu'} · x64',
                   textAlign: TextAlign.center,
                 ),
               ],

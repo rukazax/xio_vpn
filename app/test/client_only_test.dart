@@ -170,7 +170,7 @@ void main() {
       final store = SwitchingStore()..status = const TunnelStatus();
       await tester.pumpWidget(
         MaterialApp(
-          theme: x1oTheme(brightness),
+          theme: x1oTheme(brightness, client: true),
           home: RepaintBoundary(
             key: key,
             child: ClientHome(store: store),

@@ -1,3 +1,5 @@
+import 'build_identity.dart';
+import 'protocol_compatibility.dart';
 import 'account_access.dart';
 import 'client_policy.dart';
 import 'engine_channel.dart';
@@ -30,7 +32,7 @@ bool get platformTunnel =>
 Set<String> get platformProtocols => Platform.isAndroid
     ? availableAndroidProtocols
     : Platform.isIOS
-    ? {'rivet-h3', 'rivet-s1'}
+    ? nativeProtocolTargets[ClientPlatform.ios]!
     : DesktopEngine.supported;
 
 Future<Directory> applicationDirectory() async {
@@ -40,12 +42,12 @@ Future<Directory> applicationDirectory() async {
   } else if (Platform.isWindows) {
     final base = Platform.environment['LOCALAPPDATA'];
     if (base == null) throw StateError('LOCALAPPDATA is unavailable');
-    path = '$base\\x1o';
+    path = '$base\\${desktopProductDirectory(windows: true)}';
   } else if (Platform.isLinux) {
     final base =
         Platform.environment['XDG_DATA_HOME'] ??
         '${Platform.environment['HOME']}/.local/share';
-    path = '$base/app.x1o.x1o';
+    path = '$base/${desktopProductDirectory(windows: false)}';
   } else {
     throw UnsupportedError('Unsupported platform');
   }

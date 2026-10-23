@@ -44,7 +44,7 @@ def prepare():
     shutil.copy2(ROOT/'app/assets/fonts/NotoSans-Regular.ttf',assets/'fonts/NotoSans-Regular.ttf')
     # System fonts handle scripts: do not bundle the 16 MB CJK font or server tools.
     source = (ROOT / 'app/pubspec.yaml').read_text()
-    assert 'version: 0.22.3+5012' in source, 'Review the client version before using a newer base'
+    assert 'version: 0.22.4+5013' in source, 'Review the client version before using a newer base'
     source = source[:source.index('  assets:')] + '''  assets:
     - assets/help/
     - assets/licenses/
@@ -84,6 +84,7 @@ def prepare():
     gradle = APP / 'android/app/build.gradle.kts'
     gradle.write_text(gradle.read_text().replace('== ".MainActivity"', '== "app.x1o.x1o.MainActivity"').replace('".launcher.', '"app.x1o.client.launcher.'))
     tree.write(manifest, encoding='unicode', xml_declaration=True)
+    subprocess.run([os.sys.executable, ROOT / 'client/generate_icons.py', '--android-app', APP], check=True)
     inputs = {}
     for base in [APP / 'lib', APP / 'android/app/src/main', assets]:
         for path in sorted(base.rglob('*')):
@@ -108,13 +109,13 @@ if __name__ == '__main__':
             subprocess.run(['flutter', 'build', 'apk', '--no-pub', '--release', *split,
                             '--target', 'lib/client_main.dart',
                             '--dart-define=XIO_CLIENT_ONLY=true'], cwd=APP, env=env, check=True)
-        output = ROOT / 'releases/client-0.22.3'
+        output = ROOT / 'releases/client-0.22.4'
         output.mkdir(parents=True, exist_ok=True)
         packages = APP / 'build/app/outputs/flutter-apk'
         for abi in ['arm64-v8a', 'armeabi-v7a', 'x86_64']:
             shutil.copy2(packages / f'app-{abi}-release.apk',
-                         output / f'XIO-Client-0.22.3-{abi}.apk')
-        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.22.3-universal.apk')
+                         output / f'XIO-Client-0.22.4-{abi}.apk')
+        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.22.4-universal.apk')
         shutil.copy2(STAGE / 'source-inputs.json', output / 'source-inputs.json')
         for name in ['README.ru.md', 'README.en.md']:
             shutil.copy2(ROOT / 'client' / name, output / name)

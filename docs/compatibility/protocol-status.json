@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "requiredProtocols": [
+    "awg",
+    "cloak",
+    "rivet-h3",
+    "rivet-s1",
+    "xray"
+  ],
+  "wireContainer": "shared xio:// schema1; schema3 for restricted account capability",
+  "platforms": {
+    "android": {
+      "nativeDeclared": [
+        "awg",
+        "cloak",
+        "rivet-h3",
+        "rivet-s1",
+        "xray"
+      ],
+      "missingNative": [],
+      "nativeAllProtocolsAccepted": false
+    },
+    "windows": {
+      "nativeDeclared": [
+        "awg",
+        "rivet-h3",
+        "rivet-s1",
+        "xray"
+      ],
+      "missingNative": [
+        "cloak"
+      ],
+      "nativeAllProtocolsAccepted": false
+    },
+    "ubuntu": {
+      "nativeDeclared": [
+        "awg",
+        "rivet-h3",
+        "rivet-s1",
+        "xray"
+      ],
+      "missingNative": [
+        "cloak"
+      ],
+      "nativeAllProtocolsAccepted": false
+    },
+    "ios": {
+      "nativeDeclared": [
+        "rivet-h3",
+        "rivet-s1"
+      ],
+      "missingNative": [
+        "awg",
+        "cloak",
+        "xray"
+      ],
+      "nativeAllProtocolsAccepted": false
+    }
+  },
+  "complete": false,
+  "scope": "Source-declared engines, not native runtime verification; Apple build/device unavailable"
+}

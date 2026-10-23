@@ -1,0 +1,411 @@
+{
+  "schema": 1,
+  "release": "0.22.4+5013",
+  "date": "2026-10-24",
+  "sourceBaseCommit": "38e9118c78d938084e1d59754765765a30e2e219",
+  "commands": [
+    {
+      "command": "cd app && flutter analyze",
+      "exitCode": 0,
+      "result": "No issues found"
+    },
+    {
+      "command": "cd app && flutter test",
+      "exitCode": 0,
+      "passed": 119,
+      "skipped": 7
+    },
+    {
+      "command": "cd app && flutter test --dart-define=XIO_CLIENT_ONLY=true test/client_only_test.dart test/client_import_test.dart test/client_theme_test.dart test/protocol_compatibility_test.dart",
+      "exitCode": 0,
+      "passed": 20
+    },
+    {
+      "command": "cd app && flutter test test/protocol_compatibility_test.dart",
+      "exitCode": 0,
+      "passed": 4
+    },
+    {
+      "command": "python3 client/build.py",
+      "exitCode": 0,
+      "scope": "Four APKs, signing/native payload/16KB checks; no device"
+    },
+    {
+      "command": "python3 client/build_linux.py --go GO",
+      "exitCode": 0,
+      "scope": "Build/package only; not installed or connected"
+    },
+    {
+      "command": "python3 client/build_windows_on_linux.py --engine-cache CACHE --runtime-template TEMPLATE --wine-prefix PRIVATE_COMPILER_PREFIX --go GO",
+      "exitCode": 0,
+      "scope": "Cross-compilation only; Wine runs gen_snapshot, no product networking"
+    },
+    {
+      "command": "python3 client/prepare_platform.py ios",
+      "exitCode": 0,
+      "scope": "Prepared sources only, not an Xcode build"
+    },
+    {
+      "command": "python3 tools/check-protocol-parity.py --require-complete",
+      "exitCode": 2,
+      "expected": true,
+      "scope": "BLOCKED: native engines missing; not complete parity"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "XIO-Client-0.22.4-arm64-v8a.apk",
+      "bytes": 23938114,
+      "sha256": "aa54610fb73c139aa034f631c8020dd24bde17dfccb97ac16962b98237875169"
+    },
+    {
+      "file": "XIO-Client-0.22.4-armeabi-v7a.apk",
+      "bytes": 23807900,
+      "sha256": "1788295a69622e33986ba7b1ba413ffb14e686e07453afb0d4241453acc9b99a"
+    },
+    {
+      "file": "XIO-Client-0.22.4-ubuntu-amd64.deb",
+      "bytes": 19085566,
+      "sha256": "c470ba32c1b91becbfc1218dcd0106fd1d000e55cac3649a535ace4f488f1e63"
+    },
+    {
+      "file": "XIO-Client-0.22.4-ubuntu-x64.tar.gz",
+      "bytes": 23822071,
+      "sha256": "0299c8032af7b730af6d75ba929bebe8a9663f8333c3900ff1aaa256e193f231"
+    },
+    {
+      "file": "XIO-Client-0.22.4-universal.apk",
+      "bytes": 69965193,
+      "sha256": "b27af5838883b14ecaf3e7f9389569cd1aa5520ec1ee0f39ae729dcb92d288ba"
+    },
+    {
+      "file": "XIO-Client-0.22.4-windows-x64.zip",
+      "bytes": 27886233,
+      "sha256": "faae061e34a58693fd6d27655063e6ef6b3a139d5f07591dff79b46595344121"
+    },
+    {
+      "file": "XIO-Client-0.22.4-x86_64.apk",
+      "bytes": 25205371,
+      "sha256": "81b34fff6d1f0ce7f815c3d69fbc6bcc258de93db8706e115f3ba91a63efdc74"
+    }
+  ],
+  "androidVerification": {
+    "appId": "app.x1o.client",
+    "version": "0.22.4+5013",
+    "artifacts": [
+      {
+        "file": "XIO-Client-0.22.4-arm64-v8a.apk",
+        "bytes": 23938114,
+        "sha256": "aa54610fb73c139aa034f631c8020dd24bde17dfccb97ac16962b98237875169",
+        "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+        "minSdk": 26,
+        "targetSdk": 36,
+        "signatureVerified": true,
+        "zipalign16KiB": true,
+        "nativePayload": [
+          {
+            "abi": "arm64-v8a",
+            "library": "libgojni.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "arm64-v8a",
+            "library": "libxio_openvpn.so",
+            "allocatedSectionsMatch": true
+          }
+        ],
+        "libraries": [
+          {
+            "name": "lib/arm64-v8a/libapp.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/arm64-v8a/libc++_shared.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/arm64-v8a/libflutter.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/arm64-v8a/libgojni.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/arm64-v8a/libxio_openvpn.so",
+            "minLoadAlignment": 16384
+          }
+        ]
+      },
+      {
+        "file": "XIO-Client-0.22.4-armeabi-v7a.apk",
+        "bytes": 23807900,
+        "sha256": "1788295a69622e33986ba7b1ba413ffb14e686e07453afb0d4241453acc9b99a",
+        "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+        "minSdk": 26,
+        "targetSdk": 36,
+        "signatureVerified": true,
+        "zipalign16KiB": true,
+        "nativePayload": [
+          {
+            "abi": "armeabi-v7a",
+            "library": "libgojni.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "armeabi-v7a",
+            "library": "libxio_openvpn.so",
+            "allocatedSectionsMatch": true
+          }
+        ],
+        "libraries": [
+          {
+            "name": "lib/armeabi-v7a/libapp.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/armeabi-v7a/libc++_shared.so",
+            "minLoadAlignment": 4096
+          },
+          {
+            "name": "lib/armeabi-v7a/libflutter.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/armeabi-v7a/libgojni.so",
+            "minLoadAlignment": 4096
+          },
+          {
+            "name": "lib/armeabi-v7a/libxio_openvpn.so",
+            "minLoadAlignment": 16384
+          }
+        ]
+      },
+      {
+        "file": "XIO-Client-0.22.4-universal.apk",
+        "bytes": 69965193,
+        "sha256": "b27af5838883b14ecaf3e7f9389569cd1aa5520ec1ee0f39ae729dcb92d288ba",
+        "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+        "minSdk": 26,
+        "targetSdk": 36,
+        "signatureVerified": true,
+        "zipalign16KiB": true,
+        "nativePayload": [
+          {
+            "abi": "arm64-v8a",
+            "library": "libgojni.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "arm64-v8a",
+            "library": "libxio_openvpn.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "armeabi-v7a",
+            "library": "libgojni.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "armeabi-v7a",
+            "library": "libxio_openvpn.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "x86_64",
+            "library": "libgojni.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "x86_64",
+            "library": "libxio_openvpn.so",
+            "allocatedSectionsMatch": true
+          }
+        ],
+        "libraries": [
+          {
+            "name": "lib/arm64-v8a/libapp.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/arm64-v8a/libc++_shared.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/arm64-v8a/libflutter.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/arm64-v8a/libgojni.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/arm64-v8a/libxio_openvpn.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/armeabi-v7a/libapp.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/armeabi-v7a/libc++_shared.so",
+            "minLoadAlignment": 4096
+          },
+          {
+            "name": "lib/armeabi-v7a/libflutter.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/armeabi-v7a/libgojni.so",
+            "minLoadAlignment": 4096
+          },
+          {
+            "name": "lib/armeabi-v7a/libxio_openvpn.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/x86_64/libapp.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/x86_64/libc++_shared.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/x86_64/libflutter.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/x86_64/libgojni.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/x86_64/libxio_openvpn.so",
+            "minLoadAlignment": 16384
+          }
+        ]
+      },
+      {
+        "file": "XIO-Client-0.22.4-x86_64.apk",
+        "bytes": 25205371,
+        "sha256": "81b34fff6d1f0ce7f815c3d69fbc6bcc258de93db8706e115f3ba91a63efdc74",
+        "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+        "minSdk": 26,
+        "targetSdk": 36,
+        "signatureVerified": true,
+        "zipalign16KiB": true,
+        "nativePayload": [
+          {
+            "abi": "x86_64",
+            "library": "libgojni.so",
+            "allocatedSectionsMatch": true
+          },
+          {
+            "abi": "x86_64",
+            "library": "libxio_openvpn.so",
+            "allocatedSectionsMatch": true
+          }
+        ],
+        "libraries": [
+          {
+            "name": "lib/x86_64/libapp.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/x86_64/libc++_shared.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/x86_64/libflutter.so",
+            "minLoadAlignment": 65536
+          },
+          {
+            "name": "lib/x86_64/libgojni.so",
+            "minLoadAlignment": 16384
+          },
+          {
+            "name": "lib/x86_64/libxio_openvpn.so",
+            "minLoadAlignment": 16384
+          }
+        ]
+      }
+    ],
+    "physicalAndroidTestedByVerifier": false,
+    "realServerConnectionTested": false,
+    "limits": [
+      "Local build/unit/widget/artifact checks only; no device or server contacted."
+    ]
+  },
+  "nativeProtocolStatus": {
+    "schema": 1,
+    "requiredProtocols": [
+      "awg",
+      "cloak",
+      "rivet-h3",
+      "rivet-s1",
+      "xray"
+    ],
+    "wireContainer": "shared xio:// schema1; schema3 for restricted account capability",
+    "platforms": {
+      "android": {
+        "nativeDeclared": [
+          "awg",
+          "cloak",
+          "rivet-h3",
+          "rivet-s1",
+          "xray"
+        ],
+        "missingNative": [],
+        "nativeAllProtocolsAccepted": false
+      },
+      "windows": {
+        "nativeDeclared": [
+          "awg",
+          "rivet-h3",
+          "rivet-s1",
+          "xray"
+        ],
+        "missingNative": [
+          "cloak"
+        ],
+        "nativeAllProtocolsAccepted": false
+      },
+      "ubuntu": {
+        "nativeDeclared": [
+          "awg",
+          "rivet-h3",
+          "rivet-s1",
+          "xray"
+        ],
+        "missingNative": [
+          "cloak"
+        ],
+        "nativeAllProtocolsAccepted": false
+      },
+      "ios": {
+        "nativeDeclared": [
+          "rivet-h3",
+          "rivet-s1"
+        ],
+        "missingNative": [
+          "awg",
+          "cloak",
+          "xray"
+        ],
+        "nativeAllProtocolsAccepted": false
+      }
+    },
+    "complete": false,
+    "scope": "Source-declared engines, not native runtime verification; Apple build/device unavailable"
+  },
+  "nativeAcceptance": {
+    "android5013": "NOT_EXECUTED",
+    "windowsWintun": "NOT_EXECUTED",
+    "ubuntuVpn": "NOT_EXECUTED",
+    "iosBuildAndDevice": "BLOCKED: owner confirmed Mac/iPhone unavailable",
+    "publicIpv6": "NOT_EXECUTED"
+  },
+  "allProtocolParity": false,
+  "screenshots": "Flutter widget renders with synthetic profiles; not physical device screenshots",
+  "securityScope": "Client policy rejects admin import; artifact verification checks no server assets. No universal security audit claim."
+}

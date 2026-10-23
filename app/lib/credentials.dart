@@ -1,3 +1,4 @@
+import 'build_identity.dart';
 import 'windows_crypto.dart';
 
 import 'dart:convert';
@@ -22,7 +23,7 @@ class CredentialVault {
         ? Platform.environment['LOCALAPPDATA']!
         : (Platform.environment['XDG_DATA_HOME'] ??
               '${Platform.environment['HOME']}/.local/share');
-    final d = Directory('$root/app.x1o.x1o/credentials');
+    final d = Directory('$root/$credentialProductDirectory/credentials');
     await d.create(recursive: true);
     if (Platform.isLinux) {
       final p = await Process.run('chmod', ['700', d.path]);
