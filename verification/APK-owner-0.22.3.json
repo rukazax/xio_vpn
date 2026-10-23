@@ -1,0 +1,73 @@
+{
+  "version": "0.22.3+5007",
+  "appId": "app.x1o.x1o",
+  "artifacts": [
+    {
+      "file": "XIO-0.22.3-android-arm64-v8a.apk",
+      "bytes": 60611331,
+      "sha256": "bb5f05e4f8e7270338fc487e9d3acd5a6534b6a641b14d423af200266430eb0b",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "nativePayload": [
+        {
+          "abi": "arm64-v8a",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "arm64-v8a",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "signatureVerified": true,
+      "zipalignVerified": true,
+      "embeddedServerRecipe": 23,
+      "embeddedServerArchiveMatchesSource": true
+    },
+    {
+      "file": "XIO-0.22.3-android-armeabi-v7a.apk",
+      "bytes": 60568353,
+      "sha256": "5ad2607d80893f3b39d2de4f646c79f4f07ae93e296f25d51bb38f7e02a10d85",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "nativePayload": [
+        {
+          "abi": "armeabi-v7a",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "armeabi-v7a",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "signatureVerified": true,
+      "zipalignVerified": true,
+      "embeddedServerRecipe": 23,
+      "embeddedServerArchiveMatchesSource": true
+    },
+    {
+      "file": "XIO-0.22.3-android-x86_64.apk",
+      "bytes": 61889672,
+      "sha256": "68cb8ecb0c678d3796af655fb9c3c2b5d3b3b548c6a4d9ecc4ae4cf0d06a7d15",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "nativePayload": [
+        {
+          "abi": "x86_64",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "x86_64",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "signatureVerified": true,
+      "zipalignVerified": true,
+      "embeddedServerRecipe": 23,
+      "embeddedServerArchiveMatchesSource": true
+    }
+  ],
+  "physicalAndroidTested": false
+}

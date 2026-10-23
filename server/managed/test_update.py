@@ -13,7 +13,7 @@ def archive(extra=None):
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode='w:gz') as tar:
         for name in ['admin.py', 'stack.py', 'network_stack.py', 'mesh_stack.py',
-                     'mesh-pins.json', 'rivet-setup.py', *update.RUNTIMES]:
+                     'mesh-pins.json', 'rivet-setup.py', 'dualstack.py', 'client_api.py', *update.RUNTIMES]:
             content = b'# new runtime\n' if name.endswith('.py') else b'new-runtime'
             info = tarfile.TarInfo(name)
             info.size = len(content)
@@ -60,7 +60,7 @@ class UpdateTests(unittest.TestCase):
                     raise RuntimeError('simulated start failure')
                 return type('Result', (), {'returncode': 0})()
             raw, digest = archive()
-            with patch.object(update, 'WG_CONFIG', root/'wg.conf'), patch.object(update, 'STACK_CONFIG', root/'xray.json'), patch.object(update, 'LEGACY_UNITS', ()), patch.object(update, 'LIB', lib), patch.object(update, 'STATE', state), patch.object(update, 'RUNTIMES', {'rivet': str(runtime)}), patch.object(update, 'command', command), patch.object(update.os, 'geteuid', return_value=0):
+            with patch.object(update, 'NETWORK_CONFIGS', ()), patch.object(update, 'DUAL_RECEIPT', root/'dual-receipt.json'), patch.object(update, 'WG_CONFIG', root/'wg.conf'), patch.object(update, 'STACK_CONFIG', root/'xray.json'), patch.object(update, 'LEGACY_UNITS', ()), patch.object(update, 'LIB', lib), patch.object(update, 'STATE', state), patch.object(update, 'RUNTIMES', {'rivet': str(runtime)}), patch.object(update, 'command', command), patch.object(update.os, 'geteuid', return_value=0):
                 if failure:
                     with self.assertRaises(RuntimeError):
                         update.update(raw, digest, 'server')

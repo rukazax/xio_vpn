@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1264" height="660" viewBox="0 0 1264 660">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10" fill="none" stroke="#456a30" stroke-width="2"/></marker></defs>
+<rect width="1264" height="660" rx="24" fill="#f3f6ee"/>
+<text x="44" y="49" fill="#19251b" font-family="sans-serif" font-size="28" font-weight="700">Full XIO: server administration and VPN connections</text>
+<text x="44" y="103" fill="#456a30" font-family="sans-serif" font-size="20">Administration: server SSH keys remain with the owner</text>
+<rect x="44" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="176.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Full XIO</text>
+<text x="176.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Owner’s encrypted</text>
+<text x="176.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">SSH credential vault</text>
+<path d="M315 180H339" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="348" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="480.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">SSH: IPv4 or IPv6</text>
+<text x="480.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Server host-key</text>
+<text x="480.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">fingerprint verification</text>
+<path d="M619 180H643" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="652" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="784.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Owned VPS</text>
+<text x="784.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Service maintenance</text>
+<text x="784.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Accounts and quotas</text>
+<path d="M923 180H947" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="956" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="1088.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Client profile</text>
+<text x="1088.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">User VPN credentials</text>
+<text x="1088.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">No root/admin SSH keys</text>
+<text x="44" y="359" fill="#456a30" font-family="sans-serif" font-size="20">Connection: the same VPN path used by the client</text>
+<rect x="44" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="176.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Full XIO</text>
+<text x="176.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Selected VPN profile</text>
+<path d="M315 436H339" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="348" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="480.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">A and AAAA</text>
+<text x="480.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Physical-network DNS</text>
+<text x="480.0" y="466" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Outside the VPN tunnel</text>
+<path d="M619 436H643" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="652" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="784.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">VPN: IPv4 / IPv6</text>
+<text x="784.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Carrier and IP packets</text>
+<text x="784.0" y="466" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">HTTPS connectivity check</text>
+<path d="M923 436H947" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="956" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="1088.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Exit via VPS</text>
+<text x="1088.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">IPv4 / IPv6 destinations</text>
+<text x="1088.0" y="466" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Depends on VPS network</text>
+<text x="44" y="568" fill="#555f52" font-family="sans-serif" font-size="16">IPv6 egress requires an IPv6 route on the VPS. IPv4-only sites from an IPv6-only VPS need IPv4 egress or NAT64.</text>
+<text x="44" y="599" fill="#555f52" font-family="sans-serif" font-size="16">This diagram describes implementation. Verified scenarios and remaining limits are recorded separately.</text>
+</svg>

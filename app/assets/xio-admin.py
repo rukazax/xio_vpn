@@ -107,7 +107,14 @@ def firewall_managed(d,remove=False):
   else:
    items=[('trusted','interface',i) for i in ['x1o0','x1oawg0']]+[(f['zone'],'port',str(p)+'/udp') for p in [51820,51821]]
    items += [(f['zone'],'rich-rule','rule family="ipv4" source address="'+n+'" masquerade') for n in ['10.77.0.0/24','10.78.0.0/24']]
-   items += [('trusted','rich-rule','rule family="ipv6" source address="'+n+'" drop') for n in ['fd77:1::/64','fd78:1::/64']]
+   if stack.network.dualstack().ipv6_ready():
+    for item in f['added'][:]:
+     if item['option']=='rich-rule' and 'family="ipv6"' in item['value'] and item['value'].endswith(' drop'):
+      if subprocess.run(['firewall-cmd',*item['args'],'--query-rich-rule='+item['value']],capture_output=True).returncode==0:run('firewall-cmd',*item['args'],'--remove-rich-rule='+item['value'])
+      f['added'].remove(item);save(d)
+    items += [(f['zone'],'rich-rule','rule family="ipv6" source address="fd78:1::/64" masquerade')]
+   else:
+    items += [('trusted','rich-rule','rule family="ipv6" source address="'+n+'" drop') for n in ['fd77:1::/64','fd78:1::/64']]
    for zone,option,value in items:
     for permanent in [False,True]:
      args=(['--permanent'] if permanent else [])+['--zone='+zone]
@@ -184,7 +191,7 @@ def start_awg(d):
   if Path('/run/amneziawg/x1oawg0.sock').exists():break
   time.sleep(.1)
  lines=['private_key='+base64.b64decode((ROOT/'awg.key').read_text().strip()).hex(),'listen_port=51821']+[k.lower()+'='+str(v) for k,v in d['awg'].items()]
- awg_uapi('\n'.join(lines));run('ip','address','replace','10.78.0.1/24','dev','x1oawg0');run('ip','-6','address','replace','fd78:1::1/64','dev','x1oawg0');run('ip','link','set','dev','x1oawg0','mtu','1280','up');apply(d);rules(d)
+ awg_uapi('\n'.join(lines));run('ip','address','replace','10.78.0.1/24','dev','x1oawg0');run('ip','-6','address','replace','fd78:1::1/64','dev','x1oawg0');run('ip','link','set','dev','x1oawg0','mtu','1280','up');apply(d);rules(d);stack.network.dualstack().apply()
 def counters():
  result={}
  for protocol,iface in [('wireguard','x1o0'),('awg','x1oawg0')]:
@@ -272,7 +279,7 @@ def rivet_install(d):
    if 'cert' in request:break
  except Exception:pass
  run('python3',str(base/'setup.py'),'install',input=json.dumps(request))
- d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=21;save(d)
+ d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=23;save(d)
  if changed:
   dest=Path('/usr/local/bin/xio-rivet.new');shutil.copyfile(LIB/'rivet',dest);dest.chmod(0o755);os.replace(dest,Path('/usr/local/bin/xio-rivet'))
   if shutil.which('restorecon'):run('restorecon','/usr/local/bin/xio-rivet')
@@ -322,7 +329,7 @@ def stats(d):
 def public(d):
  protocols=d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else [])
  if d.get('restrictedNetwork'):protocols=[p for p in protocols if p in ['xray','rivet-s1','cloak','awg','rivet-h3']]
- return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'protocols':protocols,**({'rivet':d['rivet']} if d.get('rivet') else {})}
+ return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=stack.network.dualstack().ipv6_ready())} if d.get('rivet') else {})}
 
 def init(req):
  if (ROOT/'deployment.json').exists():
@@ -342,7 +349,7 @@ def init(req):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['fd77:1::/64','fd78:1::/64']),'IPv6 subnet conflict'
  host=req['host'];assert re.fullmatch(r'[a-zA-Z0-9.:-]{1,253}',host)
  installed='wireguard-tools' in installed_packages(platform['manager'])
- d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':json.loads(run('ip','-j','route','show','default'))[0]['dev'],'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':21,'restrictedNetwork':True,'phase':'installing','country':country()}
+ d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':stack.network.dualstack().outbound(),'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':23,'restrictedNetwork':True,'phase':'installing','country':country()}
  assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',d['outbound']);save(d)
  packages_install(d);firewall_prepare(d)
  binary=Path('/usr/local/bin/xio-amneziawg-go');assert not binary.exists(),'Existing XIO binary path'
@@ -371,8 +378,9 @@ WantedBy=multi-user.target
  write('/etc/systemd/system/x1o-managed-awg.service',unit)
  write('/etc/systemd/system/x1o-managed-stats.service','[Unit]\nDescription=x1o counters\nAfter=x1o-managed-awg.service\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 /usr/local/lib/x1o-managed/admin.py sample\n')
  write('/etc/systemd/system/x1o-managed-stats.timer','[Unit]\nDescription=x1o periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
- run('systemctl','daemon-reload');run('systemctl','enable','--now','wg-quick@x1o0');run('systemctl','enable','--now','x1o-managed-awg');run('systemctl','enable','--now','x1o-managed-stats.timer');d=load();d['phase']='ready';save(d);rivet_install(d);return {'server':public(d),'existing':False}
+ run('systemctl','daemon-reload');run('systemctl','enable','--now','wg-quick@x1o0');run('systemctl','enable','--now','x1o-managed-awg');run('systemctl','enable','--now','x1o-managed-stats.timer');d=load();d['phase']='ready';save(d);rivet_install(d);stack.network.dualstack().apply();return {'server':public(d),'existing':False}
 def remove(d):
+ stack.network.dualstack().remove()
  if (ROOT/'client-api').exists():
   import client_api
   client_api.remove_transport(sys.modules[__name__],d)

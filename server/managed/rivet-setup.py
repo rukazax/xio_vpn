@@ -45,6 +45,11 @@ def managed_firewall(receipt,remove=False):
     if item not in f['added']:f['added'].append(item);write(RECEIPT,json.dumps(receipt),0o600)
     run('ufw',*item)
 
+def outbound_device():
+ for family in ['-4','-6']:
+  routes=json.loads(run('ip','-j',family,'route','show','default'))
+  if routes:return min(routes,key=lambda r:r.get('metric',0))['dev']
+ raise RuntimeError('No IPv4 or IPv6 default route')
 def main():
  action=sys.argv[1];binary=str(LIB/'rivet')
  if action=='install':
@@ -64,7 +69,7 @@ def main():
   assert not run('ss','-H','-lntu','sport = :8443'),'RIVET port in use'
   cert=Path(req['cert']) if req.get('cert') else None;key=Path(req['key']) if req.get('key') else None;name=req['serverName'];assert (cert is None and key is None) or (cert.is_absolute() and key.is_absolute() and cert.is_file() and key.is_file())
   assert len(name)<=253 and name and not any(c in name for c in '/\\\r\n\x00')
-  before=Path('/proc/sys/net/ipv4/ip_forward').read_text().strip();outbound=json.loads(run('ip','-j','route','show','default'))[0]['dev']
+  before=Path('/proc/sys/net/ipv4/ip_forward').read_text().strip();outbound=outbound_device()
   assert outbound.replace('-','').replace('.','').isalnum()
   # Fail before creating accounts if namespace names are already in use.
   for user in ['xio-entry','xio-rivet']:
@@ -100,6 +105,7 @@ ip address replace 10.79.0.1/24 dev xiorivet
 ip link set xiorivet mtu 1280 up
 sysctl -q -w net.ipv4.ip_forward=1
 python3 {LIB}/setup.py network
+if [ -f /usr/local/lib/x1o-managed/dualstack.py ]; then python3 /usr/local/lib/x1o-managed/dualstack.py apply; fi
 ''',0o755)
   common='''NoNewPrivileges=yes
 ProtectSystem=strict

@@ -41,8 +41,79 @@ func CheckIPv4(b []byte, source string, publicOnly bool) error {
 	return nil
 }
 func Destination(b []byte) string {
+	if len(b) >= 40 && b[0]>>4 == 6 {
+		return netip.AddrFrom16([16]byte(b[24:40])).String()
+	}
 	if len(b) < 20 {
 		return ""
 	}
 	return netip.AddrFrom4([4]byte(b[16:20])).String()
+}
+
+// IPv6For derives the IPv6 address from the authenticated IPv4 user slot. No
+// untrusted client request can choose another user's IPv6 source address.
+func IPv6For(ip string) string {
+	address, err := netip.ParseAddr(ip)
+	if err != nil || !address.Is4() {
+		return ""
+	}
+	b := address.As4()
+	if b[0] != 10 || b[1] != 79 || b[2] != 0 || b[3] < 2 || b[3] > 254 {
+		return ""
+	}
+	v6 := [16]byte{0xfd, 0x79, 0, 1}
+	v6[15] = b[3]
+	return netip.AddrFrom16(v6).String()
+}
+
+var prohibited6 = []netip.Prefix{
+	netip.MustParsePrefix("::/96"), netip.MustParsePrefix("::ffff:0:0/96"),
+	netip.MustParsePrefix("fc00::/7"), netip.MustParsePrefix("fe80::/10"),
+	netip.MustParsePrefix("ff00::/8"), netip.MustParsePrefix("2001:db8::/32"),
+	netip.MustParsePrefix("2001:10::/28"), netip.MustParsePrefix("2001:20::/28"),
+}
+
+func CheckIP(b []byte, source string, publicOnly bool) error {
+	if len(b) == 0 {
+		return ErrProtocol
+	}
+	if b[0]>>4 == 4 {
+		return CheckIPv4(b, source, publicOnly)
+	}
+	if b[0]>>4 != 6 || len(b) < 40 || len(b) > MTU || int(binary.BigEndian.Uint16(b[4:6]))+40 != len(b) {
+		return ErrProtocol
+	}
+	// No jumbograms, fragmentation or extension chains. TCP, UDP and bounded
+	// ICMPv6 errors/echo suffice for ordinary tunnel traffic and PMTU discovery.
+	if b[6] != 6 && b[6] != 17 && b[6] != 58 {
+		return ErrProtocol
+	}
+	src := netip.AddrFrom16([16]byte(b[8:24]))
+	dst := netip.AddrFrom16([16]byte(b[24:40]))
+	if source != "" && src.String() != IPv6For(source) {
+		return ErrProtocol
+	}
+	if b[6] == 58 && (len(b) < 48 || !(b[40] >= 1 && b[40] <= 4 || b[40] == 128 || b[40] == 129)) {
+		return ErrProtocol
+	}
+	if publicOnly {
+		if !dst.IsGlobalUnicast() {
+			return ErrProtocol
+		}
+		for _, prefix := range prohibited6 {
+			if prefix.Contains(dst) {
+				return ErrProtocol
+			}
+		}
+		if netip.MustParsePrefix("64:ff9b::/96").Contains(dst) {
+			v := dst.As16()
+			embedded := netip.AddrFrom4([4]byte(v[12:16]))
+			for _, prefix := range prohibited {
+				if prefix.Contains(embedded) {
+					return ErrProtocol
+				}
+			}
+		}
+	}
+	return nil
 }

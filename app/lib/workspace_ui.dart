@@ -698,7 +698,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const LText('XIO · X in 1 out\nВерсия 0.22.2'),
+              const LText('XIO · X in 1 out\nВерсия 0.22.3'),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.code),

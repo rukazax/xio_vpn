@@ -3,6 +3,10 @@
 import base64,ipaddress,json,os,re,secrets,shutil,socket,subprocess,tempfile,time
 from pathlib import Path
 ROOT=Path('/etc/xio-stack');PKI=ROOT/'pki';RUN=Path('/run/xio-openvpn');STATE=Path('/var/lib/xio-network')
+def dualstack():
+ import importlib.util
+ spec=importlib.util.spec_from_file_location('xio_dualstack',str(Path(__file__).with_name('dualstack.py')))
+ module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
 def run(*args,input=None):
  p=subprocess.run(args,input=input,capture_output=True)
  if p.returncode:raise RuntimeError('Network stack operation failed: '+args[0])
@@ -60,6 +64,8 @@ def firewall(d,remove=False):
    elif not remove and not exists:run('iptables','-w','5',*table,'-I',*rule)
 def openvpn_configs():
  for transport,proto,subnet,device in [('udp','udp','10.80.0.0','xioovpn0'),('tcp','tcp-server','10.81.0.0','xioovpn1')]:
+  v6=transport=='tcp' and dualstack().ipv6_ready()
+  v6push='push \"redirect-gateway ipv6\"\npush \"dhcp-option DNS6 2620:fe::fe\"' if v6 else ''
   write(ROOT/(transport+'.ovpn'),f'''port {1194 if transport=='udp' else 1195}
 proto {proto}
 {'local 127.0.0.1' if transport=='tcp' else ''}
@@ -67,6 +73,7 @@ dev {device}
 dev-type tun
 topology subnet
 server {subnet} 255.255.255.0
+{('server-ipv6 fd80:1::/64' if v6 else '')}
 ca {PKI}/ca.crt
 cert {PKI}/server.crt
 key {PKI}/server.key
@@ -82,6 +89,7 @@ persist-key
 persist-tun
 push "redirect-gateway def1"
 push "dhcp-option DNS 9.9.9.9"
+{v6push}
 status {STATE}/openvpn-{transport}.status 5
 status-version 3
 management {RUN}/{transport}.sock unix
@@ -436,7 +444,7 @@ def cloak_config(d):
  if 'cloakPrivateKey' not in r:
   der=run('openssl','genpkey','-algorithm','X25519','-outform','DER');pub=run('openssl','pkey','-inform','DER','-pubout','-outform','DER',input=der)
   r['cloakPrivateKey']=base64.b64encode(der[-32:]).decode();r['cloakPublicKey']=base64.b64encode(pub[-32:]).decode();write(receipt,json.dumps(r))
- cfg={'ProxyBook':{'openvpn':['tcp','127.0.0.1:1195']},'BindAddr':['0.0.0.0:9443'],'BypassUID':[u['stack']['cloakUID'] for u in d['users'].values() if not u.get('revoked') and u.get('stack',{}).get('cloakUID')],'PrivateKey':r['cloakPrivateKey'],'RedirAddr':r['target']}
+ cfg={'ProxyBook':{'openvpn':['tcp','127.0.0.1:1195']},'BindAddr':['[::]:9443' if dualstack().listener()=='::' else '0.0.0.0:9443'],'BypassUID':[u['stack']['cloakUID'] for u in d['users'].values() if not u.get('revoked') and u.get('stack',{}).get('cloakUID')],'PrivateKey':r['cloakPrivateKey'],'RedirAddr':r['target']}
  write(ROOT/'cloak.json',json.dumps(cfg))
 def cloak_install(d):
  cloak_config(d);dest=Path('/usr/local/bin/xio-cloak');temp=dest.with_suffix('.new');shutil.copyfile('/usr/local/lib/x1o-managed/cloak',temp);temp.chmod(0o755);temp.replace(dest)

@@ -31,7 +31,7 @@ func TestVPSCloakAuth(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	c, e := cloak.Open(ctx, cfg, cloakDialer{ctx, pinnedProtector(true)})
+	c, e := cloak.Open(ctx, cfg, cloakDialer{ctx, pinnedProtector(true), []string{cfg.RemoteHost}})
 	if e != nil {
 		t.Fatal(e)
 	}

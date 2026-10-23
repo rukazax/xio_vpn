@@ -25,7 +25,16 @@ func freeTCP(t *testing.T) string {
 	l.Close()
 	return addr
 }
-func TestBothCarriersFullSessionAndFragmentedPacket(t *testing.T) {
+func TestBothCarriersFullSessionAndFragmentedPacket(t *testing.T) { runBothFamilies(t, "127.0.0.1") }
+func TestBothCarriersIPv6EndpointAndPayload(t *testing.T) {
+	probe, err := net.Listen("tcp6", "[::1]:0")
+	if err != nil {
+		t.Skip("IPv6 loopback unavailable; run in the isolated IPv6 test namespace")
+	}
+	probe.Close()
+	runBothFamilies(t, "::1")
+}
+func runBothFamilies(t *testing.T, host string) {
 	// The frozen H3 profile only permits this one internal gateway target.
 	probe, e := net.ListenPacket("udp4", "127.0.0.1:7444")
 	if e != nil {
@@ -37,7 +46,7 @@ func TestBothCarriersFullSessionAndFragmentedPacket(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	ca, e := GenerateOuter(dir, "127.0.0.1")
+	ca, e := GenerateOuter(dir, host)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -61,6 +70,14 @@ func TestBothCarriersFullSessionAndFragmentedPacket(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, "index.html"), []byte("<!doctype html><title>Service</title>"), 0600)
 	tcp := freeTCP(t)
 	entryAddr := freeTCP(t)
+	if host == "::1" {
+		listener, err := net.Listen("tcp6", "[::1]:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		entryAddr = listener.Addr().String()
+		listener.Close()
+	}
 	a, b := net.Pipe()
 	defer b.Close()
 	gcfg := GatewayConfig{TCP: tcp, UDP: "127.0.0.1:7444", Cert: filepath.Join(dir, "inner.crt"), Key: filepath.Join(dir, "inner.key"), Users: filepath.Join(dir, "users.json"), Seal: filepath.Join(dir, "seal.key"), Stats: filepath.Join(dir, "stats.json"), GatewayID: base64.StdEncoding.EncodeToString(gid)}
@@ -93,7 +110,7 @@ func TestBothCarriersFullSessionAndFragmentedPacket(t *testing.T) {
 	}
 	for _, proto := range []string{"rivet-s1", "rivet-h3"} {
 		t.Run(proto, func(t *testing.T) {
-			cfg := ClientConfig{Protocol: proto, Endpoint: entryAddr, ServerName: "127.0.0.1", Pin: pin, GatewayID: gcfg.GatewayID, ID: uid, Secret: base64.StdEncoding.EncodeToString(secret), EntryToken: token, IP: "10.79.0.2", OuterCA: ca}
+			cfg := ClientConfig{Protocol: proto, Endpoint: entryAddr, ServerName: host, Pin: pin, GatewayID: gcfg.GatewayID, ID: uid, Secret: base64.StdEncoding.EncodeToString(secret), EntryToken: token, IP: "10.79.0.2", OuterCA: ca}
 			client, e := Dial(ctx, cfg, nil)
 			if e != nil {
 				t.Fatal(e)
@@ -124,6 +141,35 @@ func TestBothCarriersFullSessionAndFragmentedPacket(t *testing.T) {
 				}
 			case <-time.After(3 * time.Second):
 				t.Fatal("return deadline")
+			}
+
+			// The same authenticated slot routes both IP families through the encrypted
+			// carrier. These packets exercise actual gateway forwarding in both directions.
+			v6 := packet6("fd79:1::2", "2001:4860:4860::8888")
+			receive6 := make(chan []byte, 1)
+			go func() { buf := make([]byte, 1280); n, _ := b.Read(buf); receive6 <- buf[:n] }()
+			if e = client.SendPacket(v6); e != nil {
+				t.Fatal(e)
+			}
+			select {
+			case got := <-receive6:
+				if !bytes.Equal(got, v6) {
+					t.Fatal("IPv6 modified")
+				}
+			case <-time.After(3 * time.Second):
+				t.Fatal("IPv6 forwarding deadline")
+			}
+			return6 := packet6("2001:4860:4860::8888", "fd79:1::2")
+			go b.Write(return6)
+			done6 := make(chan []byte, 1)
+			go func() { got, _ := client.ReadPacket(); done6 <- got }()
+			select {
+			case got := <-done6:
+				if !bytes.Equal(got, return6) {
+					t.Fatal("IPv6 return modified")
+				}
+			case <-time.After(3 * time.Second):
+				t.Fatal("IPv6 return deadline")
 			}
 
 			good := cfg

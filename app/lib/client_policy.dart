@@ -1,6 +1,8 @@
+import 'l10n.dart';
+
 const clientOnlyBuild = bool.fromEnvironment('XIO_CLIENT_ONLY');
 
-const clientDisclosure = '''XIO Client использует Android VpnService для подключения к выбранному вами существующему VPN-серверу. Между устройством и сервером трафик шифруется. Владелец сервера может видеть ваш IP, назначения и сетевые метаданные; содержимое HTTPS дополнительно защищено HTTPS.
+const clientDisclosureRu = '''XIO Client использует Android VpnService для подключения к выбранному вами существующему VPN-серверу. Между устройством и сервером трафик шифруется. Владелец сервера может видеть ваш IP, назначения и сетевые метаданные; содержимое HTTPS дополнительно защищено HTTPS.
 
 Профили и запись ознакомления хранятся на устройстве. Секреты профилей защищены Android Keystore. Приложение не устанавливает и не администрирует серверы, не принимает SSH-доступ, не раздаёт VPN и не содержит рекламного или аналитического SDK. При отдельно выданном доступе аккаунта HTTPS API выбранного сервера проверяет серверный лимит, создаёт и отзывает только его субклиентов. Для этого хранится ограниченный API-токен с закреплённым сертификатом; SSH/root/admin-ключи не передаются. Профиль субклиента содержит только его VPN-ключи и не наследует API-доступ родителя. Состояние незавершённого создания сохраняется локально в защищённом хранилище, чтобы не повторять операцию с новым ID.
 
@@ -9,3 +11,19 @@ const clientDisclosure = '''XIO Client использует Android VpnService �
 Раздельное туннелирование позволяет направлять через VPN только выбранные приложения либо исключать их; отдельно доступны правила IP/CIDR. Исключённый трафик идёт напрямую. Доменные правила не поддерживаются. Системная блокировка трафика без VPN может запретить обход. При переключении серверов старый туннель сначала отключается: в этот промежуток защита VPN отсутствует, если не включена системная блокировка. Приложение не обещает обход любых блокировок или анонимность.
 
 Перед первым подключением Android отдельно запросит разрешение VPN. Если вы не согласны, закройте приложение без подтверждения.''';
+
+const clientDisclosureEn = '''XIO Client privacy policy
+Revision: 23 October 2026. Developer: Konstantin Eryomin, er-ka@mail.ru.
+
+The client connects to existing servers using imported client profiles. Profiles and settings remain on the device; profile secrets use encrypted Android Keystore-backed storage excluded from backups. This does not guarantee protection on a compromised device. Acknowledgements record the document revision, device UTC timestamp, language and displayed text SHA-256; they are not sent to the developer.
+
+VpnService encrypts selected traffic to the chosen endpoint. Its operator may observe the connecting IP, destinations and metadata; HTTPS separately protects content. DNS follows the profile. Connectivity checks contact the chosen HTTPS website (youtube.com by default), which sees the exit IP. With split tunnelling, the probe may use a direct route and does not establish protection of other applications. Excluded applications or networks use direct networking unless Android lockdown blocks that traffic.
+
+An explicitly issued account API token can check quota, create and revoke only its own subclients through the selected server HTTPS API with a pinned certificate. The token and unfinished operation are stored encrypted locally. Child exports contain only that child’s VPN keys; parent capability and SSH/root/admin keys are excluded. Subclient records also remain on the server.
+
+This build has no VPS deployment or administration, SSH, VPN sharing, endpoint geolocation, background release checks, advertising or analytics SDK, or automatic crash reporting. A system document picker imports files without broad storage access. Launchable application names are read locally for routing selection and are not sent to the developer. Android FLAG_SECURE blocks application screenshots.
+
+Data remains until profiles are removed, application data is cleared or the application is uninstalled. Local deletion does not remove a server or revoke its credentials. The server operator controls access and server-side processing. Support contact is voluntary; never send passwords or private keys. Android separately requests VPN permission; a new connection requires consent.
+''';
+String get clientDisclosure =>
+    AppLanguages.effective == 'ru' ? clientDisclosureRu : clientDisclosureEn;

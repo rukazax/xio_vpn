@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"xio.local/rivet/internal/physical"
 	"xio.local/rivet/internal/rivet"
 )
 
@@ -59,17 +60,7 @@ func ConnectTimeout(raw string, p Protector, timeoutMillis int64) (string, error
 	global.Lock()
 	global.current = s
 	global.Unlock()
-	attemptStarted := time.Now()
-	resolved, e := resolveTimed(ctx, cfg, p, time.Duration(timeoutMillis)*time.Millisecond)
-	if e != nil {
-		cancel()
-		s.mu.Lock()
-		s.closed = true
-		s.phase = "failed"
-		s.mu.Unlock()
-		return "", errors.New("rivet: endpoint resolution failed")
-	}
-	session, e := rivet.DialWithTimeout(ctx, resolved, p, time.Duration(timeoutMillis)*time.Millisecond-time.Since(attemptStarted))
+	session, e := dialPhysical(ctx, cfg, p, time.Duration(timeoutMillis)*time.Millisecond)
 	if e != nil {
 		cancel()
 		s.mu.Lock()
@@ -115,7 +106,7 @@ func (s *state) readTun() {
 		if e != nil {
 			return
 		}
-		if rivet.CheckIPv4(buf[:n], s.cfg.IP, true) != nil {
+		if n == 0 || buf[0]>>4 == 6 && s.cfg.IP6 == "" || rivet.CheckIP(buf[:n], s.cfg.IP, true) != nil {
 			continue
 		}
 		s.mu.Lock()
@@ -146,7 +137,7 @@ func (s *state) monitor() {
 			if e != nil {
 				break
 			}
-			if rivet.CheckIPv4(packet, "", false) != nil || rivet.Destination(packet) != s.cfg.IP {
+			if rivet.CheckIP(packet, "", false) != nil || (rivet.Destination(packet) != s.cfg.IP && (s.cfg.IP6 == "" || rivet.Destination(packet) != s.cfg.IP6)) {
 				break
 			}
 			if _, e = s.tun.Write(packet); e != nil {
@@ -181,14 +172,11 @@ func (s *state) monitor() {
 					cfg.Protocol = "rivet-h3"
 				}
 			}
-			resolved, e := resolveTimed(s.ctx, cfg, s.p, 8*time.Second)
+			next, e := dialPhysical(s.ctx, cfg, s.p, 10*time.Second)
 			if e != nil {
 				continue
 			}
-			next, e := rivet.Dial(s.ctx, resolved, s.p)
-			if e != nil {
-				continue
-			}
+
 			s.mu.Lock()
 			if s.closed {
 				s.mu.Unlock()
@@ -272,11 +260,11 @@ func resolve(c rivet.ClientConfig, p Protector) (rivet.ClientConfig, error) {
 	if p == nil {
 		return c, errors.New("rivet: physical-network DNS unavailable")
 	}
-	ip := net.ParseIP(p.Resolve(host))
-	if ip == nil || ip.To4() == nil {
+	addresses, err := physical.Addresses(p.Resolve(host))
+	if err != nil {
 		return c, errors.New("rivet: physical-network DNS failed")
 	}
-	c.Endpoint = net.JoinHostPort(ip.String(), port)
+	c.Endpoint = net.JoinHostPort(addresses[0], port)
 	return c, nil
 }
 
@@ -289,4 +277,43 @@ func Validate(raw string) error {
 		return rivet.ErrProtocol
 	}
 	return c.Validate()
+}
+
+// Try alternate A/AAAA endpoints within one overall deadline. Attempts are
+// sequential because two successful handshakes for one identity replace peers.
+func dialPhysical(ctx context.Context, c rivet.ClientConfig, p Protector, timeout time.Duration) (*rivet.Session, error) {
+	attempt, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	host, port, err := net.SplitHostPort(c.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+	var resolver func(string) string
+	if p != nil {
+		resolver = p.Resolve
+	}
+	addresses, err := physical.Resolve(attempt, host, resolver)
+	if err != nil {
+		return nil, err
+	}
+	var last error
+	deadline, _ := attempt.Deadline()
+	for i, address := range addresses {
+		remaining := time.Until(deadline)
+		if remaining <= 0 {
+			return nil, context.DeadlineExceeded
+		}
+		budget := remaining
+		if i+1 < len(addresses) {
+			budget = min(3*time.Second, remaining/time.Duration(len(addresses)-i))
+		}
+		candidate := c
+		candidate.Endpoint = net.JoinHostPort(address, port)
+		session, e := rivet.DialWithTimeout(ctx, candidate, p, budget)
+		if e == nil {
+			return session, nil
+		}
+		last = e
+	}
+	return nil, last
 }

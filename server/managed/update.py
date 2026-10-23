@@ -20,12 +20,14 @@ import tempfile
 
 LIB = Path('/usr/local/lib/x1o-managed')
 STATE = Path('/etc/x1o-managed/deployment.json')
-RECIPE = 21
+RECIPE = 23
 OWNER = 'x1o-managed-v1'
 UNITS = ('x1o-managed-stats.timer', 'x1o-managed-awg.service',
-         'xio-rivet-entry.service', 'xio-rivet-gateway.service', 'xio-stack.service', 'xio-cloak.service')
+         'xio-rivet-entry.service', 'xio-rivet-gateway.service', 'xio-stack.service', 'xio-cloak.service', 'xio-openvpn-tcp.service')
 STACK_CONFIG = Path('/etc/xio-stack/config.json')
 WG_CONFIG = Path('/etc/wireguard/x1o0.conf')
+NETWORK_CONFIGS=(Path('/etc/xio-stack/cloak.json'),Path('/etc/xio-stack/tcp.ovpn'),Path('/usr/local/lib/xio-rivet/network-up'))
+DUAL_RECEIPT=Path('/etc/x1o-managed/dualstack-receipt.json')
 LEGACY_UNITS = ('xio-openvpn-udp.service', 'xio-ikev2.service', 'xio-headscale.service', 'xio-tailscaled.service')
 RUNTIMES = {'amneziawg-go': '/usr/local/bin/xio-amneziawg-go',
             'rivet': '/usr/local/bin/xio-rivet',
@@ -72,7 +74,7 @@ def unpack(raw, destination, expected):
             with archive.extractfile(member) as source, target.open('wb') as out:
                 shutil.copyfileobj(source, out)
         required = {'admin.py', 'stack.py', 'network_stack.py', 'mesh_stack.py',
-                    'mesh-pins.json', 'rivet-setup.py', *RUNTIMES}
+                    'mesh-pins.json', 'rivet-setup.py', 'dualstack.py', 'client_api.py', *RUNTIMES}
         if not required.issubset(names):
             raise RuntimeError('Incomplete update archive')
     for source in destination.rglob('*.py'):
@@ -97,7 +99,7 @@ def update(raw, expected, server_id):
     if current == RECIPE and data.get('bundleSha256'):
         raise RuntimeError('Conflicting bundle at the same recipe revision')
     # This release supports only the known schema. Never guess a migration.
-    if current not in (13, 14, 15, 16, 17, 18, 19, 20, 21):
+    if current not in (13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23):
         raise RuntimeError('Unsupported server recipe')
     with tempfile.TemporaryDirectory(prefix='.update-', dir=LIB.parent) as folder:
         work = Path(folder)
@@ -112,6 +114,8 @@ def update(raw, expected, server_id):
                 legacy.append((unit, command('systemctl', 'is-active', '--quiet', unit, check=False).returncode == 0,
                                command('systemctl', 'is-enabled', '--quiet', unit, check=False).returncode == 0))
         backups = []
+        network_changes_started=False
+        if DUAL_RECEIPT.exists():raise RuntimeError('Existing IPv6 migration receipt requires owner review')
         committed = False
         try:
             for unit in active:
@@ -119,7 +123,7 @@ def update(raw, expected, server_id):
             for unit, _, _ in legacy:
                 command('systemctl', 'disable', '--now', unit)
             # Migrate only the owned deployment and its own Xray listener.
-            for target in [STATE, STACK_CONFIG, WG_CONFIG]:
+            for target in [STATE, STACK_CONFIG, WG_CONFIG, *NETWORK_CONFIGS]:
                 if target.exists():
                     previous = work / ('migration-' + target.name)
                     shutil.copy2(target, previous)
@@ -140,7 +144,8 @@ def update(raw, expected, server_id):
                 staged_config = work / 'migration-xray.json'
                 staged_config.write_text(json.dumps(config))
                 atomic(staged_config, STACK_CONFIG, 0o600)
-            # All modifications are file replacements. Preserve private users,
+            # Runtime/config replacements retain rollback copies. IPv6 network additions
+            # below have a separate owned receipt. Preserve private users,
             # certificates, delegated SSH keys, firewall and package receipts.
             targets = [(p, LIB / p.relative_to(stage), 0o755 if p.name in RUNTIMES else 0o600)
                        for p in sorted(stage.rglob('*')) if p.is_file()]
@@ -159,10 +164,13 @@ def update(raw, expected, server_id):
                     shutil.copy2(target, previous)
                 backups.append((target, previous, existed))
                 atomic(source, target, mode)
+            network_changes_started=True
+            command('python3',str(LIB/'dualstack.py'),'configure')
             for unit in reversed(active):
                 command('systemctl', 'start', unit)
             for unit in active:
                 command('systemctl', 'is-active', '--quiet', unit)
+            command('python3',str(LIB/'dualstack.py'),'apply')
             data['recipeVersion'] = RECIPE
             data['bundleSha256'] = expected
             temporary = work / 'deployment.json'
@@ -171,6 +179,7 @@ def update(raw, expected, server_id):
             committed = True
         finally:
             if not committed:
+                if network_changes_started:command('python3',str(LIB/'dualstack.py'),'rollback',check=False)
                 for unit in active:
                     command('systemctl', 'stop', unit, check=False)
                 try:

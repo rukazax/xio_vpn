@@ -1724,7 +1724,7 @@ class AppStore extends ChangeNotifier {
 
   Map<String, dynamic> diagnosticReport(List<Map<String, dynamic>> checks) => {
     'application': 'XIO',
-    'version': '0.22.2',
+    'version': '0.22.3',
     'createdAt': DateTime.now().toUtc().toIso8601String(),
     'platform': Platform.operatingSystem,
     'tunnelState': status.state,

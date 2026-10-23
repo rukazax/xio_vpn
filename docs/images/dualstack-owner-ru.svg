@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1264" height="660" viewBox="0 0 1264 660">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10" fill="none" stroke="#456a30" stroke-width="2"/></marker></defs>
+<rect width="1264" height="660" rx="24" fill="#f3f6ee"/>
+<text x="44" y="49" fill="#19251b" font-family="sans-serif" font-size="28" font-weight="700">Полный XIO: управление сервером и подключение</text>
+<text x="44" y="103" fill="#456a30" font-family="sans-serif" font-size="20">Управление: ключи остаются у владельца</text>
+<rect x="44" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="176.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Полный XIO</text>
+<text x="176.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Защищённое хранилище</text>
+<text x="176.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">SSH-ключей владельца</text>
+<path d="M315 180H339" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="348" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="480.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">SSH: IPv4 или IPv6</text>
+<text x="480.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Проверка отпечатка</text>
+<text x="480.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">серверного ключа</text>
+<path d="M619 180H643" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="652" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="784.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Свой VPS</text>
+<text x="784.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Обновление служб</text>
+<text x="784.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Пользователи и квоты</text>
+<path d="M923 180H947" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="956" y="122" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="1088.0" y="154" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Клиентский профиль</text>
+<text x="1088.0" y="182" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">VPN-ключи пользователя</text>
+<text x="1088.0" y="210" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Без root/admin SSH</text>
+<text x="44" y="359" fill="#456a30" font-family="sans-serif" font-size="20">Подключение: тот же VPN-контур, что в клиенте</text>
+<rect x="44" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="176.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Полный XIO</text>
+<text x="176.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Выбранный VPN-профиль</text>
+<path d="M315 436H339" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="348" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="480.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">A и AAAA</text>
+<text x="480.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">DNS физической сети</text>
+<text x="480.0" y="466" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Вне VPN-туннеля</text>
+<path d="M619 436H643" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="652" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="784.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">VPN: IPv4 / IPv6</text>
+<text x="784.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Транспорт и IP-пакеты</text>
+<text x="784.0" y="466" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Проверка HTTPS</text>
+<path d="M923 436H947" stroke="#456a30" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="956" y="378" width="264" height="118" rx="18" fill="white" stroke="#456a30" stroke-width="2"/>
+<text x="1088.0" y="410" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="700" fill="#19251b">Выход через VPS</text>
+<text x="1088.0" y="438" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">IPv4 / IPv6 назначения</text>
+<text x="1088.0" y="466" text-anchor="middle" font-family="sans-serif" font-size="17" font-weight="400" fill="#19251b">Зависит от сети VPS</text>
+<text x="44" y="568" fill="#555f52" font-family="sans-serif" font-size="16">IPv6-выход требует IPv6-маршрута на VPS. IPv4-сайты с IPv6-only VPS требуют IPv4-выхода или трансляции NAT64.</text>
+<text x="44" y="599" fill="#555f52" font-family="sans-serif" font-size="16">Схема показывает реализацию. Подтверждённые сценарии и ограничения указаны отдельно в отчёте проверки.</text>
+</svg>

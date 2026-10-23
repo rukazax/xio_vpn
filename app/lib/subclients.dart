@@ -246,6 +246,7 @@ UserBundle provisioningBundle(
         'secret': request['rivet']['secret'],
         'entryToken': request['rivet']['entryToken'],
         'ip': '10.79.0.$slot',
+        if (meta['ipv6'] == true) 'ip6': 'fd79:1::${slot.toRadixString(16)}',
         if (meta['outerCA'] != null) 'outerCA': meta['outerCA'],
       });
       RivetProfile.parse(config);

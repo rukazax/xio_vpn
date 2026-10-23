@@ -110,7 +110,15 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 		}
 		inner.SetDeadline(time.Time{})
 	} else {
-		packet, e := (&net.ListenConfig{Control: socketControl(protect)}).ListenPacket(hs, "udp4", "0.0.0.0:0")
+		endpoint, e := net.ResolveUDPAddr("udp", c.Endpoint)
+		if e != nil {
+			return nil, e
+		}
+		network, bind := "udp4", "0.0.0.0:0"
+		if endpoint.IP.To4() == nil {
+			network, bind = "udp6", "[::]:0"
+		}
+		packet, e := (&net.ListenConfig{Control: socketControl(protect)}).ListenPacket(hs, network, bind)
 		if e != nil {
 			return nil, e
 		}
@@ -121,10 +129,6 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 				packet.Close()
 			}
 		}()
-		endpoint, e := net.ResolveUDPAddr("udp4", c.Endpoint)
-		if e != nil {
-			return nil, e
-		}
 		outerTLS.NextProtos = []string{"h3"}
 		outerTLS.MinVersion = tls.VersionTLS13
 		outer, e := ot.Dial(hs, endpoint, outerTLS, quicConfig(true))

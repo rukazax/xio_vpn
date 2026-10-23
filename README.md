@@ -1,5 +1,9 @@
 # XIO — X in 1 out
 
+## 0.22.3 candidate: IPv4/IPv6 in both apps
+
+Source and Android builds add IPv4/IPv6 endpoint selection, RIVET IPv6 payloads and server recipe 23. **Physical Android and public IPv6 checks are still pending; no stable release is claimed.** [Both app guides, results, previews and diagrams](docs/dualstack/0.22.3.en.md).
+
 ## XIO Client 0.22.2 — connect without administering the server
 
 XIO Client is a separate lightweight Android app for existing VPN servers. Get a profile from the owner, import it, select a server and connect. Users do not need to provision a VPS or enter its SSH key. The client installs alongside the full XIO app.

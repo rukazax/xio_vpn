@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"net"
+	"net/netip"
 	"sync"
 	"time"
 
@@ -89,6 +90,7 @@ func (g *Gateway) add(s *Session) *peer {
 	g.mu.Lock()
 	old := g.peers[s.IP]
 	g.peers[s.IP] = p
+	g.peers[IPv6For(s.IP)] = p
 	if g.stats[s.ID] == nil {
 		g.stats[s.ID] = &UserStats{}
 	}
@@ -104,6 +106,9 @@ func (g *Gateway) remove(p *peer) {
 	defer g.mu.Unlock()
 	if g.peers[p.s.IP] == p {
 		delete(g.peers, p.s.IP)
+		if g.peers[IPv6For(p.s.IP)] == p {
+			delete(g.peers, IPv6For(p.s.IP))
+		}
 		if s := g.stats[p.s.ID]; s != nil {
 			s.Online = false
 		}
@@ -167,7 +172,7 @@ func (g *Gateway) data(s *Session) {
 		if e != nil {
 			return
 		}
-		if e = CheckIPv4(b, s.IP, true); e != nil {
+		if e = CheckIP(b, s.IP, true); e != nil {
 			return
 		}
 		if g.localDestination(Destination(b)) {
@@ -179,7 +184,17 @@ func (g *Gateway) data(s *Session) {
 		g.count(s.ID, len(b), true)
 	}
 }
-func (g *Gateway) localDestination(dst string) bool { return g.locals[dst] }
+func (g *Gateway) localDestination(dst string) bool {
+	if g.locals[dst] {
+		return true
+	}
+	address, err := netip.ParseAddr(dst)
+	if err == nil && address.Is6() && netip.MustParsePrefix("64:ff9b::/96").Contains(address) {
+		bytes := address.As16()
+		return g.locals[netip.AddrFrom4([4]byte(bytes[12:16])).String()]
+	}
+	return false
+}
 
 func (g *Gateway) route(ctx context.Context) error {
 	defer g.tun.Close()
@@ -209,7 +224,7 @@ func (g *Gateway) route(ctx context.Context) error {
 		}
 		downSince = time.Time{}
 		b := buf[:n]
-		if CheckIPv4(b, "", false) != nil {
+		if CheckIP(b, "", false) != nil {
 			continue
 		}
 		g.mu.Lock()

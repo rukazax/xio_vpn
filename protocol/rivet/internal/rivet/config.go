@@ -59,6 +59,7 @@ type ClientConfig struct {
 	Secret     string `json:"secret"`
 	EntryToken string `json:"entryToken"`
 	IP         string `json:"ip"`
+	IP6        string `json:"ip6,omitempty"`
 }
 
 func ReadJSON(path string, out any) error {
@@ -134,6 +135,9 @@ func (c ClientConfig) Validate() error {
 	}
 	ip := net.ParseIP(c.IP).To4()
 	if ip == nil || ip[0] != 10 || ip[1] != 79 || ip[2] != 0 || ip[3] < 2 || ip[3] > 254 {
+		return ErrProtocol
+	}
+	if c.IP6 != "" && c.IP6 != IPv6For(c.IP) {
 		return ErrProtocol
 	}
 	return nil

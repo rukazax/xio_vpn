@@ -170,9 +170,22 @@ void main() {
     expect(store.imported, result);
   });
 
-  test(
-    'TLS pin rejects another certificate and never follows a redirect',
-    () async {
+  for (final address in [
+    InternetAddress.loopbackIPv4,
+    InternetAddress.loopbackIPv6,
+  ]) {
+    test('TLS pin and redirect protection on ${address.type.name}', () async {
+      if (address.type == InternetAddressType.IPv6) {
+        try {
+          final probe = await ServerSocket.bind(address, 0);
+          await probe.close();
+        } on SocketException {
+          markTestSkipped(
+            'IPv6 loopback unavailable; isolated IPv6 namespace required',
+          );
+          return;
+        }
+      }
       final temp = await Directory.systemTemp.createTemp('xio-api-tls-');
       addTearDown(() => temp.delete(recursive: true));
       final cert = '${temp.path}/cert.pem', key = '${temp.path}/key.pem';
@@ -199,11 +212,7 @@ void main() {
       final context = SecurityContext()
         ..useCertificateChain(cert)
         ..usePrivateKey(key);
-      final server = await HttpServer.bindSecure(
-        InternetAddress.loopbackIPv4,
-        0,
-        context,
-      );
+      final server = await HttpServer.bindSecure(address, 0, context);
       addTearDown(() => server.close(force: true));
       var received = 0;
       var redirect = false;
@@ -226,7 +235,9 @@ void main() {
         await request.response.close();
       });
       AccountAccess capability(String pin) => AccountAccess(
-        Uri.parse('https://127.0.0.1:${server.port}/v1/subclients'),
+        Uri.parse(
+          'https://${address.type == InternetAddressType.IPv6 ? '[::1]' : '127.0.0.1'}:${server.port}/v1/subclients',
+        ),
         pin,
         'b' * 64,
         uid,
@@ -244,6 +255,6 @@ void main() {
       redirect = true;
       await expectLater(api.call({'action': 'status'}), throwsStateError);
       expect(received, 2);
-    },
-  );
+    });
+  }
 }

@@ -1,5 +1,11 @@
 # XIO changes / Изменения
 
+## 0.22.3 — candidate / кандидат
+
+IPv4/IPv6 endpoint selection, protected physical-network resolution, RIVET IPv6 payloads and reversible server recipe 23. RU/EN client UI. Physical Android and public IPv6 checks pending.
+
+IPv4/IPv6 в endpoint, DNS через физическую сеть, IPv6-пакеты RIVET, обратимая ревизия сервера 23 и RU/EN в клиенте. Физический Android и публичный IPv6 ещё не проверены. См. docs/dualstack.
+
 ## 0.22.2 — 2026-10-23
 
 - Отдельный Android-клиент для готовых серверов, общий главный экран, переключение серверов и раздельное туннелирование.

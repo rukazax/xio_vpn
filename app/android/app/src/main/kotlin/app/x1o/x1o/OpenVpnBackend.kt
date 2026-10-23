@@ -43,13 +43,7 @@ object OpenVpnBackend {
   val c=client;val t=thread;c?.stop();Mobile.cloakStop();if(t!=null&&t!==Thread.currentThread()){t.join(4000);check(!t.isAlive){"OpenVPN stop timeout"}}
   synchronized(nativeLock){client=null;thread=null;established=false;secure=false;handshake=0L;c?.delete()}
  }
- fun resolve(service:X1oVpnService,host:String):String {
-  val cm=service.getSystemService(ConnectivityManager::class.java)
-  for(n in cm.allNetworks){val caps=cm.getNetworkCapabilities(n)?:continue
-   if(!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)||!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))continue
-   try{return n.getAllByName(host).firstOrNull{it is Inet4Address}?.hostAddress?:continue}catch(_:Exception){}
-  };error("Physical DNS unavailable")
- }
+ fun resolve(service:X1oVpnService,host:String):String = PhysicalNetwork.resolve(service,host)
  fun connect(service:X1oVpnService,id:String,raw:String,timeout:Long){
   var phase="validate"
   validate(raw);require(timeout>0);val j=JSONObject(raw);val c=Client(service);client=c

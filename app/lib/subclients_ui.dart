@@ -1,3 +1,5 @@
+import 'l10n.dart';
+
 import 'package:flutter/material.dart';
 
 import 'core.dart';
@@ -58,16 +60,18 @@ class _SubclientsPageState extends State<SubclientsPage> {
           : await showDialog<String>(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Добавить субклиента'),
+                title: const LText('Добавить субклиента'),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
                       controller: input,
                       maxLength: 80,
-                      decoration: const InputDecoration(labelText: 'Имя'),
+                      decoration: InputDecoration(
+                        labelText: tr(context, 'Имя'),
+                      ),
                     ),
-                    const Text(
+                    const LText(
                       'Сервер проверит доступ и свободный лимит. Получатель получит только свои VPN-профили, без права создания других клиентов и без ключей сервера.',
                     ),
                   ],
@@ -75,11 +79,11 @@ class _SubclientsPageState extends State<SubclientsPage> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Отмена'),
+                    child: const LText('Отмена'),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.pop(context, input.text),
-                    child: const Text('Создать'),
+                    child: const LText('Создать'),
                   ),
                 ],
               ),
@@ -95,18 +99,18 @@ class _SubclientsPageState extends State<SubclientsPage> {
       final send = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Субклиент создан'),
-          content: const Text(
+          title: const LText('Субклиент создан'),
+          content: const LText(
             'Передать его клиентский профиль? Он содержит личные ключи подключения этого субклиента.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Позже'),
+              child: const LText('Позже'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Поделиться'),
+              child: const LText('Поделиться'),
             ),
           ],
         ),
@@ -131,10 +135,10 @@ class _SubclientsPageState extends State<SubclientsPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('Субклиенты'),
+      title: const LText('Субклиенты'),
       actions: [
         IconButton(
-          tooltip: 'Обновить права',
+          tooltip: tr(context, 'Обновить права'),
           onPressed: busy ? null : refresh,
           icon: const Icon(Icons.refresh),
         ),
@@ -143,33 +147,33 @@ class _SubclientsPageState extends State<SubclientsPage> {
     body: ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text(
+        LText(
           widget.account.name,
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        const Text(
+        const LText(
           'Права и число доступных субклиентов подтверждает сервер. Локальные настройки не увеличивают лимит.',
         ),
         if (busy) const LinearProgressIndicator(),
         if (error != null)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
+            child: LText(
               error!,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         if (snapshot != null) ...[
           if (snapshot!['historyTruncated'] == true)
-            const Text(
+            const LText(
               'Показаны действующие и 20 последних отозванных субклиентов.',
             ),
-          Text('API: ${snapshot!['apiEndpoint']}'),
+          LText('API: ${snapshot!['apiEndpoint']}'),
           ListTile(
-            title: Text(
+            title: LText(
               'Создано ${snapshot!['used']} из ${snapshot!['limit']}',
             ),
-            subtitle: Text('Доступно: ${snapshot!['remaining']}'),
+            subtitle: LText('Доступно: ${snapshot!['remaining']}'),
           ),
           FilledButton.icon(
             onPressed:
@@ -179,14 +183,14 @@ class _SubclientsPageState extends State<SubclientsPage> {
                 ? null
                 : create,
             icon: const Icon(Icons.person_add_alt),
-            label: Text(
+            label: LText(
               snapshot!['pending'] == true
                   ? 'Проверить незавершённое создание'
                   : 'Добавить субклиента',
             ),
           ),
           if (widget.store.status.active)
-            const Text('Перед созданием отключите VPN.'),
+            const LText('Перед созданием отключите VPN.'),
           for (final raw in snapshot!['children'] as List)
             Builder(
               builder: (context) {
@@ -201,7 +205,7 @@ class _SubclientsPageState extends State<SubclientsPage> {
                 return Card(
                   child: ListTile(
                     title: Text(child['name'] as String),
-                    subtitle: Text(
+                    subtitle: LText(
                       child['revoked'] == true ? 'Доступ отозван' : 'Действует',
                     ),
                     trailing: Wrap(
@@ -210,7 +214,7 @@ class _SubclientsPageState extends State<SubclientsPage> {
                             local.profileIds.isNotEmpty &&
                             child['revoked'] != true)
                           IconButton(
-                            tooltip: 'Передать профиль',
+                            tooltip: tr(context, 'Передать профиль'),
                             onPressed: busy
                                 ? null
                                 : () async {
@@ -231,26 +235,26 @@ class _SubclientsPageState extends State<SubclientsPage> {
                           ),
                         if (child['revoked'] != true)
                           IconButton(
-                            tooltip: 'Отозвать доступ',
+                            tooltip: tr(context, 'Отозвать доступ'),
                             onPressed: busy
                                 ? null
                                 : () async {
                                     final agreed = await showDialog<bool>(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: const Text(
+                                        title: const LText(
                                           'Отозвать доступ субклиента?',
                                         ),
                                         actions: [
                                           TextButton(
                                             onPressed: () =>
                                                 Navigator.pop(context, false),
-                                            child: const Text('Отмена'),
+                                            child: const LText('Отмена'),
                                           ),
                                           FilledButton(
                                             onPressed: () =>
                                                 Navigator.pop(context, true),
-                                            child: const Text('Отозвать'),
+                                            child: const LText('Отозвать'),
                                           ),
                                         ],
                                       ),

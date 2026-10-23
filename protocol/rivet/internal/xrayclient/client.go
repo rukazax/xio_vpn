@@ -22,6 +22,7 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+	"xio.local/rivet/internal/physical"
 	_ "xio.local/rivet/internal/xrayregistry"
 )
 
@@ -128,6 +129,7 @@ type Session struct {
 	instance  *core.Instance
 	p         Protector
 	endpoint  string
+	addresses []string
 	ctx       context.Context
 	cancel    context.CancelFunc
 	handshake atomic.Int64
@@ -177,7 +179,11 @@ func (protectedDialer) Dial(ctx context.Context, _ xnet.Address, dest xnet.Desti
 		}
 		return nil
 	}}
-	return d.DialContext(ctx, dest.Network.SystemString(), dest.NetAddr())
+	_, port, err := net.SplitHostPort(s.endpoint)
+	if err != nil {
+		return nil, ErrProtect
+	}
+	return physical.Dial(ctx, dest.Network.SystemString(), s.addresses, port, d.Control)
 }
 func Start(raw string, p Protector, timeout time.Duration) (*Session, error) {
 	lifecycle.Lock()
@@ -194,31 +200,27 @@ func Start(raw string, p Protector, timeout time.Duration) (*Session, error) {
 		return nil, e
 	}
 	host, port, _ := net.SplitHostPort(ep)
-	if net.ParseIP(host) == nil {
-		done := make(chan string, 1)
-		go func() { done <- p.Resolve(host) }()
-		select {
-		case host = <-done:
-		case <-time.After(timeout):
-			return nil, errors.New("xray: endpoint resolution timeout")
-		}
-		if net.ParseIP(host) == nil {
-			return nil, errors.New("xray: endpoint resolution failed")
-		}
-		stream, _ := c.Outbound["streamSettings"].(map[string]any)
-		if stream["security"] == "tls" {
-			tls, _ := stream["tlsSettings"].(map[string]any)
-			if tls == nil {
-				tls = map[string]any{}
-				stream["tlsSettings"] = tls
-			}
-			if tls["serverName"] == nil {
-				original, _, _ := net.SplitHostPort(ep)
-				tls["serverName"] = original
-			}
-		}
-		server["address"] = host
+	original := host
+	resolveContext, cancelResolve := context.WithTimeout(context.Background(), timeout)
+	addresses, e := physical.Resolve(resolveContext, host, p.Resolve)
+	cancelResolve()
+	if e != nil {
+		return nil, errors.New("xray: endpoint resolution failed")
 	}
+	host = addresses[0]
+	stream, _ := c.Outbound["streamSettings"].(map[string]any)
+	if stream["security"] == "tls" {
+		tls, _ := stream["tlsSettings"].(map[string]any)
+		if tls == nil {
+			tls = map[string]any{}
+			stream["tlsSettings"] = tls
+		}
+		if tls["serverName"] == nil {
+			tls["serverName"] = original
+		}
+	}
+	server["address"] = host
+
 	current.RLock()
 	old := current.s
 	current.RUnlock()
@@ -226,7 +228,7 @@ func Start(raw string, p Protector, timeout time.Duration) (*Session, error) {
 		old.closeLocked()
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	s := &Session{p: p, endpoint: net.JoinHostPort(host, port), ctx: ctx, cancel: cancel}
+	s := &Session{p: p, endpoint: net.JoinHostPort(host, port), addresses: addresses, ctx: ctx, cancel: cancel}
 	current.Lock()
 	current.s = s
 	current.Unlock()

@@ -33,6 +33,7 @@ class RivetProfile {
         'secret',
         'entryToken',
         'ip',
+        'ip6',
         'outerCA',
       };
       if (j.keys.any((k) => !fields.contains(k)) ||
@@ -85,6 +86,9 @@ class RivetProfile {
       final match = RegExp(r'^10\.79\.0\.(\d{1,3})$').firstMatch(j['ip']);
       final slot = match == null ? -1 : int.parse(match[1]!);
       if (slot < 2 || slot > 254 || j['ip'] != '10.79.0.$slot') {
+        throw const FormatException();
+      }
+      if (j['ip6'] != null && j['ip6'] != 'fd79:1::${slot.toRadixString(16)}') {
         throw const FormatException();
       }
       if (j.containsKey('outerCA') &&

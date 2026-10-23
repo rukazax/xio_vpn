@@ -1,0 +1,247 @@
+{
+  "appId": "app.x1o.client",
+  "version": "0.22.3+5007",
+  "artifacts": [
+    {
+      "file": "XIO-Client-0.22.3-arm64-v8a.apk",
+      "bytes": 23768998,
+      "sha256": "53411747a77a9cbc20a5b840f72cf1b23e3d87be5dc29c1029f001d66dad378e",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "minSdk": 26,
+      "targetSdk": 36,
+      "signatureVerified": true,
+      "zipalign16KiB": true,
+      "nativePayload": [
+        {
+          "abi": "arm64-v8a",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "arm64-v8a",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "libraries": [
+        {
+          "name": "lib/arm64-v8a/libapp.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/arm64-v8a/libc++_shared.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/arm64-v8a/libflutter.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/arm64-v8a/libgojni.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/arm64-v8a/libxio_openvpn.so",
+          "minLoadAlignment": 16384
+        }
+      ]
+    },
+    {
+      "file": "XIO-Client-0.22.3-armeabi-v7a.apk",
+      "bytes": 23641092,
+      "sha256": "38aa3db9f74603efab8d896d288cceda81ff733c95518167748eb7bfad4becac",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "minSdk": 26,
+      "targetSdk": 36,
+      "signatureVerified": true,
+      "zipalign16KiB": true,
+      "nativePayload": [
+        {
+          "abi": "armeabi-v7a",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "armeabi-v7a",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "libraries": [
+        {
+          "name": "lib/armeabi-v7a/libapp.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/armeabi-v7a/libc++_shared.so",
+          "minLoadAlignment": 4096
+        },
+        {
+          "name": "lib/armeabi-v7a/libflutter.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/armeabi-v7a/libgojni.so",
+          "minLoadAlignment": 4096
+        },
+        {
+          "name": "lib/armeabi-v7a/libxio_openvpn.so",
+          "minLoadAlignment": 16384
+        }
+      ]
+    },
+    {
+      "file": "XIO-Client-0.22.3-universal.apk",
+      "bytes": 69788425,
+      "sha256": "176086ba9b029e536889586c8c11a3112048b6357d6804f8c2f1a6f88e9ce54e",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "minSdk": 26,
+      "targetSdk": 36,
+      "signatureVerified": true,
+      "zipalign16KiB": true,
+      "nativePayload": [
+        {
+          "abi": "arm64-v8a",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "arm64-v8a",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "armeabi-v7a",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "armeabi-v7a",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "x86_64",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "x86_64",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "libraries": [
+        {
+          "name": "lib/arm64-v8a/libapp.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/arm64-v8a/libc++_shared.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/arm64-v8a/libflutter.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/arm64-v8a/libgojni.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/arm64-v8a/libxio_openvpn.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/armeabi-v7a/libapp.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/armeabi-v7a/libc++_shared.so",
+          "minLoadAlignment": 4096
+        },
+        {
+          "name": "lib/armeabi-v7a/libflutter.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/armeabi-v7a/libgojni.so",
+          "minLoadAlignment": 4096
+        },
+        {
+          "name": "lib/armeabi-v7a/libxio_openvpn.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/x86_64/libapp.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/x86_64/libc++_shared.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/x86_64/libflutter.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/x86_64/libgojni.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/x86_64/libxio_openvpn.so",
+          "minLoadAlignment": 16384
+        }
+      ]
+    },
+    {
+      "file": "XIO-Client-0.22.3-x86_64.apk",
+      "bytes": 25037699,
+      "sha256": "7c85d33e80b53ced428193b118485243a9eb89c17d5a656267eeb1d9476571f4",
+      "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+      "minSdk": 26,
+      "targetSdk": 36,
+      "signatureVerified": true,
+      "zipalign16KiB": true,
+      "nativePayload": [
+        {
+          "abi": "x86_64",
+          "library": "libgojni.so",
+          "allocatedSectionsMatch": true
+        },
+        {
+          "abi": "x86_64",
+          "library": "libxio_openvpn.so",
+          "allocatedSectionsMatch": true
+        }
+      ],
+      "libraries": [
+        {
+          "name": "lib/x86_64/libapp.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/x86_64/libc++_shared.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/x86_64/libflutter.so",
+          "minLoadAlignment": 65536
+        },
+        {
+          "name": "lib/x86_64/libgojni.so",
+          "minLoadAlignment": 16384
+        },
+        {
+          "name": "lib/x86_64/libxio_openvpn.so",
+          "minLoadAlignment": 16384
+        }
+      ]
+    }
+  ],
+  "physicalAndroidTested": false,
+  "realServerConnectionTested": false,
+  "limits": [
+    "Local build/unit/widget/artifact checks only; no device or server contacted."
+  ]
+}

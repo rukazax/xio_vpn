@@ -1,0 +1,96 @@
+{
+  "version": "0.22.3+5007",
+  "status": "candidate-awaiting-device-and-public-ipv6",
+  "physicalAndroidTested": false,
+  "publicIpv6Tested": false,
+  "flutter": {
+    "generalPassed": 112,
+    "generalSkipped": 6,
+    "clientModePassed": 7,
+    "isolatedIpv6TargetedPassed": 11,
+    "suitesOverlap": true,
+    "analysis": "clean"
+  },
+  "pythonServerTestsPassed": 30,
+  "goRaceAllPackagesPassedInIsolatedIpv6Namespace": true,
+  "rivetS1H3Ipv6PacketSessionsPassed": true,
+  "serverUpdate": {
+    "ok": true,
+    "updated": true,
+    "recipeVersion": 23
+  },
+  "serverIntegrity": {
+    "recipeVersion": 23,
+    "deploymentIdentityPreserved": true,
+    "serverKeysPreserved": true,
+    "originalUsersPreserved": true,
+    "activeUsers": 1,
+    "units": {
+      "x1o-managed-awg.service": "active",
+      "xio-rivet-entry.service": "active",
+      "xio-rivet-gateway.service": "active",
+      "xio-stack.service": "active",
+      "xio-cloak.service": "active",
+      "xio-openvpn-tcp.service": "active"
+    },
+    "ipv6DefaultRoute": false
+  },
+  "ipv4UserspaceProbes": [
+    {
+      "dnsHttpsStatus": 200,
+      "elapsedMs": 243,
+      "execution": "Linux userspace stack, no OS routes changed",
+      "exitMatched": true,
+      "passed": true,
+      "protocol": "rivet-s1",
+      "traceHttpStatus": 200,
+      "transportFamily": "IPv4"
+    },
+    {
+      "dnsHttpsStatus": 200,
+      "elapsedMs": 252,
+      "execution": "Linux userspace stack, no OS routes changed",
+      "exitMatched": true,
+      "passed": true,
+      "protocol": "rivet-h3",
+      "traceHttpStatus": 200,
+      "transportFamily": "IPv4"
+    },
+    {
+      "dnsHttpsStatus": 200,
+      "elapsedMs": 183,
+      "execution": "Linux userspace stack, no OS routes changed",
+      "exitMatched": true,
+      "passed": true,
+      "protocol": "awg",
+      "traceHttpStatus": 200,
+      "transportFamily": "IPv4"
+    }
+  ],
+  "xrayIpv4HttpsDnsPassed": true,
+  "cloakTransportAuthenticationPassed": true,
+  "cloakAndroidFullVpnFlowTested": false,
+  "serverIpv6Namespace": {
+    "passed": true,
+    "execution": "Isolated network namespace on the authorized VPS; not public IPv6 connectivity",
+    "ipv6ForwardingEnabled": true,
+    "ownedInterfaceAddresses": 3,
+    "ownedRulesCreated": 14,
+    "idempotencyVerified": true,
+    "exactRuleCleanupVerified": true,
+    "publicIpv6Tested": false
+  },
+  "serverArchive": {
+    "recipeVersion": 23,
+    "sha256": "b5c71c2e72c2e61568688252572e90ecfbbf3d1a605c04b42e93c4b444794d54",
+    "repeatedBuildByteIdentical": true
+  },
+  "previewSource": "Actual Flutter widgets with synthetic profiles, not physical Android screenshots",
+  "pending": [
+    "Physical Android: authorized serial absent from ADB",
+    "Public IPv6: authorized VPS has no provider IPv6 default route",
+    "Physical split tunnelling and complete Cloak/OpenVPN flow"
+  ],
+  "publication": "Draft candidate only; no stable release acceptance",
+  "temporaryQaUserRevoked": true
+}

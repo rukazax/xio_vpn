@@ -15,6 +15,25 @@ Map<String, dynamic> fixture(String protocol) => {
   'ip': '10.79.0.2',
 };
 void main() {
+  test('IPv6 endpoints and inner addresses stay bound to the authenticated user slot', () {
+    for (final protocol in rivetProtocols) {
+      final value = {
+        ...fixture(protocol),
+        'endpoint': '[2001:db8::1]:8443',
+        'ip6': 'fd79:1::2',
+      };
+      expect(
+        RivetProfile.parse(jsonEncode(value)).endpoint,
+        '[2001:db8::1]:8443',
+      );
+      for (final wrong in ['fd79:1::3', '2001:db8::2', true]) {
+        expect(
+          () => RivetProfile.parse(jsonEncode({...value, 'ip6': wrong})),
+          throwsFormatException,
+        );
+      }
+    }
+  });
   test(
     'automatic plan contains only supported engines and respects maintenance',
     () {

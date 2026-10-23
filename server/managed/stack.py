@@ -41,17 +41,20 @@ def firewall(r,remove=False):
     if port not in f['added']:f['added'].append(port);write(ROOT/'receipt.json',json.dumps(r))
     run('ufw','allow',port)
  else:
-  for port in ports:
-   number,proto=port.split('/');args=['INPUT','-p',proto,'--dport',number,'-m','comment','--comment','xio-stack-v1','-j','ACCEPT']
-   exists=subprocess.run(['iptables','-w','5','-C',*args],capture_output=True).returncode==0
-   if remove and exists:run('iptables','-w','5','-D',*args)
-   elif not remove and not exists:run('iptables','-w','5','-I',*args)
+  for tool in ['iptables','ip6tables']:
+   if not shutil.which(tool):continue
+   for port in ports:
+    number,proto=port.split('/');args=['INPUT','-p',proto,'--dport',number,'-m','comment','--comment','xio-stack-v1','-j','ACCEPT']
+    exists=subprocess.run([tool,'-w','5','-C',*args],capture_output=True).returncode==0
+    if remove and exists:run(tool,'-w','5','-D',*args)
+    elif not remove and not exists:run(tool,'-w','5','-I',*args)
+
 def config(d):
  r=receipt();users=[(uid,u['stack']) for uid,u in d['users'].items() if not u.get('revoked') and u.get('stack')]
  clients=[{'id':u['uuid'],'email':uid+'@xio','flow':'xtls-rprx-vision','level':0} for uid,u in users]
  ssclients=[{'password':u['ssKey'],'email':uid+'@xio','level':0} for uid,u in users]
  if not ssclients:ssclients=[{'password':r['inactiveKey'],'email':'inactive@xio'}]
- j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':'0.0.0.0','port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':'0.0.0.0','port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
+ j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':network.dualstack().listener(),'port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':network.dualstack().listener(),'port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
  if d.get('restrictedNetwork'):j['inbounds']=[inbound for inbound in j['inbounds'] if inbound['protocol']!='shadowsocks']
  write(ROOT/'config.json',json.dumps(j))
 def apply(d):

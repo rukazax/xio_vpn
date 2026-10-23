@@ -11,6 +11,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"xio.local/rivet/internal/physical"
 )
 
 type cloakBridge struct {
@@ -27,8 +28,9 @@ var cloakState struct {
 }
 
 type cloakDialer struct {
-	ctx context.Context
-	p   Protector
+	ctx       context.Context
+	p         Protector
+	addresses []string
 }
 
 func (d cloakDialer) Dial(network, address string) (net.Conn, error) {
@@ -43,7 +45,20 @@ func (d cloakDialer) Dial(network, address string) (net.Conn, error) {
 		}
 		return nil
 	}}
-	return dialer.DialContext(d.ctx, network, address)
+	host, port, err := net.SplitHostPort(address)
+	if err != nil {
+		return nil, err
+	}
+	permitted := false
+	for _, candidate := range d.addresses {
+		if candidate == host {
+			permitted = true
+		}
+	}
+	if !permitted {
+		return nil, errors.New("cloak: unexpected physical destination")
+	}
+	return physical.Dial(d.ctx, network, d.addresses, port, dialer.Control)
 }
 func CloakStart(raw string, p Protector, timeoutMillis int64) (int64, error) {
 	CloakStop()
@@ -65,19 +80,14 @@ func CloakStart(raw string, p Protector, timeoutMillis int64) (int64, error) {
 	if e != nil || port < 1 || port > 65535 {
 		return 0, errors.New("cloak: invalid port")
 	}
-	if net.ParseIP(cfg.RemoteHost) == nil {
-		done := make(chan string, 1)
-		go func() { done <- p.Resolve(cfg.RemoteHost) }()
-		select {
-		case host := <-done:
-			cfg.RemoteHost = host
-		case <-time.After(time.Duration(timeoutMillis) * time.Millisecond):
-			return 0, errors.New("cloak: DNS timeout")
-		}
-		if net.ParseIP(cfg.RemoteHost) == nil {
-			return 0, errors.New("cloak: DNS failed")
-		}
+	resolveContext, cancelResolve := context.WithTimeout(context.Background(), time.Duration(timeoutMillis)*time.Millisecond)
+	addresses, e := physical.Resolve(resolveContext, cfg.RemoteHost, p.Resolve)
+	cancelResolve()
+	if e != nil {
+		return 0, errors.New("cloak: DNS failed")
 	}
+	cfg.RemoteHost = addresses[0]
+
 	ctx, cancel := context.WithCancel(context.Background())
 	ln, e := net.Listen("tcp4", "127.0.0.1:0")
 	if e != nil {
@@ -110,7 +120,7 @@ func CloakStart(raw string, p Protector, timeoutMillis int64) (int64, error) {
 				defer local.Close()
 				defer func() { b.mu.Lock(); delete(b.conns, local); b.mu.Unlock() }()
 				attempt, stop := context.WithTimeout(ctx, time.Duration(timeoutMillis)*time.Millisecond)
-				remote, e := cloak.Open(attempt, cfg, cloakDialer{attempt, p})
+				remote, e := cloak.Open(attempt, cfg, cloakDialer{attempt, p, addresses})
 				stop()
 				if e != nil {
 					return

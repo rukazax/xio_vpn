@@ -1,5 +1,11 @@
 # Native source provenance / Происхождение исходников
 
+## XIO 0.22.3
+
+The exact corresponding runtime source is `native-sources/android-runtime-0.22.3`; the AAR, server helpers and `vendor-metadata/rivet-build.json` were rebuilt from these inputs. This snapshot adds dual-family endpoint selection and authenticated RIVET IPv6 packet handling. Older snapshots remain archival. Local/namespace and VPS IPv4 results do not establish physical Android or public IPv6 acceptance.
+
+Точный снимок runtime — `native-sources/android-runtime-0.22.3`. AAR, серверные помощники и fingerprint пересобраны из этих входов. Добавлены выбор семейства endpoint и проверяемая передача IPv6 в RIVET. Старые снимки архивные. Локальные испытания и IPv4 через VPS не подтверждают физический Android или публичный IPv6.
+
 ## XIO 0.22
 
 The Android AAR, server and desktop helpers use the current `protocol/rivet`, local `vendor/xray` (MPL-2.0 synchronization and reduced-loader patches), `vendor/tun2socks` (Apache-2.0 optional registrations removed), `vendor/cloak` and `vendor/anet`. Exact current inputs are mirrored in `native-sources/android-runtime-0.22`; their fingerprint matches `vendor-metadata/rivet-build.json`. Legacy Tailscale source snapshots are archival, not registered runtime engines. Go package-dependency inspection excludes Tailscale and Shadowsocks proxy engines from current mobile/desktop binaries. Shared AWG/Wintun infrastructure remains.

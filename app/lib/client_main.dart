@@ -49,18 +49,21 @@ class ClientApp extends StatelessWidget {
   final AppStore store;
   const ClientApp({super.key, required this.store});
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    title: 'XIO Client',
-    debugShowCheckedModeBanner: false,
-    localizationsDelegates: GlobalMaterialLocalizations.delegates,
-    supportedLocales: const [Locale('ru'), Locale('en')],
-    locale: const Locale('ru'),
-    themeMode: ThemeMode.system,
-    theme: x1oTheme(Brightness.light),
-    darkTheme: x1oTheme(Brightness.dark),
-    home: FirstRunGate(
-      store: store,
-      child: ClientHome(store: store),
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+    valueListenable: AppLanguages.revision,
+    builder: (context, _, _) => MaterialApp(
+      title: 'XIO Client',
+      debugShowCheckedModeBanner: false,
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: const [Locale('ru'), Locale('en')],
+      locale: Locale(AppLanguages.effective == 'ru' ? 'ru' : 'en'),
+      themeMode: ThemeMode.system,
+      theme: x1oTheme(Brightness.light),
+      darkTheme: x1oTheme(Brightness.dark),
+      home: FirstRunGate(
+        store: store,
+        child: ClientHome(store: store),
+      ),
     ),
   );
 }
@@ -100,7 +103,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
+            content: LText(
               e is FormatException
                   ? e.message
                   : e is StateError
@@ -121,18 +124,18 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
       final agreed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Переключить сервер?'),
-          content: const Text(
+          title: const LText('Переключить сервер?'),
+          content: const LText(
             'Текущий VPN отключится, затем начнётся подключение к выбранному профилю. Между подключениями VPN не защищает трафик. Для блокировки используйте системный режим «Блокировать соединения без VPN».',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Отмена'),
+              child: const LText('Отмена'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Переключить'),
+              child: const LText('Переключить'),
             ),
           ],
         ),
@@ -161,18 +164,18 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Доступ аккаунта к субклиентам'),
-          content: Text(
+          title: const LText('Доступ аккаунта к субклиентам'),
+          content: LText(
             'API: ${bundle!.clientAccess!['endpoint']}\n\nЭтот профиль содержит ограниченный токен аккаунта. Вы сможете создавать субклиентов в пределах квоты, подтверждённой сервером. SSH/root/admin-ключей в нём нет. Профили получателей не унаследуют этот токен.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Отмена'),
+              child: const LText('Отмена'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Добавить аккаунт'),
+              child: const LText('Добавить аккаунт'),
             ),
           ],
         ),
@@ -188,28 +191,28 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
       final value = await showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Проверка соединения'),
+          title: const LText('Проверка соединения'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              const LText(
                 'HTTPS-сайт для проверки доступности после запуска туннеля. Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
               ),
               TextField(
                 controller: site,
                 keyboardType: TextInputType.url,
-                decoration: const InputDecoration(labelText: 'HTTPS URL'),
+                decoration: InputDecoration(labelText: 'HTTPS URL'),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена'),
+              child: const LText('Отмена'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, site.text),
-              child: const Text('Сохранить'),
+              child: const LText('Сохранить'),
             ),
           ],
         ),
@@ -231,34 +234,34 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
           height: MediaQuery.sizeOf(context).height * .65,
           child: ListView(
             children: [
-              const ListTile(title: Text('Серверы и подключения')),
+              const ListTile(title: LText('Серверы и подключения')),
               for (final profile in store.profiles)
                 ListTile(
                   selected: profile.id == store.selectedId,
                   title: Text(profile.name),
-                  subtitle: Text('${profile.protocol} · ${profile.endpoint}'),
+                  subtitle: LText('${profile.protocol} · ${profile.endpoint}'),
                   onTap: () => Navigator.pop(context, profile),
                   trailing: IconButton(
-                    tooltip: 'Удалить профиль',
+                    tooltip: tr(context, 'Удалить профиль'),
                     onPressed: store.status.active
                         ? null
                         : () async {
                             final yes = await showDialog<bool>(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text(
+                                title: const LText(
                                   'Удалить профиль с устройства?',
                                 ),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
                                         Navigator.pop(context, false),
-                                    child: const Text('Отмена'),
+                                    child: const LText('Отмена'),
                                   ),
                                   FilledButton(
                                     onPressed: () =>
                                         Navigator.pop(context, true),
-                                    child: const Text('Удалить'),
+                                    child: const LText('Удалить'),
                                   ),
                                 ],
                               ),
@@ -282,28 +285,26 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
   Future<void> information() => showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('XIO Client · 0.22.2'),
-      content: const SingleChildScrollView(
-        child: SelectableText(clientDisclosure),
-      ),
+      title: const LText('XIO Client · 0.22.3'),
+      content: SingleChildScrollView(child: SelectableText(clientDisclosure)),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(
             context,
           ).push(MaterialPageRoute<void>(builder: (_) => const PrivacyPage())),
-          child: const Text('Конфиденциальность'),
+          child: const LText('Конфиденциальность'),
         ),
         TextButton(
           onPressed: () => showLicensePage(
             context: context,
             applicationName: 'XIO Client',
-            applicationVersion: '0.22.2',
+            applicationVersion: '0.22.3',
           ),
-          child: const Text('Лицензии'),
+          child: const LText('Лицензии'),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Закрыть'),
+          child: const LText('Закрыть'),
         ),
       ],
     ),
@@ -326,10 +327,19 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
           : '${(value / 1000).toStringAsFixed(1)} KB';
       return Scaffold(
         appBar: AppBar(
-          title: const Text('XIO Client'),
+          title: const LText('XIO Client'),
           actions: [
+            PopupMenuButton<String>(
+              tooltip: 'Language / Язык',
+              icon: const Icon(Icons.language),
+              onSelected: store.setLanguage,
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'ru', child: Text('Русский')),
+                PopupMenuItem(value: 'en', child: Text('English')),
+              ],
+            ),
             IconButton(
-              tooltip: 'Как работает VPN',
+              tooltip: tr(context, 'Как работает VPN'),
               onPressed: information,
               icon: const Icon(Icons.info_outline),
             ),
@@ -364,7 +374,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                             ),
                       child: locked
                           ? const CircularProgressIndicator()
-                          : Text(
+                          : LText(
                               store.profiles.isEmpty
                                   ? 'Добавить подключение'
                                   : store.status.active
@@ -380,11 +390,11 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(store.status.state, textAlign: TextAlign.center),
+                LText(store.status.state, textAlign: TextAlign.center),
                 if (store.connectionCheck != null)
                   Padding(
                     padding: const EdgeInsets.all(8),
-                    child: Text(
+                    child: LText(
                       store.connectionCheck!,
                       textAlign: TextAlign.center,
                     ),
@@ -392,7 +402,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                 if (store.error != null)
                   Padding(
                     padding: const EdgeInsets.all(8),
-                    child: Text(
+                    child: LText(
                       store.error!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -415,7 +425,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                               ? null
                               : () => perform(pickServer),
                           icon: const Icon(Icons.expand_more),
-                          label: Text(
+                          label: LText(
                             profile?.name ?? 'Выберите сервер',
                             style: const TextStyle(fontSize: 22),
                             textAlign: TextAlign.center,
@@ -423,7 +433,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                         ),
                         if (account != null)
                           Text(account.name, textAlign: TextAlign.center),
-                        Text(
+                        LText(
                           profile?.protocol ?? 'Добавьте готовый профиль',
                           textAlign: TextAlign.center,
                         ),
@@ -432,8 +442,8 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                           alignment: WrapAlignment.spaceAround,
                           spacing: 16,
                           children: [
-                            Text('Получено: ${traffic(store.status.rx)}'),
-                            Text('Передано: ${traffic(store.status.tx)}'),
+                            LText('Получено: ${traffic(store.status.rx)}'),
+                            LText('Передано: ${traffic(store.status.tx)}'),
                           ],
                         ),
                       ],
@@ -446,7 +456,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                       ? null
                       : () => perform(importProfile),
                   icon: const Icon(Icons.add),
-                  label: const Text('Добавить профиль'),
+                  label: const LText('Добавить профиль'),
                 ),
                 if (account != null &&
                     account.statistics['clientAccount'] == true)
@@ -462,16 +472,16 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                             ),
                           ),
                     icon: const Icon(Icons.group_add_outlined),
-                    label: const Text('Субклиенты'),
+                    label: const LText('Субклиенты'),
                   ),
                 TextButton.icon(
                   onPressed: locked || store.status.active
                       ? null
                       : () => perform(settings),
                   icon: const Icon(Icons.network_check),
-                  label: const Text('Проверка соединения'),
+                  label: const LText('Проверка соединения'),
                 ),
-                const Text(
+                const LText(
                   'Android 8.0+ · ARM32 / ARM64 / x86-64',
                   textAlign: TextAlign.center,
                 ),
@@ -501,13 +511,13 @@ class _ClientImportDialogState extends State<ClientImportDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Клиентский профиль'),
+    title: const LText('Клиентский профиль'),
     content: SizedBox(
       width: 440,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          const LText(
             'Вставьте ключ XIO/Amnezia или конфигурацию поддерживаемого протокола. Профиль содержит секреты; не публикуйте его.',
           ),
           TextField(
@@ -517,8 +527,8 @@ class _ClientImportDialogState extends State<ClientImportDialog> {
             maxLength: 200000,
             autocorrect: false,
             enableSuggestions: false,
-            decoration: const InputDecoration(
-              labelText: 'Ключ или конфигурация',
+            decoration: InputDecoration(
+              labelText: tr(context, 'Ключ или конфигурация'),
               counterText: '',
             ),
           ),
@@ -536,7 +546,7 @@ class _ClientImportDialogState extends State<ClientImportDialog> {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Не удалось прочитать файл профиля'),
+                            content: LText('Не удалось прочитать файл профиля'),
                           ),
                         );
                       }
@@ -545,7 +555,7 @@ class _ClientImportDialogState extends State<ClientImportDialog> {
                     }
                   },
             icon: const Icon(Icons.file_open_outlined),
-            label: const Text('Выбрать файл'),
+            label: const LText('Выбрать файл'),
           ),
         ],
       ),
@@ -553,11 +563,11 @@ class _ClientImportDialogState extends State<ClientImportDialog> {
     actions: [
       TextButton(
         onPressed: reading ? null : () => Navigator.pop(context),
-        child: const Text('Отмена'),
+        child: const LText('Отмена'),
       ),
       FilledButton(
         onPressed: reading ? null : () => Navigator.pop(context, input.text),
-        child: const Text('Добавить'),
+        child: const LText('Добавить'),
       ),
     ],
   );
