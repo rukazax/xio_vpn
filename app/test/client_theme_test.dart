@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/app_theme.dart';
+import 'package:xio/app_theme.dart';
 
 double contrast(Color a, Color b) {
   final x = a.computeLuminance(), y = b.computeLuminance();
@@ -10,7 +10,7 @@ double contrast(Color a, Color b) {
 void main() {
   for (final mode in Brightness.values) {
     test('client amber palette has readable text in ${mode.name}', () {
-      final t = x1oTheme(mode, client: true);
+      final t = xioTheme(mode, client: true);
       final s = t.colorScheme;
       expect(s.primary.r, greaterThan(s.primary.g));
       expect(s.primary.g, greaterThan(s.primary.b));
@@ -31,11 +31,11 @@ void main() {
   }
   test('full app keeps its original green identity', () {
     expect(
-      x1oTheme(Brightness.dark).colorScheme.primary,
+      xioTheme(Brightness.dark).colorScheme.primary,
       const Color(0xffc0f57b),
     );
     expect(
-      x1oTheme(Brightness.light).colorScheme.primary,
+      xioTheme(Brightness.light).colorScheme.primary,
       const Color(0xff35620f),
     );
   });

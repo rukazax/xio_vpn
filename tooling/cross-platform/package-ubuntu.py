@@ -9,7 +9,7 @@ shutil.rmtree(stage,ignore_errors=True);target=stage/'opt/xio';target.parent.mkd
 for name in ['LICENSE','COPYRIGHT','THIRD-PARTY-0.22.md','THIRD-PARTY-0.21.md','THIRD-PARTY-0.18.md','THIRD-PARTY-0.19.md','CROSS-PLATFORM-0.19.ru.md']:
  if (r/name).exists():shutil.copy2(r/name,target/name)
 desktop=stage/'usr/share/applications';desktop.mkdir(parents=True)
-(desktop/'app.xio.client.desktop').write_text('[Desktop Entry]\nType=Application\nName=XIO\nComment=VPN client\nExec=/opt/xio/XIO\nIcon=app.xio.client\nTerminal=false\nCategories=Network;Security;\nStartupWMClass=app.x1o.x1o\n')
+(desktop/'app.xio.client.desktop').write_text('[Desktop Entry]\nType=Application\nName=XIO\nComment=VPN client\nExec=/opt/xio/XIO\nIcon=app.xio.client\nTerminal=false\nCategories=Network;Security;\nStartupWMClass=app.xio.xio\n')
 icon=stage/'usr/share/icons/hicolor/256x256/apps';icon.mkdir(parents=True)
 shutil.copy2(r/'app/assets/icons/green_dark_0.png',icon/'app.xio.client.png')
 bindir=stage/'usr/bin';bindir.mkdir(parents=True);os.symlink('/opt/xio/XIO',bindir/'xio')

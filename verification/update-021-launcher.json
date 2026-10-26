@@ -1,6 +1,6 @@
 {
   "apk": "XIO-0.21.0-android-x86_64.apk",
-  "defaultLauncher": "app.x1o.x1o.launcher.green_dark_0",
+  "defaultLauncher": "app.xio.xio.launcher.green_dark_0",
   "packagedIconAliases": 16,
   "validated": true
 }

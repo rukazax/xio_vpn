@@ -7,7 +7,7 @@
   "serverKeysPreserved": true,
   "idempotent": true,
   "activeServices": [
-    "x1o-managed-awg",
+    "xio-managed-awg",
     "xio-rivet-entry",
     "xio-rivet-gateway",
     "xio-stack",

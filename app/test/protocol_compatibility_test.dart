@@ -4,9 +4,9 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/build_identity.dart';
-import 'package:x1o/protocol_compatibility.dart';
+import 'package:xio/core.dart';
+import 'package:xio/build_identity.dart';
+import 'package:xio/protocol_compatibility.dart';
 
 import 'rivet_profile_test.dart' show fixture;
 import 'security_test.dart' show profile;
@@ -69,15 +69,15 @@ void main() {
     () {
       expect(
         credentialProductDirectory,
-        clientOnlyBuild ? 'app.x1o.client' : 'app.x1o.x1o',
+        clientOnlyBuild ? 'app.xio.client' : 'app.xio.xio',
       );
       expect(
         desktopProductDirectory(windows: true),
-        clientOnlyBuild ? 'xio-client' : 'x1o',
+        clientOnlyBuild ? 'xio-client' : 'xio',
       );
       expect(
         desktopProductDirectory(windows: false),
-        clientOnlyBuild ? 'app.x1o.client' : 'app.x1o.x1o',
+        clientOnlyBuild ? 'app.xio.client' : 'app.xio.xio',
       );
     },
   );

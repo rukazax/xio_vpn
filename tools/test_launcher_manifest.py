@@ -10,8 +10,8 @@ class LauncherManifestTest(unittest.TestCase):
         first = install_aliases(self.source)
         self.assertEqual(first, install_aliases(first))
     def test_service_attributes_cannot_drop_launchers(self):
-        for declaration in ['<service android:stopWithTask="false" android:name=".X1oVpnService"', '<service android:name=".X1oVpnService" android:stopWithTask="false"']:
-            source = self.source.replace('<service android:stopWithTask="false" android:name=".X1oVpnService"', declaration)
+        for declaration in ['<service android:stopWithTask="false" android:name=".XioVpnService"', '<service android:name=".XioVpnService" android:stopWithTask="false"']:
+            source = self.source.replace('<service android:stopWithTask="false" android:name=".XioVpnService"', declaration)
             validate_manifest(install_aliases(source))
     def test_missing_target_fails_closed(self):
         with self.assertRaises(ValueError):install_aliases(self.source.replace('android:name=".MainActivity"', 'android:name=".RenamedActivity"'))

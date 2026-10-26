@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""x1o owned WG/AWG deployment; JSON stdin/stdout, no client private keys."""
+"""xio owned WG/AWG deployment; JSON stdin/stdout, no client private keys."""
 import base64,fcntl,hashlib,ipaddress,json,os,re,secrets,shlex,socket,subprocess,sys,time,uuid,shutil
 from pathlib import Path
 import importlib.util
@@ -11,7 +11,7 @@ else:
  class LegacyStack:
   def remove(self,d):assert not Path('/etc/xio-stack/receipt.json').exists(),'Stack removal module missing; update installer'
  stack=LegacyStack()
-ROOT=Path('/etc/x1o-managed'); LIB=Path('/usr/local/lib/x1o-managed'); OWNER='x1o-managed-v1'
+ROOT=Path('/etc/xio-managed'); LIB=Path('/usr/local/lib/xio-managed'); OWNER='xio-managed-v1'
 
 def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True)
@@ -105,7 +105,7 @@ def firewall_managed(d,remove=False):
     args=item['args']
     if subprocess.run(['firewall-cmd',*args,'--query-'+item['option']+'='+item['value']],capture_output=True).returncode==0:run('firewall-cmd',*args,'--remove-'+item['option']+'='+item['value'])
   else:
-   items=[('trusted','interface',i) for i in ['x1o0','x1oawg0']]+[(f['zone'],'port',str(p)+'/udp') for p in [51820,51821]]
+   items=[('trusted','interface',i) for i in ['xio0','xioawg0']]+[(f['zone'],'port',str(p)+'/udp') for p in [51820,51821]]
    items += [(f['zone'],'rich-rule','rule family="ipv4" source address="'+n+'" masquerade') for n in ['10.77.0.0/24','10.78.0.0/24']]
    if stack.network.dualstack().ipv6_ready():
     for item in f['added'][:]:
@@ -137,7 +137,7 @@ def firewall_managed(d,remove=False):
     f['profileOwned']=True;save(d)
    write(profile,'[XIO VPN]\ntitle=XIO VPN\ndescription=XIO managed VPN ports\nports=51820,51821/udp\n')
    rules=[['allow','in','on',d['outbound'],'to','any','app','XIO VPN']]
-   rules += [['route','allow','in','on',i,'out','on',d['outbound'],'from',n] for i,n in [('x1o0','10.77.0.0/24'),('x1oawg0','10.78.0.0/24')]]
+   rules += [['route','allow','in','on',i,'out','on',d['outbound'],'from',n] for i,n in [('xio0','10.77.0.0/24'),('xioawg0','10.78.0.0/24')]]
    existing=[]
    for line in run('ufw','show','added').splitlines():
     if line.startswith('ufw '):existing.append(shlex.split(line)[1:])
@@ -150,7 +150,7 @@ def key():
  private=base64.b64encode(secrets.token_bytes(32)).decode();return private,run('wg','pubkey',input=private+'\n')
 def rules(d,remove=False):
  if firewall_managed(d,remove):return
- for proto,iface,subnet in [('wireguard','x1o0','10.77.0.0/24'),('awg','x1oawg0','10.78.0.0/24')]:
+ for proto,iface,subnet in [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]:
   comment=OWNER+'-'+proto
   for cmd,table,rule in [
    ('iptables',[],['INPUT','-i',d['outbound'],'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
@@ -165,7 +165,7 @@ def rules(d,remove=False):
    elif not remove and not exists:run(cmd,'-w','5',*table,'-I',*rule)
 def awg_uapi(lines):
  with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as s:
-  s.settimeout(5);s.connect('/run/amneziawg/x1oawg0.sock');s.sendall(('set=1\n'+lines+'\n\n').encode());data=b''
+  s.settimeout(5);s.connect('/run/amneziawg/xioawg0.sock');s.sendall(('set=1\n'+lines+'\n\n').encode());data=b''
   while b'\n\n' not in data:
    part=s.recv(4096)
    if not part:raise RuntimeError('AWG closed UAPI')
@@ -175,11 +175,11 @@ def render(d):
  lines=['[Interface]','PrivateKey = '+(ROOT/'wg.key').read_text().strip(),'Address = 10.77.0.1/24, fd77:1::1/64','ListenPort = 51820','MTU = 1280']
  for user in d['users'].values():
   if not user.get('revoked') and not d.get('restrictedNetwork'):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
- write('/etc/wireguard/x1o0.conf','\n'.join(lines)+'\n')
+ write('/etc/wireguard/xio0.conf','\n'.join(lines)+'\n')
 def apply(d):
  render(d)
  # No user-controlled command interpolation; stdin is wg config without addresses.
- text=run('wg-quick','strip','x1o0');run('wg','syncconf','x1o0','/dev/stdin',input=text+'\n')
+ text=run('wg-quick','strip','xio0');run('wg','syncconf','xio0','/dev/stdin',input=text+'\n')
  lines=[]
  for u in d['users'].values():
   if u.get('revoked'):
@@ -188,20 +188,20 @@ def apply(d):
  awg_uapi('\n'.join(lines))
 def start_awg(d):
  for _ in range(100):
-  if Path('/run/amneziawg/x1oawg0.sock').exists():break
+  if Path('/run/amneziawg/xioawg0.sock').exists():break
   time.sleep(.1)
  lines=['private_key='+base64.b64decode((ROOT/'awg.key').read_text().strip()).hex(),'listen_port=51821']+[k.lower()+'='+str(v) for k,v in d['awg'].items()]
- awg_uapi('\n'.join(lines));run('ip','address','replace','10.78.0.1/24','dev','x1oawg0');run('ip','-6','address','replace','fd78:1::1/64','dev','x1oawg0');run('ip','link','set','dev','x1oawg0','mtu','1280','up');apply(d);rules(d);stack.network.dualstack().apply()
+ awg_uapi('\n'.join(lines));run('ip','address','replace','10.78.0.1/24','dev','xioawg0');run('ip','-6','address','replace','fd78:1::1/64','dev','xioawg0');run('ip','link','set','dev','xioawg0','mtu','1280','up');apply(d);rules(d);stack.network.dualstack().apply()
 def counters():
  result={}
- for protocol,iface in [('wireguard','x1o0'),('awg','x1oawg0')]:
+ for protocol,iface in [('wireguard','xio0'),('awg','xioawg0')]:
   if protocol=='wireguard':
    text=run('wg','show',iface,'dump');rows=text.splitlines()[1:]
    for row in rows:
     v=row.split('\t');result[(protocol,v[0])]=(int(v[5]),int(v[6]),int(v[4]))
   else:
    with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as s:
-    s.settimeout(5);s.connect('/run/amneziawg/x1oawg0.sock');s.sendall(b'get=1\n\n');data=b''
+    s.settimeout(5);s.connect('/run/amneziawg/xioawg0.sock');s.sendall(b'get=1\n\n');data=b''
     while b'\n\n' not in data:
      part=s.recv(65536)
      if not part:break
@@ -232,7 +232,7 @@ def delegation_key(uid,public=None):
   assert re.fullmatch(r'ssh-ed25519 [A-Za-z0-9+/=]{64,80}',public),'Invalid management public key'
   blob=base64.b64decode(public.split()[1],validate=True)
   assert len(blob)==51 and blob[:19]==b'\x00\x00\x00\x0bssh-ed25519\x00\x00\x00\x20','Invalid management key'
-  lines.append('restrict,command="/usr/bin/python3 /usr/local/lib/x1o-managed/admin.py --delegate '+uid+'" '+public+' '+marker)
+  lines.append('restrict,command="/usr/bin/python3 /usr/local/lib/xio-managed/admin.py --delegate '+uid+'" '+public+' '+marker)
  path.parent.mkdir(mode=0o700,exist_ok=True)
  write(path,'\n'.join(lines)+'\n')
 
@@ -294,7 +294,7 @@ def stats(d):
  mesh_stats=stack.mesh.stats(d) if d.get('mesh') else {}
  current=counters();boot=Path('/proc/sys/kernel/random/boot_id').read_text().strip()
  # Generation also changes on service restart even within the same boot.
- generations={p:boot+':'+run('systemctl','show',unit,'--property=InvocationID','--value') for p,unit in [('wireguard','wg-quick@x1o0'),('awg','x1o-managed-awg')]}
+ generations={p:boot+':'+run('systemctl','show',unit,'--property=InvocationID','--value') for p,unit in [('wireguard','wg-quick@xio0'),('awg','xio-managed-awg')]}
  for uid,u in d['users'].items():
   u.setdefault('stats',{})
   for p,pub in u['keys'].items():
@@ -340,8 +340,8 @@ def init(req):
  platform=platform_info()
  assert Path('/run/systemd/system').is_dir(),'systemd required'
  if run('uname','-m')!='x86_64':raise RuntimeError('amd64 VPS required')
- links=json.loads(run('ip','-j','link'));assert not any(i['ifname'] in ['x1o0','x1oawg0'] for i in links),'Existing VPN; remove it first'
- assert not Path('/etc/wireguard/x1o0.conf').exists(),'Existing x1o0 configuration'
+ links=json.loads(run('ip','-j','link'));assert not any(i['ifname'] in ['xio0','xioawg0'] for i in links),'Existing VPN; remove it first'
+ assert not Path('/etc/wireguard/xio0.conf').exists(),'Existing xio0 configuration'
  ports=run('ss','-H','-lun');assert not any(line.split()[3].endswith((':51820',':51821')) for line in ports.splitlines()),'VPN ports busy'
  for route in json.loads(run('ip','-j','-4','route')):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['10.77.0.0/24','10.78.0.0/24']),'Subnet conflict'
@@ -357,28 +357,28 @@ def init(req):
  if shutil.which('restorecon'):run('restorecon',str(binary))
  for p in d['protocols']:
   private,pub=key();write(ROOT/('wg.key' if p=='wireguard' else 'awg.key'),private+'\n');d['publicKeys'][p]=pub
- save(d);render(d);write('/etc/sysctl.d/91-x1o-managed.conf','net.ipv4.ip_forward=1\n');run('sysctl','-q','-w','net.ipv4.ip_forward=1')
+ save(d);render(d);write('/etc/sysctl.d/91-xio-managed.conf','net.ipv4.ip_forward=1\n');run('sysctl','-q','-w','net.ipv4.ip_forward=1')
  unit='''[Unit]
-Description=x1o managed AmneziaWG
-After=network-online.target wg-quick@x1o0.service
-Requires=wg-quick@x1o0.service
+Description=xio managed AmneziaWG
+After=network-online.target wg-quick@xio0.service
+Requires=wg-quick@xio0.service
 [Service]
 Type=simple
 UMask=0077
 Environment=WG_PROCESS_FOREGROUND=1
 Environment=GOMAXPROCS=2
 Environment=LOG_LEVEL=error
-ExecStart=/usr/local/bin/xio-amneziawg-go -f x1oawg0
-ExecStartPost=/usr/bin/python3 /usr/local/lib/x1o-managed/admin.py start
+ExecStart=/usr/local/bin/xio-amneziawg-go -f xioawg0
+ExecStartPost=/usr/bin/python3 /usr/local/lib/xio-managed/admin.py start
 Restart=on-failure
 RestartSec=3
 [Install]
 WantedBy=multi-user.target
 '''
- write('/etc/systemd/system/x1o-managed-awg.service',unit)
- write('/etc/systemd/system/x1o-managed-stats.service','[Unit]\nDescription=x1o counters\nAfter=x1o-managed-awg.service\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 /usr/local/lib/x1o-managed/admin.py sample\n')
- write('/etc/systemd/system/x1o-managed-stats.timer','[Unit]\nDescription=x1o periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
- run('systemctl','daemon-reload');run('systemctl','enable','--now','wg-quick@x1o0');run('systemctl','enable','--now','x1o-managed-awg');run('systemctl','enable','--now','x1o-managed-stats.timer');d=load();d['phase']='ready';save(d);rivet_install(d);stack.network.dualstack().apply();return {'server':public(d),'existing':False}
+ write('/etc/systemd/system/xio-managed-awg.service',unit)
+ write('/etc/systemd/system/xio-managed-stats.service','[Unit]\nDescription=xio counters\nAfter=xio-managed-awg.service\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/admin.py sample\n')
+ write('/etc/systemd/system/xio-managed-stats.timer','[Unit]\nDescription=xio periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
+ run('systemctl','daemon-reload');run('systemctl','enable','--now','wg-quick@xio0');run('systemctl','enable','--now','xio-managed-awg');run('systemctl','enable','--now','xio-managed-stats.timer');d=load();d['phase']='ready';save(d);rivet_install(d);stack.network.dualstack().apply();return {'server':public(d),'existing':False}
 def remove(d):
  stack.network.dualstack().remove()
  if (ROOT/'client-api').exists():
@@ -389,22 +389,22 @@ def remove(d):
  for uid,u in d['users'].items():
   if u.get('role')=='admin':delegation_key(uid)
  # Only owned units/config/rules. No journal wiping, shared package removal or global firewall restore.
- for unit in ['x1o-managed-stats.timer','x1o-managed-stats.service','x1o-managed-awg','wg-quick@x1o0']:subprocess.run(['systemctl','disable','--now',unit],capture_output=True)
+ for unit in ['xio-managed-stats.timer','xio-managed-stats.service','xio-managed-awg','wg-quick@xio0']:subprocess.run(['systemctl','disable','--now',unit],capture_output=True)
  rules(d,True)
- for iface in ['x1o0','x1oawg0']:
+ for iface in ['xio0','xioawg0']:
   if subprocess.run(['ip','link','show',iface],capture_output=True).returncode==0:run('ip','link','delete',iface)
- for path in ['/etc/wireguard/x1o0.conf','/etc/sysctl.d/91-x1o-managed.conf',*['/etc/systemd/system/'+u for u in ['x1o-managed-awg.service','x1o-managed-stats.service','x1o-managed-stats.timer']]]:Path(path).unlink(missing_ok=True)
+ for path in ['/etc/wireguard/xio0.conf','/etc/sysctl.d/91-xio-managed.conf',*['/etc/systemd/system/'+u for u in ['xio-managed-awg.service','xio-managed-stats.service','xio-managed-stats.timer']]]:Path(path).unlink(missing_ok=True)
  # Restore global forwarding only if no additional virtual network has appeared.
  links=json.loads(run('ip','-j','link'));other=[i['ifname'] for i in links if i.get('linkinfo',{}).get('info_kind') in ['wireguard','tun','bridge','veth']]
  restored=False
  if not other and run('sysctl','-n','net.ipv4.ip_forward')=='1':run('sysctl','-q','-w','net.ipv4.ip_forward='+d['oldForward']);restored=True
  # Remove runtime sockets and install-only temporary data; preserve global package/journal history.
- for socket_path in ['/run/amneziawg/x1oawg0.sock','/run/wireguard/x1o0.sock']:Path(socket_path).unlink(missing_ok=True)
+ for socket_path in ['/run/amneziawg/xioawg0.sock','/run/wireguard/xio0.sock']:Path(socket_path).unlink(missing_ok=True)
  d['preserveWireGuardTools']=any(i.get('linkinfo',{}).get('info_kind')=='wireguard' for i in links)
  if d.get('binaryOwned'):Path('/usr/local/bin/xio-amneziawg-go').unlink(missing_ok=True)
  package_result=purge_packages(d)
  shutil.rmtree(ROOT);shutil.rmtree(LIB);run('systemctl','daemon-reload')
- Path('/run/lock/x1o-managed.lock').unlink(missing_ok=True)
+ Path('/run/lock/xio-managed.lock').unlink(missing_ok=True)
  return {'removed':True,'ownedPackageRemoved':'wireguard-tools' in package_result['packagesRemoved'],**package_result,'forwardingRestored':restored,'otherVirtualInterfaces':other}
 def dispatch(req,actor=None):
  action=req['action']
@@ -479,7 +479,7 @@ if __name__=='__main__':
   assert os.geteuid()==0,'root required'
   if sys.argv[1:]==['start']:
    start_awg(load());sys.exit(0)
-  with open('/run/lock/x1o-managed.lock','a') as lock:
+  with open('/run/lock/xio-managed.lock','a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX)
    if sys.argv[1:]==['sample']:stats(load())
    elif sys.argv[1:]==['--client-api']:

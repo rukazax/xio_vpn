@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 void main() {
   const uuid = 'b3b2eb49-e41f-41df-9761-0956785a236b';

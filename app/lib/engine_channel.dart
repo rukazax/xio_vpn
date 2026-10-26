@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'desktop_engine.dart';
 
 class EngineChannel extends MethodChannel {
-  const EngineChannel() : super('app.x1o/engine');
+  const EngineChannel() : super('app.xio/engine');
   @override
   Future<T?> invokeMethod<T>(String method, [dynamic arguments]) async {
     if (DesktopEngine.enabled && (Platform.isLinux || Platform.isWindows)) {

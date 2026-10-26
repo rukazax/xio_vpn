@@ -26,7 +26,7 @@
     "originalUsersPreserved": true,
     "activeUsers": 1,
     "units": {
-      "x1o-managed-awg.service": "active",
+      "xio-managed-awg.service": "active",
       "xio-rivet-entry.service": "active",
       "xio-rivet-gateway.service": "active",
       "xio-stack.service": "active",

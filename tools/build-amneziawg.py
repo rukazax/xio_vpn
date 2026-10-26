@@ -12,7 +12,7 @@ import subprocess
 
 root = Path(__file__).resolve().parent.parent
 source = root / 'vendor/amneziawg/go'
-go = Path(os.environ.get('X1O_GO_ROOT', root / '.build-support/go'))
+go = Path(os.environ.get('XIO_GO_ROOT', root / '.build-support/go'))
 ndk = Path(os.environ.get('ANDROID_NDK_HOME', Path.home() / 'Android/Sdk/ndk/30.0.16248370'))
 version = (go / 'VERSION').read_text().splitlines()[0]
 if version != 'go1.27.2':
@@ -20,7 +20,7 @@ if version != 'go1.27.2':
 if 'Pkg.Revision = 30.0.16248370' not in (ndk / 'source.properties').read_text():
     raise SystemExit('This recipe pins Android NDK 30.0.16248370')
 patched = root / '.build-support/go-awg'
-if not (patched / '.x1o-patched').exists():
+if not (patched / '.xio-patched').exists():
     if patched.exists():
         raise SystemExit('Incomplete private Go copy; inspect/remove .build-support/go-awg before retrying')
     shutil.copytree(go, patched)
@@ -41,22 +41,22 @@ if not (patched / '.x1o-patched').exists():
                 raise SystemExit(f'Go runtime changed: review {arch} CLOCK_BOOTTIME patch')
             text = text.replace(before, after)
         path.write_text(text)
-    (patched / '.x1o-patched').write_text('CLOCK_BOOTTIME on arm/arm64/amd64\n')
+    (patched / '.xio-patched').write_text('CLOCK_BOOTTIME on arm/arm64/amd64\n')
 
 targets = [('arm64-v8a', 'arm64', 'aarch64-linux-android26-clang'),
            ('armeabi-v7a', 'arm', 'armv7a-linux-androideabi26-clang'),
            ('x86_64', 'amd64', 'x86_64-linux-android26-clang')]
-requested = os.environ.get('X1O_AWG_ABIS', '').split(',')
+requested = os.environ.get('XIO_AWG_ABIS', '').split(',')
 hashes = {}
 for abi, arch, compiler in targets:
     if requested != [''] and abi not in requested:
         continue
-    out = root / f'vendor/amneziawg/jniLibs/{abi}/libx1o-awg.so'
+    out = root / f'vendor/amneziawg/jniLibs/{abi}/libxio-awg.so'
     out.parent.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ, GOROOT=str(patched), GOOS='android', GOARCH=arch,
                GOARM='7', CGO_ENABLED='1', GOTOOLCHAIN='local',
                CC=str(ndk / 'toolchains/llvm/prebuilt/linux-x86_64/bin' / compiler),
-               CGO_LDFLAGS='-Wl,-soname=libx1o-awg.so -Wl,-z,max-page-size=16384')
+               CGO_LDFLAGS='-Wl,-soname=libxio-awg.so -Wl,-z,max-page-size=16384')
     subprocess.run([str(patched / 'bin/go'), 'build', '-mod=readonly', '-tags', 'linux',
                     '-trimpath', '-buildvcs=false', '-ldflags=-buildid=',
                     '-buildmode=c-shared', '-o', str(out), '.'], cwd=source, env=env, check=True)

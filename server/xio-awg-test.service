@@ -1,0 +1,26 @@
+[Unit]
+Description=xio AmneziaWG test endpoint (pinned Go v3.1.20260814)
+After=network-online.target wg-quick@xio0.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+UMask=0077
+Environment=LOG_LEVEL=error
+Environment=GOMAXPROCS=2
+Environment=WG_PROCESS_FOREGROUND=1
+ExecStart=/opt/xio/amneziawg-go -f xioawg0
+ExecStartPost=/usr/bin/python3 /usr/local/lib/xio-test/configure-awg.py
+ExecStopPost=/usr/bin/python3 /usr/local/lib/xio-test/configure-awg.py down
+Restart=on-failure
+RestartSec=3
+TimeoutStartSec=30
+TimeoutStopSec=20
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+PrivateTmp=true
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target

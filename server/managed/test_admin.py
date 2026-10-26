@@ -60,7 +60,7 @@ class InstallerTests(unittest.TestCase):
   with patch.object(m.subprocess,'run',return_value=SimpleNamespace(returncode=0)),patch.object(m,'run') as command:
    self.assertTrue(m.firewall_managed(d,True));command.assert_called_once_with('firewall-cmd','--zone=public','--remove-port=51820/udp')
  def test_ufw_removes_only_owned_route_with_valid_syntax(self):
-  rule=['route','allow','in','on','x1o0','out','on','eth0','from','10.77.0.0/24']
+  rule=['route','allow','in','on','xio0','out','on','eth0','from','10.77.0.0/24']
   d={'firewall':{'kind':'ufw','added':[rule]}}
   def command(*args,**kwargs):
    return 'ufw allow 22/tcp\nufw '+' '.join(rule) if args==('ufw','show','added') else ''

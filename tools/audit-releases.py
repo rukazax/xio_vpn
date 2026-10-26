@@ -2,7 +2,7 @@
 from pathlib import Path
 import base64,hashlib,json,re,tarfile,zipfile,os
 r=Path(__file__).resolve().parent.parent
-secrets=[v.encode() for k,v in os.environ.items() if k.startswith("X1O_AUDIT_SECRET_") and len(v)>6]
+secrets=[v.encode() for k,v in os.environ.items() if k.startswith("XIO_AUDIT_SECRET_") and len(v)>6]
 p=r/'.signing/signing.properties'
 if p.exists():
  for line in p.read_text().splitlines():
@@ -31,7 +31,7 @@ for p in [folder/'defines.json' for folder in private_roots if (folder/'defines.
    except ValueError: pass
 # Also guard lab multi-protocol files; these must never enter releases.
 for folder in private_roots:
- for p in [*folder.rglob('*.x1o'), *folder.rglob('*.xio')]:
+ for p in [*folder.rglob('*.xio'), *folder.rglob('*.xio')]:
   raw=p.read_bytes();secrets.append(raw)
   if raw.startswith((b'x1o://', b'xio://')):
    payload=raw[6:];payload+=b'='*((-len(payload))%4)
@@ -124,7 +124,7 @@ for p in sorted((r/'releases').glob('*')):
 for metadata in [r/'verification/BUILD-INFO-0.1.json', r/'verification/BUILD-INFO.json']:
  if metadata.exists():
   info=json.loads(metadata.read_text())
-  name='x1o-'+info['version']+'-android.apk'
+  name='xio-'+info['version']+'-android.apk'
   apk=next((x for x in report if x['file']==name),None)
   if apk: assert apk['sha256']==info['androidApkSha256']
 for metadata in (r/'verification').glob('android-apks-*.json'):

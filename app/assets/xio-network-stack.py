@@ -237,7 +237,7 @@ def install(d):
  pki(d)
  if not (ROOT/'tls-crypt-v2.key').exists():run('openvpn','--genkey','tls-crypt-v2-server',str(ROOT/'tls-crypt-v2.key'))
  openvpn_configs()
- for transport in (['tcp'] if d.get('restrictedNetwork') else ['udp','tcp']):service('xio-openvpn-'+transport,shutil.which('openvpn')+' --config '+str(ROOT/(transport+'.ovpn')),'ExecStartPre=+'+shutil.which('python3')+' /usr/local/lib/x1o-managed/network_stack.py firewall\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW\n')
+ for transport in (['tcp'] if d.get('restrictedNetwork') else ['udp','tcp']):service('xio-openvpn-'+transport,shutil.which('openvpn')+' --config '+str(ROOT/(transport+'.ovpn')),'ExecStartPre=+'+shutil.which('python3')+' /usr/local/lib/xio-managed/network_stack.py firewall\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW\n')
  firewall(d);run('systemctl','daemon-reload')
  for unit in (['xio-openvpn-tcp'] if d.get('restrictedNetwork') else ['xio-openvpn-udp','xio-openvpn-tcp']):run('systemctl','enable','--now',unit);run('systemctl','restart',unit);run('systemctl','is-active','--quiet',unit)
 def create(d,uid):
@@ -433,7 +433,7 @@ def ike_install(d):
  ike_config(d)
  charon=next((p for p in ['/usr/lib/ipsec/charon','/usr/libexec/strongswan/charon'] if Path(p).exists()),None)
  assert charon,'StrongSwan daemon missing'
- service('xio-ikev2',charon,'Environment=STRONGSWAN_CONF=/etc/xio-stack/strongswan.conf\nEnvironment=XIO_IKE_NAMESPACE=1\nBindPaths=/run/xio-openvpn:/run\nReadWritePaths=/run\nExecStartPost='+shutil.which('python3')+' /usr/local/lib/x1o-managed/network_stack.py load-ike\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_SETPCAP CAP_CHOWN CAP_IPC_LOCK CAP_DAC_OVERRIDE CAP_AUDIT_WRITE\n')
+ service('xio-ikev2',charon,'Environment=STRONGSWAN_CONF=/etc/xio-stack/strongswan.conf\nEnvironment=XIO_IKE_NAMESPACE=1\nBindPaths=/run/xio-openvpn:/run\nReadWritePaths=/run\nExecStartPost='+shutil.which('python3')+' /usr/local/lib/xio-managed/network_stack.py load-ike\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_SETPCAP CAP_CHOWN CAP_IPC_LOCK CAP_DAC_OVERRIDE CAP_AUDIT_WRITE\n')
  run('systemctl','daemon-reload');run('systemctl','enable','--now','xio-ikev2');run('systemctl','restart','xio-ikev2');run('systemctl','is-active','--quiet','xio-ikev2')
 def ike_profile(d,uid):
  u=d['users'][uid]['stack'];u['ikePassword']=secrets.token_urlsafe(32);ike_config(d);load_ike()
@@ -447,7 +447,7 @@ def cloak_config(d):
  cfg={'ProxyBook':{'openvpn':['tcp','127.0.0.1:1195']},'BindAddr':['[::]:9443' if dualstack().listener()=='::' else '0.0.0.0:9443'],'BypassUID':[u['stack']['cloakUID'] for u in d['users'].values() if not u.get('revoked') and u.get('stack',{}).get('cloakUID')],'PrivateKey':r['cloakPrivateKey'],'RedirAddr':r['target']}
  write(ROOT/'cloak.json',json.dumps(cfg))
 def cloak_install(d):
- cloak_config(d);dest=Path('/usr/local/bin/xio-cloak');temp=dest.with_suffix('.new');shutil.copyfile('/usr/local/lib/x1o-managed/cloak',temp);temp.chmod(0o755);temp.replace(dest)
+ cloak_config(d);dest=Path('/usr/local/bin/xio-cloak');temp=dest.with_suffix('.new');shutil.copyfile('/usr/local/lib/xio-managed/cloak',temp);temp.chmod(0o755);temp.replace(dest)
  if shutil.which('restorecon'):run('restorecon',str(dest))
  service('xio-cloak',str(dest)+' -c /etc/xio-stack/cloak.json -verbosity error','CapabilityBoundingSet=\n')
  run('systemctl','daemon-reload');subprocess.run(['systemctl','reset-failed','xio-cloak'],capture_output=True);run('systemctl','enable','--now','xio-cloak');run('systemctl','restart','xio-cloak');run('systemctl','is-active','--quiet','xio-cloak')
@@ -469,4 +469,4 @@ def remove(d):
 if __name__=='__main__':
  import sys
  if sys.argv[1:]==['load-ike']:load_ike()
- elif sys.argv[1:]==['firewall']:firewall(json.loads(Path('/etc/x1o-managed/deployment.json').read_text()))
+ elif sys.argv[1:]==['firewall']:firewall(json.loads(Path('/etc/xio-managed/deployment.json').read_text()))

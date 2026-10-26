@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/update_service.dart';
+import 'package:xio/update_service.dart';
 
 class Headers implements HttpHeaders {
   final values = <String, String>{};

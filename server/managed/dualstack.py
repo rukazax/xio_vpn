@@ -6,11 +6,11 @@ packages are installed. Existing IPv4 rules and server credentials are retained.
 """
 import json,os,re,socket,subprocess,sys
 from pathlib import Path
-STATE=Path('/etc/x1o-managed/deployment.json')
-RECEIPT=Path('/etc/x1o-managed/dualstack-receipt.json')
+STATE=Path('/etc/xio-managed/deployment.json')
+RECEIPT=Path('/etc/xio-managed/dualstack-receipt.json')
 CONFIG_DIR=Path('/etc/xio-stack')
 NETWORK_UP=Path('/usr/local/lib/xio-rivet/network-up')
-SUBNETS=(('x1oawg0','fd78:1::/64','fd78:1::1/64'),('xiorivet','fd79:1::/64','fd79:1::1/64'),('xioovpn1','fd80:1::/64','fd80:1::1/64'))
+SUBNETS=(('xioawg0','fd78:1::/64','fd78:1::1/64'),('xiorivet','fd79:1::/64','fd79:1::1/64'),('xioovpn1','fd80:1::/64','fd80:1::1/64'))
 def call(*args,check=True):
  p=subprocess.run(args,capture_output=True,text=True,timeout=30)
  if check and p.returncode:raise RuntimeError('IPv6 network operation failed: '+args[0])
@@ -37,7 +37,7 @@ def save(receipt):
  RECEIPT.parent.mkdir(parents=True,exist_ok=True);p=RECEIPT.with_suffix('.new');p.write_text(json.dumps(receipt));p.chmod(0o600);p.replace(RECEIPT)
 def apply():
  assert os.geteuid()==0,'Owner root access required'
- state=json.loads(STATE.read_text());assert state.get('owner')=='x1o-managed-v1','Unowned deployment'
+ state=json.loads(STATE.read_text());assert state.get('owner')=='xio-managed-v1','Unowned deployment'
  if not ipv6_ready():return {'ipv6Forwarding':False,'reason':'No IPv6 default route'}
  dev=routes('-6')[0]['dev'];assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',dev)
  receipt=json.loads(RECEIPT.read_text()) if RECEIPT.exists() else {'owner':'xio-dualstack-v1','oldForward':Path('/proc/sys/net/ipv6/conf/all/forwarding').read_text().strip(),'rules':[],'addresses':[]}
@@ -67,7 +67,7 @@ def apply():
    if item not in receipt['addresses']:receipt['addresses'].append(item);save(receipt)
    call('ip','-6','address','add',address,'dev',interface)
   comment='xio-dualstack-v1-'+interface
-  rules=[([],['INPUT','-i',dev,'-p','udp','--dport','51821','-m','comment','--comment',comment,'-j','ACCEPT'])] if interface=='x1oawg0' else []
+  rules=[([],['INPUT','-i',dev,'-p','udp','--dport','51821','-m','comment','--comment',comment,'-j','ACCEPT'])] if interface=='xioawg0' else []
   rules += [([],['FORWARD','-i',interface,'-o',dev,'-s',subnet,'-m','comment','--comment',comment,'-j','ACCEPT']),([],['FORWARD','-o',interface,'-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',comment,'-j','ACCEPT']),(['-t','nat'],['POSTROUTING','-s',subnet,'-o',dev,'-m','comment','--comment',comment,'-j','MASQUERADE'])]
   for table,rule in rules:
    if call('ip6tables','-w','5',*table,'-C',*rule,check=False).returncode:
@@ -77,7 +77,7 @@ def apply():
  call('sysctl','-q','-w','net.ipv6.conf.all.forwarding=1')
  return {'ipv6Forwarding':True}
 def configure():
- assert os.geteuid()==0 and json.loads(STATE.read_text()).get('owner')=='x1o-managed-v1','Unowned deployment'
+ assert os.geteuid()==0 and json.loads(STATE.read_text()).get('owner')=='xio-managed-v1','Unowned deployment'
  family=listener();ready=ipv6_ready()
  state=json.loads(STATE.read_text())
  # Old recipes deliberately blocked IPv6 on the owned AWG interface. Remove
@@ -110,7 +110,7 @@ def configure():
   if 'server-ipv6 ' not in value:value+='\nserver-ipv6 fd80:1::/64\npush "redirect-gateway ipv6"\npush "dhcp-option DNS6 2620:fe::fe"\n'
   replace(p,value)
  p=NETWORK_UP
- if p.exists() and 'dualstack.py apply' not in p.read_text():replace(p,p.read_text()+'\npython3 /usr/local/lib/x1o-managed/dualstack.py apply\n')
+ if p.exists() and 'dualstack.py apply' not in p.read_text():replace(p,p.read_text()+'\npython3 /usr/local/lib/xio-managed/dualstack.py apply\n')
  return {'ipv6Listener':family=='::','ipv6DefaultRoute':ready}
 def remove(restore_legacy=False):
  if not RECEIPT.exists():return
@@ -125,7 +125,7 @@ def remove(restore_legacy=False):
   path=Path('/proc/sys/net/ipv6/conf')/dev/'accept_ra'
   if path.exists() and path.read_text().strip()=='2':path.write_text(value+'\n')
  # Do not disable forwarding when a later unrelated VPN/bridge may depend on it.
- others=[p.name for p in Path('/sys/class/net').iterdir() if p.name not in {'lo','x1o0','x1oawg0','xiorivet','xioovpn1'} and (p/'tun_flags').exists()]
+ others=[p.name for p in Path('/sys/class/net').iterdir() if p.name not in {'lo','xio0','xioawg0','xiorivet','xioovpn1'} and (p/'tun_flags').exists()]
  if not others and Path('/proc/sys/net/ipv6/conf/all/forwarding').read_text().strip()=='1':call('sysctl','-q','-w','net.ipv6.conf.all.forwarding='+receipt['oldForward'])
  RECEIPT.unlink()
 if __name__=='__main__':

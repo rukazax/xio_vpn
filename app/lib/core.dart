@@ -1913,7 +1913,7 @@ printf 'KERNEL: '; uname -r
 printf '\nDISK\n'; df -h / | tail -n 1
 printf '\nLISTENERS\n'; ss -lntu | head -n 25
 printf '\nROUTES\n'; ip -4 route show
-printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing installation\n'; else printf 'not installed\n'; fi
+printf '\nX1O\n'; if test -e /etc/wireguard/xio0.conf; then printf 'existing installation\n'; else printf 'not installed\n'; fi
 ''')
         .timeout(const Duration(seconds: 20));
     if (result.exitCode != 0) {
@@ -1942,17 +1942,17 @@ printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing ins
     } on TimeoutException {
       session.kill(SSHSignal.TERM);
       throw StateError(
-        'Установка не завершилась вовремя. Проверьте журнал /var/log/x1o-install.log на VPS.',
+        'Установка не завершилась вовремя. Проверьте журнал /var/log/xio-install.log на VPS.',
       );
     }
     final out = utf8.decode(await output, allowMalformed: true);
     await errors;
     if (session.exitCode != 0) {
       throw StateError(
-        'Установка прервана. Изменения могли примениться частично; журнал /var/log/x1o-install.log на VPS.',
+        'Установка прервана. Изменения могли примениться частично; журнал /var/log/xio-install.log на VPS.',
       );
     }
-    final match = RegExp(r'X1O_SERVER_KEY=([A-Za-z0-9+/]{43}=)')
+    final match = RegExp(r'XIO_SERVER_KEY=([A-Za-z0-9+/]{43}=)')
         .firstMatch(out);
     if (match == null) throw StateError('Нет подтверждённого ключа сервера');
     final host = target!.host.contains(':')

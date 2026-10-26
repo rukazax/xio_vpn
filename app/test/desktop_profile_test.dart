@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/desktop_engine.dart';
+import 'package:xio/core.dart';
+import 'package:xio/desktop_engine.dart';
 
 String canonical(String protocol, String raw) =>
     extendedProtocols.contains(protocol)

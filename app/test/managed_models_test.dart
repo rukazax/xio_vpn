@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/workspace_ui.dart';
+import 'package:xio/core.dart';
+import 'package:xio/workspace_ui.dart';
 
 class _SettingsStore extends AppStore {
   @override
@@ -122,7 +122,7 @@ void main() {
   test(
     'settings and management metadata survive restart without private configs',
     () async {
-      final dir = await Directory.systemTemp.createTemp('x1o-settings-');
+      final dir = await Directory.systemTemp.createTemp('xio-settings-');
       final store = AppStore()..directory = dir;
       store.servers.add(ManagedServer(id: 's', host: 'vpn.example'));
       store.users.add(

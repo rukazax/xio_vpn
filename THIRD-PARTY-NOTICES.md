@@ -15,6 +15,6 @@ This engineering project uses upstream components. The APK includes Flutter-gene
 | Tailscale / Headscale | embedded Android Tailscale v1.104.1; pinned server downloads | BSD-3-Clause; patches, notices and source in THIRD-PARTY-0.17.md |
 | wireguard-go / gVisor | pinned in `lab/go.mod` and `lab/go.sum` | Included in current Android runtime as well as test fixtures; see upstream MIT / Apache-2.0 licenses |
 
-The research snapshots remain the work of their respective authors and are not part of the x1o application binary. This file is an inventory, not a completed legal audit.
+The research snapshots remain the work of their respective authors and are not part of the xio application binary. This file is an inventory, not a completed legal audit.
 
 Native engine additions and corresponding source: [THIRD-PARTY-0.17.md](THIRD-PARTY-0.17.md).

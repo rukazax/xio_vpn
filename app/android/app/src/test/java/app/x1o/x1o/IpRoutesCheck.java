@@ -1,4 +1,4 @@
-package app.x1o.x1o;
+package app.xio.xio;
 import java.util.List;
 import java.util.Random;
 

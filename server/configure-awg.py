@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Configure only x1oawg0 using root-private UAPI; no key material in argv/logs."""
+"""Configure only xioawg0 using root-private UAPI; no key material in argv/logs."""
 from pathlib import Path
 import socket, subprocess, sys, time
 
-INTERFACE = 'x1oawg0'
-COMMENT = 'x1o-awg-test'
+INTERFACE = 'xioawg0'
+COMMENT = 'xio-awg-test'
 
 def run(*args):
     subprocess.run(args, check=True, stdout=subprocess.DEVNULL)
@@ -14,7 +14,7 @@ def rules(delete=False):
         ['FORWARD','-i',INTERFACE,'-s','10.78.0.0/24','-m','comment','--comment',COMMENT,'-j','ACCEPT'],
         ['FORWARD','-o',INTERFACE,'-d','10.78.0.0/24','-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',COMMENT,'-j','ACCEPT'],
     ]
-    interface = Path('/etc/x1o/outbound-interface').read_text().strip()
+    interface = Path('/etc/xio/outbound-interface').read_text().strip()
     import re
     if not re.fullmatch(r'[A-Za-z0-9_.-]{1,15}', interface): raise RuntimeError('Invalid outbound interface')
     tables = [('iptables',[],r) for r in ipv4] + [
@@ -29,12 +29,12 @@ if sys.argv[1:] == ['down']:
     rules(delete=True)
     raise SystemExit(0)
 for _ in range(100):
-    if Path('/run/amneziawg/x1oawg0.sock').exists(): break
+    if Path('/run/amneziawg/xioawg0.sock').exists(): break
     time.sleep(.1)
 with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
     sock.settimeout(10)
-    sock.connect('/run/amneziawg/x1oawg0.sock')
-    sock.sendall(b'set=1\n'+Path('/etc/x1o/awg.uapi').read_bytes().rstrip(b'\n')+b'\n\n')
+    sock.connect('/run/amneziawg/xioawg0.sock')
+    sock.sendall(b'set=1\n'+Path('/etc/xio/awg.uapi').read_bytes().rstrip(b'\n')+b'\n\n')
     data=b''
     while b'\n\n' not in data: data+=sock.recv(4096)
     if data != b'errno=0\n\n': raise RuntimeError('AWG configuration rejected')

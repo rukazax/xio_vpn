@@ -26,7 +26,7 @@ func main() {
  for _,line:=range strings.Split(string(raw),"\n") {parts:=strings.SplitN(line,"=",2);if len(parts)==2 {fields[strings.ToLower(strings.TrimSpace(parts[0]))]=strings.TrimSpace(parts[1])}}
  local:=strings.Split(strings.Split(fields["address"],",")[0],"/")[0]
  tun,stack,err:=netstack.CreateNetTUN([]netip.Addr{netip.MustParseAddr(local)},[]netip.Addr{netip.MustParseAddr("1.1.1.1")},1280);must(err)
- dev:=device.NewDevice(tun,conn.NewDefaultBind(),device.NewLogger(device.LogLevelError,"x1o-check: "));defer dev.Close()
+ dev:=device.NewDevice(tun,conn.NewDefaultBind(),device.NewLogger(device.LogLevelError,"xio-check: "));defer dev.Close()
  priv,err:=base64.StdEncoding.DecodeString(fields["privatekey"]);must(err)
  pub,err:=base64.StdEncoding.DecodeString(fields["publickey"]);must(err)
  config:="private_key="+hex.EncodeToString(priv)+"\n"
@@ -40,7 +40,7 @@ func main() {
  resp,err:=client.Do(req);must(err);defer resp.Body.Close()
  body,err:=io.ReadAll(resp.Body);must(err)
  var data map[string]string;must(json.Unmarshal(body,&data))
- if resp.StatusCode!=200||data["marker"]!="x1o-real-debian-vps"||data["client"]!=local {panic("Tunnel validation failed")}
+ if resp.StatusCode!=200||data["marker"]!="xio-real-debian-vps"||data["client"]!=local {panic("Tunnel validation failed")}
  result:=map[string]any{"endpoint":fields["endpoint"],"clientIp":local,"server":os.Args[2],"separateDeviceProfileValidated":true,"scope":"isolated userspace client, not physical Honor","at":time.Now().UTC().Format(time.RFC3339)}
  encoded,_:=json.Marshal(result);fmt.Println(string(encoded))
 }

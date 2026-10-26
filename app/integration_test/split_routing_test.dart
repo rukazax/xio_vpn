@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 Future<bool> tunnelHttp(String payload) async {
   Socket? socket;
@@ -17,7 +17,7 @@ Future<bool> tunnelHttp(String payload) async {
       timeout: const Duration(seconds: 3),
     );
     socket.write(
-      'GET / HTTP/1.1\r\nHost: x1o-lab\r\nConnection: close\r\n\r\n',
+      'GET / HTTP/1.1\r\nHost: xio-lab\r\nConnection: close\r\n\r\n',
     );
     await socket.flush();
     final body = await socket
@@ -42,9 +42,9 @@ void main() {
     (tester) async {
       final store = AppStore();
       await store.load();
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
-      const own = 'app.x1o.x1o';
+      const own = 'app.xio.xio';
       final apps = await native.invokeListMethod<dynamic>('routingApps');
       expect(apps!.any((a) => a['package'] == own), isTrue);
       final other =
@@ -91,7 +91,7 @@ void main() {
             // Android publishes the per-UID network asynchronously after TUN establishment.
             await Future<void>.delayed(const Duration(seconds: 1));
             final routed = await tunnelHttp(
-              awg ? 'x1o-amneziawg-lab-ok' : 'x1o-wireguard-lab-ok',
+              awg ? 'xio-amneziawg-lab-ok' : 'xio-wireguard-lab-ok',
             );
             expect(
               routed,
@@ -125,7 +125,7 @@ void main() {
             // Android publishes the per-UID network asynchronously after TUN establishment.
             await Future<void>.delayed(const Duration(seconds: 1));
             final routed = await tunnelHttp(
-              awg ? 'x1o-amneziawg-lab-ok' : 'x1o-wireguard-lab-ok',
+              awg ? 'xio-amneziawg-lab-ok' : 'xio-wireguard-lab-ok',
             );
             expect(
               routed,
@@ -158,7 +158,7 @@ void main() {
             },
             {
               'mode': 'include',
-              'packages': ['org.x1o.not.installed'],
+              'packages': ['org.xio.not.installed'],
             },
           ]) {
             await expectLater(
@@ -185,7 +185,7 @@ void main() {
         expect(metadata, isNot(contains(own)));
         // ignore: avoid_print
         print(
-          'X1O_SPLIT_VERIFICATION=${jsonEncode({'cases': cases, 'invalidRulesRejected': true, 'corruptPolicyBlocksActivation': true, 'scope': 'Android API35 emulator / isolated netstack, own application UID requests'})}',
+          'XIO_SPLIT_VERIFICATION=${jsonEncode({'cases': cases, 'invalidRulesRejected': true, 'corruptPolicyBlocksActivation': true, 'scope': 'Android API35 emulator / isolated netstack, own application UID requests'})}',
         );
       } finally {
         await store.disconnect();

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/main.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/main.dart';
+import 'package:xio/core.dart';
 
 void main() {
   setUpAll(() async {
@@ -28,7 +28,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final s = AppStore();
-      await tester.pumpWidget(X1oApp(store: s));
+      await tester.pumpWidget(XioApp(store: s));
       await tester.pumpAndSettle();
       expect(find.text('Отключено'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -53,7 +53,7 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: key,
-          child: X1oApp(store: s),
+          child: XioApp(store: s),
         ),
       );
       await tester.pumpAndSettle();
@@ -84,7 +84,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     final store = AppStore();
-    await tester.pumpWidget(X1oApp(store: store));
+    await tester.pumpWidget(XioApp(store: store));
     await tester.pumpAndSettle();
     expect(
       tester.getRect(find.text('Добавить подключение')).bottom,
@@ -102,7 +102,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = AppStore();
-    await tester.pumpWidget(X1oApp(store: store));
+    await tester.pumpWidget(XioApp(store: store));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(NavigationDestination).at(1));
     await tester.pumpAndSettle();

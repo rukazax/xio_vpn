@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/app_icons.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/l10n.dart';
+import 'package:xio/app_icons.dart';
+import 'package:xio/core.dart';
+import 'package:xio/l10n.dart';
 
 void main() {
   setUpAll(AppLanguages.load);

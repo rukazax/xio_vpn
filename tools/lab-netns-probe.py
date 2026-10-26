@@ -1,7 +1,7 @@
 # Disposable VM-only packet test; never run against the user's live VPS.
 import importlib.util,subprocess,json,socket,time,base64,os
 assert socket.gethostname().startswith('xio014-')
-spec=importlib.util.spec_from_file_location('a','/usr/local/lib/x1o-managed/admin.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);d=m.load()
+spec=importlib.util.spec_from_file_location('a','/usr/local/lib/xio-managed/admin.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);d=m.load()
 def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True);assert p.returncode==0,(args[0],p.stderr[:300]);return p.stdout.strip()
 private={p:run('wg','genkey') for p in ['wireguard','awg']};pub={p:run('wg','pubkey',input=k+'\n') for p,k in private.items()}

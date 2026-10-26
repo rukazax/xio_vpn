@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 
-import 'package:x1o/windows_crypto.dart';
-import 'package:x1o/credentials.dart';
-import 'package:x1o/desktop_engine.dart';
+import 'package:xio/windows_crypto.dart';
+import 'package:xio/credentials.dart';
+import 'package:xio/desktop_engine.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

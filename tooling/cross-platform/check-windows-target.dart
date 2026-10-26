@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:x1o/desktop_engine.dart';
-import 'package:x1o/update_installer.dart';
+import 'package:xio/desktop_engine.dart';
+import 'package:xio/update_installer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

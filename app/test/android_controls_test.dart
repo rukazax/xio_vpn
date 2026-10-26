@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 void main() {
   testWidgets(

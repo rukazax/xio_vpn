@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/managed_service.dart';
-import 'package:x1o/managed_models.dart';
+import 'package:xio/managed_service.dart';
+import 'package:xio/managed_models.dart';
 
 void main() {
   test('management key is standard Ed25519 and signs using the matching public key', () async {

@@ -90,7 +90,7 @@
     }
   ],
   "androidVerification": {
-    "appId": "app.x1o.client",
+    "appId": "app.xio.client",
     "version": "0.22.4+5013",
     "artifacts": [
       {

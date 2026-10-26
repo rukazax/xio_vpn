@@ -5,10 +5,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/desktop_engine.dart';
-import 'package:x1o/main.dart';
-import 'package:x1o/l10n.dart';
+import 'package:xio/core.dart';
+import 'package:xio/desktop_engine.dart';
+import 'package:xio/main.dart';
+import 'package:xio/l10n.dart';
 
 void main() {
   setUpAll(() async {
@@ -54,7 +54,7 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: boundaryKey,
-          child: X1oApp(store: store),
+          child: XioApp(store: store),
         ),
       );
       await tester.pumpAndSettle();

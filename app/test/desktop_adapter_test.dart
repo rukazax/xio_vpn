@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 void main() {
   test('retired engines are absent from the supported catalogue', () {

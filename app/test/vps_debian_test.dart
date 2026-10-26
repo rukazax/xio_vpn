@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 void main() {
   test(
     'real Debian VPS SSH pin, preflight and application WG installer',
     () async {
-      final password = Platform.environment['X1O_VPS_PASSWORD']!;
-      final host = Platform.environment['X1O_VPS_HOST']!;
-      final fingerprint = Platform.environment['X1O_VPS_FINGERPRINT']!;
+      final password = Platform.environment['XIO_VPS_PASSWORD']!;
+      final host = Platform.environment['XIO_VPS_HOST']!;
+      final fingerprint = Platform.environment['XIO_VPS_FINGERPRINT']!;
       final service = VpsService();
       try {
         await expectLater(
@@ -57,13 +57,13 @@ void main() {
             );
         // ignore: avoid_print
         print(
-          'X1O_VPS_INSTALLER=authenticated, mismatched pin rejected, Debian preflight and application installer passed',
+          'XIO_VPS_INSTALLER=authenticated, mismatched pin rejected, Debian preflight and application installer passed',
         );
       } finally {
         await service.close();
       }
     },
-    skip: Platform.environment['X1O_VPS_INSTALL'] != '1',
+    skip: Platform.environment['XIO_VPS_INSTALL'] != '1',
     timeout: const Timeout(Duration(minutes: 6)),
   );
 }

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 void main() {
   setUpAll(() async {
@@ -32,7 +32,7 @@ void main() {
           ),
         )
         ..selectedId = 'wg123';
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
       final light = Theme.of(tester.element(find.byType(Scaffold).first));
       expect(light.brightness, Brightness.light);
@@ -113,7 +113,7 @@ void main() {
             rx: 12345678,
             tx: 4567890,
           );
-        await tester.pumpWidget(X1oApp(store: store));
+        await tester.pumpWidget(XioApp(store: store));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         if (size.width < 850) {
@@ -148,7 +148,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final store = AppStore();
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(NavigationDestination).at(1));
       await tester.pumpAndSettle();
@@ -178,7 +178,7 @@ void main() {
         await tester.pumpWidget(
           RepaintBoundary(
             key: key,
-            child: X1oApp(store: store),
+            child: XioApp(store: store),
           ),
         );
         await tester.pumpAndSettle();

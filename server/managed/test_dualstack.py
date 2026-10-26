@@ -24,7 +24,7 @@ class DualstackTests(unittest.TestCase):
             folder=Path(temporary);state=folder/'state.json';receipt=folder/'receipt.json';up=folder/'network-up'
             owned={'args':['--zone=trusted'],'option':'rich-rule','value':'rule family="ipv6" source address="fd78:1::/64" drop'}
             foreign=dict(owned,value='rule family="ipv6" source address="fd99::/64" drop')
-            state.write_text(json.dumps({'owner':'x1o-managed-v1','firewall':{'kind':'firewalld','added':[owned,foreign]}}))
+            state.write_text(json.dumps({'owner':'xio-managed-v1','firewall':{'kind':'firewalld','added':[owned,foreign]}}))
             (folder/'config.json').write_text(json.dumps({'inbounds':[{'listen':'0.0.0.0','privateKey':'unchanged-test-key'}]}))
             (folder/'cloak.json').write_text(json.dumps({'BindAddr':['0.0.0.0:9443'],'PrivateKey':'unchanged-test-key'}))
             (folder/'tcp.ovpn').write_text('server 10.81.0.0 255.255.255.0\n');up.write_text('#!/bin/sh\n');up.chmod(0o755)

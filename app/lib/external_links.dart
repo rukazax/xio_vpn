@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'core.dart';
 import 'update_service.dart';
 
-const supportUrl = 'https://x1o.org/pay';
+const supportUrl = 'https://xio.org/pay';
 Future<void> openSupportLink() => openExternalLink(supportUrl);
 Future<void> openExternalLink(String url) async {
   final uri = Uri.parse(url);

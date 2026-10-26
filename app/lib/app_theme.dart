@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-ThemeData x1oTheme(Brightness brightness, {bool client = false}) {
+ThemeData xioTheme(Brightness brightness, {bool client = false}) {
   final dark = brightness == Brightness.dark;
   final background = Color(
     client

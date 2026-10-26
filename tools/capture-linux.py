@@ -17,7 +17,7 @@ try:
     number = display.stdout.readline().strip()
     if not number:
         raise RuntimeError('Xvfb did not initialize')
-    with tempfile.TemporaryDirectory(prefix='x1o-smoke-') as data:
+    with tempfile.TemporaryDirectory(prefix='xio-smoke-') as data:
         env = dict(os.environ, DISPLAY=':'+number, GDK_BACKEND='x11', LIBGL_ALWAYS_SOFTWARE='1', XDG_DATA_HOME=data)
         with (root/f'verification/linux-run-{version}.log').open('w') as log:
             app = subprocess.Popen([str(bundle/'XIO')], cwd=bundle, env=env, stdout=log, stderr=subprocess.STDOUT)

@@ -6,8 +6,8 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 Future<List<int>> get(Uri uri) async {
   final client = HttpClient()..connectionTimeout = const Duration(seconds: 12);
@@ -36,7 +36,7 @@ Future<bool> probe(String server) async {
       timeout: const Duration(seconds: 3),
     );
     socket.write(
-      'GET /whoami HTTP/1.1\r\nHost: x1o-vps\r\nConnection: close\r\n\r\n',
+      'GET /whoami HTTP/1.1\r\nHost: xio-vps\r\nConnection: close\r\n\r\n',
     );
     await socket.flush();
     final text = await socket
@@ -44,7 +44,7 @@ Future<bool> probe(String server) async {
         .transform(utf8.decoder)
         .join()
         .timeout(const Duration(seconds: 3));
-    return text.contains('x1o-real-debian-vps');
+    return text.contains('xio-real-debian-vps');
   } on IOException {
     return false;
   } on TimeoutException {
@@ -98,10 +98,10 @@ void main() {
     (tester) async {
       final store = AppStore();
       await store.load();
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
       await store.disconnect();
-      const own = 'app.x1o.x1o';
+      const own = 'app.xio.xio';
       final apps = await native.invokeListMethod<dynamic>('routingApps');
       final other =
           apps!.firstWhere((app) => app['package'] != own)['package'] as String;
@@ -133,7 +133,7 @@ void main() {
           final who = jsonDecode(
             utf8.decode(await get(Uri.parse('http://$server:8080/whoami'))),
           );
-          expect(who['marker'], 'x1o-real-debian-vps');
+          expect(who['marker'], 'xio-real-debian-vps');
           expect(who['client'], awg ? '10.78.0.2' : '10.77.0.2');
           report['peerSourceIp'] = who['client'];
           final watch = Stopwatch()..start();
@@ -142,7 +142,7 @@ void main() {
           expect(payload.length, 16 * 65536);
           expect(
             sha256.convert(payload).toString(),
-            sha256.convert(ascii.encode('x1o-vps-payload-' * 65536)).toString(),
+            sha256.convert(ascii.encode('xio-vps-payload-' * 65536)).toString(),
           );
           report['payloadBytes'] = payload.length;
           report['payloadElapsedMs'] = watch.elapsedMilliseconds;
@@ -243,7 +243,7 @@ void main() {
         }
         // ignore: avoid_print
         print(
-          'X1O_REAL_VPS_VERIFICATION=${jsonEncode({'host': '81.177.142.37', 'os': 'Debian 12', 'scope': 'Android API35 emulator via public internet; not physical phone or censorship-resistance audit', 'protocols': reports, 'date': DateTime.now().toUtc().toIso8601String()})}',
+          'XIO_REAL_VPS_VERIFICATION=${jsonEncode({'host': '81.177.142.37', 'os': 'Debian 12', 'scope': 'Android API35 emulator via public internet; not physical phone or censorship-resistance audit', 'protocols': reports, 'date': DateTime.now().toUtc().toIso8601String()})}',
         );
       } finally {
         await store.disconnect();

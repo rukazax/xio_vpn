@@ -4,9 +4,9 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart' as hashes;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/account_access.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/subclients.dart';
+import 'package:xio/account_access.dart';
+import 'package:xio/core.dart';
+import 'package:xio/subclients.dart';
 
 import 'security_test.dart' show profile;
 

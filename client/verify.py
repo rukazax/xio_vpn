@@ -25,7 +25,7 @@ def call(args):
 
 for path in sorted(OUTPUT.glob('*.apk')):
     badging = call([SDK / AAPT, 'dump', 'badging', path])
-    assert "name='app.x1o.client'" in badging
+    assert "name='app.xio.client'" in badging
     assert "versionCode='5014'" in badging and "versionName='0.22.5'" in badging
     assert "sdkVersion:'26'" in badging and "targetSdkVersion:'36'" in badging
     assert "application-label:'XIO Client'" in badging
@@ -33,12 +33,12 @@ for path in sorted(OUTPUT.glob('*.apk')):
     manifest = call([SDK / AAPT, 'dump', 'xmltree', path, 'AndroidManifest.xml'])
     for blocked in ['.UpdateJob', '.UpdateCleanupReceiver', '.updates"']:
         assert blocked not in manifest, blocked
-    assert 'app.x1o.x1o.MainActivity' in manifest
-    assert 'app.x1o.x1o.X1oVpnService' in manifest
+    assert 'app.xio.xio.MainActivity' in manifest
+    assert 'app.xio.xio.XioVpnService' in manifest
     blocks = [b for b in re.split(r'^      E: ', manifest, flags=re.M)
               if b.startswith('activity-alias ')]
     assert len(blocks) == 16
-    expected = {f'app.x1o.client.launcher.{c}_{b}_{n}'
+    expected = {f'app.xio.client.launcher.{c}_{b}_{n}'
                 for c in ('green', 'white') for b in ('dark', 'clear')
                 for n in (0, 90, 180, 270)}
     actual = {re.search(r'android:name[^=]*="([^"]+)"', b)[1] for b in blocks}
@@ -83,7 +83,7 @@ for path in sorted(OUTPUT.glob('*.apk')):
                     'signatureVerified': True, 'zipalign16KiB': True,
                     'nativePayload': native['nativePayload'], 'libraries': libraries})
 assert len(records) == 4, 'Need universal and three architecture APKs'
-report = {'appId': 'app.x1o.client', 'version': '0.22.5+5014',
+report = {'appId': 'app.xio.client', 'version': '0.22.5+5014',
           'artifacts': records, 'physicalAndroidTestedByVerifier': False,
           'realServerConnectionTested': False,
           'limits': ['Local build/unit/widget/artifact checks only; no device or server contacted.']}

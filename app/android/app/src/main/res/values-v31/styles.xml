@@ -1,7 +1,7 @@
 <resources>
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">@color/x1o_background</item>
-        <item name="android:windowSplashScreenBackground">@color/x1o_background</item>
+        <item name="android:windowBackground">@color/xio_background</item>
+        <item name="android:windowSplashScreenBackground">@color/xio_background</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

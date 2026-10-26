@@ -88,7 +88,7 @@ class ManagedService {
         metadata['bundleSha256'] == local['sha256']) {
       return;
     }
-    final archive = await rootBundle.load('assets/x1o-server.tar.gz');
+    final archive = await rootBundle.load('assets/xio-server.tar.gz');
     final program = await rootBundle.loadString('assets/xio-server-update.py');
     String quoted(String value) => "'${value.replaceAll("'", "'\\''")}'";
     if (store.status.active || store.busy || store.serverMaintenance) return;
@@ -123,7 +123,7 @@ class ManagedService {
     Duration timeout = const Duration(minutes: 6),
   }) async {
     final bytes = await ssh.executeInput(
-      'python3 /usr/local/lib/x1o-managed/admin.py',
+      'python3 /usr/local/lib/xio-managed/admin.py',
       utf8.encode(jsonEncode(request)),
       timeout: timeout,
     );
@@ -145,7 +145,7 @@ class ManagedService {
   }
 
   Future<ManagedServer> install(AppStore store) async {
-    final archive = await rootBundle.load('assets/x1o-server.tar.gz');
+    final archive = await rootBundle.load('assets/xio-server.tar.gz');
     final bootstrap = await rootBundle.loadString('assets/xio-bootstrap.sh');
     await ssh.executeInput(
       bootstrap,
@@ -382,7 +382,7 @@ class ManagedService {
     }.entries) {
       final asset = await rootBundle.load(entry.value);
       await ssh.executeInput(
-        'set -eu\numask 077\ntest "\$(cat /usr/local/lib/x1o-managed/.owner)" = x1o-managed-v1\ncat > /usr/local/lib/x1o-managed/${entry.key}.next\nmv /usr/local/lib/x1o-managed/${entry.key}.next /usr/local/lib/x1o-managed/${entry.key}\n',
+        'set -eu\numask 077\ntest "\$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1\ncat > /usr/local/lib/xio-managed/${entry.key}.next\nmv /usr/local/lib/xio-managed/${entry.key}.next /usr/local/lib/xio-managed/${entry.key}\n',
         asset.buffer.asUint8List(asset.offsetInBytes, asset.lengthInBytes),
       );
     }
@@ -390,9 +390,9 @@ class ManagedService {
     await ssh.executeInput(
       r'''set -eu
 umask 077
-test "$(cat /usr/local/lib/x1o-managed/.owner)" = x1o-managed-v1
-cat > /usr/local/lib/x1o-managed/network_stack.py.next
-mv /usr/local/lib/x1o-managed/network_stack.py.next /usr/local/lib/x1o-managed/network_stack.py
+test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1
+cat > /usr/local/lib/xio-managed/network_stack.py.next
+mv /usr/local/lib/xio-managed/network_stack.py.next /usr/local/lib/xio-managed/network_stack.py
 ''',
       networkScript.buffer.asUint8List(
         networkScript.offsetInBytes,
@@ -403,9 +403,9 @@ mv /usr/local/lib/x1o-managed/network_stack.py.next /usr/local/lib/x1o-managed/n
     await ssh.executeInput(
       r'''set -eu
 umask 077
-test "$(cat /usr/local/lib/x1o-managed/.owner)" = x1o-managed-v1
-cat > /usr/local/lib/x1o-managed/stack.py.next
-mv /usr/local/lib/x1o-managed/stack.py.next /usr/local/lib/x1o-managed/stack.py
+test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1
+cat > /usr/local/lib/xio-managed/stack.py.next
+mv /usr/local/lib/xio-managed/stack.py.next /usr/local/lib/xio-managed/stack.py
 ''',
       stackScript.buffer.asUint8List(
         stackScript.offsetInBytes,
@@ -415,10 +415,10 @@ mv /usr/local/lib/x1o-managed/stack.py.next /usr/local/lib/x1o-managed/stack.py
     final script = await rootBundle.load('assets/xio-admin.py');
     await ssh.executeInput(r'''set -eu
 umask 077
-test "$(cat /usr/local/lib/x1o-managed/.owner)" = x1o-managed-v1
-cat > /usr/local/lib/x1o-managed/admin.py.next
-chmod 600 /usr/local/lib/x1o-managed/admin.py.next
-mv /usr/local/lib/x1o-managed/admin.py.next /usr/local/lib/x1o-managed/admin.py
+test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1
+cat > /usr/local/lib/xio-managed/admin.py.next
+chmod 600 /usr/local/lib/xio-managed/admin.py.next
+mv /usr/local/lib/xio-managed/admin.py.next /usr/local/lib/xio-managed/admin.py
 ''', script.buffer.asUint8List(script.offsetInBytes, script.lengthInBytes));
     final result = await command({'action': 'remove', 'serverId': server.id});
     if (result['removed'] != true) {

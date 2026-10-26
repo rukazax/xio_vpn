@@ -16,15 +16,15 @@ if [ "$manager" = apt ]; then command -v apt-get >/dev/null; else command -v dnf
 [ -d /run/systemd/system ] || { echo 'systemd required' >&2; exit 1; }
 [ -c /dev/net/tun ] || { echo '/dev/net/tun required' >&2; exit 1; }
 command -v tar >/dev/null
-lib=/usr/local/lib/x1o-managed
+lib=/usr/local/lib/xio-managed
 if [ -d "$lib" ]; then
- [ "$(cat "$lib/.owner")" = x1o-managed-v1 ] || exit 1
+ [ "$(cat "$lib/.owner")" = xio-managed-v1 ] || exit 1
 else
- [ ! -e /etc/x1o-managed ] || { echo 'Unknown server data; installation refused' >&2; exit 1; }
+ [ ! -e /etc/xio-managed ] || { echo 'Unknown server data; installation refused' >&2; exit 1; }
  mkdir "$lib"
- printf 'x1o-managed-v1\n' > "$lib/.owner"
+ printf 'xio-managed-v1\n' > "$lib/.owner"
 fi
-if [ ! -f "$lib/packages-before" ] && [ ! -f /etc/x1o-managed/deployment.json ]; then
+if [ ! -f "$lib/packages-before" ] && [ ! -f /etc/xio-managed/deployment.json ]; then
  if [ "$manager" = apt ]; then
   dpkg-query -W -f='${binary:Package} ${db:Status-Status}\n' | awk '$2=="installed"{print $1}' > "$lib/packages-before"
  else

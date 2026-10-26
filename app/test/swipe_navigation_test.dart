@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 int selected(WidgetTester tester) =>
     tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
@@ -24,7 +24,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final store = AppStore();
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
       await swipe(tester, forward: false);
       expect(selected(tester), 0);
@@ -62,7 +62,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final store = AppStore();
-    await tester.pumpWidget(X1oApp(store: store));
+    await tester.pumpWidget(XioApp(store: store));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(NavigationDestination).at(2));
     await tester.pumpAndSettle();
@@ -98,7 +98,7 @@ void main() {
         ),
       )
       ..selectedId = 'wg1';
-    await tester.pumpWidget(X1oApp(store: store));
+    await tester.pumpWidget(XioApp(store: store));
     await tester.pumpAndSettle();
     expect(find.text('🌐 Сервер').hitTestable(), findsOneWidget);
     expect(

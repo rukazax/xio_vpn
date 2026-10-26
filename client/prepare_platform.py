@@ -11,7 +11,7 @@ if a.platform=='windows':
  for rel in ['windows/CMakeLists.txt','windows/runner/main.cpp','windows/runner/Runner.rc']:
   f=app/rel;f.write_text(f.read_text().replace('"XIO"','"XIOClient"'))
 elif a.platform=='linux':
- f=app/'linux/CMakeLists.txt';f.write_text(f.read_text().replace('BINARY_NAME "XIO"','BINARY_NAME "XIOClient"').replace('app.x1o.x1o','app.x1o.client'))
+ f=app/'linux/CMakeLists.txt';f.write_text(f.read_text().replace('BINARY_NAME "XIO"','BINARY_NAME "XIOClient"').replace('app.xio.xio','app.xio.client'))
  f=app/'linux/runner/my_application.cc';f.write_text(f.read_text().replace('"XIO"','"XIO Client"').replace('  g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, nullptr);\n',''))
  shutil.copy2(r/'client/brand/client-linux.png',app/'client-icon.png')
 else:
@@ -22,5 +22,5 @@ else:
 for lang in ['ru','en']:
  for name in ['privacy','legal']:
   f=r/f'client/{name}.portable.{lang}.txt';shutil.copy2(f,app/f'assets/help/{name}.{lang}.txt')
-(m.STAGE/'platform.json').write_text(json.dumps({'platform':a.platform,'entry':'lib/client_main.dart','defines':['XIO_CLIENT_ONLY=true'],'identity':{'linux':'app.x1o.client','windows':'XIOClient','ios':'app.xio.light'}[a.platform],'nativeBuild':'NOT_EXECUTED','allProtocolParity':False},indent=2)+'\n')
+(m.STAGE/'platform.json').write_text(json.dumps({'platform':a.platform,'entry':'lib/client_main.dart','defines':['XIO_CLIENT_ONLY=true'],'identity':{'linux':'app.xio.client','windows':'XIOClient','ios':'app.xio.light'}[a.platform],'nativeBuild':'NOT_EXECUTED','allProtocolParity':False},indent=2)+'\n')
 print(app)

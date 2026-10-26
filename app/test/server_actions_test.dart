@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 class _Store extends AppStore {
   String? forgotten;
@@ -21,7 +21,7 @@ void main() {
         ..servers.add(
           ManagedServer(id: 's', host: 'vpn.example', name: 'Test VPS'),
         );
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(NavigationDestination).at(1));
       await tester.pumpAndSettle();

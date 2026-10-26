@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
-import 'package:x1o/split_routing.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
+import 'package:xio/split_routing.dart';
 
 void main() {
   for (final width in [320.0, 784.0]) {
@@ -48,7 +48,7 @@ void main() {
           );
           await tester.pumpWidget(
             MaterialApp(
-              theme: x1oTheme(brightness),
+              theme: xioTheme(brightness),
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: const TextScaler.linear(1.3)),
@@ -133,7 +133,7 @@ void main() {
     );
     await tester.pumpWidget(
       MaterialApp(
-        theme: x1oTheme(Brightness.light),
+        theme: xioTheme(Brightness.light),
         home: const SplitRoutingPage(),
       ),
     );
@@ -187,7 +187,7 @@ void main() {
       );
       await tester.pumpWidget(
         MaterialApp(
-          theme: x1oTheme(Brightness.light),
+          theme: xioTheme(Brightness.light),
           home: const Scaffold(
             body: Column(
               children: [

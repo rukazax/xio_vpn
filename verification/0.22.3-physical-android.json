@@ -146,7 +146,7 @@
         "IPv6 DNS was advertised despite absent gateway IPv6 egress; candidate fix requires new-profile physical retest"
       ]
     },
-    "app.x1o.x1o-upgrade-5008": {
+    "app.xio.xio-upgrade-5008": {
       "status": "PASS",
       "detail": "install -r accepted signed 5008 upgrade; package versionCode verified",
       "checkedAtUtc": "2026-10-23T18:44:48.842818+00:00",

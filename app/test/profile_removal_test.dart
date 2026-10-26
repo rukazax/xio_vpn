@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 import 'security_test.dart' show profile;
 

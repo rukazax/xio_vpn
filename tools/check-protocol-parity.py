@@ -3,7 +3,7 @@
 from pathlib import Path
 import re,json,argparse
 r=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('--require-complete',action='store_true');a=p.parse_args()
-android=(r/'app/android/app/src/main/kotlin/app/x1o/x1o/MainActivity.kt').read_text()
+android=(r/'app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt').read_text()
 desktop=(r/'protocol/rivet/internal/desktop/runtime.go').read_text()
 ios=(r/'app/ios/Runner/XIOEngine.swift').read_text()
 required={'awg','rivet-h3','rivet-s1','xray','cloak'}

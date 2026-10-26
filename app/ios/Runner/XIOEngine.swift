@@ -70,7 +70,7 @@ final class XIOEngine: NSObject, UIDocumentPickerDelegate {
         guard let raw = args["url"] as? String, let url = URL(string: raw), url.scheme == "https", url.user == nil else { result(error("Invalid URL.")); return }
         UIApplication.shared.open(url, options: [:]); result(nil)
       case "openSupportLink":
-        UIApplication.shared.open(URL(string: "https://x1o.org/pay")!, options: [:]); result(nil)
+        UIApplication.shared.open(URL(string: "https://xio.org/pay")!, options: [:]); result(nil)
       default: result(FlutterMethodNotImplemented)
       }
     } catch { result(self.error("Secure storage or client configuration is unavailable.")) }

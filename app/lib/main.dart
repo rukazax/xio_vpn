@@ -72,7 +72,7 @@ Future<void> main() async {
     }
   });
   automaticUpdatesEnabled = true;
-  runApp(X1oApp(store: store, requireConsent: true));
+  runApp(XioApp(store: store, requireConsent: true));
   final statistics = StartupStatistics();
   void refreshAfterConsent() {
     if (store.ready && store.consentReady) unawaited(statistics.run(store));
@@ -82,10 +82,10 @@ Future<void> main() async {
   unawaited(store.load().then((_) => refreshAfterConsent()));
 }
 
-class X1oApp extends StatelessWidget {
+class XioApp extends StatelessWidget {
   final AppStore store;
   final bool requireConsent;
-  const X1oApp({super.key, required this.store, this.requireConsent = false});
+  const XioApp({super.key, required this.store, this.requireConsent = false});
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<int>(
     valueListenable: AppLanguages.revision,
@@ -99,8 +99,8 @@ class X1oApp extends StatelessWidget {
           Locale(AppLanguages.selected ?? AppLanguages.resolve(locales ?? [])),
       title: 'XIO · X in, 1 out',
       debugShowCheckedModeBanner: false,
-      theme: x1oTheme(Brightness.light),
-      darkTheme: x1oTheme(Brightness.dark),
+      theme: xioTheme(Brightness.light),
+      darkTheme: xioTheme(Brightness.dark),
       themeMode: ThemeMode.system,
       home: requireConsent
           ? FirstRunGate(

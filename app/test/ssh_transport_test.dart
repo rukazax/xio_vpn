@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 void main() {
   test(
@@ -11,7 +11,7 @@ void main() {
       final j = jsonDecode(
         await File('../.build-support/lab/ssh.json').readAsString(),
       );
-      final dir = await Directory.systemTemp.createTemp('x1o-ssh-integration-');
+      final dir = await Directory.systemTemp.createTemp('xio-ssh-integration-');
       final file = File('${dir.path}/known.json');
       final t = SshTarget(j['host'], j['port'], j['username']);
       try {
@@ -49,7 +49,7 @@ void main() {
         await dir.delete(recursive: true);
       }
     },
-    skip: !const bool.fromEnvironment('X1O_LAB_SSH'),
+    skip: !const bool.fromEnvironment('XIO_LAB_SSH'),
   );
   test('real SSH handshake accepts pinned key and rejects mismatch', () async {
     final j = jsonDecode(
@@ -79,5 +79,5 @@ void main() {
     } finally {
       await service.close();
     }
-  }, skip: !const bool.fromEnvironment('X1O_LAB_SSH'));
+  }, skip: !const bool.fromEnvironment('XIO_LAB_SSH'));
 }

@@ -14,7 +14,7 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    let channel = FlutterMethodChannel(name: "app.x1o/engine", binaryMessenger: engineBridge.applicationRegistrar.messenger())
+    let channel = FlutterMethodChannel(name: "app.xio/engine", binaryMessenger: engineBridge.applicationRegistrar.messenger())
     channel.setMethodCallHandler { [weak self] call, result in self?.xioEngine.handle(call, result: result) }
     xioChannel = channel
   }

@@ -60,7 +60,7 @@ func main(){
     must(os.WriteFile(filepath.Join(dir,"client.conf"),[]byte(config),0600))
     listener,err:=stack.ListenTCP(&net.TCPAddr{Port:8080});must(err)
     var count atomic.Int64
-    httpServer:=&http.Server{Handler:http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){count.Add(1);fmt.Fprint(w,"x1o-wireguard-lab-ok");log.Printf("encrypted HTTP exchange %d",count.Load())})}
+    httpServer:=&http.Server{Handler:http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){count.Add(1);fmt.Fprint(w,"xio-wireguard-lab-ok");log.Printf("encrypted HTTP exchange %d",count.Load())})}
     go httpServer.Serve(listener)
     log.Print("READY: loopback gateway :51829, encrypted HTTP 10.77.0.1:8080; ephemeral test keys saved privately")
     signalChannel:=make(chan os.Signal,1);signal.Notify(signalChannel,os.Interrupt)

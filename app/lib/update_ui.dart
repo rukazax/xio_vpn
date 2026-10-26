@@ -24,7 +24,7 @@ Future<void> _checkForUpdates(
   final updater = UpdateService.instance;
   if (playDistribution) {
     await openExternalLink(
-      'https://play.google.com/store/apps/details?id=app.x1o.x1o',
+      'https://play.google.com/store/apps/details?id=app.xio.xio',
     );
     return;
   }

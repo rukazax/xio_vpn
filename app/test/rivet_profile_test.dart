@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 Map<String, dynamic> fixture(String protocol) => {
   'protocol': protocol,

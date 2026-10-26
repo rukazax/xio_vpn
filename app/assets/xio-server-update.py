@@ -18,16 +18,16 @@ import sys
 import tarfile
 import tempfile
 
-LIB = Path('/usr/local/lib/x1o-managed')
-STATE = Path('/etc/x1o-managed/deployment.json')
+LIB = Path('/usr/local/lib/xio-managed')
+STATE = Path('/etc/xio-managed/deployment.json')
 RECIPE = 24
-OWNER = 'x1o-managed-v1'
-UNITS = ('x1o-managed-stats.timer', 'x1o-managed-awg.service',
+OWNER = 'xio-managed-v1'
+UNITS = ('xio-managed-stats.timer', 'xio-managed-awg.service',
          'xio-rivet-entry.service', 'xio-rivet-gateway.service', 'xio-stack.service', 'xio-cloak.service', 'xio-openvpn-tcp.service')
 STACK_CONFIG = Path('/etc/xio-stack/config.json')
-WG_CONFIG = Path('/etc/wireguard/x1o0.conf')
+WG_CONFIG = Path('/etc/wireguard/xio0.conf')
 NETWORK_CONFIGS=(Path('/etc/xio-stack/cloak.json'),Path('/etc/xio-stack/tcp.ovpn'),Path('/usr/local/lib/xio-rivet/network-up'))
-DUAL_RECEIPT=Path('/etc/x1o-managed/dualstack-receipt.json')
+DUAL_RECEIPT=Path('/etc/xio-managed/dualstack-receipt.json')
 LEGACY_UNITS = ('xio-openvpn-udp.service', 'xio-ikev2.service', 'xio-headscale.service', 'xio-tailscaled.service')
 RUNTIMES = {'amneziawg-go': '/usr/local/bin/xio-amneziawg-go',
             'rivet': '/usr/local/bin/xio-rivet',
@@ -215,7 +215,7 @@ def main():
         signal.signal(signal.SIGTERM, interrupted)
         signal.signal(signal.SIGHUP, interrupted)
         # Serialize with administration and the statistics sampler.
-        with open('/run/lock/x1o-managed.lock', 'a') as lock:
+        with open('/run/lock/xio-managed.lock', 'a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             raw = sys.stdin.buffer.read(256 * 1024 * 1024 + 1)
             result = update(raw, expected, server_id)

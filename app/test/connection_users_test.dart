@@ -7,12 +7,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/l10n.dart';
-import 'package:x1o/main.dart';
-import 'package:x1o/startup_statistics.dart';
-import 'package:x1o/status_poll.dart';
-import 'package:x1o/workspace_ui.dart';
+import 'package:xio/core.dart';
+import 'package:xio/l10n.dart';
+import 'package:xio/main.dart';
+import 'package:xio/startup_statistics.dart';
+import 'package:xio/status_poll.dart';
+import 'package:xio/workspace_ui.dart';
 
 class ProbeStore extends AppStore {
   ProbeStore({super.siteProbe}) : super(nativeTunnelOverride: true);
@@ -193,7 +193,7 @@ void main() {
               locale: Locale(code),
               supportedLocales: AppLanguages.locales,
               localizationsDelegates: GlobalMaterialLocalizations.delegates,
-              theme: x1oTheme(brightness),
+              theme: xioTheme(brightness),
               home: Scaffold(
                 body: SingleChildScrollView(
                   child: SharingPage(

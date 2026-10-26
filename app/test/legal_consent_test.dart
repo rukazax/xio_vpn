@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/legal_record.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/legal_record.dart';
+import 'package:xio/main.dart';
 
 class MemoryStore extends AppStore {
   @override
@@ -32,7 +32,7 @@ void main() {
         ..ready = true
         ..enforceConsent = true;
       try {
-        await tester.pumpWidget(X1oApp(store: store, requireConsent: true));
+        await tester.pumpWidget(XioApp(store: store, requireConsent: true));
         await tester.pumpAndSettle();
         await tester.scrollUntilVisible(
           find.byKey(const ValueKey('legal-ack')),

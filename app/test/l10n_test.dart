@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/l10n.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/l10n.dart';
+import 'package:xio/main.dart';
 
 class _MemoryStore extends AppStore {
   @override
@@ -108,7 +108,7 @@ void main() {
   test(
     'explicit and system language persist without changing profiles',
     () async {
-      final dir = await Directory.systemTemp.createTemp('x1o-l10n-');
+      final dir = await Directory.systemTemp.createTemp('xio-l10n-');
       final store = AppStore()..directory = dir;
       addTearDown(() async {
         store.dispose();
@@ -146,7 +146,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       AppLanguages.set('en');
       final store = _MemoryStore();
-      await tester.pumpWidget(X1oApp(store: store));
+      await tester.pumpWidget(XioApp(store: store));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(NavigationDestination).at(1));
       await tester.pumpAndSettle();
@@ -206,7 +206,7 @@ void main() {
           await tester.pumpWidget(
             RepaintBoundary(
               key: key,
-              child: X1oApp(key: UniqueKey(), store: store),
+              child: XioApp(key: UniqueKey(), store: store),
             ),
           );
           await tester.pumpAndSettle();

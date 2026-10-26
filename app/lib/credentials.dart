@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 
 /// Secrets never enter profiles.json, diagnostics or ordinary user bundles.
 class CredentialVault {
-  static const channel = MethodChannel('app.x1o/engine');
+  static const channel = MethodChannel('app.xio/engine');
   static String id(
     String host,
     int port,

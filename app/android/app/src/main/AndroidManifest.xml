@@ -91,7 +91,7 @@
         <service android:name=".VpnControlService" android:exported="false" android:stopWithTask="false" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User initiated VPN validation from Quick Settings" />
         </service>
-        <service android:stopWithTask="false" android:name=".X1oVpnService" android:foregroundServiceType="systemExempted"
+        <service android:stopWithTask="false" android:name=".XioVpnService" android:foregroundServiceType="systemExempted"
             android:permission="android.permission.BIND_VPN_SERVICE"
             android:exported="false">
             <intent-filter><action android:name="android.net.VpnService" /></intent-filter>

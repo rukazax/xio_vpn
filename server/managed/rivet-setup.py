@@ -105,7 +105,7 @@ ip address replace 10.79.0.1/24 dev xiorivet
 ip link set xiorivet mtu 1280 up
 sysctl -q -w net.ipv4.ip_forward=1
 python3 {LIB}/setup.py network
-if [ -f /usr/local/lib/x1o-managed/dualstack.py ]; then python3 /usr/local/lib/x1o-managed/dualstack.py apply; fi
+if [ -f /usr/local/lib/xio-managed/dualstack.py ]; then python3 /usr/local/lib/xio-managed/dualstack.py apply; fi
 ''',0o755)
   common='''NoNewPrivileges=yes
 ProtectSystem=strict
@@ -175,7 +175,7 @@ WantedBy=multi-user.target
   run('systemctl','daemon-reload');shutil.rmtree('/var/lib/xio-rivet',ignore_errors=True)
   for user in receipt.get('users',[]):subprocess.run(['userdel',user],capture_output=True)
   # Original shared forwarding state is retained if another VPN remains.
-  if not any(p.name in ['x1o0','x1oawg0'] for p in Path('/sys/class/net').iterdir()):run('sysctl','-q','-w','net.ipv4.ip_forward='+receipt['oldForward'])
+  if not any(p.name in ['xio0','xioawg0'] for p in Path('/sys/class/net').iterdir()):run('sysctl','-q','-w','net.ipv4.ip_forward='+receipt['oldForward'])
   if receipt.get('binaryOwned'):Path('/usr/local/bin/xio-rivet').unlink(missing_ok=True)
   shutil.rmtree(ROOT);shutil.rmtree(LIB)
  else:raise ValueError('Unknown operation')

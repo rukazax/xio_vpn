@@ -2,7 +2,7 @@
 """Owned Xray/SS deployment, called only by the SSH-authorized manager."""
 import base64,ipaddress,json,os,secrets,shutil,socket,subprocess,uuid
 from pathlib import Path
-ROOT=Path('/etc/xio-stack');STATE=Path('/var/lib/xio-stack');LIB=Path('/usr/local/lib/x1o-managed');OWNER='xio-stack-v1'
+ROOT=Path('/etc/xio-stack');STATE=Path('/var/lib/xio-stack');LIB=Path('/usr/local/lib/xio-managed');OWNER='xio-stack-v1'
 import importlib.util
 _ns=importlib.util.spec_from_file_location("xio_network_stack",str(Path(__file__).with_name("network_stack.py")))
 network=importlib.util.module_from_spec(_ns);_ns.loader.exec_module(network)

@@ -1,4 +1,4 @@
-# x1o — X in, 1 out
+# xio — X in, 1 out
 
 Flutter client for Android, Ubuntu and Windows.
 

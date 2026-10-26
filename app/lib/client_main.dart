@@ -65,8 +65,8 @@ class ClientApp extends StatelessWidget {
       supportedLocales: const [Locale('ru'), Locale('en')],
       locale: Locale(AppLanguages.effective == 'ru' ? 'ru' : 'en'),
       themeMode: ThemeMode.system,
-      theme: x1oTheme(Brightness.light, client: true),
-      darkTheme: x1oTheme(Brightness.dark, client: true),
+      theme: xioTheme(Brightness.light, client: true),
+      darkTheme: xioTheme(Brightness.dark, client: true),
       home: FirstRunGate(
         store: store,
         child: ClientHome(store: store),

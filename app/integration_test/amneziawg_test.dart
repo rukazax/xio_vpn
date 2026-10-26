@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/core.dart';
+import 'package:xio/main.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ void main() {
     final raw = utf8.decode(base64Decode(encoded));
     final store = AppStore();
     await store.load();
-    await tester.pumpWidget(X1oApp(store: store));
+    await tester.pumpWidget(XioApp(store: store));
     await tester.pumpAndSettle();
     // Overlapping packet type ranges are rejected by the Go engine, after the
     // Java parser. A rejected activation must leave the service usable.
@@ -57,7 +57,7 @@ void main() {
       String response;
       try {
         socket.write(
-          'GET / HTTP/1.1\r\nHost: x1o-lab\r\nConnection: close\r\n\r\n',
+          'GET / HTTP/1.1\r\nHost: xio-lab\r\nConnection: close\r\n\r\n',
         );
         await socket.flush();
         response = await socket
@@ -68,7 +68,7 @@ void main() {
       } finally {
         socket.destroy();
       }
-      expect(response, contains('x1o-amneziawg-lab-ok'));
+      expect(response, contains('xio-amneziawg-lab-ok'));
       await store.refresh();
       expect(store.status.handshake, greaterThan(0));
       expect(store.status.rx, greaterThan(0));
@@ -121,7 +121,7 @@ void main() {
         timeout: const Duration(seconds: 20),
       );
       wgSocket.write(
-        'GET / HTTP/1.1\r\nHost: x1o-lab\r\nConnection: close\r\n\r\n',
+        'GET / HTTP/1.1\r\nHost: xio-lab\r\nConnection: close\r\n\r\n',
       );
       await wgSocket.flush();
       try {
@@ -130,7 +130,7 @@ void main() {
             .transform(utf8.decoder)
             .join()
             .timeout(const Duration(seconds: 20));
-        expect(body, contains('x1o-wireguard-lab-ok'));
+        expect(body, contains('xio-wireguard-lab-ok'));
       } finally {
         wgSocket.destroy();
       }
@@ -147,7 +147,7 @@ void main() {
         timeout: const Duration(seconds: 20),
       );
       again.write(
-        'GET / HTTP/1.1\r\nHost: x1o-lab\r\nConnection: close\r\n\r\n',
+        'GET / HTTP/1.1\r\nHost: xio-lab\r\nConnection: close\r\n\r\n',
       );
       await again.flush();
       try {
@@ -156,7 +156,7 @@ void main() {
             .transform(utf8.decoder)
             .join()
             .timeout(const Duration(seconds: 20));
-        expect(body, contains('x1o-amneziawg-lab-ok'));
+        expect(body, contains('xio-amneziawg-lab-ok'));
       } finally {
         again.destroy();
       }
@@ -165,7 +165,7 @@ void main() {
 
       // Non-secret machine-readable evidence survives test tool uninstall.
       // ignore: avoid_print
-      print('X1O_VERIFICATION=${jsonEncode(report)}');
+      print('XIO_VERIFICATION=${jsonEncode(report)}');
       await File('${store.directory!.path}/amneziawg-verification.json')
           .writeAsString(jsonEncode(report));
     } finally {

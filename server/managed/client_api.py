@@ -82,7 +82,7 @@ def grant(admin, deployment, uid):
         destination.chmod(0o640)
     install_frontend()
     admin.write(BACKEND_UNIT, '[Unit]\nDescription=XIO bounded account dispatcher\n'
-                '[Service]\nExecStart=/usr/bin/python3 /usr/local/lib/x1o-managed/client_api.py --backend\n'
+                '[Service]\nExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/client_api.py --backend\n'
                 'Restart=on-failure\nNoNewPrivileges=true\nPrivateTmp=true\nUMask=0077\n'
                 '[Install]\nWantedBy=multi-user.target\n')
     admin.write(UNIT, '[Unit]\nDescription=XIO account HTTPS frontend\nAfter=network.target xio-client-api-backend.service\n'
@@ -261,7 +261,7 @@ class BackendHandler(socketserver.BaseRequestHandler):
                 assert len(raw) <= 32768
             # This is the sole privileged operation. Auth, exact action allowlist,
             # quota and ownership are checked independently in admin.py's lock.
-            result = subprocess.run(['/usr/bin/python3', '/usr/local/lib/x1o-managed/admin.py', '--client-api'],
+            result = subprocess.run(['/usr/bin/python3', '/usr/local/lib/xio-managed/admin.py', '--client-api'],
                                     input=bytes(raw), capture_output=True, timeout=120)
             answer = result.stdout
             assert len(answer) <= 200000

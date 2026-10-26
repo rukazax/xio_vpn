@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/client_main.dart';
-import 'package:x1o/client_policy.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/l10n.dart';
-import 'package:x1o/legal_record.dart';
-import 'package:x1o/main.dart';
+import 'package:xio/client_main.dart';
+import 'package:xio/client_policy.dart';
+import 'package:xio/core.dart';
+import 'package:xio/l10n.dart';
+import 'package:xio/legal_record.dart';
+import 'package:xio/main.dart';
 
 class PreviewStore extends AppStore {
   PreviewStore() : super(nativeTunnelOverride: true) {
@@ -96,7 +96,7 @@ void main() {
               key: key,
               child: clientOnlyBuild
                   ? ClientApp(key: UniqueKey(), store: store)
-                  : X1oApp(key: UniqueKey(), store: store),
+                  : XioApp(key: UniqueKey(), store: store),
             ),
           );
           await tester.pumpAndSettle();

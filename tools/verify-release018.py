@@ -10,7 +10,7 @@ for abi in ['arm64-v8a','armeabi-v7a','x86_64']:
  call([sdk/'zipalign','-c','-P','16','4',p]);call(['python3',r/'tools/check-android-launcher.py',p]);call(['python3',r/'tools/check-native-payload.py',p])
  aligns=[]
  with zipfile.ZipFile(p) as z:
-  assert 'assets/flutter_assets/assets/x1o-server.tar' not in z.namelist()
+  assert 'assets/flutter_assets/assets/xio-server.tar' not in z.namelist()
   for n in z.namelist():
    if not n.endswith('.so'):continue
    raw=z.read(n);wide=raw[4]==2;off=struct.unpack_from('<Q' if wide else '<I',raw,32 if wide else 28)[0];size,count=struct.unpack_from('<HH',raw,54 if wide else 42);fmt='<IIQQQQQQ' if wide else '<IIIIIIII'

@@ -79,11 +79,11 @@ def prepare():
         for attr in ['name', 'targetActivity']:
             value = child.get(ns + attr, '')
             if value.startswith('.'):
-                child.set(ns + attr, ('app.x1o.client' if value.startswith('.launcher.') else 'app.x1o.x1o') + value)
+                child.set(ns + attr, ('app.xio.client' if value.startswith('.launcher.') else 'app.xio.xio') + value)
     # Verification task expects the original relative alias targets. Fully qualify
     # components only in the manifest, and adapt its target assertion in staging.
     gradle = APP / 'android/app/build.gradle.kts'
-    gradle.write_text(gradle.read_text().replace('== ".MainActivity"', '== "app.x1o.x1o.MainActivity"').replace('".launcher.', '"app.x1o.client.launcher.'))
+    gradle.write_text(gradle.read_text().replace('== ".MainActivity"', '== "app.xio.xio.MainActivity"').replace('".launcher.', '"app.xio.client.launcher.'))
     tree.write(manifest, encoding='unicode', xml_declaration=True)
     subprocess.run([os.sys.executable, ROOT / 'client/generate_icons.py', '--android-app', APP], check=True)
     inputs = {}

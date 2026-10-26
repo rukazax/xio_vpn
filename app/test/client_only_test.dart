@@ -4,11 +4,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:x1o/app_theme.dart';
+import 'package:xio/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/client_main.dart';
-import 'package:x1o/client_policy.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/client_main.dart';
+import 'package:xio/client_policy.dart';
+import 'package:xio/core.dart';
 
 class SwitchingStore extends AppStore {
   final calls = <String>[];
@@ -170,7 +170,7 @@ void main() {
       final store = SwitchingStore()..status = const TunnelStatus();
       await tester.pumpWidget(
         MaterialApp(
-          theme: x1oTheme(brightness, client: true),
+          theme: xioTheme(brightness, client: true),
           home: RepaintBoundary(
             key: key,
             child: ClientHome(store: store),

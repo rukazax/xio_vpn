@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
-import 'package:x1o/workspace_ui.dart';
+import 'package:xio/core.dart';
+import 'package:xio/workspace_ui.dart';
 
 void main() {
   late Directory directory;
@@ -13,7 +13,7 @@ void main() {
   final changed = 'SHA256:${'b' * 43}';
   const target = SshTarget('HOST.example', 22, 'root');
   setUp(() async {
-    directory = await Directory.systemTemp.createTemp('x1o-ssh-trust-');
+    directory = await Directory.systemTemp.createTemp('xio-ssh-trust-');
     file = File('${directory.path}/known.json');
   });
   tearDown(() async => directory.delete(recursive: true));

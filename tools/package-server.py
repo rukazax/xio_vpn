@@ -16,7 +16,7 @@ for name,key in [('xio-xray-linux-amd64','xrayServerSha256'),('xio-cloak-linux-a
 assert hashlib.sha256((root/'app/android/app/libs/rivet.aar').read_bytes()).hexdigest()==metadata['androidAarSha256'],'RIVET AAR mismatch'
 
 # Fixed gzip and tar timestamps make the reviewed bundle reproducible.
-with (root/'app/assets/x1o-server.tar.gz').open('wb') as raw, gzip.GzipFile(filename='',fileobj=raw,mode='wb',mtime=0) as compressed, tarfile.open(fileobj=compressed,mode='w') as archive:
+with (root/'app/assets/xio-server.tar.gz').open('wb') as raw, gzip.GzipFile(filename='',fileobj=raw,mode='wb',mtime=0) as compressed, tarfile.open(fileobj=compressed,mode='w') as archive:
  for source,name in [(root/'server/managed/dualstack.py','dualstack.py'),(root/'server/managed/client_api.py','client_api.py'),(root/'server/managed/admin.py','admin.py'),(root/'server/managed/stack.py','stack.py'),(root/'server/managed/network_stack.py','network_stack.py'),(root/'server/managed/mesh_stack.py','mesh_stack.py'),(root/'server/managed/mesh-pins.json','mesh-pins.json'),*[(p,'xio_vici/'+p.name) for p in sorted((root/'server/managed/xio_vici').iterdir()) if p.is_file() and (p.suffix=='.py' or p.name=='LICENSE')],(root/'vendor-server/xio-xray-linux-amd64','xraygateway'),(root/'vendor-server/xio-cloak-linux-amd64','cloak'),(binary,'amneziawg-go'),(root/'vendor-server/xio-rivet-linux-amd64','rivet'),(root/'server/managed/rivet-setup.py','rivet-setup.py')]:
   entry=archive.gettarinfo(str(source),arcname=name);entry.uid=entry.gid=0;entry.uname=entry.gname='';entry.mtime=0
   with source.open('rb') as data:archive.addfile(entry,data)
@@ -27,5 +27,5 @@ for source,target in [('admin.py','xio-admin.py'),('stack.py','xio-stack.py'),('
  (root/'app/assets'/target).write_bytes((root/'server/managed'/source).read_bytes())
 (root/'app/assets/xio-bootstrap.sh').write_bytes((root/'server/managed/bootstrap.sh').read_bytes())
 (root/'app/assets/xio-server-update.py').write_bytes((root/'server/managed/update.py').read_bytes())
-(root/'app/assets/xio-server-release.json').write_text(json.dumps({'schema':1,'recipeVersion':24,'sha256':hashlib.sha256((root/'app/assets/x1o-server.tar.gz').read_bytes()).hexdigest()})+'\n')
+(root/'app/assets/xio-server-release.json').write_text(json.dumps({'schema':1,'recipeVersion':24,'sha256':hashlib.sha256((root/'app/assets/xio-server.tar.gz').read_bytes()).hexdigest()})+'\n')
 print('Packaged owned installer with pinned AWG and RIVET server binaries')

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/core.dart';
+import 'package:xio/core.dart';
 
 String profile({
   String extra = '',
@@ -128,7 +128,7 @@ void main() {
     s.dispose();
   });
   test('concurrent profile saves leave the newest complete snapshot', () async {
-    final dir = await Directory.systemTemp.createTemp('x1o-store-');
+    final dir = await Directory.systemTemp.createTemp('xio-store-');
     final store = AppStore()..directory = dir;
     try {
       final writes = <Future<void>>[];

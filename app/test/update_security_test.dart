@@ -7,8 +7,8 @@ import 'dart:math';
 import 'package:archive/archive_io.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:x1o/update_service.dart';
-import 'package:x1o/update_installer.dart';
+import 'package:xio/update_service.dart';
+import 'package:xio/update_installer.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
