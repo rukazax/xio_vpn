@@ -105,16 +105,17 @@ XIO does not reinvent everything: some transports build on proven implementation
 Different transports solve different problems: speed, censorship resistance, and networks where UDP
 is closed.
 
-| Transport | Basis | Network transport | Purpose | Android | Windows | Ubuntu | iOS |
-|---|---|---|---|---|---|---|---|
-| **AWG** | AmneziaWG (WireGuard + obfuscation) | UDP | fast everyday tunnel | ✅ | ✅ | ✅ | — |
-| **RIVET/H3** | in-house | QUIC / HTTP/3 + TLS 1.3 | resilient access where suspicious TLS is filtered | ✅ | ✅ | ✅ | ✅ |
-| **RIVET/S1** | in-house | TCP + TLS 1.3 | the same tunnel for UDP-blocked networks | ✅ | ✅ | ✅ | ✅ |
-| **Xray/REALITY** | Xray (VLESS + REALITY) | TCP, masquerades as a real TLS site | camouflage as a genuine site | ✅ | ⚠️ | ⚠️ | — |
-| **OpenVPN/Cloak** | OpenVPN inside Cloak | TCP + TLS obfuscation | last resort in strict networks | ✅ | — | — | — |
+| Transport | Basis | Network transport | Purpose | Android | Windows | Ubuntu | iOS | Where and when verified |
+|---|---|---|---|---|---|---|---|---|
+| **AWG** | AmneziaWG (WireGuard + obfuscation) | UDP | fast everyday tunnel | yes | yes | yes | — | Android POCO X6 — 2026-10-26, server 81.177.142.37; Debian 13 — 2026-10-26, same server; Windows — native run on 0.22.5, on 0.23.0 the connect fails at the firewall step (see limitations) |
+| **RIVET/H3** | in-house | QUIC / HTTP/3 + TLS 1.3 | resilient access where suspicious TLS is filtered | yes | yes* | yes* | yes* | Android — 2026-10-26, local stand 192.168.88.17:8443 (RIVET/H3 and RIVET/S1); Windows and Ubuntu — engine built, no native run; iOS not built |
+| **RIVET/S1** | in-house | TCP + TLS 1.3 | the same tunnel for UDP-blocked networks | yes | yes* | yes* | yes* | same as above |
+| **Xray/REALITY** | Xray (VLESS + REALITY) | TCP, masquerades as a real TLS site | camouflage as a genuine site | yes | yes* | yes* | — | Android 0.22.3 — PASS; 0.23.0 client with Xray 26.7.28 gateway does not connect (see limitations) |
+| **OpenVPN/Cloak** | OpenVPN inside Cloak | TCP + TLS obfuscation | last resort in strict networks | yes | — | — | — | Android — 2026-10-21, checked together with the other four transports |
 
-✅ engine present and tested; ⚠️ declared but does not connect on the 0.23.0 client/gateway pair
-(see limitations); — not available.
+`yes` — engine present and a native run on this platform was performed (when and where — last column);
+`yes*` — engine present in source and build, no native run on this platform;
+`—` — not available.
 
 ### What RIVET is
 
@@ -228,6 +229,17 @@ Windows client, real run on 2026-10-26:
 
 - **Xray/REALITY does not connect** on the 0.23.0 client with the Xray 26.7.28 gateway: the REALITY
   implementation in the client core is incompatible. AWG and RIVET work.
+- **Windows 0.23.0: connect fails at the firewall step** — the helper runs elevated, the server
+  handshake succeeds, but `netsh` inside the helper returns an error (`Windows VPN firewall setup
+  failed`) and the client rolls the connection back. The same command run manually succeeds. The
+  defect is known and being fixed; RIVET and Xray cannot be verified on Windows because the firewall
+  step is shared by every transport.
+- **Ubuntu 0.23.0: the GUI client does not create a window** (the process lives, the Impeller/EGL
+  surface never comes up). The tunnel itself works through `libexec/xio-tunnel`, but requires
+  `systemd-resolved`: without it the connect is rejected with `systemd-resolved could not configure
+  VPN DNS`.
+- **A full tunnel on Linux cuts off the local network**: while the tunnel is up the machine stops
+  answering SSH from the LAN, because all unmarked IPv4 goes into the tunnel.
 - **Public IPv6** is unverified. The stand used a local ULA prefix, and IPv6 egress from the tunnel is
   blocked by the server on purpose.
 - **iOS** is not built: no Mac/Xcode/iPhone, no IPA.

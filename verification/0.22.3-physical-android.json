@@ -2,6 +2,27 @@
   "version": "0.22.3+5012",
   "deviceModel": "POCO X6 5G",
   "android": "16 / API36",
+  "installedArtifacts": [
+    {
+      "package": "app.xio.xio",
+      "role": "full application",
+      "installedVersions": ["0.22.3+5007", "0.22.3+5008", "0.22.3+5009", "0.22.3+5010", "0.22.3+5011", "0.22.3+5012"],
+      "apkFile": "XIO-0.22.3-android-arm64-v8a.apk",
+      "apkSha256": "cea66fb2acb5b62cb364b9b81a8f229e3f75689a27530d0f56b1232789c458ff",
+      "apkSha256Note": "Published release asset of the 0.22.3 owner application. The session installed intermediate builds 5007-5011 on the device before this final build, so the hash pins the final build only; intermediate builds were never published as assets.",
+      "apkSha256Source": "GitHub release v0.22.3 asset digest",
+      "signingCertificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671"
+    },
+    {
+      "package": "app.xio.client",
+      "role": "client",
+      "installedVersions": ["0.22.3+5012"],
+      "apkFile": "XIO-Client-0.22.3-arm64-v8a.apk",
+      "apkSha256": "6ba15e87752bc182cd9fc4d15acc13e8a121288d334e2d5ff9e1edf4a3855138",
+      "apkSha256Source": "verification/APK-client-0.22.3.json",
+      "signingCertificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671"
+    }
+  ],
   "physicalDevice": true,
   "physicalAcceptanceComplete": false,
   "publicIpv6Tested": false,
@@ -1190,6 +1211,7 @@
     }
   },
   "limits": [
+    "Published sha256 of the final builds are recorded in installedArtifacts: XIO-0.22.3-android-arm64-v8a.apk (owner application) and XIO-Client-0.22.3-arm64-v8a.apk (client). Intermediate builds 5007-5011 were not published as assets, so a hash-to-run chain for those intermediate runs cannot be closed from this file alone.",
     "Case names identify build5007/5008/5009/5010/5011/5012 where relevant; unqualified early owner cases refer to5007. Historical failures are retained with their fixes, not counted as current passes.",
     "Public IPv6 unavailable on authorized VPS.",
     "One physical Android16 device; ARM32/x86_64 verified as signed binaries only.",
