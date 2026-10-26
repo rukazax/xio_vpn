@@ -9,6 +9,9 @@ XIO — это VPN-система с собственным сервером и 
 
 ## Два приложения
 
+> **0.23.0 ставится отдельным приложением.** Пакеты переименованы (`app.xio.client`, `app.xio.xio`), поэтому Android не обновит прежнюю сборку на месте: перенесите профили экспортом/импортом и удалите старую версию вручную. Старые профили `x1o://` по-прежнему импортируются.
+
+
 | | **XIO Client** | **Полный XIO** |
 |---|---|---|
 | Для чего | подключаться к уже существующим серверам | ставить и обслуживать свой сервер |
@@ -91,7 +94,7 @@ XIO не переизобретает всё: часть транспортов 
 | **Xray/REALITY** | Xray (VLESS + REALITY) | TCP, маскировка под чужой TLS-сайт | маскировка под настоящий сайт | ✅ | ⚠️ | ⚠️ | — |
 | **OpenVPN/Cloak** | OpenVPN внутри Cloak | TCP + TLS-обфускация | «последний шанс» в жёстких сетях | ✅ | — | — | — |
 
-✅ — движок есть и проверялся; ⚠️ — движок объявлен, но на паре «клиент + шлюз 0.22.5» не
+✅ — движок есть и проверялся; ⚠️ — движок объявлен, но на паре «клиент + шлюз 0.23.0» не
 подключается (см. ограничения); — — движка нет.
 
 ### Что такое RIVET
@@ -123,28 +126,28 @@ flowchart LR
 
 | Система | Файл | Что это |
 |---|---|---|
-| Android 8+ · ARM64 | `XIO-Client-0.22.5-android-arm64-v8a.apk` | основной вариант для современных телефонов |
-| Android 8+ · ARM32 | `XIO-Client-0.22.5-android-armeabi-v7a.apk` | старые 32-битные устройства |
-| Android 8+ · x86-64 | `XIO-Client-0.22.5-android-x86_64.apk` | эмуляторы и x86-планшеты |
-| Android 8+ · universal | `XIO-Client-0.22.5-android-universal.apk` | одна сборка для всех архитектур |
-| Windows 11 x64 | `XIO-Client-0.22.5-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
-| Ubuntu 22.04+ x64 | `XIO-Client-0.22.4-ubuntu-amd64.deb` | DEB из 0.22.4 (в 0.22.5 не пересобиралась) |
-| Ubuntu 22.04+ x64 | `XIO-Client-0.22.4-ubuntu-x64.tar.gz` | tar.gz из 0.22.4 |
+| Android 8+ · ARM64 | `XIO-Client-0.23.0-android-arm64-v8a.apk` | основной вариант для современных телефонов |
+| Android 8+ · ARM32 | `XIO-Client-0.23.0-android-armeabi-v7a.apk` | старые 32-битные устройства |
+| Android 8+ · x86-64 | `XIO-Client-0.23.0-android-x86_64.apk` | эмуляторы и x86-планшеты |
+| Android 8+ · universal | `XIO-Client-0.23.0-android-universal.apk` | одна сборка для всех архитектур |
+| Windows 11 x64 | `XIO-Client-0.23.0-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
+| Ubuntu 22.04+ x64 | `XIO-Client-0.23.0-ubuntu-amd64.deb` | DEB из 0.22.4 (в 0.23.0 не пересобиралась) |
+| Ubuntu 22.04+ x64 | `XIO-Client-0.23.0-ubuntu-x64.tar.gz` | tar.gz из 0.22.4 |
 | iOS | — | IPA нет: нужны Mac, Xcode и подпись Apple |
 
-Всё лежит в разделе [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.5):
-сборки 0.22.5, [контрольные суммы](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/SHA256SUMS-0.22.5.txt),
-[протокол проверки](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/verification-0.22.5.json).
+Всё лежит в разделе [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0):
+сборки 0.23.0, [контрольные суммы](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/SHA256SUMS-0.23.0.txt),
+[протокол проверки](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/verification-0.23.0.json).
 
 ### Полный XIO — свой сервер
 
 | Система | Файл | Что это |
 |---|---|---|
-| Android 8+ · ARM64 | `XIO-Full-0.22.5-android-arm64-v8a.apk` | полное приложение с администрированием |
-| Android 8+ · ARM32 | `XIO-Full-0.22.5-android-armeabi-v7a.apk` | старые 32-битные устройства |
-| Android 8+ · x86-64 | `XIO-Full-0.22.5-android-x86_64.apk` | эмуляторы |
-| Android 8+ · universal | `XIO-Full-0.22.5-android-universal.apk` | одна сборка для всех архитектур |
-| Windows 11 x64 | `XIO-Full-0.22.5-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
+| Android 8+ · ARM64 | `XIO-Full-0.23.0-android-arm64-v8a.apk` | полное приложение с администрированием |
+| Android 8+ · ARM32 | `XIO-Full-0.23.0-android-armeabi-v7a.apk` | старые 32-битные устройства |
+| Android 8+ · x86-64 | `XIO-Full-0.23.0-android-x86_64.apk` | эмуляторы |
+| Android 8+ · universal | `XIO-Full-0.23.0-android-universal.apk` | одна сборка для всех архитектур |
+| Windows 11 x64 | `XIO-Full-0.23.0-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
 | Ubuntu 22.04+ x64 | `XIO-0.22.0-ubuntu-amd64.deb` | сборка 0.22.0 |
 | iOS | — | нет |
 
@@ -193,7 +196,7 @@ flowchart LR
 - `FAIL`, `BLOCKED` и `NOT_EXECUTED` так и пишутся — не подменяются словом «работает».
 - Каждый прогон хранит версию, коммит, устройство, команды и результат отдельно от предыдущих.
 
-Подробнее: [методика и критерии](docs/compatibility/0.22.5.ru.md) ·
+Подробнее: [методика и критерии](docs/compatibility/0.23.0.ru.md) ·
 [отчёт последнего прогона](docs/blog/2026-10-26-windows-and-ipv6.ru.md).
 
 ## Скриншоты
@@ -208,7 +211,7 @@ Windows-клиент, реальный запуск 26.10.2026:
 
 ## Ограничения
 
-- **Xray/REALITY не подключается** на паре «клиент 0.22.5 + шлюз Xray 26.7.28»: несовместима
+- **Xray/REALITY не подключается** на паре «клиент 0.23.0 + шлюз Xray 26.7.28»: несовместима
   реализация REALITY в клиентском ядре. AWG и RIVET работают.
 - **Публичный IPv6** не проверен. На стенде использовался локальный ULA-префикс, а выход IPv6 из
   туннеля сервер блокирует намеренно.
@@ -220,7 +223,7 @@ Windows-клиент, реальный запуск 26.10.2026:
 
 ## Документация
 
-- [Совместимость и состояние 0.22.5](docs/compatibility/0.22.5.ru.md)
+- [Совместимость и состояние 0.23.0](docs/compatibility/0.23.0.ru.md)
 - [Скачать](docs/ru/downloads.md) · [Сборка из исходников](docs/ru/build.md) · [FAQ](docs/ru/faq.md)
 - [Как устроены протоколы](docs/protocols/README.md) · [RIVET](RIVET-IMPLEMENTATION-0.2.ru.md)
 - [История изменений](CHANGELOG.md) · [Лицензия GPL-3.0-only](LICENSE)

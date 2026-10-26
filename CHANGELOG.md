@@ -1,5 +1,11 @@
 # XIO changes / Изменения
 
+## 0.23.0 — 2026-10-26, переименование x1o → XIO
+
+RU: сквозное переименование: пакеты `app.xio.client`/`app.xio.xio`, Dart-пакет `xio`, `XioVpnService`, серверные пути `xio-managed`/`/etc/xio`, интерфейсы `xio0`/`xioawg0`, `xioTheme`, `libxio-awg.so`, `xio-server.tar.gz`. Смена пакета означает отдельную установку: перенос профилей экспортом/импортом. Приём `x1o://` сохранён. В этой же сборке: исправлены 92 строковых литерала в двойной кодировке, повторный импорт профиля и правило IPv6-firewall на Windows; окно Windows компактное 430×800. Android и Windows собраны, Ubuntu и iOS — нет. [Совместимость](docs/compatibility/0.22.5.ru.md).
+
+EN: end-to-end rename: packages `app.xio.client`/`app.xio.xio`, Dart package `xio`, `XioVpnService`, server paths `xio-managed`/`/etc/xio`, interfaces `xio0`/`xioawg0`, `xioTheme`, `libxio-awg.so`, `xio-server.tar.gz`. The package change means a separate install: move profiles by export/import. `x1o://` import is still accepted. Also in this build: 92 double-encoded string literals fixed, profile re-import fixed, Windows IPv6 firewall rule fixed, compact 430×800 Windows window. Android and Windows built; Ubuntu and iOS not. [Compatibility](docs/compatibility/0.22.5.en.md).
+
 ## 0.22.5 — 2026-10-26, client prerelase / предрелиз клиента
 
 RU: исправлен повторный импорт клиентского профиля после удаления (удаление профиля больше не оставляет висячую ссылку в записи пользователя; добавлен регрессионный тест). Исправлена настройка firewall в Windows-помощнике: netsh не принимает `remoteip=::/0`, вместо него `::/1,8000::/1`. Впервые выполнена нативная проверка Windows x64: туннель AmneziaWG через Wintun, адрес 10.78.0.7/32, трафик идёт. На тестовом стенде Debian проверены AmneziaWG (IPv4 и IPv6 endpoint) и RIVET/H3+S1 на физическом Android; Xray/REALITY не подключается — несовместимость ядра клиента и шлюза, порог `minClientVer` не помогает. Публичный IPv6 и iOS по-прежнему не проверены. [Подробности](docs/compatibility/0.22.5.ru.md).
