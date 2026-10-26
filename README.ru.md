@@ -44,7 +44,7 @@ flowchart LR
 
 Скриншоты полного приложения (Windows, 26.10.2026):
 
-<p><img src="docs/images/2026-10-26-full-home.png" width="300" alt="Полное XIO, главный экран"></p>
+<p><img src="docs/images/2026-10-26-full-home.png" width="250" alt="Полное XIO, главный экран"> <img src="docs/images/2026-10-26-full-connection.png" width="250" alt="Полное XIO, соединение"> <img src="docs/images/2026-10-26-full-settings.png" width="250" alt="Полное XIO, настройки"></p>
 
 Окно приложения компактное (430×800), как на телефоне: тот же экран без растягивания по ширине.
 
