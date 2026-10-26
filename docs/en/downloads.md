@@ -1,4 +1,4 @@
-﻿# Download XIO
+# Download XIO
 
 One naming rule:
 `XIO-<App>-<version>-<OS>-<arch>.<ext>`

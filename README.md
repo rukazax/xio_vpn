@@ -1,4 +1,4 @@
-﻿# XIO вЂ” X in, 1 out
+# XIO вЂ” X in, 1 out
 
 XIO is a VPN system with its own server and two applications: **XIO Client** connects to existing
 servers, and **full XIO** deploys and maintains the server. One server serves several transports at
