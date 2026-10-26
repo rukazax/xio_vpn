@@ -44,8 +44,9 @@ flowchart LR
 
 Скриншоты полного приложения (Windows, 26.10.2026):
 
-<p><img src="docs/images/2026-10-26-full-home.png" width="420" alt="Полное XIO, главный экран"> <img src="docs/images/2026-10-26-full-connection.png" width="420" alt="Полное XIO, экран соединения"></p>
-<p><img src="docs/images/2026-10-26-full-settings.png" width="420" alt="Полное XIO, настройки"></p>
+<p><img src="docs/images/2026-10-26-full-home.png" width="300" alt="Полное XIO, главный экран"></p>
+
+Окно приложения компактное (430×800), как на телефоне: тот же экран без растягивания по ширине.
 
 ## Как это работает
 
@@ -203,7 +204,7 @@ flowchart LR
 
 Windows-клиент, реальный запуск 26.10.2026:
 
-<p><img src="docs/images/2026-10-26-win-windows-home.png" width="420" alt="Windows-клиент, главный экран"> <img src="docs/images/2026-10-26-win-windows-profile.png" width="420" alt="Windows-клиент, импортированный профиль"></p>
+<p><img src="docs/images/2026-10-26-win-windows-home.png" width="300" alt="XIO Client для Windows, главный экран"></p>
 
 ## Ограничения
 

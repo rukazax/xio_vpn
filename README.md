@@ -44,8 +44,9 @@ What it does:
 
 Screenshots of the full application (Windows, 2026-10-26):
 
-<p><img src="docs/images/2026-10-26-full-home.png" width="420" alt="Full XIO home"> <img src="docs/images/2026-10-26-full-connection.png" width="420" alt="Full XIO connection screen"></p>
-<p><img src="docs/images/2026-10-26-full-settings.png" width="420" alt="Full XIO settings"></p>
+<p><img src="docs/images/2026-10-26-full-home.png" width="300" alt="Full XIO home"></p>
+
+The window is compact (430×800), phone-sized: the same screen without stretching across the width.
 
 ## How it works
 
@@ -203,7 +204,7 @@ Client UI renders (dark and light):
 
 Windows client, real run on 2026-10-26:
 
-<p><img src="docs/images/2026-10-26-win-windows-home.png" width="420" alt="Windows client home"> <img src="docs/images/2026-10-26-win-windows-profile.png" width="420" alt="Windows client with an imported profile"></p>
+<p><img src="docs/images/2026-10-26-win-windows-home.png" width="300" alt="XIO Client for Windows home"></p>
 
 ## Limitations
 
