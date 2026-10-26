@@ -1,6 +1,14 @@
 # XIO — X in 1 out
 
-## XIO Client 0.22.4
+## XIO Client 0.22.5
+
+Исправлены повторный импорт профиля после удаления и настройка firewall в Windows-помощнике; впервые проверен нативный туннель на Windows 11 x64 (Wintun, AmneziaWG). На тестовом стенде Debian проверены AmneziaWG (IPv4 и IPv6 endpoint) и RIVET/H3+S1 на физическом Android. Xray/REALITY не подключается: несовместимы ядро клиента и шлюз. Публичный IPv6 и iOS по-прежнему не проверены.
+
+[Download / Скачать](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.5) · [Matrix / Матрица](docs/compatibility/0.22.5.ru.md) · [Отчёт о проверке](docs/blog/2026-10-26-windows-and-ipv6.ru.md)
+
+<p><img src="docs/images/client-0.22.4-dark.png" width="230" alt="Client dark widget preview"> <img src="docs/images/2026-10-26-win-windows-home.png" width="300" alt="Windows client home"></p>
+
+## Предыдущий выпуск: XIO Client 0.22.4
 
 Жёлто-оранжевая тема и иконки клиента; полное приложение сохраняет зелёное оформление. Android APK, Windows ZIP и Ubuntu DEB/tar.gz. iOS — исходники без IPA. Полная протокольная взаимозаменяемость остаётся открытой: Android 5, Windows/Ubuntu 4, iOS 2 движка.
 
