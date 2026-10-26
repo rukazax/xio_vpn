@@ -1,80 +1,198 @@
-# XIO — X in 1 out
+﻿# XIO вЂ” X in, 1 out
 
-## XIO Client 0.22.5
+XIO is a VPN system with its own server and two applications: **XIO Client** connects to existing
+servers, and **full XIO** deploys and maintains the server. One server serves several transports at
+once; the client imports a single portable `xio://` profile and picks the transport itself.
 
-Re-importing a profile after deletion and the Windows helper firewall setup are fixed; the native Windows 11 x64 tunnel (Wintun, AmneziaWG) was verified for the first time. On the Debian test stand AmneziaWG (IPv4 and IPv6 endpoints) and RIVET/H3+S1 were verified on a physical Android. Xray/REALITY does not connect: the client core and the gateway are incompatible. Public IPv6 and iOS remain unverified.
+[Download](#download) В· [How it works](#how-it-works) В· [Protocols](#protocols) В· [How we test](#how-we-test) В· [Р СѓСЃСЃРєРёР№](README.ru.md)
 
-[Download](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.5) · [Compatibility](docs/compatibility/0.22.5.en.md) · [Acceptance report](docs/blog/2026-10-26-windows-and-ipv6.en.md)
+## Two applications
 
-<p><img src="docs/images/client-0.22.4-dark.png" width="230" alt="Client dark widget preview"> <img src="docs/images/2026-10-26-win-windows-home.png" width="300" alt="Windows client home"></p>
-
-## Previous release: XIO Client 0.22.4
-
-Yellow-orange client theme and icons; full XIO keeps its green identity. Android APKs, Windows ZIP and Ubuntu DEB/tar.gz. iOS source preparation without an IPA. Full protocol interchangeability remains open: Android 5, Windows/Ubuntu 4, iOS 2 engines.
-
-[Download / Скачать](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.4) · [Matrix / Матрица](docs/compatibility/0.22.4.en.md)
-
-<p><img src="docs/images/client-0.22.4-dark.png" width="230" alt="Client dark widget preview"> <img src="docs/images/client-0.22.4-light.png" width="230" alt="Client light widget preview"></p>
-
-
-## Previous release: XIO and XIO Client 0.22.3
-
-Full XIO provisions and maintains servers. Lightweight XIO Client connects to existing servers and installs alongside the full app. Both use the same home-screen theme: connection, status, server, protocol and traffic. Russian and English are available in both applications.
-
-The client imports profiles, switches connections and applies app or IPv4/IPv6 CIDR rules. Transports are Xray/REALITY, RIVET/H3, RIVET/S1, AmneziaWG and OpenVPN/Cloak. An ordinary profile cannot create other clients. An explicitly authorized account can create and revoke its own children within a server-enforced quota. Child profiles do not inherit the parent token.
-
-Server SSH/root/admin keys are not passed to the client. Delegation uses a separate restricted HTTPS token and a pinned certificate. Physical tests found and corrected DNS, HTTPS service permissions, Android FileProvider and Xray split-routing verification defects.
-
-**Prerelease 0.22.3+5012, server recipe 24.** Tested on a POCO X6 5G running Android 16 and the authorized IPv4 VPS. Public IPv6 is still unverified because that VPS has no IPv6 route. The test record states the remaining scope and build versions. Android 8.0+, ARM32/ARM64/x86-64, plus a universal client APK. Desktop releases are unchanged.
-
-[Download both apps](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.3) · [Client and subclients](client/README.en.md) · [Tests, screens and diagrams](docs/dualstack/0.22.3.en.md)
-
-<p><img src="docs/images/physical-owner-ru-0.22.3.png" alt="Full XIO on a physical POCO, Russian UI" width="260"> <img src="docs/images/dualstack-client-en-dark-0.22.3.png" alt="Client widgets with a synthetic profile" width="260"></p>
-
-The first image is a physical-device screenshot. The second is a local render of real client widgets using test data. Client FLAG_SECURE remains enabled.
-
-📱 [Physical Android tests: five protocols, the Cloak fix, and the results](docs/blog/2026-10-21-physical-android.en.md)
-
-**English** · [Русский](README.ru.md)
-
-<img src="docs/images/logo.png" alt="XIO" width="96">
-
-Your VPN, your servers, one interface. Connect a VPS, import supported configurations, create users and share access. When an attempt times out, XIO tries the next available configuration for that user.
-
-[Download](docs/en/downloads.md) · [Guide](docs/en/guide.md) · [Protocols](docs/en/protocols.md) · [Build](docs/en/build.md) · [FAQ](docs/en/faq.md)
-
-![XIO](docs/images/overview.svg)
-
-## Features
-
-- SSH installation and maintenance of your VPS, user management, revocation and export.
-- Automatic detection of supported third-party configuration formats.
-- Protocol priority, attempt timeout and HTTPS test; youtube.com is the default.
-- Multi-protocol user bundles and delegated administration with active-user limits.
-- Android split tunnelling, system theme, icon choices, quick-settings tile and 13 languages.
-- VPN tethering on rooted Android; experimental Windows ICS integration with administrator rights.
-- Signed client-update metadata and managed-server maintenance with rollback.
-
-## Version 0.22 builds
-
-| Platform | Availability | Client protocols |
+| | **XIO Client** | **Full XIO** |
 |---|---|---|
-| Android 8+ | ARM64, ARMv7, x86_64 APKs; ARM64 physically checked on one POCO X6 5G | Xray, RIVET/S1, RIVET/H3, AWG, Cloak |
-| Ubuntu x64 | DEB and portable archive; system tests on Ubuntu 24.04 | Xray, RIVET/S1, RIVET/H3, AWG |
-| Windows 10/11 x64 | Test ZIP; UI tested in Wine, native driver and ICS still need a Windows test | Xray, RIVET/S1, RIVET/H3, AWG |
-| iPhone/iPad | Xcode source project, no signed IPA | RIVET/S1/H3 in source; Apple validation pending |
+| Purpose | connect to servers that already exist | install and maintain your own server |
+| Styling | amber/orange | green |
+| Android package | `app.x1o.client` | `app.x1o.x1o` |
+| Rights | no SSH/root/admin; only a scoped token for its own subclients when granted | SSH provisioning, user issue/revoke, quotas, batch export |
+| Storage | separate from the full application | its own |
 
-**Protocols is under Settings → Connection**. Help and licensing remain under About XIO. Standalone WireGuard, OpenVPN, IKEv2, Shadowsocks and Tailscale are removed; OpenVPN remains an internal Cloak dependency.
+The client installs alongside the full application and never receives server keys.
 
-## What a VPN cannot promise 🔎
+## How it works
 
-The ISP can observe the entry IP even with TLS. A strict allowlist requires reachable ingress; changing a website name alone cannot reach a blocked VPS. This build has not been field-tested on Russian operator networks. RIVET is experimental, without an independent audit or proven browser indistinguishability.
+```mermaid
+flowchart LR
+  subgraph Device["Device"]
+    UI["Application<br/>Flutter UI"] -->|"xio:// profile"| STORE[("Local<br/>storage")]
+    UI --> ENG["Platform engine"]
+  end
+  ENG -->|"Android: VpnService<br/>Windows/Linux: helper + TUN"| TUN["Tunnel"]
+  TUN -->|"one transport"| SRV["XIO server"]
+  SRV --> NET["Internet"]
+  ADMIN["Full XIO"] -->|"SSH provisioning"| SRV
+```
 
-![Network limits](docs/images/allowlist-entry-en.svg)
+Step by step:
 
-[Changes and reasoning](docs/blog/2026-10-19-restricted-networks.md#english) · [Video review and primary sources](docs/research/2026-10-19-video-protocols.en.md) · [Releases](https://github.com/rukazax/xio_vpn/releases)
+1. **Import.** The administrator issues an `xio://` file: a base64 container with the user, the
+   server and per-transport configurations. It is stored encrypted locally (Keystore on Android,
+   DPAPI on Windows, AES-GCM with file permissions on Linux).
+2. **Transport choice.** The profile lists which transports really exist for that server. If the
+   platform has no engine for one of them, the client says so instead of silently substituting another.
+3. **Connect.** The client brings up a TUN interface, takes an address inside the tunnel and routes
+   traffic through the chosen transport. Android uses the system `VpnService`; Windows and Linux use a
+   separate helper that changes routes only after consent.
+4. **Verify.** Once the interface is up, the client opens the selected HTTPS site through the tunnel.
+   If the check fails, the connection is dropped. вЂњInterface activeвЂќ without passing traffic is not a
+   success.
+5. **Run.** The server accepts the traffic, assigns an internal address and NATs to the internet.
 
-Owned code: [GPL-3.0-only](LICENSE). Dependencies keep their licences: [0.22 notices](THIRD-PARTY-0.22.md). Copyright: Константин Александрович Ерёмин, er-ka@mail.ru. [Support XIO](https://x1o.org/pay).
+## Protocols
 
+XIO does not reinvent everything: some transports build on proven implementations, one is our own.
+Different transports solve different problems: speed, censorship resistance, and networks where UDP
+is closed.
 
-The five-protocol matrix in both apps (20 HTTPS checks) ran on build 5011. Final build 5012 uses the unchanged native engine/AAR and adds secret-free tile lifecycle logs. Build5012 separately passed the tile primary connect/disconnect commands, independent VPN HTTPS and a client Xray control. This does not represent a rerun of the entire matrix on 5012.
+| Transport | Basis | Network transport | Purpose | Android | Windows | Ubuntu | iOS |
+|---|---|---|---|---|---|---|---|
+| **AWG** | AmneziaWG (WireGuard + obfuscation) | UDP | fast everyday tunnel | вњ… | вњ… | вњ… | вЂ” |
+| **RIVET/H3** | in-house | QUIC / HTTP/3 + TLS 1.3 | resilient access where suspicious TLS is filtered | вњ… | вњ… | вњ… | вњ… |
+| **RIVET/S1** | in-house | TCP + TLS 1.3 | the same tunnel for UDP-blocked networks | вњ… | вњ… | вњ… | вњ… |
+| **Xray/REALITY** | Xray (VLESS + REALITY) | TCP, masquerades as a real TLS site | camouflage as a genuine site | вњ… | вљ пёЏ | вљ пёЏ | вЂ” |
+| **OpenVPN/Cloak** | OpenVPN inside Cloak | TCP + TLS obfuscation | last resort in strict networks | вњ… | вЂ” | вЂ” | вЂ” |
+
+вњ… engine present and tested; вљ пёЏ declared but does not connect on the 0.22.5 client/gateway pair
+(see limitations); вЂ” not available.
+
+### What RIVET is
+
+RIVET is our own development. The idea: give the client two independent вЂњentrancesвЂќ to the same
+server, so blocking one does not kill access.
+
+```mermaid
+flowchart LR
+  C["Client"] -->|"H3: QUIC 8443/udp<br/>S1: TCP 8443/tcp"| E["RIVET entry"]
+  E -->|"pin / gatewayId check<br/>user credentials"| G["RIVET gateway"]
+  G --> IP["Internal address 10.79.0.N<br/>traffic accounting"]
+  G --> NET["Internet"]
+```
+
+- Two transports (**H3** and **S1**) share one authentication, so the client can switch without
+  changing the profile.
+- The gateway certificate is pinned (`pin`); every server has its own `gatewayId` and outer CA.
+- A user gets a `secret` and an `entryToken`; the parent token is never passed to a subclient.
+- Internal addressing is `10.79.0.N` with per-user traffic accounting.
+
+## Download
+
+One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`, where app is `Client` or `Full`, OS is
+`android`, `windows`, `ubuntu`, `ios`, and arch is `arm64-v8a`, `armeabi-v7a`, `x86_64`, `universal`,
+`x64`.
+
+### XIO Client вЂ” connect to existing servers
+
+| System | File | What it is |
+|---|---|---|
+| Android 8+ В· ARM64 | `XIO-Client-0.22.5-android-arm64-v8a.apk` | the usual choice for modern phones |
+| Android 8+ В· ARM32 | `XIO-Client-0.22.5-android-armeabi-v7a.apk` | older 32-bit devices |
+| Android 8+ В· x86-64 | `XIO-Client-0.22.5-android-x86_64.apk` | emulators and x86 tablets |
+| Android 8+ В· universal | `XIO-Client-0.22.5-android-universal.apk` | one build for all architectures |
+| Windows 11 x64 | `XIO-Client-0.22.5-windows-x64.zip` | ZIP: app, helper, Wintun |
+| Ubuntu 22.04+ x64 | `XIO-Client-0.22.4-ubuntu-amd64.deb` | 0.22.4 DEB (not rebuilt in 0.22.5) |
+| Ubuntu 22.04+ x64 | `XIO-Client-0.22.4-ubuntu-x64.tar.gz` | 0.22.4 tar.gz |
+| iOS | вЂ” | no IPA: needs a Mac, Xcode and Apple signing |
+
+Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.22.5): 0.22.5
+builds, [checksums](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/SHA256SUMS-0.22.5.txt),
+[verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/verification-0.22.5.json).
+
+### Full XIO вЂ” your own server
+
+| System | File | What it is |
+|---|---|---|
+| Android 8+ В· ARM64 | `XIO-Full-0.22.5-android-arm64-v8a.apk` | full application with administration |
+| Android 8+ В· ARM32 | `XIO-Full-0.22.5-android-armeabi-v7a.apk` | older 32-bit devices |
+| Android 8+ В· x86-64 | `XIO-Full-0.22.5-android-x86_64.apk` | emulators |
+| Android 8+ В· universal | `XIO-Full-0.22.5-android-universal.apk` | one build for all architectures |
+| Windows 11 x64 | `XIO-0.22.0-windows-x64.zip` | 0.22.0 build; the full app was not rebuilt for Windows in 0.22.5 |
+| Ubuntu 22.04+ x64 | `XIO-0.22.0-ubuntu-amd64.deb` | 0.22.0 build |
+| iOS | вЂ” | none |
+
+The server is installed from the full application over SSH on Debian 12/13, Ubuntu 22.04/24.04/26.04,
+RHEL/Alma/Rocky 9/10 (x86_64, systemd, `/dev/net/tun`).
+
+## How to connect
+
+1. Get an `xio://` profile from the server administrator.
+2. Install **XIO Client** (not the full application вЂ” that one is for running servers).
+3. Open the app в†’ вЂњAdd profileвЂќ в†’ paste the key or pick the file.
+4. Press вЂњConnectвЂќ. Android asks for VPN permission once; Windows asks for administrator rights for
+   the helper.
+5. Make sure вЂњSite reachable В· HTTP 200вЂќ appears and traffic counters grow.
+
+Android screens are not published: the app sets `FLAG_SECURE`, so the system returns a black image.
+That is protection, not a bug.
+
+## How we test
+
+The methodology rests on one rule: **only an observed result on real hardware counts as evidence, not
+a successful build.**
+
+```mermaid
+flowchart LR
+  S1["1. Static<br/>analyze, unit tests"] --> S2["2. Artifacts<br/>signature, ABI, 16 KB"]
+  S2 --> S3["3. Stand<br/>server + real network"]
+  S3 --> S4["4. Device<br/>physical phone/PC"]
+  S4 --> S5["5. Independent check<br/>traffic, gateway ping, counters"]
+  S5 --> S6["6. Report and release"]
+```
+
+| Level | What is checked | What it is not |
+|---|---|---|
+| Static | `flutter analyze`, unit/widget tests, Go tests, transport parity gate | does not prove networking |
+| Artifacts | APK signature, `package`/`versionCode`, ABI and 16 KB alignment of the native payload | does not prove a connection |
+| Stand | the server is installed from the shipped bundle and a client connects over a real network | does not prove phone behaviour |
+| Device | install on a physical Android device / run on Windows | does not prove the route |
+| Independent check | HTTPS check inside the tunnel, `ping` to the tunnel gateway, server counters and `endpoint` | вЂ” |
+
+Rules we keep:
+
+- вЂњInterface activeвЂќ without passing traffic is not a success.
+- Cross-builds, Wine, emulators and unit tests do not replace checks on Windows, physical Android or
+  Ethernet.
+- `FAIL`, `BLOCKED` and `NOT_EXECUTED` are written as such and never replaced with вЂњworksвЂќ.
+- Every run stores version, commit, device, commands and results separately from previous runs.
+
+More: [methodology and criteria](docs/compatibility/0.22.5.en.md) В·
+[latest run report](docs/blog/2026-10-26-windows-and-ipv6.en.md).
+
+## Screenshots
+
+Client UI renders (dark and light):
+
+<p><img src="docs/images/client-0.22.4-dark.png" width="230" alt="Client, dark theme"> <img src="docs/images/client-0.22.4-light.png" width="230" alt="Client, light theme"></p>
+
+Windows client, real run on 2026-10-26:
+
+<p><img src="docs/images/2026-10-26-win-windows-home.png" width="420" alt="Windows client home"> <img src="docs/images/2026-10-26-win-windows-profile.png" width="420" alt="Windows client with an imported profile"></p>
+
+## Limitations
+
+- **Xray/REALITY does not connect** on the 0.22.5 client with the Xray 26.7.28 gateway: the REALITY
+  implementation in the client core is incompatible. AWG and RIVET work.
+- **Public IPv6** is unverified. The stand used a local ULA prefix, and IPv6 egress from the tunnel is
+  blocked by the server on purpose.
+- **iOS** is not built: no Mac/Xcode/iPhone, no IPA.
+- **Full protocol parity is not achieved**: Android has 5 transports, Windows/Ubuntu 4, iOS 2.
+- **Alongside another VPN** XIO does not work: the `/1` routes conflict.
+- The Windows application is not signed with a publisher certificate, so SmartScreen warns.
+
+## Documentation
+
+- [Compatibility and status 0.22.5](docs/compatibility/0.22.5.en.md)
+- [Download](docs/en/downloads.md) В· [Build from source](docs/en/build.md) В· [FAQ](docs/en/faq.md)
+- [Protocol documentation](docs/protocols/README.md) В· [RIVET](RIVET-IMPLEMENTATION-0.2.ru.md)
+- [Changelog](CHANGELOG.md) В· [License GPL-3.0-only](LICENSE)
+
+Original code is GPL-3.0-only. Third-party components keep their own licences:
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
