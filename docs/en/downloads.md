@@ -1,32 +1,42 @@
 # Download XIO
 
-## Android 0.22.2
+## Android 0.22.5
 
-- [XIO Client · ARM64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-arm64-v8a.apk)
-- [XIO Client · ARM32](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-armeabi-v7a.apk)
-- [XIO Client · x86-64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-x86_64.apk)
-- [XIO Client · universal](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-Client-0.22.2-universal.apk)
-- [Full XIO / Полный XIO · ARM64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-0.22.2-android-arm64-v8a.apk)
-- [Source / Исходники](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/XIO-0.22.2-source.zip)
-- [SHA-256](https://github.com/rukazax/xio_vpn/releases/download/v0.22.2/SHA256SUMS-0.22.2.txt)
+- [XIO Client · ARM64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/XIO-Client-0.22.5-arm64-v8a.apk)
+- [XIO Client · ARM32](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/XIO-Client-0.22.5-armeabi-v7a.apk)
+- [XIO Client · x86-64](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/XIO-Client-0.22.5-x86_64.apk)
+- [XIO Client · universal](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/XIO-Client-0.22.5-universal.apk)
+- [SHA-256 and verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/SHA256SUMS-0.22.5.txt)
 
-[Setup and limits](../../client/README.en.md). Desktop downloads below remain at 0.22.0.
+## Windows x64, 0.22.5
+
+- [XIO Client · Windows x64 ZIP](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5/XIO-Client-0.22.5-windows-x64.zip)
+
+The archive contains `XIOClient.exe`, `data/`, the `libexec/xio-tunnel.exe` helper, the official
+`wintun.dll` and the licences. The application is not signed with a publisher certificate, so
+Windows shows a SmartScreen warning. Connecting requires administrator rights: the helper changes
+routes and DNS.
+
+[Setup and limits](../../client/README.en.md). [Compatibility status](../compatibility/0.22.5.en.md).
 
 [Русский](../ru/downloads.md) · [Home](../../README.md)
 
+## Earlier builds
 
 | Build | Download |
 |---|---|
-| Android ARM64 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-arm64-v8a.apk) |
-| Android ARMv7 · 32-bit ARM | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-armeabi-v7a.apk) |
-| Android x86_64 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-android-x86_64.apk) |
-| Ubuntu x64 · DEB | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-amd64.deb) |
-| Ubuntu x64 · tar.gz | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-x64.tar.gz) |
-| Windows x64 · ZIP | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-windows-x64.zip) |
-| Source for all platforms, including iOS | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-source.zip) |
+| Android ARM64, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-arm64-v8a.apk) |
+| Android ARM32, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-armeabi-v7a.apk) |
+| Android x86_64, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-x86_64.apk) |
+| Android universal, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-universal.apk) |
+| Windows x64 · ZIP, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-windows-x64.zip) |
+| Ubuntu x64 · DEB, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-ubuntu-amd64.deb) |
+| Ubuntu x64 · tar.gz, 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-Client-0.22.4-ubuntu-x64.tar.gz) |
+| Sources 0.22.4 | [GitHub](https://github.com/rukazax/xio_vpn/releases/download/v0.22.4/XIO-0.22.4-source.zip) |
 
 [All releases](https://github.com/rukazax/xio_vpn/releases)
 
-Android requires Android 8+. Ubuntu requires x64 22.04+. Windows is a test ZIP without publisher code signing; native Wintun/UAC still needs testing. There is no iOS IPA: a Mac, Xcode and Apple signing are required.
-
-After downloading, run `sha256sum FILE` on Linux or `Get-FileHash FILE -Algorithm SHA256` in PowerShell. Compare against SHA256SUMS. A hash checks integrity but is not a publisher signature.
+Android requires Android 8+. Ubuntu: 22.04+ x64. There is no iOS IPA: that needs a Mac, Xcode and an
+Apple signing setup. The 0.22.5 Windows build was verified natively on Windows 11 x64: the
+AmneziaWG tunnel comes up and traffic flows. Xray does not connect in this build — a known
+limitation, see the compatibility page.

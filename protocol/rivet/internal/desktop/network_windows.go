@@ -204,11 +204,13 @@ func (n *networkState) configure(p Profile) error {
 	}
 	// Only our new adapter is configured. IPv6 user traffic is blocked while
 	// this IPv4-only client is connected; no OS security setting is disabled.
+	// netsh rejects a zero-length prefix ("::/0"), so the same range is
+	// expressed as two halves, mirroring the IPv4 routes below.
 	if e = os.WriteFile(n.journal, []byte(n.firewallName), 0600); e != nil {
 		return e
 	}
 	n.firewall = true
-	if e = netsh("advfirewall", "firewall", "add", "rule", "name="+n.firewallName, "dir=out", "action=block", "remoteip=::/0", "enable=yes", "profile=any"); e != nil {
+	if e = netsh("advfirewall", "firewall", "add", "rule", "name="+n.firewallName, "dir=out", "action=block", "remoteip=::/1,8000::/1", "enable=yes", "profile=any"); e != nil {
 		return e
 	}
 	n.firewall = true

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Build the Android-only client from the current app, never the stale Git HEAD.
 
 The isolated staging tree has its own pubspec, package ID, manifest and outputs.
@@ -13,6 +13,7 @@ import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+FLUTTER = 'flutter.bat' if os.name == 'nt' else 'flutter'
 STAGE = ROOT / '.build-support/client'
 APP = STAGE / 'app'
 
@@ -44,7 +45,7 @@ def prepare():
     shutil.copy2(ROOT/'app/assets/fonts/NotoSans-Regular.ttf',assets/'fonts/NotoSans-Regular.ttf')
     # System fonts handle scripts: do not bundle the 16 MB CJK font or server tools.
     source = (ROOT / 'app/pubspec.yaml').read_text()
-    assert 'version: 0.22.4+5013' in source, 'Review the client version before using a newer base'
+    assert 'version: 0.22.5+5014' in source, 'Review the client version before using a newer base'
     source = source[:source.index('  assets:')] + '''  assets:
     - assets/help/
     - assets/licenses/
@@ -55,8 +56,8 @@ def prepare():
       fonts:
         - asset: assets/fonts/NotoSans-Regular.ttf
 '''
-    source = source.replace('"XIO — X in, 1 out. VPN, mesh and network laboratory."',
-                            '"XIO Client — connect to existing VPN servers."')
+    source = source.replace('"XIO вЂ” X in, 1 out. VPN, mesh and network laboratory."',
+                            '"XIO Client вЂ” connect to existing VPN servers."')
     (APP / 'pubspec.yaml').write_text(source)
     manifest = APP / 'android/app/src/main/AndroidManifest.xml'
     import xml.etree.ElementTree as ET
@@ -104,18 +105,18 @@ if __name__ == '__main__':
     if not args.prepare_only:
         env = os.environ.copy()
         env.setdefault('ANDROID_HOME', str(Path.home() / 'Android/Sdk'))
-        subprocess.run(['flutter', 'pub', 'get', '--offline'], cwd=APP, env=env, check=True)
+        subprocess.run([FLUTTER, 'pub', 'get', '--offline'], cwd=APP, env=env, check=True)
         for split in [['--split-per-abi'], []]:
-            subprocess.run(['flutter', 'build', 'apk', '--no-pub', '--release', *split,
+            subprocess.run([FLUTTER, 'build', 'apk', '--no-pub', '--release', *split,
                             '--target', 'lib/client_main.dart',
                             '--dart-define=XIO_CLIENT_ONLY=true'], cwd=APP, env=env, check=True)
-        output = ROOT / 'releases/client-0.22.4'
+        output = ROOT / 'releases/client-0.22.5'
         output.mkdir(parents=True, exist_ok=True)
         packages = APP / 'build/app/outputs/flutter-apk'
         for abi in ['arm64-v8a', 'armeabi-v7a', 'x86_64']:
             shutil.copy2(packages / f'app-{abi}-release.apk',
-                         output / f'XIO-Client-0.22.4-{abi}.apk')
-        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.22.4-universal.apk')
+                         output / f'XIO-Client-0.22.5-{abi}.apk')
+        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.22.5-universal.apk')
         shutil.copy2(STAGE / 'source-inputs.json', output / 'source-inputs.json')
         for name in ['README.ru.md', 'README.en.md']:
             shutil.copy2(ROOT / 'client' / name, output / name)

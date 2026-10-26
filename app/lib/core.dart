@@ -63,19 +63,19 @@ class Protocol {
 }
 
 const protocols = [
-  Protocol('xray', 'Xray / VLESS', 'TLS · REALITY · XHTTP', 'Xray'),
+  Protocol('xray', 'Xray / VLESS', 'TLS В· REALITY В· XHTTP', 'Xray'),
   Protocol(
     'rivet-s1',
     'RIVET / S1',
-    'Экспериментальный · TLS / WebSocket',
+    'Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅС‹Р№ В· TLS / WebSocket',
     'RIVET',
   ),
   Protocol('cloak', 'Cloak', 'TLS / TCP', 'Cloak'),
-  Protocol('awg', 'AmneziaWG 3.1', 'Обфускация WireGuard', 'Amnezia'),
+  Protocol('awg', 'AmneziaWG 3.1', 'РћР±С„СѓСЃРєР°С†РёСЏ WireGuard', 'Amnezia'),
   Protocol(
     'rivet-h3',
     'RIVET / H3',
-    'Экспериментальный · QUIC / CONNECT-UDP',
+    'Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅС‹Р№ В· QUIC / CONNECT-UDP',
     'RIVET',
   ),
 ];
@@ -111,7 +111,7 @@ class WireGuardProfile {
   const WireGuardProfile(this.endpoint, this.fullTunnel);
   static WireGuardProfile parse(String raw, {bool amnezia = false}) {
     if (raw.length > 65536 || raw.contains('\u0000')) {
-      throw const FormatException('Слишком большой или повреждённый профиль');
+      throw const FormatException('РЎР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№ РёР»Рё РїРѕРІСЂРµР¶РґС‘РЅРЅС‹Р№ РїСЂРѕС„РёР»СЊ');
     }
     var section = '';
     var interfaces = 0, peers = 0;
@@ -127,7 +127,7 @@ class WireGuardProfile {
       } else {
         final at = line.indexOf('=');
         if (section.isEmpty || at < 1) {
-          throw const FormatException('Ожидается WireGuard .conf');
+          throw const FormatException('РћР¶РёРґР°РµС‚СЃСЏ WireGuard .conf');
         }
         final key = line.substring(0, at).trim().toLowerCase(),
             value = line.substring(at + 1).trim();
@@ -175,7 +175,7 @@ class WireGuardProfile {
               };
         if (!allowed.contains(key)) {
           throw FormatException(
-            'Неподдерживаемое поле: $key. Команды и поля другого режима не принимаются.',
+            'РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјРѕРµ РїРѕР»Рµ: $key. РљРѕРјР°РЅРґС‹ Рё РїРѕР»СЏ РґСЂСѓРіРѕРіРѕ СЂРµР¶РёРјР° РЅРµ РїСЂРёРЅРёРјР°СЋС‚СЃСЏ.',
           );
         }
         final map = fields.putIfAbsent(section, () => {});
@@ -184,13 +184,13 @@ class WireGuardProfile {
                 !(amnezia &&
                     section == 'interface' &&
                     {'i1', 'i2', 'i3', 'i4', 'i5'}.contains(key)))) {
-          throw FormatException('Повторное или пустое поле: $key');
+          throw FormatException('РџРѕРІС‚РѕСЂРЅРѕРµ РёР»Рё РїСѓСЃС‚РѕРµ РїРѕР»Рµ: $key');
         }
         map[key] = value;
       }
     }
     if (interfaces != 1 || peers != 1) {
-      throw const FormatException('Нужны один Interface и один Peer');
+      throw const FormatException('РќСѓР¶РЅС‹ РѕРґРёРЅ Interface Рё РѕРґРёРЅ Peer');
     }
     final i = fields['interface'] ?? {}, peer = fields['peer0'] ?? {};
     if (amnezia) {
@@ -200,11 +200,11 @@ class WireGuardProfile {
         final number = int.tryParse(value);
         final limit = key == 'jc' ? 128 : 1280;
         if (number == null || number < 0 || number > limit) {
-          throw FormatException('$key: в этой сборке допустимо 0…$limit');
+          throw FormatException('$key: РІ СЌС‚РѕР№ СЃР±РѕСЂРєРµ РґРѕРїСѓСЃС‚РёРјРѕ 0вЂ¦$limit');
         }
       }
       if (int.parse(i['jmin'] ?? '0') > int.parse(i['jmax'] ?? '1280')) {
-        throw const FormatException('Jmin должен быть не больше Jmax');
+        throw const FormatException('Jmin РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµ Р±РѕР»СЊС€Рµ Jmax');
       }
       for (final key in ['h1', 'h2', 'h3', 'h4']) {
         final value = i[key];
@@ -214,7 +214,7 @@ class WireGuardProfile {
         if (parts.length > 2 ||
             numbers.any((n) => n == null || n < 0 || n > 4294967295) ||
             (numbers.length == 2 && numbers.first! > numbers.last!)) {
-          throw FormatException('$key: ожидается uint32 или диапазон min-max');
+          throw FormatException('$key: РѕР¶РёРґР°РµС‚СЃСЏ uint32 РёР»Рё РґРёР°РїР°Р·РѕРЅ min-max');
         }
       }
     }
@@ -229,14 +229,14 @@ class WireGuardProfile {
         if (base64Decode(key ?? '').length != 32) throw const FormatException();
       } catch (_) {
         throw const FormatException(
-          'Ключ WireGuard должен содержать 32 байта Base64',
+          'РљР»СЋС‡ WireGuard РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ 32 Р±Р°Р№С‚Р° Base64',
         );
       }
     }
     if (i['address'] == null ||
         peer['allowedips'] == null ||
         peer['endpoint'] == null) {
-      throw const FormatException('Обязательны Address, AllowedIPs и Endpoint');
+      throw const FormatException('РћР±СЏР·Р°С‚РµР»СЊРЅС‹ Address, AllowedIPs Рё Endpoint');
     }
     for (final cidr in '${i['address']},${peer['allowedips']}'.split(',')) {
       final parts = cidr.trim().split('/');
@@ -246,7 +246,7 @@ class WireGuardProfile {
           prefix == null ||
           prefix < 0 ||
           prefix > (ip.type == InternetAddressType.IPv4 ? 32 : 128)) {
-        throw const FormatException('Некорректный CIDR');
+        throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ CIDR');
       }
     }
     final endpoint = peer['endpoint']!;
@@ -255,13 +255,13 @@ class WireGuardProfile {
     if (match == null ||
         int.parse(match[2]!) < 1 ||
         int.parse(match[2]!) > 65535) {
-      throw const FormatException('Некорректный Endpoint');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ Endpoint');
     }
     final host = match[1]!;
     if (host.startsWith('[')) {
       if (InternetAddress.tryParse(host.substring(1, host.length - 1)) ==
           null) {
-        throw const FormatException('Некорректный IPv6 Endpoint');
+        throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ IPv6 Endpoint');
       }
     } else if (host
         .split('.')
@@ -269,7 +269,7 @@ class WireGuardProfile {
           (label) =>
               label.isEmpty || label.startsWith('-') || label.endsWith('-'),
         )) {
-      throw const FormatException('Некорректное имя Endpoint');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РёРјСЏ Endpoint');
     }
     return WireGuardProfile(
       endpoint,
@@ -288,8 +288,8 @@ class TunnelStatus {
   final int? rx, tx, handshake;
   const TunnelStatus({
     this.active = false,
-    this.state = 'Отключено',
-    this.path = '—',
+    this.state = 'РћС‚РєР»СЋС‡РµРЅРѕ',
+    this.path = 'вЂ”',
     this.rx,
     this.tx,
     this.handshake,
@@ -357,7 +357,7 @@ class ClientImport {
     }
     WireGuardProfile.parse(raw, amnezia: awg);
     if (!awg) {
-      throw const FormatException('WireGuard удалён из этой версии XIO');
+      throw const FormatException('WireGuard СѓРґР°Р»С‘РЅ РёР· СЌС‚РѕР№ РІРµСЂСЃРёРё XIO');
     }
     return 'awg';
   }
@@ -435,7 +435,7 @@ class ClientImport {
 
   static ClientImport parse(String input) {
     if (input.length > 200000 || input.contains('\u0000')) {
-      throw const FormatException('Некорректный профиль XIO');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РїСЂРѕС„РёР»СЊ XIO');
     }
     final raw = input.replaceFirst(RegExp(r'^\uFEFF'), '').trim();
     if (RegExp(r'^(vless|vmess|trojan|ss)://').hasMatch(raw) ||
@@ -462,7 +462,7 @@ class ClientImport {
       final bundle = UserBundle.decode(raw);
       for (final entry in bundle.configs.entries) {
         if (detect(entry.value) != entry.key) {
-          throw const FormatException('Протокол не совпадает с конфигурацией');
+          throw const FormatException('РџСЂРѕС‚РѕРєРѕР» РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№');
         }
       }
       return ClientImport._(bundle, null, 'bundle');
@@ -572,7 +572,7 @@ class ClientImport {
       );
     } catch (_) {
       throw const FormatException(
-        'Неподдерживаемая конфигурация. Импортируйте клиентский профиль WireGuard или AmneziaWG.',
+        'РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ. РРјРїРѕСЂС‚РёСЂСѓР№С‚Рµ РєР»РёРµРЅС‚СЃРєРёР№ РїСЂРѕС„РёР»СЊ WireGuard РёР»Рё AmneziaWG.',
       );
     }
   }
@@ -753,7 +753,7 @@ class AppStore extends ChangeNotifier {
       await refresh();
     } catch (_) {
       _storageHealthy = false;
-      error = 'Не удалось прочитать состояние приложения. Сохранённые данные не перезаписаны.';
+      error = 'РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕС‡РёС‚Р°С‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РїСЂРёР»РѕР¶РµРЅРёСЏ. РЎРѕС…СЂР°РЅС‘РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РЅРµ РїРµСЂРµР·Р°РїРёСЃР°РЅС‹.';
     }
     if ((Platform.isAndroid || Platform.isIOS) && _storageHealthy) {
       await native.invokeMethod<void>('setConsent', {
@@ -773,9 +773,9 @@ class AppStore extends ChangeNotifier {
 
   Future<void> save() async {
     if (!_storageHealthy) {
-      throw StateError('Повреждённое хранилище защищено от перезаписи');
+      throw StateError('РџРѕРІСЂРµР¶РґС‘РЅРЅРѕРµ С…СЂР°РЅРёР»РёС‰Рµ Р·Р°С‰РёС‰РµРЅРѕ РѕС‚ РїРµСЂРµР·Р°РїРёСЃРё');
     }
-    if (directory == null) throw StateError('Хранилище ещё не готово');
+    if (directory == null) throw StateError('РҐСЂР°РЅРёР»РёС‰Рµ РµС‰С‘ РЅРµ РіРѕС‚РѕРІРѕ');
     final file = File('${directory!.path}/profiles.json');
     final tmp = File('${file.path}.tmp');
     final payload = jsonEncode({
@@ -801,7 +801,7 @@ class AppStore extends ChangeNotifier {
       if (Platform.isLinux) {
         final permissions = await Process.run('chmod', ['600', tmp.path]);
         if (permissions.exitCode != 0) {
-          throw StateError('Не удалось защитить файл профилей');
+          throw StateError('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°С‰РёС‚РёС‚СЊ С„Р°Р№Р» РїСЂРѕС„РёР»РµР№');
         }
       }
       await tmp.rename(file.path);
@@ -836,7 +836,7 @@ class AppStore extends ChangeNotifier {
 
   Future<void> select(String id) async {
     if (busy || status.active) {
-      throw StateError('Сначала отключите текущий туннель');
+      throw StateError('РЎРЅР°С‡Р°Р»Р° РѕС‚РєР»СЋС‡РёС‚Рµ С‚РµРєСѓС‰РёР№ С‚СѓРЅРЅРµР»СЊ');
     }
     selectedId = id;
     connectionCheck = null;
@@ -910,11 +910,11 @@ class AppStore extends ChangeNotifier {
   Future<void> importServer(String raw) async {
     if (clientOnlyBuild) {
       throw const FormatException(
-        'XIO Client принимает только клиентские профили, без доступа к серверу',
+        'XIO Client РїСЂРёРЅРёРјР°РµС‚ С‚РѕР»СЊРєРѕ РєР»РёРµРЅС‚СЃРєРёРµ РїСЂРѕС„РёР»Рё, Р±РµР· РґРѕСЃС‚СѓРїР° Рє СЃРµСЂРІРµСЂСѓ',
       );
     }
     if (raw.length > 100000 || !raw.startsWith('xio-server://')) {
-      throw const FormatException('Некорректная конфигурация сервера');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРµСЂРІРµСЂР°');
     }
     try {
       final data = jsonDecode(
@@ -978,13 +978,13 @@ class AppStore extends ChangeNotifier {
       }
       notifyListeners();
     } catch (_) {
-      throw const FormatException('Некорректная конфигурация сервера');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРµСЂРІРµСЂР°');
     }
   }
 
   Future<String> exportServer(ManagedServer server) async {
     final credentials = await CredentialVault.read(credentialId(server));
-    if (credentials == null) throw StateError('Сначала подключитесь к серверу');
+    if (credentials == null) throw StateError('РЎРЅР°С‡Р°Р»Р° РїРѕРґРєР»СЋС‡РёС‚РµСЃСЊ Рє СЃРµСЂРІРµСЂСѓ');
     return 'xio-server://${base64Url.encode(utf8.encode(jsonEncode({'schema': 1, 'server': server.toJson(), 'credentials': credentials})))}';
   }
 
@@ -1079,7 +1079,7 @@ class AppStore extends ChangeNotifier {
     final parsed = ExtendedProfile.parse(raw);
     if (!nativeTunnel || !nativeProtocols.contains(parsed.protocol)) {
       throw UnsupportedError(
-        'Клиентский движок этого протокола ещё не интегрирован',
+        'РљР»РёРµРЅС‚СЃРєРёР№ РґРІРёР¶РѕРє СЌС‚РѕРіРѕ РїСЂРѕС‚РѕРєРѕР»Р° РµС‰С‘ РЅРµ РёРЅС‚РµРіСЂРёСЂРѕРІР°РЅ',
       );
     }
     final id =
@@ -1151,7 +1151,7 @@ class AppStore extends ChangeNotifier {
       throw UnsupportedError('The platform tunnel engine is unavailable');
     }
     if (!amnezia) {
-      throw const FormatException('WireGuard удалён из этой версии XIO');
+      throw const FormatException('WireGuard СѓРґР°Р»С‘РЅ РёР· СЌС‚РѕР№ РІРµСЂСЃРёРё XIO');
     }
     final parsed = WireGuardProfile.parse(raw, amnezia: true);
     await resolveCountry(parsed.endpoint);
@@ -1164,7 +1164,7 @@ class AppStore extends ChangeNotifier {
       Profile(
         id: id,
         name: name.trim().isEmpty
-            ? AppLanguages.text('Мой ${amnezia ? 'AmneziaWG' : 'WireGuard'}')
+            ? AppLanguages.text('РњРѕР№ ${amnezia ? 'AmneziaWG' : 'WireGuard'}')
             : name.trim(),
         protocol: protocol,
         endpoint: parsed.endpoint,
@@ -1179,7 +1179,7 @@ class AppStore extends ChangeNotifier {
       await native.invokeMethod('deleteConfig', {'id': id});
       rethrow;
     }
-    log('Профиль $protocol добавлен');
+    log('РџСЂРѕС„РёР»СЊ $protocol РґРѕР±Р°РІР»РµРЅ');
     notifyListeners();
   }
 
@@ -1189,11 +1189,11 @@ class AppStore extends ChangeNotifier {
     int? timeoutSeconds,
   }) async {
     if (timeoutSeconds != null && (timeoutSeconds < 5 || timeoutSeconds > 60)) {
-      throw const FormatException('Время ожидания: от 5 до 60 секунд');
+      throw const FormatException('Р’СЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ: РѕС‚ 5 РґРѕ 60 СЃРµРєСѓРЅРґ');
     }
     final normalized = validateCheckSite(site).toString();
     if (!nativeProtocols.contains(priority)) {
-      throw const FormatException('Протокол пока не поддерживается');
+      throw const FormatException('РџСЂРѕС‚РѕРєРѕР» РїРѕРєР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ');
     }
     final oldSite = checkSite, oldPriority = priorityProtocol;
     final oldTimeout = protocolTimeoutSeconds;
@@ -1216,7 +1216,7 @@ class AppStore extends ChangeNotifier {
     Duration timeout = const Duration(seconds: 15),
   }) async {
     if (timeout <= Duration.zero) return false;
-    connectionCheck = 'Проверка $checkSite…';
+    connectionCheck = 'РџСЂРѕРІРµСЂРєР° $checkSiteвЂ¦';
     notifyListeners();
     final clock = Stopwatch()..start();
     HttpClient? activeClient;
@@ -1233,11 +1233,11 @@ class AppStore extends ChangeNotifier {
     }
 
     try {
-      if (!status.active) throw StateError('VPN отключён');
+      if (!status.active) throw StateError('VPN РѕС‚РєР»СЋС‡С‘РЅ');
       if (siteProbe != null) {
         final ok = await siteProbe!(validateCheckSite(checkSite))
             .timeout(remaining());
-        connectionCheck = ok ? 'Сайт доступен' : 'Сайт недоступен';
+        connectionCheck = ok ? 'РЎР°Р№С‚ РґРѕСЃС‚СѓРїРµРЅ' : 'РЎР°Р№С‚ РЅРµРґРѕСЃС‚СѓРїРµРЅ';
         return ok;
       }
       final tls =
@@ -1270,8 +1270,8 @@ class AppStore extends ChangeNotifier {
             }
             final code = response.statusCode;
             connectionCheck = code >= 200 && code < 400
-                ? 'Сайт доступен · HTTP $code'
-                : 'Сайт ответил HTTP $code';
+                ? 'РЎР°Р№С‚ РґРѕСЃС‚СѓРїРµРЅ В· HTTP $code'
+                : 'РЎР°Р№С‚ РѕС‚РІРµС‚РёР» HTTP $code';
             return code >= 200 && code < 400;
           }
         } on HandshakeException {
@@ -1288,7 +1288,7 @@ class AppStore extends ChangeNotifier {
         await Future<void>.delayed(const Duration(milliseconds: 250));
       }
     } catch (_) {
-      connectionCheck = 'Не удалось открыть $checkSite';
+      connectionCheck = 'РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ $checkSite';
       return false;
     } finally {
       deadline.cancel();
@@ -1300,7 +1300,7 @@ class AppStore extends ChangeNotifier {
   Future<ManagedUser> importBundle(UserBundle bundle) async {
     if (clientOnlyBuild && bundle.adminAccess != null) {
       throw const FormatException(
-        'Нужен клиентский профиль без SSH-доступа администратора',
+        'РќСѓР¶РµРЅ РєР»РёРµРЅС‚СЃРєРёР№ РїСЂРѕС„РёР»СЊ Р±РµР· SSH-РґРѕСЃС‚СѓРїР° Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°',
       );
     }
     final capability = bundle.clientAccess == null
@@ -1316,10 +1316,10 @@ class AppStore extends ChangeNotifier {
     if (previousUser != null &&
         previousUser.profileIds.isNotEmpty &&
         capability == null) {
-      throw const FormatException('Пользователь уже добавлен');
+      throw const FormatException('РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ РґРѕР±Р°РІР»РµРЅ');
     }
     if (previousUser?.revoked == true) {
-      throw const FormatException('Доступ пользователя отозван');
+      throw const FormatException('Р”РѕСЃС‚СѓРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РѕС‚РѕР·РІР°РЅ');
     }
     ManagedUser? imported;
     ManagedServer? adminServer;
@@ -1337,18 +1337,18 @@ class AppStore extends ChangeNotifier {
           adminServer.actorId != bundle.userId ||
           SSHKeyPair.fromPem(bundle.adminAccess!['key']).single.name !=
               'ssh-ed25519') {
-        throw const FormatException('Некорректная конфигурация сервера');
+        throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ РєРѕРЅС„РёРіСѓСЂР°С†РёСЏ СЃРµСЂРІРµСЂР°');
       }
     }
     for (final e in bundle.configs.entries) {
       if (rivetProtocols.contains(e.key)) {
         final p = RivetProfile.parse(e.value);
         if (p.protocol != e.key || p.data['id'] != bundle.userId) {
-          throw const FormatException('Некорректный профиль RIVET');
+          throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РїСЂРѕС„РёР»СЊ RIVET');
         }
       } else if (extendedProtocols.contains(e.key)) {
         if (ExtendedProfile.parse(e.value).protocol != e.key) {
-          throw const FormatException('Протокол не совпадает с конфигурацией');
+          throw const FormatException('РџСЂРѕС‚РѕРєРѕР» РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ РєРѕРЅС„РёРіСѓСЂР°С†РёРµР№');
         }
       } else {
         WireGuardProfile.parse(e.value, amnezia: e.key == 'awg');
@@ -1398,7 +1398,7 @@ class AppStore extends ChangeNotifier {
           await addRivet(bundle.name, e.value);
         } else {
           await addWireGuard(
-            '${bundle.name} · ${e.key == 'awg' ? 'AmneziaWG' : 'WireGuard'}',
+            '${bundle.name} В· ${e.key == 'awg' ? 'AmneziaWG' : 'WireGuard'}',
             e.value,
             amnezia: e.key == 'awg',
           );
@@ -1486,7 +1486,7 @@ class AppStore extends ChangeNotifier {
   }
 
   Future<UserBundle> exportUser(ManagedUser user) async {
-    if (user.revoked) throw StateError('Доступ отозван');
+    if (user.revoked) throw StateError('Р”РѕСЃС‚СѓРї РѕС‚РѕР·РІР°РЅ');
     final configs = <String, String>{};
     for (final entry in user.profileIds.entries) {
       configs[entry.key] = (await native.invokeMethod<String>('readConfig', {
@@ -1498,7 +1498,7 @@ class AppStore extends ChangeNotifier {
       final saved = await AccountVault.read(user.serverId, user.id);
       if (saved == null) {
         throw StateError(
-          'Выдайте ограниченный доступ аккаунта из полной версии',
+          'Р’С‹РґР°Р№С‚Рµ РѕРіСЂР°РЅРёС‡РµРЅРЅС‹Р№ РґРѕСЃС‚СѓРї Р°РєРєР°СѓРЅС‚Р° РёР· РїРѕР»РЅРѕР№ РІРµСЂСЃРёРё',
         );
       }
       access = AccountAccess.parse(
@@ -1517,7 +1517,7 @@ class AppStore extends ChangeNotifier {
   }
 
   Future<void> forgetServer(String id) async {
-    if (status.active || busy) throw StateError('Сначала отключите VPN');
+    if (status.active || busy) throw StateError('РЎРЅР°С‡Р°Р»Р° РѕС‚РєР»СЋС‡РёС‚Рµ VPN');
     final ownUsers = users.where((u) => u.serverId == id).toList();
     for (final user in ownUsers) {
       final server = servers.where((s) => s.id == id).firstOrNull;
@@ -1531,7 +1531,8 @@ class AppStore extends ChangeNotifier {
           ),
         );
       }
-      for (final profile in user.profileIds.values) {
+      // remove() prunes this very map, so iterate a snapshot.
+      for (final profile in user.profileIds.values.toList()) {
         await remove(profile);
       }
     }
@@ -1546,10 +1547,19 @@ class AppStore extends ChangeNotifier {
   }
 
   Future<void> remove(String id) async {
-    if (busy || _activeId == id) throw StateError('Сначала отключите профиль');
+    if (busy || _activeId == id) throw StateError('РЎРЅР°С‡Р°Р»Р° РѕС‚РєР»СЋС‡РёС‚Рµ РїСЂРѕС„РёР»СЊ');
     final previous = profiles.toList();
     final previousId = selectedId;
+    final previousUsers = users
+        .map((u) => Map<String, String>.from(u.profileIds))
+        .toList();
     profiles.removeWhere((p) => p.id == id);
+    // The imported user record is what makes a later import of the same
+    // xio:// container fail with "user already added"; the profile and its
+    // user reference must disappear together.
+    for (final user in users) {
+      user.profileIds.removeWhere((_, profileId) => profileId == id);
+    }
     if (selectedId == id) selectedId = profiles.firstOrNull?.id;
     try {
       await save();
@@ -1557,6 +1567,11 @@ class AppStore extends ChangeNotifier {
       profiles
         ..clear()
         ..addAll(previous);
+      for (var i = 0; i < users.length && i < previousUsers.length; i++) {
+        users[i].profileIds
+          ..clear()
+          ..addAll(previousUsers[i]);
+      }
       selectedId = previousId;
       rethrow;
     }
@@ -1568,7 +1583,7 @@ class AppStore extends ChangeNotifier {
 
   Future<void> connect() async {
     if (enforceConsent && !consentReady) {
-      throw StateError("Сначала ознакомьтесь с лицензией и уведомлением VPN");
+      throw StateError("РЎРЅР°С‡Р°Р»Р° РѕР·РЅР°РєРѕРјСЊС‚РµСЃСЊ СЃ Р»РёС†РµРЅР·РёРµР№ Рё СѓРІРµРґРѕРјР»РµРЅРёРµРј VPN");
     }
     if (nativeTunnel &&
         await native.invokeMethod<bool>('connectionBusy') == true) {
@@ -1580,7 +1595,7 @@ class AppStore extends ChangeNotifier {
         .where((u) => u.profileIds.values.contains(initial.id))
         .firstOrNull;
     if (user?.revoked == true) {
-      error = 'Доступ пользователя отозван';
+      error = 'Р”РѕСЃС‚СѓРї РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РѕС‚РѕР·РІР°РЅ';
       notifyListeners();
       return;
     }
@@ -1613,7 +1628,7 @@ class AppStore extends ChangeNotifier {
             final website = await checkConnection(
               timeout: budget - attempt.elapsed,
             );
-            if (!website) throw StateError('Проверка соединения не пройдена');
+            if (!website) throw StateError('РџСЂРѕРІРµСЂРєР° СЃРѕРµРґРёРЅРµРЅРёСЏ РЅРµ РїСЂРѕР№РґРµРЅР°');
             for (
               var i = 0;
               attempt.elapsed < budget &&
@@ -1626,13 +1641,13 @@ class AppStore extends ChangeNotifier {
             if (!website ||
                 !status.active ||
                 (status.handshake ?? 0) < started - 2000) {
-              throw StateError('Проверка соединения не пройдена');
+              throw StateError('РџСЂРѕРІРµСЂРєР° СЃРѕРµРґРёРЅРµРЅРёСЏ РЅРµ РїСЂРѕР№РґРµРЅР°');
             }
           } else {
             continue;
           }
           await save();
-          log('Автоматически выбран ${p.protocol}; сайт доступен');
+          log('РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІС‹Р±СЂР°РЅ ${p.protocol}; СЃР°Р№С‚ РґРѕСЃС‚СѓРїРµРЅ');
           return;
         } catch (e) {
           if (nativeTunnel) {
@@ -1640,7 +1655,7 @@ class AppStore extends ChangeNotifier {
           }
           _activeId = null;
           status = const TunnelStatus();
-          log('Проверка ${p.protocol} не пройдена');
+          log('РџСЂРѕРІРµСЂРєР° ${p.protocol} РЅРµ РїСЂРѕР№РґРµРЅР°');
           if (e is PlatformException &&
               (e.code == 'DENIED' || e.code == 'ROUTING')) {
             rethrow;
@@ -1648,7 +1663,7 @@ class AppStore extends ChangeNotifier {
         }
       }
       throw StateError(
-        'Ни один доступный маршрут не прошёл проверку сайта. Проверьте точку входа: смена протокола не снимает блокировку IP.',
+        'РќРё РѕРґРёРЅ РґРѕСЃС‚СѓРїРЅС‹Р№ РјР°СЂС€СЂСѓС‚ РЅРµ РїСЂРѕС€С‘Р» РїСЂРѕРІРµСЂРєСѓ СЃР°Р№С‚Р°. РџСЂРѕРІРµСЂСЊС‚Рµ С‚РѕС‡РєСѓ РІС…РѕРґР°: СЃРјРµРЅР° РїСЂРѕС‚РѕРєРѕР»Р° РЅРµ СЃРЅРёРјР°РµС‚ Р±Р»РѕРєРёСЂРѕРІРєСѓ IP.',
       );
     } catch (e) {
       selectedId = initial.id;
@@ -1656,7 +1671,7 @@ class AppStore extends ChangeNotifier {
           ? e.message
           : e is PlatformException && e.code == 'ROUTING'
           ? e.message
-          : 'Не удалось подключиться: проверьте профиль, сеть и разрешение VPN.';
+          : 'РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ: РїСЂРѕРІРµСЂСЊС‚Рµ РїСЂРѕС„РёР»СЊ, СЃРµС‚СЊ Рё СЂР°Р·СЂРµС€РµРЅРёРµ VPN.';
     } finally {
       busy = false;
       notifyListeners();
@@ -1675,9 +1690,9 @@ class AppStore extends ChangeNotifier {
       status = const TunnelStatus();
       error = null;
       connectionCheck = null;
-      log('Туннель отключён');
+      log('РўСѓРЅРЅРµР»СЊ РѕС‚РєР»СЋС‡С‘РЅ');
     } catch (_) {
-      error = 'Не удалось отключить туннель. Проверьте системную службу.';
+      error = 'РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєР»СЋС‡РёС‚СЊ С‚СѓРЅРЅРµР»СЊ. РџСЂРѕРІРµСЂСЊС‚Рµ СЃРёСЃС‚РµРјРЅСѓСЋ СЃР»СѓР¶Р±Сѓ.';
     } finally {
       busy = false;
       notifyListeners();
@@ -1699,10 +1714,10 @@ class AppStore extends ChangeNotifier {
           active: up,
           state: up
               ? (j['phase'] == 'reconnecting'
-                    ? 'Повторное подключение…'
-                    : 'Интерфейс активен')
-              : 'Отключено',
-          path: up ? '${j['protocol'] ?? p!.protocol}' : '—',
+                    ? 'РџРѕРІС‚РѕСЂРЅРѕРµ РїРѕРґРєР»СЋС‡РµРЅРёРµвЂ¦'
+                    : 'РРЅС‚РµСЂС„РµР№СЃ Р°РєС‚РёРІРµРЅ')
+              : 'РћС‚РєР»СЋС‡РµРЅРѕ',
+          path: up ? '${j['protocol'] ?? p!.protocol}' : 'вЂ”',
           rx: j['rx'],
           tx: j['tx'],
           handshake: j['handshake'],
@@ -1716,8 +1731,8 @@ class AppStore extends ChangeNotifier {
     } catch (_) {
       status = TunnelStatus(
         active: _activeId != null,
-        state: 'Состояние неизвестно · проверьте службу',
-        path: '—',
+        state: 'РЎРѕСЃС‚РѕСЏРЅРёРµ РЅРµРёР·РІРµСЃС‚РЅРѕ В· РїСЂРѕРІРµСЂСЊС‚Рµ СЃР»СѓР¶Р±Сѓ',
+        path: 'вЂ”',
       );
     } finally {
       notifyListeners();
@@ -1732,7 +1747,7 @@ class AppStore extends ChangeNotifier {
     'tunnelState': status.state,
     'path': status.path,
     'checks': checks,
-    'notes': 'Тесты доступности не доказывают отсутствие DNS/IPv6-утечек. Ключи и конфигурации не включены.',
+    'notes': 'РўРµСЃС‚С‹ РґРѕСЃС‚СѓРїРЅРѕСЃС‚Рё РЅРµ РґРѕРєР°Р·С‹РІР°СЋС‚ РѕС‚СЃСѓС‚СЃС‚РІРёРµ DNS/IPv6-СѓС‚РµС‡РµРє. РљР»СЋС‡Рё Рё РєРѕРЅС„РёРіСѓСЂР°С†РёРё РЅРµ РІРєР»СЋС‡РµРЅС‹.',
   };
 
   @override
@@ -1750,17 +1765,17 @@ class SshTarget {
     if (host.isEmpty ||
         host.startsWith('-') ||
         !RegExp(r'^[a-zA-Z0-9.:-]+$').hasMatch(host)) {
-      throw const FormatException('Некорректный адрес VPS');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ Р°РґСЂРµСЃ VPS');
     }
     if (port < 1 || port > 65535) {
-      throw const FormatException('Некорректный SSH-порт');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ SSH-РїРѕСЂС‚');
     }
     if (!RegExp(r'^[a-zA-Z_][a-zA-Z0-9_-]{0,31}$').hasMatch(username)) {
-      throw const FormatException('Некорректный пользователь');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ');
     }
     if (fingerprint.isNotEmpty &&
         !RegExp(r'^SHA256:[A-Za-z0-9+/]{43}$').hasMatch(fingerprint)) {
-      throw const FormatException('Некорректный SHA256-отпечаток SSH');
+      throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ SHA256-РѕС‚РїРµС‡Р°С‚РѕРє SSH');
     }
   }
 }
@@ -1790,7 +1805,7 @@ class SshHostKeyStore {
                   v is! String ||
                   !RegExp(r'^SHA256:[A-Za-z0-9+/]{43}$').hasMatch(v),
             )) {
-          throw const FormatException('Повреждено хранилище ключей SSH');
+          throw const FormatException('РџРѕРІСЂРµР¶РґРµРЅРѕ С…СЂР°РЅРёР»РёС‰Рµ РєР»СЋС‡РµР№ SSH');
         }
         keys = decoded;
       }
@@ -1798,13 +1813,13 @@ class SshHostKeyStore {
       final known = keys[endpoint];
       if (known != null && known != fingerprint) {
         throw const FormatException(
-          'Ключ SSH сервера изменился. Подключение остановлено. '
-          'Проверьте сервер перед повторной настройкой.',
+          'РљР»СЋС‡ SSH СЃРµСЂРІРµСЂР° РёР·РјРµРЅРёР»СЃСЏ. РџРѕРґРєР»СЋС‡РµРЅРёРµ РѕСЃС‚Р°РЅРѕРІР»РµРЅРѕ. '
+          'РџСЂРѕРІРµСЂСЊС‚Рµ СЃРµСЂРІРµСЂ РїРµСЂРµРґ РїРѕРІС‚РѕСЂРЅРѕР№ РЅР°СЃС‚СЂРѕР№РєРѕР№.',
         );
       }
       if (known == null) {
         if (!RegExp(r'^SHA256:[A-Za-z0-9+/]{43}$').hasMatch(fingerprint)) {
-          throw const FormatException('Некорректный ключ SSH сервера');
+          throw const FormatException('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РєР»СЋС‡ SSH СЃРµСЂРІРµСЂР°');
         }
         keys[endpoint] = fingerprint;
         await storage.parent.create(recursive: true);
@@ -1814,15 +1829,15 @@ class SshHostKeyStore {
       }
     } on FileSystemException {
       throw const FormatException(
-        'Не удалось сохранить или прочитать ключ SSH сервера',
+        'РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ РёР»Рё РїСЂРѕС‡РёС‚Р°С‚СЊ РєР»СЋС‡ SSH СЃРµСЂРІРµСЂР°',
       );
     } on FormatException catch (e) {
-      if (e.message.startsWith('Ключ SSH') ||
-          e.message.startsWith('Не удалось') ||
-          e.message.startsWith('Некорректный ключ')) {
+      if (e.message.startsWith('РљР»СЋС‡ SSH') ||
+          e.message.startsWith('РќРµ СѓРґР°Р»РѕСЃСЊ') ||
+          e.message.startsWith('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РєР»СЋС‡')) {
         rethrow;
       }
-      throw const FormatException('Повреждено хранилище ключей SSH');
+      throw const FormatException('РџРѕРІСЂРµР¶РґРµРЅРѕ С…СЂР°РЅРёР»РёС‰Рµ РєР»СЋС‡РµР№ SSH');
     } finally {
       done.complete();
     }
@@ -1902,7 +1917,7 @@ printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing ins
 ''')
         .timeout(const Duration(seconds: 20));
     if (result.exitCode != 0) {
-      throw StateError('Предпроверка VPS завершилась ошибкой');
+      throw StateError('РџСЂРµРґРїСЂРѕРІРµСЂРєР° VPS Р·Р°РІРµСЂС€РёР»Р°СЃСЊ РѕС€РёР±РєРѕР№');
     }
     return utf8.decode(result.stdout, allowMalformed: true);
   }
@@ -1910,7 +1925,7 @@ printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing ins
   Future<String> installWireGuard(String script) async {
     if (target == null || target!.username != 'root') {
       throw StateError(
-        'Рецепт требует SSH-вход root; sudo в этой версии не поддерживается',
+        'Р РµС†РµРїС‚ С‚СЂРµР±СѓРµС‚ SSH-РІС…РѕРґ root; sudo РІ СЌС‚РѕР№ РІРµСЂСЃРёРё РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ',
       );
     }
     final keypair = await X25519().newKeyPair();
@@ -1927,19 +1942,19 @@ printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing ins
     } on TimeoutException {
       session.kill(SSHSignal.TERM);
       throw StateError(
-        'Установка не завершилась вовремя. Проверьте журнал /var/log/x1o-install.log на VPS.',
+        'РЈСЃС‚Р°РЅРѕРІРєР° РЅРµ Р·Р°РІРµСЂС€РёР»Р°СЃСЊ РІРѕРІСЂРµРјСЏ. РџСЂРѕРІРµСЂСЊС‚Рµ Р¶СѓСЂРЅР°Р» /var/log/x1o-install.log РЅР° VPS.',
       );
     }
     final out = utf8.decode(await output, allowMalformed: true);
     await errors;
     if (session.exitCode != 0) {
       throw StateError(
-        'Установка прервана. Изменения могли примениться частично; журнал /var/log/x1o-install.log на VPS.',
+        'РЈСЃС‚Р°РЅРѕРІРєР° РїСЂРµСЂРІР°РЅР°. РР·РјРµРЅРµРЅРёСЏ РјРѕРіР»Рё РїСЂРёРјРµРЅРёС‚СЊСЃСЏ С‡Р°СЃС‚РёС‡РЅРѕ; Р¶СѓСЂРЅР°Р» /var/log/x1o-install.log РЅР° VPS.',
       );
     }
     final match = RegExp(r'X1O_SERVER_KEY=([A-Za-z0-9+/]{43}=)')
         .firstMatch(out);
-    if (match == null) throw StateError('Нет подтверждённого ключа сервера');
+    if (match == null) throw StateError('РќРµС‚ РїРѕРґС‚РІРµСЂР¶РґС‘РЅРЅРѕРіРѕ РєР»СЋС‡Р° СЃРµСЂРІРµСЂР°');
     final host = target!.host.contains(':')
         ? '[${target!.host}]'
         : target!.host;
@@ -1952,7 +1967,7 @@ printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing ins
     Duration timeout = const Duration(minutes: 6),
   }) async {
     if (_client == null || target == null) {
-      throw StateError('Сначала подключитесь по SSH');
+      throw StateError('РЎРЅР°С‡Р°Р»Р° РїРѕРґРєР»СЋС‡РёС‚РµСЃСЊ РїРѕ SSH');
     }
     final session = await _client!.execute(command);
     final output = session.stdout.fold<List<int>>([], (a, b) => a..addAll(b));
@@ -1964,7 +1979,7 @@ printf '\nX1O\n'; if test -e /etc/wireguard/x1o0.conf; then printf 'existing ins
     await session.done.timeout(timeout);
     // JSON operation errors are decoded by the caller; never echo stderr/secrets.
     if (session.exitCode != 0 && bytes.isEmpty) {
-      throw StateError('Операция сервера завершилась ошибкой');
+      throw StateError('РћРїРµСЂР°С†РёСЏ СЃРµСЂРІРµСЂР° Р·Р°РІРµСЂС€РёР»Р°СЃСЊ РѕС€РёР±РєРѕР№');
     }
     return bytes;
   }
@@ -1983,7 +1998,7 @@ class NetworkChecks {
         port < 1 ||
         port > 65535 ||
         host.contains(RegExp(r'\s'))) {
-      throw const FormatException('Проверьте адрес и порт');
+      throw const FormatException('РџСЂРѕРІРµСЂСЊС‚Рµ Р°РґСЂРµСЃ Рё РїРѕСЂС‚');
     }
     final result = <Map<String, dynamic>>[];
     var timer = Stopwatch()..start();
@@ -2003,7 +2018,7 @@ class NetworkChecks {
       result.add({
         'test': 'DNS',
         'ok': false,
-        'detail': 'Имя не разрешено или тайм-аут',
+        'detail': 'РРјСЏ РЅРµ СЂР°Р·СЂРµС€РµРЅРѕ РёР»Рё С‚Р°Р№Рј-Р°СѓС‚',
       });
     }
     final samples = <int>[];
@@ -2026,7 +2041,7 @@ class NetworkChecks {
           ? null
           : samples.reduce((a, b) => a + b) ~/ samples.length,
       'detail':
-          '${samples.length}/3 TCP-соединений. Это не ICMP RTT и не тест пропускной способности.',
+          '${samples.length}/3 TCP-СЃРѕРµРґРёРЅРµРЅРёР№. Р­С‚Рѕ РЅРµ ICMP RTT Рё РЅРµ С‚РµСЃС‚ РїСЂРѕРїСѓСЃРєРЅРѕР№ СЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё.',
     });
     return result;
   }

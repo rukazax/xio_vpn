@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Inspect the shipped client APKs; never contacts an Android device or server."""
 from pathlib import Path
 import hashlib
@@ -10,8 +10,11 @@ import sys
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SDK = Path.home() / 'Android/Sdk/build-tools/36.0.0'
-OUTPUT = ROOT / 'releases/client-0.22.4'
+import os
+SDK = Path(os.environ.get('XIO_ANDROID_BUILD_TOOLS') or (Path.home() / 'Android/Sdk/build-tools/36.0.0'))
+AAPT = 'aapt.exe' if os.name == 'nt' else 'aapt'
+APKSIGNER = 'apksigner.bat' if os.name == 'nt' else 'apksigner'
+OUTPUT = ROOT / 'releases/client-0.22.5'
 OUTPUT.mkdir(parents=True, exist_ok=True)
 records = []
 
@@ -21,13 +24,13 @@ def call(args):
 
 
 for path in sorted(OUTPUT.glob('*.apk')):
-    badging = call([SDK / 'aapt', 'dump', 'badging', path])
+    badging = call([SDK / AAPT, 'dump', 'badging', path])
     assert "name='app.x1o.client'" in badging
-    assert "versionCode='5013'" in badging and "versionName='0.22.4'" in badging
+    assert "versionCode='5014'" in badging and "versionName='0.22.5'" in badging
     assert "sdkVersion:'26'" in badging and "targetSdkVersion:'36'" in badging
     assert "application-label:'XIO Client'" in badging
     assert 'android.permission.REQUEST_INSTALL_PACKAGES' not in badging
-    manifest = call([SDK / 'aapt', 'dump', 'xmltree', path, 'AndroidManifest.xml'])
+    manifest = call([SDK / AAPT, 'dump', 'xmltree', path, 'AndroidManifest.xml'])
     for blocked in ['.UpdateJob', '.UpdateCleanupReceiver', '.updates"']:
         assert blocked not in manifest, blocked
     assert 'app.x1o.x1o.MainActivity' in manifest
@@ -41,7 +44,7 @@ for path in sorted(OUTPUT.glob('*.apk')):
     actual = {re.search(r'android:name[^=]*="([^"]+)"', b)[1] for b in blocks}
     assert actual == expected
     assert sum('android:enabled(0x0101000e)=(type 0x12)0xffffffff' in b for b in blocks) == 1
-    signature = call([SDK / 'apksigner', 'verify', '--verbose', '--print-certs', path])
+    signature = call([SDK / APKSIGNER, 'verify', '--verbose', '--print-certs', path])
     assert 'Verified using v2 scheme (APK Signature Scheme v2): true' in signature
     cert = re.search(r'Signer #1 certificate SHA-256 digest: (\w+)', signature)[1]
     call([SDK / 'zipalign', '-c', '-P', '16', '4', path])
@@ -80,7 +83,7 @@ for path in sorted(OUTPUT.glob('*.apk')):
                     'signatureVerified': True, 'zipalign16KiB': True,
                     'nativePayload': native['nativePayload'], 'libraries': libraries})
 assert len(records) == 4, 'Need universal and three architecture APKs'
-report = {'appId': 'app.x1o.client', 'version': '0.22.4+5013',
+report = {'appId': 'app.x1o.client', 'version': '0.22.5+5014',
           'artifacts': records, 'physicalAndroidTestedByVerifier': False,
           'realServerConnectionTested': False,
           'limits': ['Local build/unit/widget/artifact checks only; no device or server contacted.']}

@@ -360,7 +360,8 @@ class ManagedService {
       'serverId': user.serverId,
     });
     user.revoked = true;
-    for (final id in user.profileIds.values) {
+    // remove() prunes user.profileIds, so iterate a snapshot.
+    for (final id in user.profileIds.values.toList()) {
       await store.remove(id);
     }
     await store.save();
