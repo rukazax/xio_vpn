@@ -143,7 +143,7 @@ flowchart LR
 | Android 8+ · ARM32 | `XIO-Full-0.22.5-android-armeabi-v7a.apk` | старые 32-битные устройства |
 | Android 8+ · x86-64 | `XIO-Full-0.22.5-android-x86_64.apk` | эмуляторы |
 | Android 8+ · universal | `XIO-Full-0.22.5-android-universal.apk` | одна сборка для всех архитектур |
-| Windows 11 x64 | `XIO-0.22.0-windows-x64.zip` | сборка 0.22.0; в 0.22.5 полное приложение под Windows не пересобиралось |
+| Windows 11 x64 | `XIO-Full-0.22.5-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
 | Ubuntu 22.04+ x64 | `XIO-0.22.0-ubuntu-amd64.deb` | сборка 0.22.0 |
 | iOS | — | нет |
 

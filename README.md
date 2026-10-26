@@ -143,7 +143,7 @@ builds, [checksums](https://github.com/rukazax/xio_vpn/releases/download/v0.22.5
 | Android 8+ · ARM32 | `XIO-Full-0.22.5-android-armeabi-v7a.apk` | older 32-bit devices |
 | Android 8+ · x86-64 | `XIO-Full-0.22.5-android-x86_64.apk` | emulators |
 | Android 8+ · universal | `XIO-Full-0.22.5-android-universal.apk` | one build for all architectures |
-| Windows 11 x64 | `XIO-0.22.0-windows-x64.zip` | 0.22.0 build; the full app was not rebuilt for Windows in 0.22.5 |
+| Windows 11 x64 | `XIO-Full-0.22.5-windows-x64.zip` | ZIP: app, helper, Wintun |
 | Ubuntu 22.04+ x64 | `XIO-0.22.0-ubuntu-amd64.deb` | 0.22.0 build |
 | iOS | — | none |
 
