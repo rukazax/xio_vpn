@@ -1,4 +1,23 @@
-# XIO — X in, 1 out
+<p align="center">
+  <a href="https://github.com/rukazax/xio_vpn">
+    <img src="docs/images/logo.png" alt="XIO" width="120">
+  </a>
+</p>
+
+<p align="center">Свой VPN: свои серверы, один интерфейс. Android · Windows · Ubuntu · iOS.</p>
+
+<p align="center">
+  <a href="https://github.com/rukazax/xio_vpn/releases/latest"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?style=flat-square&label=release" /></a>
+  <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/latest"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="#как-это-работает"><img alt="how it works" src="https://img.shields.io/badge/docs-how%20it%20works-informational?style=flat-square" /></a>
+  <a href="docs/compatibility/0.22.5.ru.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> |
+  <a href="README.ru.md">Русский</a>
+</p>
 
 XIO — это VPN-система с собственным сервером и двумя приложениями: **XIO Client** для подключения
 к готовым серверам и **полный XIO** для развёртывания и обслуживания сервера. Один сервер держит
@@ -8,9 +27,6 @@ XIO — это VPN-система с собственным сервером и 
 [Download](#что-скачать) · [Как это работает](#как-это-работает) · [Протоколы](#протоколы) · [Методика тестов](#как-мы-тестируем) · [English](README.md)
 
 ## Два приложения
-
-> **0.23.0 ставится отдельным приложением.** Пакеты переименованы (`app.xio.client`, `app.xio.xio`), поэтому Android не обновит прежнюю сборку на месте: перенесите профили экспортом/импортом и удалите старую версию вручную. Старые профили `x1o://` по-прежнему импортируются.
-
 
 | | **XIO Client** | **Полный XIO** |
 |---|---|---|
