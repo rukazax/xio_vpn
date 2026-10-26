@@ -41,3 +41,6 @@ tmp/
 /vendor/amneziawg/
 
 !verification/client-0.22.4.json
+
+# Per-release manifests that tie a tag to hashed artifacts (see verification/*-release.json).
+!verification/*-release.json

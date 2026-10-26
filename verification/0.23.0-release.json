@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "version": "0.23.0+5015",
+  "pubspecVersion": "0.23.0+5015",
+  "tag": "v0.23.0",
+  "branch": "main",
+  "sourceCommit": "c87fa4916b0ebf4a2c0882f4117be6f298ae2b8b",
+  "sourceTree": "e75407166a85f8bcf61b380cf117494e3f8fc8cc",
+  "appIds": [
+    "app.xio.client",
+    "app.xio.xio"
+  ],
+  "builtOn": [
+    "windows",
+    "linux",
+    "android"
+  ],
+  "serverRecipeVersion": 24,
+  "generatedAtUtc": "2026-10-26T15:46:29.270Z",
+  "artifacts": [
+    {
+      "file": "XIO-Client-0.23.0-android-arm64-v8a.apk",
+      "bytes": 23968518,
+      "sha256": "2727f6a0c0d6423f9698484a04cbc9ade2e9c33918d7f67de4662b6fad99b213",
+      "app": "client",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "arm64-v8a",
+      "packageId": "app.xio.client"
+    },
+    {
+      "file": "XIO-Client-0.23.0-android-armeabi-v7a.apk",
+      "bytes": 23840252,
+      "sha256": "6f4434aa3779e1f326ba31c949420ded583996b1809610b88eea967e6a7ab083",
+      "app": "client",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "armeabi-v7a",
+      "packageId": "app.xio.client"
+    },
+    {
+      "file": "XIO-Client-0.23.0-android-universal.apk",
+      "bytes": 70000937,
+      "sha256": "eb2dd1f089a453371215fb80c95599f52f9092549f0a6756f94f1d8786c385e7",
+      "app": "client",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "universal",
+      "packageId": "app.xio.client"
+    },
+    {
+      "file": "XIO-Client-0.23.0-android-x86_64.apk",
+      "bytes": 25237159,
+      "sha256": "a440f59c307b9f6f3a5193d27e39b3b4808a8a675c86ebbcbe6157561cd59f06",
+      "app": "client",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "x86_64",
+      "packageId": "app.xio.client"
+    },
+    {
+      "file": "XIO-Client-0.23.0-ubuntu-amd64.deb",
+      "bytes": 17545728,
+      "sha256": "a5738db5523a763d4b73ed182fa4803f3017ceafffba1d4411973d8899d1ad71",
+      "app": "client",
+      "kind": "deb",
+      "platform": "linux",
+      "arch": "amd64"
+    },
+    {
+      "file": "XIO-Client-0.23.0-ubuntu-x64.tar.gz",
+      "bytes": 23823238,
+      "sha256": "013a59577ce7af4215ac1eaf257a9a758a62d347f8076e7c87b82953c1ae43eb",
+      "app": "client",
+      "kind": "tar.gz",
+      "platform": "linux",
+      "arch": "x64"
+    },
+    {
+      "file": "XIO-Client-0.23.0-windows-x64.zip",
+      "bytes": 26278989,
+      "sha256": "5b6627dbdf9387994e5569bde1bb779b55df2c54e3b1475319146af66ea7f4e7",
+      "app": "client",
+      "kind": "zip",
+      "platform": "windows",
+      "arch": "x64"
+    },
+    {
+      "file": "XIO-Full-0.23.0-android-arm64-v8a.apk",
+      "bytes": 60635787,
+      "sha256": "c2edb4bda0ae3818efa7a5c2e25bc838242823db5a3e0a947d10bcc365e00d51",
+      "app": "full",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "arm64-v8a",
+      "packageId": "app.xio.xio"
+    },
+    {
+      "file": "XIO-Full-0.23.0-android-armeabi-v7a.apk",
+      "bytes": 60588549,
+      "sha256": "7a4204f6e06d496e49c9b3234562d2c1b3a387bd975786a23378286027fd7a3c",
+      "app": "full",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "armeabi-v7a",
+      "packageId": "app.xio.xio"
+    },
+    {
+      "file": "XIO-Full-0.23.0-android-universal.apk",
+      "bytes": 107946122,
+      "sha256": "23453a56cd115a8f9151a9c326f3f24f13a81ffbab9e5aa837a833fe13d94408",
+      "app": "full",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "universal",
+      "packageId": "app.xio.xio"
+    },
+    {
+      "file": "XIO-Full-0.23.0-android-x86_64.apk",
+      "bytes": 61918524,
+      "sha256": "e8981a5c80631053ab0aa722e9f4b6ed4a01b1dbec2982cf4dbcdbba7717908f",
+      "app": "full",
+      "kind": "apk",
+      "platform": "android",
+      "arch": "x86_64",
+      "packageId": "app.xio.xio"
+    },
+    {
+      "file": "XIO-Full-0.23.0-ubuntu-x64.tar.gz",
+      "bytes": 60264702,
+      "sha256": "05406442cedf1518dc5323ffec46048c1f7a8b36cd840ca5be799e31dd99090a",
+      "app": "full",
+      "kind": "tar.gz",
+      "platform": "linux",
+      "arch": "x64"
+    },
+    {
+      "file": "XIO-Full-0.23.0-windows-x64.zip",
+      "bytes": 63126111,
+      "sha256": "252e8b82432d0a3eabfc3653d04020e2cdb442c8183911184d8cf96314171611",
+      "app": "full",
+      "kind": "zip",
+      "platform": "windows",
+      "arch": "x64"
+    },
+    {
+      "file": "source-inputs-0.23.0.json",
+      "bytes": 36320,
+      "sha256": "1a48b45d0bc2e17ada47c51d28c452d0621947240e777e8cf88dccf30d737f10",
+      "app": null,
+      "kind": "metadata",
+      "platform": null,
+      "arch": null
+    }
+  ],
+  "installedOnDevice": [
+    {
+      "device": "POCO X6 5G (Android 16 / API 36)",
+      "app": "client",
+      "artifact": "XIO-Client-0.23.0-android-arm64-v8a.apk",
+      "sha256": "2727f6a0c0d6423f9698484a04cbc9ade2e9c33918d7f67de4662b6fad99b213",
+      "installedVersionName": "0.23.0",
+      "installedVersionCode": 5015,
+      "checkedAtUtc": "2026-10-26"
+    },
+    {
+      "device": "Debian 13 x86_64 (Dell Inspiron N5110)",
+      "app": "client",
+      "artifact": "XIO-Client-0.23.0-ubuntu-amd64.deb",
+      "sha256": "a5738db5523a763d4b73ed182fa4803f3017ceafffba1d4411973d8899d1ad71",
+      "installedVersionName": "0.23.0",
+      "checkedAtUtc": "2026-10-26"
+    },
+    {
+      "device": "Windows 11 x64 (host)",
+      "app": "full",
+      "artifact": "XIO-Full-0.23.0-windows-x64.zip",
+      "sha256": "252e8b82432d0a3eabfc3653d04020e2cdb442c8183911184d8cf96314171611",
+      "extractedBinaryVersion": "0.23.0+5015",
+      "checkedAtUtc": "2026-10-26"
+    }
+  ],
+  "checks": [
+    {
+      "id": "release-assets-hashed",
+      "result": "PASS",
+      "detail": "All 14 files listed in artifacts were hashed locally and matched the digests published on the GitHub release v0.23.0."
+    },
+    {
+      "id": "source-inputs-match-tree",
+      "result": "PASS",
+      "detail": "source-inputs-0.23.0.json declares sha256 of app source files; lib/core.dart digest equals the file in this tree (2e306b59...)."
+    },
+    {
+      "id": "android-awg-real-server",
+      "result": "PASS",
+      "detail": "Client 0.23.0 on POCO X6: AWG profile imported, tun0 10.78.0.4/32, gateway ping 0% loss, HTTPS probe 200, egress address 81.177.142.37, server peer counters grew.",
+      "server": "81.177.142.37"
+    },
+    {
+      "id": "linux-helper-awg-real-server",
+      "result": "PASS",
+      "detail": "Client 0.23.0 helper on Debian 13: connect 43 ms, interface xio019 10.78.0.5, ip rule 18018/18019, egress 81.177.142.37, clean rollback on disconnect. GUI client itself does not start (see limits).",
+      "server": "81.177.142.37"
+    },
+    {
+      "id": "windows-profile-import-and-consents",
+      "result": "PASS",
+      "detail": "Full application 0.23.0 on Windows 11: licence and VPN consents passed, xio:// profile import produced 5 profiles (awg, rivet-h3, rivet-s1, xray, cloak)."
+    },
+    {
+      "id": "windows-connect",
+      "result": "FAIL",
+      "detail": "Connect fails with \"Windows VPN firewall setup failed\" (3 reproductions). The helper runs elevated and the server-side handshake happens; the same netsh command executed manually succeeds. Known product defect, not a stand issue."
+    }
+  ],
+  "physicalAndroidTestedByVerifier": true,
+  "physicalAcceptanceComplete": false,
+  "realServerConnectionTested": true,
+  "windowsConnectTested": true,
+  "linuxGuiTested": true,
+  "limits": [
+    "Full 5-transport matrix was not re-run on 0.23.0: AWG was exercised on Android and Linux, RIVET and Xray were not driven by the 0.23.0 client.",
+    "RIVET/H3 and RIVET/S1 last passed through a client on 0.22.4 against a local test server; no 0.23.0 client run exists.",
+    "Public IPv6 was not tested: the stand has a local ULA prefix only and the server blocks IPv6 egress by design.",
+    "iOS was not built or tested: no Mac/Xcode/iPhone.",
+    "Windows connect is blocked by the firewall-setup defect; RIVET and Xray therefore cannot be verified on Windows.",
+    "The Linux GUI client does not create a window (Impeller/EGL); only the libexec helper was verified.",
+    "Unit/widget test counts in earlier verification files are not re-run here; this file states only what was executed for 0.23.0.",
+    "SHA256SUMS-0.23.0.txt is regenerated after this file is uploaded and covers it; this file does not hash itself."
+  ]
+}
