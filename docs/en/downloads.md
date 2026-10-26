@@ -2,7 +2,6 @@
 
 One naming rule:
 `XIO-<App>-<version>-<OS>-<arch>.<ext>`
-(`Client`/`Full` · `android`/`windows`/`ubuntu`/`ios` · `arm64-v8a`/`armeabi-v7a`/`x86_64`/`universal`/`x64`).
 
 
 
@@ -28,7 +27,6 @@ One naming rule:
 | Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | 59.0 MB |
 | Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | 102.9 MB |
 | Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | 60.2 МБ |
-| Ubuntu 22.04+ x64 | [XIO-0.22.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-amd64.deb) | 0.22.0 |
 | iOS | — | none |
 
 ## Verification and metadata

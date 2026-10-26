@@ -2,11 +2,14 @@
 
 Единый принцип имён файлов:
 `XIO-<Приложение>-<версия>-<ОС>-<архитектура>.<расширение>`
-(`Client`/`Full` · `android`/`windows`/`ubuntu`/`ios` · `arm64-v8a`/`armeabi-v7a`/`x86_64`/`universal`/`x64`).
 
 
 
 > **0.23.0 ставится отдельным приложением.** Пакеты переименованы (`app.xio.client`, `app.xio.xio`), поэтому Android не обновит прежнюю сборку на месте: перенесите профили экспортом/импортом и удалите старую версию вручную. Старые профили `x1o://` по-прежнему импортируются.
+
+
+
+> **0.23.0 СЃС‚Р°РІРёС‚СЃСЏ РѕС‚РґРµР»СЊРЅС‹Рј РїСЂРёР»РѕР¶РµРЅРёРµРј.** РџР°РєРµС‚С‹ РїРµСЂРµРёРјРµРЅРѕРІР°РЅС‹ (`app.xio.client`, `app.xio.xio`), РїРѕСЌС‚РѕРјСѓ Android РЅРµ РѕР±РЅРѕРІРёС‚ РїСЂРµР¶РЅСЋСЋ СЃР±РѕСЂРєСѓ РЅР° РјРµСЃС‚Рµ: РїРµСЂРµРЅРµСЃРёС‚Рµ РїСЂРѕС„РёР»Рё СЌРєСЃРїРѕСЂС‚РѕРј/РёРјРїРѕСЂС‚РѕРј Рё СѓРґР°Р»РёС‚Рµ СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ РІСЂСѓС‡РЅСѓСЋ. РЎС‚Р°СЂС‹Рµ РїСЂРѕС„РёР»Рё `x1o://` РїРѕ-РїСЂРµР¶РЅРµРјСѓ РёРјРїРѕСЂС‚РёСЂСѓСЋС‚СЃСЏ.
 
 ## XIO Client — подключение к готовым серверам
 
@@ -28,7 +31,6 @@
 | Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | 59.0 МБ |
 | Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | 102.9 МБ |
 | Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | 60.2 МБ |
-| Ubuntu 22.04+ x64 | [XIO-0.22.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.22.0/XIO-0.22.0-ubuntu-amd64.deb) | 0.22.0 |
 | iOS | — | нет |
 
 ## Проверка и служебные файлы

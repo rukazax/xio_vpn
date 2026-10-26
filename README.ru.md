@@ -119,7 +119,6 @@ flowchart LR
 ## Что скачать
 
 Единый принцип имён: `XIO-<Приложение>-<версия>-<ОС>-<архитектура>.<расширение>`, где приложение —
-`Client` или `Full`, ОС — `android`, `windows`, `ubuntu`, `ios`, архитектура — `arm64-v8a`,
 `armeabi-v7a`, `x86_64`, `universal`, `x64`.
 
 ### XIO Client — подключение к готовым серверам
@@ -131,8 +130,6 @@ flowchart LR
 | Android 8+ · x86-64 | `XIO-Client-0.23.0-android-x86_64.apk` | эмуляторы и x86-планшеты |
 | Android 8+ · universal | `XIO-Client-0.23.0-android-universal.apk` | одна сборка для всех архитектур |
 | Windows 11 x64 | `XIO-Client-0.23.0-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
-| Ubuntu 22.04+ x64 | `XIO-Client-0.23.0-ubuntu-amd64.deb` | DEB из 0.22.4 (в 0.23.0 не пересобиралась) |
-| Ubuntu 22.04+ x64 | `XIO-Client-0.23.0-ubuntu-x64.tar.gz` | tar.gz из 0.22.4 |
 | iOS | — | IPA нет: нужны Mac, Xcode и подпись Apple |
 
 Всё лежит в разделе [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0):
@@ -148,7 +145,6 @@ flowchart LR
 | Android 8+ · x86-64 | `XIO-Full-0.23.0-android-x86_64.apk` | эмуляторы |
 | Android 8+ · universal | `XIO-Full-0.23.0-android-universal.apk` | одна сборка для всех архитектур |
 | Windows 11 x64 | `XIO-Full-0.23.0-windows-x64.zip` | ZIP: приложение, помощник, Wintun |
-| Ubuntu 22.04+ x64 | `XIO-0.22.0-ubuntu-amd64.deb` | сборка 0.22.0 |
 | iOS | — | нет |
 
 Серверная часть ставится из полного приложения по SSH на Debian 12/13, Ubuntu 22.04/24.04/26.04,
