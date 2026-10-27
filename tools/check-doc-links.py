@@ -27,6 +27,9 @@ for page in download_pages:
  # must stay usable even when there is no stable release.
  if 'https://github.com/rukazax/xio_vpn/releases/latest' in text:
   failures.append((str(page.relative_to(r)),'use the tagged release, not /releases/latest'))
+ # Shields expects include_prereleases as a bare flag; =true renders an error SVG.
+ if re.search(r'https://img\.shields\.io/github/v/release/[^\" )]*[?&]include_prereleases=',text):
+  failures.append((str(page.relative_to(r)),'Shields include_prereleases must be a bare flag'))
 if failures:
  for p,url in failures:print(p+': '+url)
  sys.exit(1)

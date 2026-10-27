@@ -7,7 +7,7 @@
 <p align="center">Your VPN, your servers, one interface. Android · Windows · Ubuntu · iOS.</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases=true&style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
   <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
   <a href="#how-it-works"><img alt="how it works" src="https://img.shields.io/badge/docs-how%20it%20works-informational?style=flat-square" /></a>
