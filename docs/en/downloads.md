@@ -1,9 +1,9 @@
 # Download XIO
 
+> **v0.23.0 is a pre-release.** The [release page](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0) and direct links below do not rely on `/latest`. Check the [limitations](../compatibility/0.23.0.en.md) before installing.
+
 One naming rule:
 `XIO-<App>-<version>-<OS>-<arch>.<ext>`
-
-
 
 > **0.23.0 installs as a separate application.** The packages were renamed (`app.xio.client`, `app.xio.xio`), so Android will not update the previous build in place: export/import your profiles and remove the old version manually. Legacy `x1o://` profiles still import.
 
@@ -11,24 +11,25 @@ One naming rule:
 
 | System | File | Size |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-arm64-v8a.apk) | 22.8 MB |
-| Android 8+ · ARM32 | [XIO-Client-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-armeabi-v7a.apk) | 22.7 MB |
-| Android 8+ · x86-64 | [XIO-Client-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-x86_64.apk) | 24.0 MB |
-| Android 8+ · universal | [XIO-Client-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-universal.apk) | 66.7 MB |
-| Windows 11 x64 | [XIO-Client-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-windows-x64.zip) | 25.1 MB |
-| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-amd64.deb) | 16.7 MB |
+| Android 8+ · ARM64 | [XIO-Client-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-arm64-v8a.apk) | 22.9 MiB |
+| Android 8+ · ARM32 | [XIO-Client-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-armeabi-v7a.apk) | 22.7 MiB |
+| Android 8+ · x86-64 | [XIO-Client-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-x86_64.apk) | 24.1 MiB |
+| Android 8+ · universal | [XIO-Client-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-universal.apk) | 66.8 MiB |
+| Windows 11 x64 | [XIO-Client-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-windows-x64.zip) | 25.1 MiB |
+| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-amd64.deb) | 16.7 MiB |
+| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-x64.tar.gz) | 22.7 MiB |
 | iOS | — | no IPA |
 
 ## Full XIO — your own server
 
 | System | File | Size |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-arm64-v8a.apk) | 57.8 MB |
-| Android 8+ · ARM32 | [XIO-Full-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-armeabi-v7a.apk) | 57.8 MB |
-| Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | 59.0 MB |
-| Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | 102.9 MB |
-| Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | 60.2 МБ |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-ubuntu-x64.tar.gz) | 57.5 MB |
+| Android 8+ · ARM64 | [XIO-Full-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-arm64-v8a.apk) | 57.8 MiB |
+| Android 8+ · ARM32 | [XIO-Full-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-armeabi-v7a.apk) | 57.8 MiB |
+| Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | 59.1 MiB |
+| Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | 102.9 MiB |
+| Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | 60.2 MiB |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-ubuntu-x64.tar.gz) | 57.5 MiB |
 | iOS | — | none |
 
 ## Verification and metadata

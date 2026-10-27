@@ -7,9 +7,9 @@
 <p align="center">Your VPN, your servers, one interface. Android · Windows · Ubuntu · iOS.</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/latest"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases=true&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
-  <a href="https://github.com/rukazax/xio_vpn/releases/latest"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
   <a href="#how-it-works"><img alt="how it works" src="https://img.shields.io/badge/docs-how%20it%20works-informational?style=flat-square" /></a>
   <a href="docs/compatibility/0.22.5.en.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
 </p>
@@ -138,18 +138,23 @@ flowchart LR
 
 ## Download
 
-One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`, where app is `Client` or `Full`, OS is
-`x64`.
+> **v0.23.0 is a pre-release.** The links below download files from this tagged release. Read the [limitations](#limitations) before installing.
+
+One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. App is `Client` or `Full`; OS is
+`android`, `windows` or `ubuntu`; architecture is `arm64-v8a`, `armeabi-v7a`, `x86_64`,
+`universal`, `amd64` or `x64`.
 
 ### XIO Client — connect to existing servers
 
 | System | File | What it is |
 |---|---|---|
-| Android 8+ · ARM64 | `XIO-Client-0.23.0-android-arm64-v8a.apk` | the usual choice for modern phones |
-| Android 8+ · ARM32 | `XIO-Client-0.23.0-android-armeabi-v7a.apk` | older 32-bit devices |
-| Android 8+ · x86-64 | `XIO-Client-0.23.0-android-x86_64.apk` | emulators and x86 tablets |
-| Android 8+ · universal | `XIO-Client-0.23.0-android-universal.apk` | one build for all architectures |
-| Windows 11 x64 | `XIO-Client-0.23.0-windows-x64.zip` | ZIP: app, helper, Wintun |
+| Android 8+ · ARM64 | [XIO-Client-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-arm64-v8a.apk) | the usual choice for modern phones |
+| Android 8+ · ARM32 | [XIO-Client-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-armeabi-v7a.apk) | older 32-bit devices |
+| Android 8+ · x86-64 | [XIO-Client-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-x86_64.apk) | emulators and x86 tablets |
+| Android 8+ · universal | [XIO-Client-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-universal.apk) | one build for all architectures |
+| Windows 11 x64 | [XIO-Client-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-windows-x64.zip) | ZIP: app, helper, Wintun |
+| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-amd64.deb) | DEB package |
+| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-x64.tar.gz) | TAR.GZ archive |
 | iOS | — | no IPA: needs a Mac, Xcode and Apple signing |
 
 Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0): 0.23.0
@@ -160,11 +165,12 @@ builds, [checksums](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0
 
 | System | File | What it is |
 |---|---|---|
-| Android 8+ · ARM64 | `XIO-Full-0.23.0-android-arm64-v8a.apk` | full application with administration |
-| Android 8+ · ARM32 | `XIO-Full-0.23.0-android-armeabi-v7a.apk` | older 32-bit devices |
-| Android 8+ · x86-64 | `XIO-Full-0.23.0-android-x86_64.apk` | emulators |
-| Android 8+ · universal | `XIO-Full-0.23.0-android-universal.apk` | one build for all architectures |
-| Windows 11 x64 | `XIO-Full-0.23.0-windows-x64.zip` | ZIP: app, helper, Wintun |
+| Android 8+ · ARM64 | [XIO-Full-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-arm64-v8a.apk) | full application with administration |
+| Android 8+ · ARM32 | [XIO-Full-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-armeabi-v7a.apk) | older 32-bit devices |
+| Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | emulators |
+| Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | one build for all architectures |
+| Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | ZIP: app, helper, Wintun |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-ubuntu-x64.tar.gz) | TAR.GZ archive |
 | iOS | — | none |
 
 The server is installed from the full application over SSH on Debian 12/13, Ubuntu 22.04/24.04/26.04,
