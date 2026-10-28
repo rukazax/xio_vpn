@@ -1279,6 +1279,11 @@ class AppStore extends ChangeNotifier {
           }
         } on HandshakeException {
           rethrow; // Certificate failures are never relaxed or retried as trust.
+        } on HttpException catch (error) {
+          // A peer that closes mid-header is a transport failure, not a policy
+          // decision: retry it like a dead socket. Only a rejected redirect fails
+          // closed, because redirect policy must never be softened by a retry.
+          if (error.message.contains('Invalid HTTPS redirect')) rethrow;
         } on SocketException {
           // A fresh socket can recover from a route transition inside one attempt.
         } on TimeoutException {
