@@ -25,10 +25,10 @@ class RestoreTests(unittest.TestCase):
         (self.assets / 'xio-server-release.json').write_text(json.dumps({'sha256': self.digest}))
         self.target = self.assets / 'xio-server.tar.gz'
 
-    def package(self, content=None):
+    def package(self, content=None, member='XIO/data/flutter_assets/assets/xio-server.tar.gz'):
         stream = io.BytesIO()
         with zipfile.ZipFile(stream, 'w') as output:
-            output.writestr('XIO/data/flutter_assets/assets/xio-server.tar.gz', self.content if content is None else content)
+            output.writestr(member, self.content if content is None else content)
             output.writestr('../../escape.txt', b'must-not-be-extracted')
         return stream.getvalue()
 
@@ -68,6 +68,13 @@ class RestoreTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'checked-in recipe'):
                 asset.restore(self.root)
         self.assertFalse(self.target.exists())
+
+    def test_windows_backslash_member_is_accepted(self):
+        # Real Windows release archives store separators as backslashes.
+        data = self.package(member='XIO\\data\\flutter_assets\\assets\\xio-server.tar.gz')
+        with self.download(data), mock.patch.object(asset.urllib.request, 'urlopen', return_value=io.BytesIO(data)):
+            asset.restore(self.root)
+        self.assertEqual(self.target.read_bytes(), self.content)
 
 
 if __name__ == '__main__':

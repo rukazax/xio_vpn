@@ -25,6 +25,11 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def normalize_member(name):
+    """Windows-built archives store backslash separators; compare with forward slashes."""
+    return name.replace('\\', '/')
+
+
 def restore(root=ROOT):
     metadata = json.loads((root / 'app/assets/xio-server-release.json').read_text())
     expected = metadata['sha256']
@@ -57,7 +62,8 @@ def restore(root=ROOT):
         partial.replace(archive)
     with zipfile.ZipFile(archive) as package:
         members = [item for item in package.infolist()
-                   if item.filename == MEMBER_SUFFIX or item.filename.endswith('/' + MEMBER_SUFFIX)]
+                   if normalize_member(item.filename) == MEMBER_SUFFIX
+                   or normalize_member(item.filename).endswith('/' + MEMBER_SUFFIX)]
         if len(members) != 1 or members[0].file_size > 128 * 1024 * 1024:
             raise RuntimeError('Missing/ambiguous/oversized server resource')
         content = package.read(members[0])
