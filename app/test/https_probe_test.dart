@@ -61,10 +61,16 @@ void main() {
       // A single absolute deadline governs every retry; the value only has to
       // exceed one stalled-response phase budget so a slower CI runner can still
       // complete the retry inside the same deadline.
-      expect(
-        await store.checkConnection(timeout: const Duration(seconds: 30)),
-        isTrue,
+      final outcome = await store.checkConnection(
+        timeout: const Duration(seconds: 30),
       );
+      // ignore: avoid_print
+      print(
+        'PROBE-DIAG ok=$outcome requests=$requests '
+        'elapsedMs=${clock.elapsedMilliseconds} '
+        'check="${store.connectionCheck}"',
+      );
+      expect(outcome, isTrue);
       expect(requests, 2);
       expect(clock.elapsed, lessThan(const Duration(seconds: 30)));
     } finally {
