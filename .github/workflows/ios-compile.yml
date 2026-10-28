@@ -60,9 +60,7 @@ jobs:
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Flutter unit tests
         working-directory: app
-        # Several suites use the real application directory, so parallel test files
-        # can read a half-written profiles.json and be marked unhealthy.
-        run: flutter test -j 1
+        run: flutter test
       - name: Compile unsigned app and VPN extension; boot Simulator
         run: |
           mkdir -p .build-support/ios-ci

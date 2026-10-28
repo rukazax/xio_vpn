@@ -25,6 +25,12 @@ void main() {
       '/CN=localhost',
       '-addext',
       'subjectAltName=DNS:localhost',
+      // Platform TLS verifiers on macOS require an explicit server-auth EKU and a
+      // non-CA basic-constraint on a self-signed leaf certificate.
+      '-addext',
+      'extendedKeyUsage=serverAuth',
+      '-addext',
+      'basicConstraints=critical,CA:FALSE',
       '-days',
       '1',
     ]);
