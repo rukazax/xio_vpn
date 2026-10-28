@@ -100,26 +100,33 @@ void main() {
     expect(b.next, next);
     expect(b.state['skip'], 'v0.22.0');
   });
-  test(
-    'successful installed build cleans only the fixed staging directory',
-    () async {
-      final dir = await Directory.systemTemp.createTemp('xio-cleanup-test');
-      addTearDown(() => dir.delete(recursive: true));
-      await Directory('${dir.path}/update-staging').create();
-      await File('${dir.path}/update-staging/XIO.apk')
-          .writeAsString('old installer');
-      await File('${dir.path}/profiles-sentinel').writeAsString('keep');
-      await File('${dir.path}/updates.json')
-          .writeAsString(jsonEncode({'installBuild': xioBuild}));
-      final updater = UpdateService(directory: () async => dir);
-      await updater.initialize();
-      expect(await Directory('${dir.path}/update-staging').exists(), false);
+  test('successful installed build cleans only the fixed staging directory', () async {
+    final dir = await Directory.systemTemp.createTemp('xio-cleanup-test');
+    addTearDown(() => dir.delete(recursive: true));
+    await Directory('${dir.path}/update-staging').create();
+    await File('${dir.path}/update-staging/XIO.apk')
+        .writeAsString('old installer');
+    await File('${dir.path}/profiles-sentinel').writeAsString('keep');
+    await File('${dir.path}/updates.json')
+        .writeAsString(jsonEncode({'installBuild': xioBuild}));
+    final updater = UpdateService(directory: () async => dir);
+    await updater.initialize();
+    if (Platform.isWindows) {
+      // The Windows installer owns cleanup after this startup acknowledgement.
       expect(
-        await File('${dir.path}/profiles-sentinel').readAsString(),
-        'keep',
+        await File('${dir.path}/update-staging/installed-$xioBuild')
+            .readAsString(),
+        xioVersion,
       );
-    },
-  );
+      expect(
+        await File('${dir.path}/update-staging/XIO.apk').readAsString(),
+        'old installer',
+      );
+    } else {
+      expect(await Directory('${dir.path}/update-staging').exists(), false);
+    }
+    expect(await File('${dir.path}/profiles-sentinel').readAsString(), 'keep');
+  });
   test(
     'signed manifest rejects modified payload and unrelated signing key',
     () async {

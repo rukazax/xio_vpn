@@ -2,6 +2,8 @@
 .build-support/
 .signing/
 releases/
+# Generated resource restored from a hash-verified release for CI.
+/app/assets/xio-server.tar.gz
 publishing/
 output/
 tmp/
