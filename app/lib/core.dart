@@ -688,7 +688,10 @@ class AppStore extends ChangeNotifier {
       } catch (_) {}
     }
     try {
-      directory = await applicationDirectory();
+      // A caller may inject `directory` (tests, embedders); resolve the platform
+      // default only when none was provided. macOS is not a supported host, so
+      // applicationDirectory() throws there by design and must not be forced.
+      directory ??= await applicationDirectory();
       final file = File('${directory!.path}/profiles.json');
       if (await file.exists()) {
         final j = jsonDecode(await file.readAsString()) as Map<String, dynamic>;

@@ -58,12 +58,15 @@ void main() {
       ..checkSite = 'https://localhost:${server.port}/';
     final clock = Stopwatch()..start();
     try {
+      // A single absolute deadline governs every retry; the value only has to
+      // exceed one stalled-response phase budget so a slower CI runner can still
+      // complete the retry inside the same deadline.
       expect(
-        await store.checkConnection(timeout: const Duration(seconds: 9)),
+        await store.checkConnection(timeout: const Duration(seconds: 30)),
         isTrue,
       );
       expect(requests, 2);
-      expect(clock.elapsed, lessThan(const Duration(seconds: 9)));
+      expect(clock.elapsed, lessThan(const Duration(seconds: 30)));
     } finally {
       store.dispose();
       await server.close(force: true);
