@@ -67,3 +67,12 @@ mv "$tmp/mesh-pins.json" "$lib/mesh-pins.json"
 
 mkdir -p "$lib/xio_vici"
 mv "$tmp/xio_vici/"* "$lib/xio_vici/"
+
+# Readiness responder: answers on the tunnel gateways so clients can tell
+# "the tunnel carries packets" from "some website happens to be reachable".
+mv "$tmp/readiness.py" "$lib/readiness.py"
+chmod 644 "$lib/readiness.py"
+mv "$tmp/xio-ready.service" /etc/systemd/system/xio-ready.service
+chmod 644 /etc/systemd/system/xio-ready.service
+systemctl daemon-reload
+systemctl enable --now xio-ready.service >> "$lib/bootstrap.log" 2>&1 || true

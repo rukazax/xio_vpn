@@ -17,10 +17,12 @@ import 'l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'managed_models.dart';
 export 'managed_models.dart';
 
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:cryptography/cryptography.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/foundation.dart';
@@ -286,6 +288,10 @@ class TunnelStatus {
   final bool active;
   final String state, path;
   final int? rx, tx, handshake;
+
+  /// Адрес в туннеле, который сообщает движок (например `10.79.0.6/32`).
+  /// Нужен, чтобы найти шлюз этого туннеля без жёстких таблиц подсетей.
+  final String? ip;
   const TunnelStatus({
     this.active = false,
     this.state = 'Отключено',
@@ -293,6 +299,7 @@ class TunnelStatus {
     this.rx,
     this.tx,
     this.handshake,
+    this.ip,
   });
 }
 
@@ -655,6 +662,11 @@ class AppStore extends ChangeNotifier {
   final List<ManagedUser> users = [];
   final Map<String, String> endpointCountries = {};
   String checkSite = 'https://youtube.com';
+
+  /// Проверка доступности сайта — необязательная. По умолчанию выключена:
+  /// готовность туннеля определяется его собственными признаками (рукопожатие,
+  /// обмен пакетами, эхо шлюза), без обращения к внешним сайтам.
+  bool siteCheckEnabled = false;
   String priorityProtocol = Platform.isIOS ? 'rivet-s1' : 'xray';
   int protocolTimeoutSeconds = 15;
   String? connectionCheck;
@@ -728,6 +740,7 @@ class AppStore extends ChangeNotifier {
         }
         checkSite = validateCheckSite(j['checkSite'] ?? 'https://youtube.com')
             .toString();
+        siteCheckEnabled = (j['siteCheckEnabled'] as bool?) ?? false;
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
             .toInt()
             .clamp(5, 60);
@@ -786,6 +799,7 @@ class AppStore extends ChangeNotifier {
       'servers': servers.map((s) => s.toJson()).toList(),
       'users': users.map((u) => u.toJson()).toList(),
       'checkSite': checkSite,
+      'siteCheckEnabled': siteCheckEnabled,
       'priorityProtocol': priorityProtocol,
       'protocolTimeoutSeconds': protocolTimeoutSeconds,
       'selected': selectedId,
@@ -1187,6 +1201,7 @@ class AppStore extends ChangeNotifier {
     String site,
     String priority, {
     int? timeoutSeconds,
+    bool? siteCheck,
   }) async {
     if (timeoutSeconds != null && (timeoutSeconds < 5 || timeoutSeconds > 60)) {
       throw const FormatException('Время ожидания: от 5 до 60 секунд');
@@ -1197,9 +1212,11 @@ class AppStore extends ChangeNotifier {
     }
     final oldSite = checkSite, oldPriority = priorityProtocol;
     final oldTimeout = protocolTimeoutSeconds;
+    final oldSiteCheck = siteCheckEnabled;
     checkSite = normalized;
     priorityProtocol = priority;
     protocolTimeoutSeconds = timeoutSeconds ?? protocolTimeoutSeconds;
+    if (siteCheck != null) siteCheckEnabled = siteCheck;
     connectionCheck = null;
     try {
       await save();
@@ -1207,15 +1224,122 @@ class AppStore extends ChangeNotifier {
       checkSite = oldSite;
       priorityProtocol = oldPriority;
       protocolTimeoutSeconds = oldTimeout;
+      siteCheckEnabled = oldSiteCheck;
       rethrow;
     }
     notifyListeners();
   }
 
+  /// Постоянные шлюзы протоколов: используются, если движок не сообщил адрес
+  /// в туннеле. Подсети закреплены продуктовым контрактом.
+  static const Map<String, String> _fallbackGateways = {
+    'awg': '10.78.0.1',
+    'rivet-h3': '10.79.0.1',
+    'rivet-s1': '10.79.0.1',
+    'xray': '10.80.0.1',
+    'cloak': '10.81.0.1',
+    'openvpn-tcp': '10.82.0.1',
+  };
+
+  /// Шлюз туннеля: адрес `.1` в той же подсети, что выдал движок.
+  String? gatewayAddress([String? protocol]) {
+    final raw = status.ip;
+    if (raw != null && raw.isNotEmpty) {
+      final octets = raw.split('/').first.split('.');
+      if (octets.length == 4 && octets.every((o) => int.tryParse(o) != null)) {
+        return '${octets[0]}.${octets[1]}.${octets[2]}.1';
+      }
+    }
+    return _fallbackGateways[protocol ?? activeProfile?.protocol ?? ''];
+  }
+
+  /// Эхо шлюза туннеля: 16 случайных байт уходят, 32 байта возвращаются,
+  /// первые 31 — SHA-256 от запроса. Пакет обязан пройти через туннель и
+  /// вернуться, поэтому проверка не зависит ни от DNS, ни от внешних сайтов.
+  Future<bool> gatewayEcho({
+    Duration timeout = const Duration(milliseconds: 1500),
+    String? protocol,
+  }) async {
+    final gateway = gatewayAddress(protocol);
+    if (gateway == null) return false;
+    Socket? socket;
+    try {
+      socket = await Socket.connect(gateway, 7447, timeout: timeout);
+      final random = Random.secure();
+      final nonce = List<int>.generate(16, (_) => random.nextInt(256));
+      socket.add(nonce);
+      await socket.flush();
+      final reply = <int>[];
+      await for (final chunk in socket.timeout(timeout)) {
+        reply.addAll(chunk);
+        if (reply.length >= 32) break;
+      }
+      if (reply.length != 32 || reply.first != 0x01) return false;
+      final digest = sha256.convert(nonce).bytes;
+      for (var i = 0; i < 31; i++) {
+        if (reply[i + 1] != digest[i]) return false;
+      }
+      return true;
+    } catch (_) {
+      return false;
+    } finally {
+      socket?.destroy();
+    }
+  }
+
+  /// Готовность туннеля без проверки сайта.
+  ///
+  /// Порядок признаков:
+  ///  1. движок сообщает активную сессию и свежее рукопожатие;
+  ///  2. шлюз ответил эхом — сильный признак «пакеты ушли и вернулись»;
+  ///  3. если эхо недоступно (старый сервер, закрытый порт) — принимаются
+  ///     счётчики: байты прошли в обе стороны.
+  /// Проверка сайта сюда не входит: она включается отдельно в настройках.
+  Future<bool> tunnelReady({
+    required int startedAtMillis,
+    required Duration budget,
+  }) async {
+    if (budget <= Duration.zero) return false;
+    final clock = Stopwatch()..start();
+    final protocol = activeProfile?.protocol ?? selected?.protocol;
+    connectionCheck = 'Проверка туннеля…';
+    notifyListeners();
+    try {
+      while (clock.elapsed < budget) {
+        await refresh();
+        if (!status.active) return false;
+        final freshHandshake =
+            (status.handshake ?? 0) >= startedAtMillis - 2000;
+        if (await gatewayEcho(protocol: protocol)) {
+          connectionCheck = 'Туннель отвечает';
+          return true;
+        }
+        final rx = status.rx ?? 0, tx = status.tx ?? 0;
+        if (freshHandshake && rx > 0 && tx > 0) {
+          connectionCheck = 'Туннель поднят · обмен идёт';
+          return true;
+        }
+        final left = budget - clock.elapsed;
+        if (left <= const Duration(milliseconds: 250)) break;
+        await Future<void>.delayed(
+          left < const Duration(milliseconds: 500)
+              ? left
+              : const Duration(milliseconds: 500),
+        );
+      }
+      connectionCheck = 'Туннель не отвечает';
+      return false;
+    } catch (_) {
+      connectionCheck = 'Туннель не отвечает';
+      return false;
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<bool> checkConnection({
     Duration timeout = const Duration(seconds: 15),
-  }) async {
-    if (timeout <= Duration.zero) return false;
+  }) async {    if (timeout <= Duration.zero) return false;
     connectionCheck = 'Проверка $checkSite…';
     notifyListeners();
     final clock = Stopwatch()..start();
@@ -1623,31 +1747,29 @@ class AppStore extends ChangeNotifier {
                   milliseconds: (activation?['connectMillis'] as num? ?? 0)
                       .toInt(),
                 );
-            // Generate traffic to trigger handshake, then require a fresh handshake.
+            // Готовность определяется самим туннелем: активная сессия, свежее
+            // рукопожатие и ответ шлюза. Проверка сайта — отдельный,
+            // необязательный шаг, который включается в настройках.
             await refresh(fresh: true);
-            final website = await checkConnection(
-              timeout: budget - attempt.elapsed,
+            final ready = await tunnelReady(
+              startedAtMillis: started,
+              budget: budget - attempt.elapsed,
             );
-            if (!website) throw StateError('Проверка соединения не пройдена');
-            for (
-              var i = 0;
-              attempt.elapsed < budget &&
-                  (status.handshake ?? 0) < started - 2000;
-              i++
-            ) {
-              await Future<void>.delayed(const Duration(milliseconds: 500));
-              await refresh();
-            }
-            if (!website ||
-                !status.active ||
-                (status.handshake ?? 0) < started - 2000) {
-              throw StateError('Проверка соединения не пройдена');
+            if (!ready) throw StateError('Туннель не отвечает');
+            if (siteCheckEnabled) {
+              final left = budget - attempt.elapsed;
+              final website = await checkConnection(
+                timeout: left < const Duration(seconds: 2)
+                    ? const Duration(seconds: 2)
+                    : left,
+              );
+              if (!website) throw StateError('Сайт проверки недоступен');
             }
           } else {
             continue;
           }
           await save();
-          log('Автоматически выбран ${p.protocol}; сайт доступен');
+          log('Автоматически выбран ${p.protocol}; туннель готов');
           return;
         } catch (e) {
           if (nativeTunnel) {
@@ -1663,7 +1785,7 @@ class AppStore extends ChangeNotifier {
         }
       }
       throw StateError(
-        'Ни один доступный маршрут не прошёл проверку сайта. Проверьте точку входа: смена протокола не снимает блокировку IP.',
+        'Ни один протокол не поднял рабочий туннель. Проверьте точку входа и сеть: смена протокола помогает не всегда.',
       );
     } catch (e) {
       selectedId = initial.id;
@@ -1721,6 +1843,7 @@ class AppStore extends ChangeNotifier {
           rx: j['rx'],
           tx: j['tx'],
           handshake: j['handshake'],
+          ip: j['ip'] is String ? j['ip'] as String : null,
         );
         if (up) {
           _activeId = j['id'];

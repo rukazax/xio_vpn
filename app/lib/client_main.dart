@@ -194,38 +194,66 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
 
   Future<void> settings() async {
     final site = TextEditingController(text: store.checkSite);
+    var siteCheck = store.siteCheckEnabled;
     try {
       final value = await showDialog<String>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const LText('Проверка соединения'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const LText(
-                'HTTPS-сайт для проверки доступности после запуска туннеля. Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
+        builder: (context) => StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const LText('Проверка соединения'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const LText(
+                    'Готовность туннеля проверяется его собственными признаками: сессия поднялась, рукопожатие состоялось, шлюз ответил эхом. Внешний сайт для этого не нужен.',
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: siteCheck,
+                    title: const LText('Проверять доступность сайта'),
+                    subtitle: const LText(
+                      'Дополнительная проверка через HTTPS-сайт. Выключена по умолчанию: сайт может быть заблокирован, даже когда туннель работает.',
+                    ),
+                    onChanged: (v) => setDialogState(() => siteCheck = v),
+                  ),
+                  if (siteCheck) ...[
+                    const LText(
+                      'Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
+                    ),
+                    TextField(
+                      controller: site,
+                      keyboardType: TextInputType.url,
+                      decoration: InputDecoration(labelText: 'HTTPS URL'),
+                    ),
+                  ],
+                ],
               ),
-              TextField(
-                controller: site,
-                keyboardType: TextInputType.url,
-                decoration: InputDecoration(labelText: 'HTTPS URL'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const LText('Отмена'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(
+                  context,
+                  '${siteCheck ? '1' : '0'}|${site.text}',
+                ),
+                child: const LText('Сохранить'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const LText('Отмена'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, site.text),
-              child: const LText('Сохранить'),
-            ),
-          ],
         ),
       );
       if (value != null) {
-        await store.saveConnectionSettings(value, store.priorityProtocol);
+        final parts = value.split('|');
+        await store.saveConnectionSettings(
+          parts.length > 1 ? parts[1] : store.checkSite,
+          store.priorityProtocol,
+          siteCheck: parts.first == '1',
+        );
       }
     } finally {
       site.dispose();
