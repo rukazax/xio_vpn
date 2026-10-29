@@ -1,0 +1,28 @@
+[Unit]
+Description=XIO tunnel readiness responder (gateway addresses only)
+Documentation=https://github.com/rukazax/xio_vpn
+After=network-online.target x1o-managed-awg.service xio-rivet-gateway.service
+Wants=network-online.target
+PartOf=xio-managed.target
+
+[Service]
+Type=simple
+Environment="XIO_READY_ADDRESSES=10.78.0.1 10.79.0.1"
+Environment=XIO_READY_PORT=7447
+ExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/readiness.py
+Restart=always
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

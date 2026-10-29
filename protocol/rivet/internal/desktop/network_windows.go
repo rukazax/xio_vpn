@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 	"math/bits"
@@ -182,10 +183,34 @@ func (n *networkState) add(luid winipcfg.LUID, dest netip.Prefix, next netip.Add
 func netsh(args ...string) error {
 	dir := os.Getenv("SystemRoot")
 	p := exec.Command(filepath.Join(dir, "System32", "netsh.exe"), args...)
-	if e := p.Run(); e != nil {
-		return errors.New("Windows VPN firewall setup failed")
+	// Capture the child's output instead of letting it inherit a null device: netsh is
+	// flaky while Windows is still classifying the fresh Wintun adapter, and the text it
+	// prints is the only way to tell "access denied" from "service busy".
+	out, e := p.CombinedOutput()
+	if e == nil {
+		return nil
 	}
-	return nil
+	// Transient failures happen right after the adapter appears; retry a few times before
+	// giving up, so a momentary firewall reconfiguration does not abort the connection.
+	backoff := 120 * time.Millisecond
+	for attempt := 1; attempt <= 4; attempt++ {
+		time.Sleep(backoff)
+		backoff *= 2
+		p = exec.Command(filepath.Join(dir, "System32", "netsh.exe"), args...)
+		out, e = p.CombinedOutput()
+		if e == nil {
+			return nil
+		}
+	}
+	detail := strings.TrimSpace(string(out))
+	if len(detail) > 300 {
+		detail = detail[:300]
+	}
+	if detail == "" {
+		detail = "<no output>"
+	}
+	return fmt.Errorf("Windows VPN firewall setup failed (netsh %s: %v): %s",
+		strings.Join(args, " "), e, detail)
 }
 func (n *networkState) configure(p Profile) error {
 	iface, e := net.InterfaceByName(deviceName)

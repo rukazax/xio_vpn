@@ -797,6 +797,7 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
   late final site = TextEditingController(text: widget.store.checkSite);
   late String priority = widget.store.priorityProtocol;
   late int timeoutSeconds = widget.store.protocolTimeoutSeconds;
+  late bool siteCheck = widget.store.siteCheckEnabled;
   @override
   void dispose() {
     site.dispose();
@@ -825,15 +826,30 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
       ),
       const VpnSharingControl(),
       const SizedBox(height: 16),
-      TextField(
-        controller: site,
-        keyboardType: TextInputType.url,
-        autocorrect: false,
-        decoration: InputDecoration(
-          labelText: tr(context, 'Сайт для проверки'),
-          hintText: 'https://youtube.com',
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: siteCheck,
+        title: const LText('Проверять доступность сайта'),
+        subtitle: const LText(
+          'Необязательно и по умолчанию выключено. Готовность туннеля определяется его собственными признаками: сессия поднялась, рукопожатие состоялось, шлюз ответил эхом.',
         ),
+        onChanged: (v) => setState(() => siteCheck = v),
       ),
+      if (siteCheck) ...[
+        TextField(
+          controller: site,
+          keyboardType: TextInputType.url,
+          autocorrect: false,
+          decoration: InputDecoration(
+            labelText: tr(context, 'Сайт для проверки'),
+            hintText: 'https://www.google.com',
+          ),
+        ),
+        const SizedBox(height: 8),
+        const LText(
+          'Сайт проверяется после подключения. При раздельном туннелировании запрос следует правилам приложения; успешный ответ сам по себе не подтверждает маршрут всего трафика.',
+        ),
+      ],
       const SizedBox(height: 16),
       DropdownButtonFormField<String>(
         initialValue: priority,
@@ -875,7 +891,7 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
       ),
       const SizedBox(height: 16),
       const LText(
-        'Сайт проверяется после подключения. При раздельном туннелировании запрос следует правилам приложения; успешный ответ сам по себе не подтверждает маршрут всего трафика. Сначала проверяется приоритетный протокол; при неудаче — следующий из профиля пользователя.',
+        'Готовность туннеля проверяется его собственными признаками, без внешних сайтов. Сначала берётся приоритетный протокол; если он не поднял рабочий туннель — следующий из профиля пользователя.',
       ),
       const SizedBox(height: 20),
       FilledButton(
@@ -884,6 +900,7 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
             site.text,
             priority,
             timeoutSeconds: timeoutSeconds,
+            siteCheck: siteCheck,
           );
           if (context.mounted) Navigator.pop(context);
         }),
