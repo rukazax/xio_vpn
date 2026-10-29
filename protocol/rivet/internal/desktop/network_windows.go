@@ -92,6 +92,13 @@ func prepareNetwork() (*networkState, error) {
 		if row.DestinationPrefix.Prefix().Bits() != 0 || !row.NextHop.Addr().Is4() {
 			continue
 		}
+		// Another VPN (or a hypervisor switch) may advertise a default route with a
+		// better metric and win this selection. Pinning our sockets to such an
+		// interface sends the tunnel's own traffic back into that tunnel, so only
+		// real hardware adapters are eligible.
+		if !physicalAdapter(row.InterfaceLUID) {
+			continue
+		}
 		iface, e := row.InterfaceLUID.IPInterface(windows.AF_INET)
 		if e != nil {
 			continue
@@ -179,6 +186,20 @@ func (n *networkState) add(luid winipcfg.LUID, dest netip.Prefix, next netip.Add
 	}
 	n.routes = append(n.routes, row)
 	return nil
+}
+// physicalAdapter reports whether the interface is real hardware rather than a
+// tunnel, loopback or virtual switch. WireGuard-style adapters (IF_TYPE_TUNNEL),
+// PPP links and Hyper-V switches must never be used to reach the VPN endpoint.
+func physicalAdapter(luid winipcfg.LUID) bool {
+	row, e := luid.Interface()
+	if e != nil {
+		return false
+	}
+	switch row.Type {
+	case windows.IF_TYPE_ETHERNET_CSMACD, windows.IF_TYPE_IEEE80211:
+		return true
+	}
+	return false
 }
 func netsh(args ...string) error {
 	dir := os.Getenv("SystemRoot")
