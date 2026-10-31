@@ -55,6 +55,11 @@
       "what": "XIO Full 0.23.1: outage and auto-reconnect on Android",
       "result": "entry stopped -> 'Reconnecting…' held 105+ s without falling back to 'Disconnected'; entry restarted -> HTTP 200 within 13 s",
       "date": "2026-10-31"
+    },
+    {
+      "what": "XIO Client 0.23.1 for Windows: application launch (no connect)",
+      "result": "XIOClient.exe from XIO-Client-0.23.1-windows-x64.zip starts, a window titled XIOClient renders the license screen; no black or blank window. A live GUI connection was deliberately not attempted on this machine because the helper takes over all routing and would cut network access for other work.",
+      "date": "2026-10-31"
     }
   ],
   "artifacts": [
@@ -112,8 +117,8 @@
     }
   ],
   "notVerified": [
+    "Windows: the 0.23.1 application launches and renders; a live GUI connection was not attempted (the helper takes over all routing on this machine).",
     "Acceptance harness note: the stale acceptance setup script wrote client ip 10.203.79.2, which the client rejects (it validates 10.79.0.0/24); the product's own server setup uses 10.79.0.1/24 and 10.79.0.N, so this was a harness defect, not a product defect. After correcting the profile the Full build connected.",
-    "Windows: the 0.23.1 helper is rebuilt with the firewall fix, but no live GUI connection was run on 0.23.1; the last live Windows run was the 0.22.5 helper with the 0.23.0 application.",
     "Ubuntu: no .deb/.tar.gz in this release (needs a Linux toolchain); the 0.23.0 Ubuntu limitation (GUI window does not appear) is not re-tested.",
     "Xray/REALITY with the Xray 26.7.28 gateway still does not connect.",
     "Full '5 transports x 3 platforms' matrix was not re-run on 0.23.1."
