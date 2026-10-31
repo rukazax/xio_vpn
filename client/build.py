@@ -143,7 +143,7 @@ if __name__ == '__main__':
         for abi in ['arm64-v8a', 'armeabi-v7a', 'x86_64']:
             shutil.copy2(packages / f'app-{abi}-release.apk',
                          output / f'XIO-Client-{RELEASE}-android-{abi}.apk')
-        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.23.0-android-universal.apk')
+        shutil.copy2(packages / 'app-release.apk', output / f'XIO-Client-{RELEASE}-android-universal.apk')
         shutil.copy2(STAGE / 'source-inputs.json', output / 'source-inputs.json')
         for name in ['README.ru.md', 'README.en.md']:
             shutil.copy2(ROOT / 'client' / name, output / name)

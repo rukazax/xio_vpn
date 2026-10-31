@@ -1,0 +1,67 @@
+{
+  "version": "0.23.1+5016",
+  "pubspecVersion": "0.23.1+5016",
+  "tag": "v0.23.1",
+  "date": "2026-10-31",
+  "whatChanged": [
+    "The connection check no longer requires an external site: the tunnel is confirmed by a fresh exchange, traffic counters and a DNS lookup through the tunnel; the site probe is optional and off by default.",
+    "Candidate order: selected profile, then same-endpoint protocol variants, then other profiles.",
+    "Live link watchdog (15 s) with auto-reconnect and 5/15 s backoff until the server returns.",
+    "Version 0.23.1+5016; Android installs in place over 0.23.0."
+  ],
+  "builds": {
+    "flutterAnalyze": "no issues",
+    "flutterTest": "185 passed, 10 skipped, 0 failed",
+    "clientUnitTests": "15 passed, 3 skipped (Windows symlink privilege)",
+    "androidSigning": "apksigner v2 verified; zipalign -c -P 16 4 passed (client verify.py: 4 artifacts, verified=true)",
+    "windowsBuild": "flutter build windows --release; helper go build ./cmd/xio-desktop; wintun 0.14.1 pinned sha256 07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51"
+  },
+  "liveRuns": [
+    {
+      "what": "Android XIO Client 0.23.0 (same connection logic as 0.23.1) against the acceptance server",
+      "device": "POCO X6 5G, Android 16, arm64-v8a, adb serial 909f194a",
+      "result": "connected: tun0 10.79.0.254/32, UI 'Interface active' + 'Tunnel active · DNS through the tunnel', counters grew, server saw traffic",
+      "date": "2026-10-30"
+    },
+    {
+      "what": "Auto-reconnect on a real outage (Android client, acceptance entry stopped and started)",
+      "result": "entry stopped -> 'Reconnecting…' with 5/15 s retries, no fallback to 'Disconnected'; entry started -> recovery within 15 s; counters 24.3/19.8 KB -> 40.5/58.1 KB",
+      "date": "2026-10-30"
+    },
+    {
+      "what": "IPv6 outer transport to a server with global IPv6",
+      "where": "VPS-721137, entry at [2a0c:b641:1a0:800::2a2]:18443, Linux client on the same host",
+      "result": "connect 129-159 ms, phase connected, secure true, ip 10.79.0.254, disconnect ok",
+      "date": "2026-10-30"
+    },
+    {
+      "what": "Inner IPv6 payload through the tunnel",
+      "where": "VPS-721137, client in a network namespace, profile ip6 = fd79:1::fe",
+      "result": "xio019 has fd79:1::fe/128; ping6 2606:4700:4700::1111 3/3 (rtt 8.198/9.655/11.014 ms); wget -6 https://ifconfig.co returned 2a0c:b641:1a0:800::2a2 (the VPS global address via NAT66); counters rx 5334 / tx 1762",
+      "date": "2026-10-30"
+    },
+    {
+      "what": "XIO Full 0.23.1 on Android: install, onboarding, no black screens",
+      "result": "clean install over 0.23.0 (adb install -r), versionName 0.23.1, onboarding passed, the Connection tab renders fully (screenshot full-shot1.png), connect path now uses the non-site-check verification (error text changed from the site-check message to 'No available route confirmed the tunnel')",
+      "date": "2026-10-31"
+    }
+  ],
+  "artifacts": [
+    { "file": "XIO-Client-0.23.1-android-arm64-v8a.apk", "sha256": "5e84b6a0cebcb720a564470487b997fe0834c2eaa647f7a4e762f7a600712d72" },
+    { "file": "XIO-Client-0.23.1-android-armeabi-v7a.apk", "sha256": "883397278b4c53cd93f37330743a4acf409c3237e2b679d8d541ceb2a7eb74f3" },
+    { "file": "XIO-Client-0.23.1-android-x86_64.apk", "sha256": "8451f8aa861136cfede13b7c948c44cdab429b22adf0a1ff3368203e1e6cff27" },
+    { "file": "XIO-Client-0.23.1-android-universal.apk", "sha256": "32370cba2b377b8ef999b2b62013e52ebbdd042ee4df6b383e0d3efefa4208f4" },
+    { "file": "XIO-Full-0.23.1-android-arm64-v8a.apk", "sha256": "cf8ff3d951ff53e76202d51b2ddb79694df2792d3178bd4869454d9dbebbc067" },
+    { "file": "XIO-Full-0.23.1-android-armeabi-v7a.apk", "sha256": "f4ad36f33dbecc65f07919bee193922dd502187ee7ee9005646fd93870fc766b" },
+    { "file": "XIO-Full-0.23.1-android-x86_64.apk", "sha256": "8f6d2d84ea74516e24a16c05d9c276e2220f91a1c220855aea0f90c389fbea32" },
+    { "file": "XIO-Full-0.23.1-android-universal.apk", "sha256": "d74fd8d7703cb2856cbb44a8a078d03214b0b72a0d3c4699001d97d6fa58da20" },
+    { "file": "XIO-Full-0.23.1-windows-x64.zip", "sha256": "1252622f53379c3d8ff35bece03052ad1c3898bfc16dbfc70f0b2318b9ad71f6" }
+  ],
+  "notVerified": [
+    "A live GUI connection on XIO Full 0.23.1 for Android was not completed: after the acceptance server was re-provisioned the phone-side profile import did not take effect, so the app kept using a profile whose token no longer matches the server. The install, onboarding, tab rendering and the new verification path were observed; the tunnel itself was not established on this build.",
+    "Windows: the 0.23.1 helper is rebuilt with the firewall fix, but no live GUI connection was run on 0.23.1; the last live Windows run was the 0.22.5 helper with the 0.23.0 application.",
+    "Ubuntu: no .deb/.tar.gz in this release (needs a Linux toolchain); the 0.23.0 Ubuntu limitation (GUI window does not appear) is not re-tested.",
+    "Xray/REALITY with the Xray 26.7.28 gateway still does not connect.",
+    "Full '5 transports x 3 platforms' matrix was not re-run on 0.23.1."
+  ]
+}

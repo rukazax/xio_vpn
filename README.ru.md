@@ -7,9 +7,9 @@
 <p align="center">Свой VPN: свои серверы, один интерфейс. Android · Windows · Ubuntu · iOS.</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
   <a href="#как-это-работает"><img alt="how it works" src="https://img.shields.io/badge/docs-how%20it%20works-informational?style=flat-square" /></a>
   <a href="docs/compatibility/0.22.5.ru.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
 </p>
@@ -135,7 +135,7 @@ flowchart LR
 
 ## Что скачать
 
-> **v0.23.0 — предварительный выпуск.** Ссылки ниже ведут прямо к файлам этой версии. Перед установкой прочитайте [ограничения](#ограничения).
+> **v0.23.1 — предварительный выпуск.** Ссылки ведут прямо к файлам этой версии: Android и Windows. Linux-пакеты (`.deb`/`.tar.gz`) в 0.23.1 пока не входят — нужен Linux-тулчейн, будут в следующей сборке. Перед установкой прочитайте [ограничения](#ограничения).
 
 Единый принцип имён: `XIO-<Приложение>-<версия>-<ОС>-<архитектура>.<расширение>`. Приложение —
 `Client` или `Full`, ОС — `android`, `windows` или `ubuntu`, архитектура — `arm64-v8a`,
@@ -145,29 +145,25 @@ flowchart LR
 
 | Система | Файл | Что это |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-arm64-v8a.apk) | основной вариант для современных телефонов |
-| Android 8+ · ARM32 | [XIO-Client-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-armeabi-v7a.apk) | старые 32-битные устройства |
-| Android 8+ · x86-64 | [XIO-Client-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-x86_64.apk) | эмуляторы и x86-планшеты |
-| Android 8+ · universal | [XIO-Client-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-universal.apk) | одна сборка для всех архитектур |
-| Windows 11 x64 | [XIO-Client-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
-| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-amd64.deb) | пакет DEB |
-| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-x64.tar.gz) | архив TAR.GZ |
+| Android 8+ · ARM64 | [XIO-Client-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-arm64-v8a.apk) | основной вариант для современных телефонов |
+| Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | старые 32-битные устройства |
+| Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | эмуляторы и x86-планшеты |
+| Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | одна сборка для всех архитектур |
 | iOS | — | IPA нет: нужны Mac, Xcode и подпись Apple |
 
-Всё лежит в разделе [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0):
-сборки 0.23.0, [контрольные суммы](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/SHA256SUMS-0.23.0.txt),
-[протокол проверки](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/verification-0.23.0.json).
+Всё лежит в разделе [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1):
+сборки 0.23.1, [контрольные суммы](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/SHA256SUMS-0.23.1.txt),
+[протокол проверки](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/verification-0.23.1.json).
 
 ### Полный XIO — свой сервер
 
 | Система | Файл | Что это |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-arm64-v8a.apk) | полное приложение с администрированием |
-| Android 8+ · ARM32 | [XIO-Full-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-armeabi-v7a.apk) | старые 32-битные устройства |
-| Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | эмуляторы |
-| Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | одна сборка для всех архитектур |
-| Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-ubuntu-x64.tar.gz) | архив TAR.GZ |
+| Android 8+ · ARM64 | [XIO-Full-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-arm64-v8a.apk) | полное приложение с администрированием |
+| Android 8+ · ARM32 | [XIO-Full-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-armeabi-v7a.apk) | старые 32-битные устройства |
+| Android 8+ · x86-64 | [XIO-Full-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-x86_64.apk) | эмуляторы |
+| Android 8+ · universal | [XIO-Full-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-universal.apk) | одна сборка для всех архитектур |
+| Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
 | iOS | — | нет |
 
 Серверная часть ставится из полного приложения по SSH на Debian 12/13, Ubuntu 22.04/24.04/26.04,
@@ -215,7 +211,7 @@ flowchart LR
 - `FAIL`, `BLOCKED` и `NOT_EXECUTED` так и пишутся — не подменяются словом «работает».
 - Каждый прогон хранит версию, коммит, устройство, команды и результат отдельно от предыдущих.
 
-Подробнее: [методика и критерии](docs/compatibility/0.23.0.ru.md) ·
+Подробнее: [методика и критерии](docs/compatibility/0.23.1.ru.md) ·
 [отчёт последнего прогона](docs/blog/2026-10-26-windows-and-ipv6.ru.md).
 
 ## Скриншоты
@@ -230,20 +226,25 @@ Windows-клиент, реальный запуск 26.10.2026:
 
 ## Ограничения
 
-- **Xray/REALITY не подключается** на паре «клиент 0.23.0 + шлюз Xray 26.7.28»: несовместима
+- **Xray/REALITY не подключается** на паре «клиент 0.23.x + шлюз Xray 26.7.28»: несовместима
   реализация REALITY в клиентском ядре. AWG и RIVET работают.
-- **Windows 0.23.0: подключение падает на шаге настройки firewall** — помощник запускается с правами
-  администратора, handshake до сервера доходит, но `netsh` внутри помощника возвращает ошибку
-  (`Windows VPN firewall setup failed`), и клиент откатывает подключение. Та же команда вручную
-  выполняется успешно. Ошибка известна, исправление — в работе; RIVET и Xray на Windows поэтому
-  проверить нельзя: шаг firewall общий для всех транспортов.
+- **Windows 0.23.1: помощник пересобран с исправлением firewall** — правила создаются через Windows
+  Filtering Platform по SID пользователя и App ID вместо `netsh`; сборка проходит analyze, тесты и
+  упаковку. Живое подключение через GUI на 0.23.1 не перепроверялось: последний живой прогон на
+  Windows — помощник 0.22.5 и приложение 0.23.0.
+- **Проверка сайта с 0.23.1 необязательна.** Если включить «Проверять доступность сайта», для
+  подключения сайт-пробник должен быть доступен через туннель; при выключенной проверке туннель
+  подтверждается только свежим обменом, счётчиками и DNS.
+- **Ubuntu-пакеты не входят в 0.23.1**: `.deb`/`.tar.gz` требуют Linux-тулчейна и собираются отдельно.
+  Пакеты 0.23.0 остаются в предыдущем выпуске.
 - **Ubuntu 0.23.0: GUI-клиент не создаёт окно** (процесс жив, рендер Impeller/EGL не поднимается).
   Туннель при этом работает через `libexec/xio-tunnel`, но требует установленного `systemd-resolved`:
   без него подключение отклоняется с `systemd-resolved could not configure VPN DNS`.
 - **Полный туннель на Linux отрезает локальную сеть**: пока туннель поднят, машина не отвечает по SSH
   из LAN — весь немаркированный IPv4 уходит в туннель.
-- **Публичный IPv6** не проверен. На стенде использовался локальный ULA-префикс, а выход IPv6 из
-  туннеля сервер блокирует намеренно.
+- **Публичный IPv6**: внешний транспорт и внутренний пейлоад проверены на VPS с глобальным IPv6
+  (`2a0c:b641:1a0:800::2a2`; `fd79:1::fe/128` внутри туннеля, `ping6`/`wget -6` подтверждены).
+  В сетях без глобального IPv6 клиент не достучится до IPv6-only точки входа.
 - **iOS** не собран: нет Mac/Xcode/iPhone, IPA отсутствует.
 - **Полная протокольная взаимозаменяемость не достигнута**: Android — 5 транспортов,
   Windows/Ubuntu — 4, iOS — 2.
@@ -252,7 +253,7 @@ Windows-клиент, реальный запуск 26.10.2026:
 
 ## Документация
 
-- [Совместимость и состояние 0.23.0](docs/compatibility/0.23.0.ru.md)
+- [Совместимость и состояние 0.23.1](docs/compatibility/0.23.1.ru.md)
 - [Скачать](docs/ru/downloads.md) · [Сборка из исходников](docs/ru/build.md) · [FAQ](docs/ru/faq.md)
 - [Как устроены протоколы](docs/protocols/README.md) · [RIVET](RIVET-IMPLEMENTATION-0.2.ru.md)
 - [История изменений](CHANGELOG.md) · [Лицензия GPL-3.0-only](LICENSE)

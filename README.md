@@ -7,9 +7,9 @@
 <p align="center">Your VPN, your servers, one interface. Android · Windows · Ubuntu · iOS.</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
   <a href="#how-it-works"><img alt="how it works" src="https://img.shields.io/badge/docs-how%20it%20works-informational?style=flat-square" /></a>
   <a href="docs/compatibility/0.22.5.en.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
 </p>
@@ -27,7 +27,7 @@ once; the client imports a single portable `xio://` profile and picks the transp
 
 ## Two applications
 
-> **0.23.0 installs as a separate application.** The packages were renamed (`app.xio.client`, `app.xio.xio`), so Android will not update the previous build in place: export/import your profiles and remove the old version manually. Legacy `x1o://` profiles still import.
+> **0.23.1 installs in place over 0.23.0.** Package names did not change, so Android updates the app and keeps profiles and settings. Read the [limitations](#limitations) first.
 
 
 | | **XIO Client** | **Full XIO** |
@@ -107,10 +107,10 @@ is closed.
 
 | Transport | Basis | Network transport | Purpose | Android | Windows | Ubuntu | iOS | Where and when verified |
 |---|---|---|---|---|---|---|---|---|
-| **AWG** | AmneziaWG (WireGuard + obfuscation) | UDP | fast everyday tunnel | yes | yes | yes | — | Android POCO X6 — 2026-10-26, server 81.177.142.37; Debian 13 — 2026-10-26, same server; Windows — native run on 0.22.5, on 0.23.0 the connect fails at the firewall step (see limitations) |
+| **AWG** | AmneziaWG (WireGuard + obfuscation) | UDP | fast everyday tunnel | yes | yes | yes | — | Android POCO X6 — 2026-10-30 (RIVET-S1, acceptance 192.168.88.17) and 2026-10-26 (AWG, server 81.177.142.37); Debian 13 — 2026-10-30 RIVET-S1 and 2026-10-26 AWG; Windows — native run on 0.22.5, the 0.23.1 helper is rebuilt with the firewall fix but not re-run live (see limitations) |
 | **RIVET/H3** | in-house | QUIC / HTTP/3 + TLS 1.3 | resilient access where suspicious TLS is filtered | yes | yes* | yes* | yes* | Android — 2026-10-26, local stand 192.168.88.17:8443 (RIVET/H3 and RIVET/S1); Windows and Ubuntu — engine built, no native run; iOS not built |
 | **RIVET/S1** | in-house | TCP + TLS 1.3 | the same tunnel for UDP-blocked networks | yes | yes* | yes* | yes* | same as above |
-| **Xray/REALITY** | Xray (VLESS + REALITY) | TCP, masquerades as a real TLS site | camouflage as a genuine site | yes | yes* | yes* | — | Android 0.22.3 — PASS; 0.23.0 client with Xray 26.7.28 gateway does not connect (see limitations) |
+| **Xray/REALITY** | Xray (VLESS + REALITY) | TCP, masquerades as a real TLS site | camouflage as a genuine site | yes | yes* | yes* | — | Android 0.22.3 — PASS; 0.23.x client with the Xray 26.7.28 gateway does not connect (see limitations) |
 | **OpenVPN/Cloak** | OpenVPN inside Cloak | TCP + TLS obfuscation | last resort in strict networks | yes | — | — | — | Android — 2026-10-21, checked together with the other four transports |
 
 `yes` — engine present and a native run on this platform was performed (when and where — last column);
@@ -138,7 +138,7 @@ flowchart LR
 
 ## Download
 
-> **v0.23.0 is a pre-release.** The links below download files from this tagged release. Read the [limitations](#limitations) before installing.
+> **v0.23.1 is a pre-release.** The links below download files from this tagged release: Android and Windows. Linux packages (`.deb`/`.tar.gz`) are not part of 0.23.1 yet — they need a Linux toolchain and will follow in the next build. Read the [limitations](#limitations) before installing.
 
 One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. App is `Client` or `Full`; OS is
 `android`, `windows` or `ubuntu`; architecture is `arm64-v8a`, `armeabi-v7a`, `x86_64`,
@@ -148,29 +148,25 @@ One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. App is `Client` or `Fu
 
 | System | File | What it is |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-arm64-v8a.apk) | the usual choice for modern phones |
-| Android 8+ · ARM32 | [XIO-Client-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-armeabi-v7a.apk) | older 32-bit devices |
-| Android 8+ · x86-64 | [XIO-Client-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-x86_64.apk) | emulators and x86 tablets |
-| Android 8+ · universal | [XIO-Client-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-android-universal.apk) | one build for all architectures |
-| Windows 11 x64 | [XIO-Client-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-windows-x64.zip) | ZIP: app, helper, Wintun |
-| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-amd64.deb) | DEB package |
-| Ubuntu 22.04+ x64 | [XIO-Client-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Client-0.23.0-ubuntu-x64.tar.gz) | TAR.GZ archive |
+| Android 8+ · ARM64 | [XIO-Client-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-arm64-v8a.apk) | the usual choice for modern phones |
+| Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | older 32-bit devices |
+| Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | emulators and x86 tablets |
+| Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | one build for all architectures |
 | iOS | — | no IPA: needs a Mac, Xcode and Apple signing |
 
-Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0): 0.23.0
-builds, [checksums](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/SHA256SUMS-0.23.0.txt),
-[verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/verification-0.23.0.json).
+Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1): 0.23.1
+builds, [checksums](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/SHA256SUMS-0.23.1.txt),
+[verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/verification-0.23.1.json).
 
 ### Full XIO — your own server
 
 | System | File | What it is |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.23.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-arm64-v8a.apk) | full application with administration |
-| Android 8+ · ARM32 | [XIO-Full-0.23.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-armeabi-v7a.apk) | older 32-bit devices |
-| Android 8+ · x86-64 | [XIO-Full-0.23.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-x86_64.apk) | emulators |
-| Android 8+ · universal | [XIO-Full-0.23.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-android-universal.apk) | one build for all architectures |
-| Windows 11 x64 | [XIO-Full-0.23.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-windows-x64.zip) | ZIP: app, helper, Wintun |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.0/XIO-Full-0.23.0-ubuntu-x64.tar.gz) | TAR.GZ archive |
+| Android 8+ · ARM64 | [XIO-Full-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-arm64-v8a.apk) | full application with administration |
+| Android 8+ · ARM32 | [XIO-Full-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-armeabi-v7a.apk) | older 32-bit devices |
+| Android 8+ · x86-64 | [XIO-Full-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-x86_64.apk) | emulators |
+| Android 8+ · universal | [XIO-Full-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-universal.apk) | one build for all architectures |
+| Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: app, helper, Wintun |
 | iOS | — | none |
 
 The server is installed from the full application over SSH on Debian 12/13, Ubuntu 22.04/24.04/26.04,
@@ -183,7 +179,7 @@ RHEL/Alma/Rocky 9/10 (x86_64, systemd, `/dev/net/tun`).
 3. Open the app → “Add profile” → paste the key or pick the file.
 4. Press “Connect”. Android asks for VPN permission once; Windows asks for administrator rights for
    the helper.
-5. Make sure “Site reachable · HTTP 200” appears and traffic counters grow.
+5. Make sure “Tunnel active” appears and traffic counters grow. The tunnel is confirmed by a fresh exchange, counters and DNS through the tunnel; the site probe is optional and off by default (Settings → “Check site availability”).
 
 Android screens are not published: the app sets `FLAG_SECURE`, so the system returns a black image.
 That is protection, not a bug.
@@ -218,7 +214,7 @@ Rules we keep:
 - `FAIL`, `BLOCKED` and `NOT_EXECUTED` are written as such and never replaced with “works”.
 - Every run stores version, commit, device, commands and results separately from previous runs.
 
-More: [methodology and criteria](docs/compatibility/0.23.0.en.md) ·
+More: [methodology and criteria](docs/compatibility/0.23.1.en.md) ·
 [latest run report](docs/blog/2026-10-26-windows-and-ipv6.en.md).
 
 ## Screenshots
@@ -233,21 +229,26 @@ Windows client, real run on 2026-10-26:
 
 ## Limitations
 
-- **Xray/REALITY does not connect** on the 0.23.0 client with the Xray 26.7.28 gateway: the REALITY
+- **Xray/REALITY does not connect** on the 0.23.x client with the Xray 26.7.28 gateway: the REALITY
   implementation in the client core is incompatible. AWG and RIVET work.
-- **Windows 0.23.0: connect fails at the firewall step** — the helper runs elevated, the server
-  handshake succeeds, but `netsh` inside the helper returns an error (`Windows VPN firewall setup
-  failed`) and the client rolls the connection back. The same command run manually succeeds. The
-  defect is known and being fixed; RIVET and Xray cannot be verified on Windows because the firewall
-  step is shared by every transport.
+- **Windows 0.23.1: the helper is rebuilt with the firewall fix** (the firewall rules are created
+  through the Windows Filtering Platform by user SID and App ID instead of `netsh`), and the build
+  passes analyze, tests and packaging. A live GUI connection on 0.23.1 was not re-run: the previous
+  live Windows run was the 0.22.5 helper and the 0.23.0 application.
+- **The site probe is optional** since 0.23.1. If you turn “Check site availability” on, connecting
+  requires that the probe site is reachable through the tunnel; with the probe off the tunnel is
+  confirmed by a fresh exchange, counters and DNS only.
+- **Ubuntu packages are not part of 0.23.1**: `.deb`/`.tar.gz` need a Linux toolchain and are built
+  separately. The 0.23.0 packages remain available in the previous release.
 - **Ubuntu 0.23.0: the GUI client does not create a window** (the process lives, the Impeller/EGL
   surface never comes up). The tunnel itself works through `libexec/xio-tunnel`, but requires
   `systemd-resolved`: without it the connect is rejected with `systemd-resolved could not configure
   VPN DNS`.
 - **A full tunnel on Linux cuts off the local network**: while the tunnel is up the machine stops
   answering SSH from the LAN, because all unmarked IPv4 goes into the tunnel.
-- **Public IPv6** is unverified. The stand used a local ULA prefix, and IPv6 egress from the tunnel is
-  blocked by the server on purpose.
+- **Public IPv6**: outer transport and inner payload were verified on a VPS with global IPv6
+  (`2a0c:b641:1a0:800::2a2`; `fd79:1::fe/128` inside the tunnel, `ping6`/`wget -6` confirmed).
+  On networks without global IPv6 the client cannot reach an IPv6-only entry point.
 - **iOS** is not built: no Mac/Xcode/iPhone, no IPA.
 - **Full protocol parity is not achieved**: Android has 5 transports, Windows/Ubuntu 4, iOS 2.
 - **Alongside another VPN** XIO does not work: the `/1` routes conflict.
@@ -255,7 +256,7 @@ Windows client, real run on 2026-10-26:
 
 ## Documentation
 
-- [Compatibility and status 0.23.0](docs/compatibility/0.23.0.en.md)
+- [Compatibility and status 0.23.1](docs/compatibility/0.23.1.en.md)
 - [Download](docs/en/downloads.md) · [Build from source](docs/en/build.md) · [FAQ](docs/en/faq.md)
 - [Protocol documentation](docs/protocols/README.md) · [RIVET](RIVET-IMPLEMENTATION-0.2.ru.md)
 - [Changelog](CHANGELOG.md) · [License GPL-3.0-only](LICENSE)
