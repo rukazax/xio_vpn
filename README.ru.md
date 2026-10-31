@@ -149,6 +149,7 @@ flowchart LR
 | Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | старые 32-битные устройства |
 | Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | эмуляторы и x86-планшеты |
 | Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | одна сборка для всех архитектур |
+| Windows 11 x64 | [XIO-Client-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
 | iOS | — | IPA нет: нужны Mac, Xcode и подпись Apple |
 
 Всё лежит в разделе [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1):

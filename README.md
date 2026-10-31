@@ -152,6 +152,7 @@ One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. App is `Client` or `Fu
 | Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | older 32-bit devices |
 | Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | emulators and x86 tablets |
 | Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | one build for all architectures |
+| Windows 11 x64 | [XIO-Client-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-windows-x64.zip) | ZIP: app, helper, Wintun |
 | iOS | — | no IPA: needs a Mac, Xcode and Apple signing |
 
 Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1): 0.23.1

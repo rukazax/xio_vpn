@@ -14,7 +14,7 @@
     "flutterTest": "185 passed, 10 skipped, 0 failed",
     "clientUnitTests": "15 passed, 3 skipped (Windows symlink privilege)",
     "androidSigning": "apksigner v2 verified; zipalign -c -P 16 4 passed (client verify.py: 4 artifacts, verified=true)",
-    "windowsBuild": "flutter build windows --release; helper go build ./cmd/xio-desktop; wintun 0.14.1 pinned sha256 07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51"
+    "windowsBuild": "flutter build windows --release (Full) and client/prepare_platform.py windows + flutter build windows --release (Client, binary XIOClient.exe, no server assets); helper go build ./cmd/xio-desktop; wintun 0.14.1 pinned sha256 07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51"
   },
   "liveRuns": [
     {
@@ -55,7 +55,8 @@
     { "file": "XIO-Full-0.23.1-android-armeabi-v7a.apk", "sha256": "f4ad36f33dbecc65f07919bee193922dd502187ee7ee9005646fd93870fc766b" },
     { "file": "XIO-Full-0.23.1-android-x86_64.apk", "sha256": "8f6d2d84ea74516e24a16c05d9c276e2220f91a1c220855aea0f90c389fbea32" },
     { "file": "XIO-Full-0.23.1-android-universal.apk", "sha256": "d74fd8d7703cb2856cbb44a8a078d03214b0b72a0d3c4699001d97d6fa58da20" },
-    { "file": "XIO-Full-0.23.1-windows-x64.zip", "sha256": "1252622f53379c3d8ff35bece03052ad1c3898bfc16dbfc70f0b2318b9ad71f6" }
+    { "file": "XIO-Full-0.23.1-windows-x64.zip", "sha256": "1252622f53379c3d8ff35bece03052ad1c3898bfc16dbfc70f0b2318b9ad71f6" },
+    { "file": "XIO-Client-0.23.1-windows-x64.zip", "sha256": "1aa2dee6a03c6cdf88d8df7e5b696e06b3eda624e06f5c6c2d7c59f8bf80c640" }
   ],
   "notVerified": [
     "A live GUI connection on XIO Full 0.23.1 for Android was not completed: after the acceptance server was re-provisioned the phone-side profile import did not take effect, so the app kept using a profile whose token no longer matches the server. The install, onboarding, tab rendering and the new verification path were observed; the tunnel itself was not established on this build.",
