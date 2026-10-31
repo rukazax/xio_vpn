@@ -33,7 +33,7 @@ iOS is not built: it needs a Mac, Xcode and Apple signing.
 
 Ubuntu packages are part of 0.23.1: install the `.deb` with `apt`, or unpack the `.tar.gz`.
 
-> **Known issue in 0.23.1.** The server payload embedded in the Full builds fails during install on the
+> **Known issue in 0.23.1.** The server payload published with 0.23.1 fails during install on the
 > `POSTROUTING` firewall rule (`iptables: Can't use -i with POSTROUTING`); on IPv6-only hosts the stats
 > timer also fails with `Command failed: wg`. Fixed in commit `19d55dc`, next build. Client-only use of
 > RIVET and AWG is unaffected.

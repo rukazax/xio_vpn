@@ -284,7 +284,7 @@ WireGuard, Shadowsocks и IKEv2 устанавливаются на сервер
 | Серверный пакет | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21,3 МиБ, серверная часть для Linux |
 | Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
 
-> **Известный дефект 0.23.1.** Серверный пакет внутри полных сборок падает на шаге firewall:
+> **Известный дефект 0.23.1.** Серверный пакет, опубликованный в 0.23.1, падает на шаге firewall:
 > `iptables: Can't use -i with POSTROUTING`, затем `Network stack operation failed: iptables`. На
 > сервере только с IPv6 дополнительно падают таймер статистики и `status` с `Command failed: wg`,
 > потому что интерфейса `xio0` нет. Оба дефекта исправлены коммитом `19d55dc`; в 0.23.1

@@ -282,9 +282,10 @@ One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. `App` is `Client` or `
 | Server package | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21.3 MiB, server payload for a Linux host |
 | Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: app, helper, Wintun |
 
-> **Known issue in 0.23.1.** The server payload embedded in the Full builds fails during install on the
+> **Known issue in 0.23.1.** The server payload published with 0.23.1 fails during install on the
 > firewall step: `iptables: Can't use -i with POSTROUTING`, then
-> `Network stack operation failed: iptables`. On an IPv6-only server the stats timer and `status` also
+> `Network stack operation failed: iptables`. The Linux and Windows Full bundles verified here embed the
+> same payload. On an IPv6-only server the stats timer and `status` also
 > fail with `Command failed: wg` because `xio0` does not exist. Both defects are fixed in commit
 > `19d55dc`; the fix is not part of 0.23.1. Client-only use of RIVET and AWG is not affected.
 
