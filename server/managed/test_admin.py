@@ -78,3 +78,10 @@ class RestrictedPolicyTests(unittest.TestCase):
  def test_public_profiles_advertise_only_restricted_candidates(self):
   d={'id':'s','host':'vpn.example','publicKeys':{},'awg':{},'protocols':['wireguard','awg'],'restrictedNetwork':True,'rivet':{'serverName':'vpn.example'},'stack':{'protocols':['xray','cloak']}}
   self.assertEqual(set(m.public(d)['protocols']),{'awg','xray','cloak','rivet-h3','rivet-s1'})
+ def test_counters_skip_absent_interfaces(self):
+  # Restricted installs run without xio0; `wg show xio0 dump` fails and used to
+  # take the stats timer and `status` down with it.
+  with patch.object(m.Path,'exists',return_value=False),patch.object(m,'run') as called:
+   self.assertEqual(m.counters(),{})
+   called.assert_not_called()
+

@@ -44,5 +44,25 @@ class AccountingTests(unittest.TestCase):
                 snapshot(20, 17, 28)
                 self.assertEqual(m.stats(d)['u']['monthBytes'], first+45)
 
+class FirewallScopeTests(unittest.TestCase):
+    def test_masquerade_rule_has_no_input_interface(self):
+        # POSTROUTING rejects `-i` and the inbound policy match, so a scoped
+        # MASQUERADE rule makes the whole install fail at firewall time.
+        for subnet, iface, ipsec in [('10.80.0.0/24', 'xioovpn0', False),
+                                     ('10.82.0.0/24', None, True)]:
+            nat = m.firewall_rules(subnet, iface, 'eth0', ipsec)[0]
+            self.assertEqual(nat[:3], ['-t', 'nat', 'POSTROUTING'])
+            self.assertNotIn('-i', nat)
+            self.assertNotIn('policy', nat)
+            self.assertEqual(nat[nat.index('-o') + 1], 'eth0')
+
+    def test_forward_rules_keep_arrival_scope(self):
+        _, forward, reverse = m.firewall_rules('10.80.0.0/24', 'xioovpn0', 'eth0')
+        self.assertEqual(forward[forward.index('-i') + 1], 'xioovpn0')
+        self.assertEqual(reverse[reverse.index('-i') + 1], 'eth0')
+        ipsec = m.firewall_rules('10.82.0.0/24', None, 'eth0', True)
+        self.assertIn('ipsec', ipsec[1])
+        self.assertIn('ipsec', ipsec[2])
+
 if __name__ == '__main__':
     unittest.main()

@@ -231,6 +231,9 @@ def start_awg(d):
 def counters():
  result={}
  for protocol,iface in [('wireguard','xio0'),('awg','xioawg0')]:
+  # Restricted installs have no kernel WireGuard interface at all; querying it
+  # fails the whole sample and takes the stats timer and `status` down with it.
+  if not Path('/sys/class/net/'+iface).exists():continue
   if protocol=='wireguard':
    text=run('wg','show',iface,'dump');rows=text.splitlines()[1:]
    for row in rows:
