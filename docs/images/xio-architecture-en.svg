@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img">
+<rect width="1280" height="640" rx="26" fill="#0C1119"/>
+<text x="60" y="68" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="34" font-weight="bold" fill="#C0F57B" text-anchor="start">XIO · architecture</text>
+<text x="60" y="102" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#9BAABC" text-anchor="start">one profile — five transports — your own server</text>
+<rect x="900" y="128" width="320" height="74" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="922" y="158" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="19" font-weight="bold" fill="#E7EFDE" text-anchor="start">Full XIO</text>
+<text x="922" y="184" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">SSH · install · users</text>
+<path d="M1060 202 V234" fill="none" stroke="#C0F57B" stroke-width="3"/>
+<path d="M1053 232 L1060 246 L1067 232" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="60" y="246" width="300" height="250" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="84" y="280" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">Device</text>
+<rect x="84" y="300" width="252" height="40" rx="20.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="210.0" y="326.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">Flutter UI</text>
+<rect x="84" y="350" width="252" height="40" rx="20.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="210.0" y="376.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">xio:// profile</text>
+<rect x="84" y="400" width="252" height="40" rx="20.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="210.0" y="426.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">TUN · engine</text>
+<text x="84" y="470" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">Keystore · DPAPI · AES-GCM</text>
+<text x="430" y="280" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">Transports</text>
+<rect x="430" y="300" width="380" height="42" rx="21.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="448" y="327.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">AmneziaWG</text>
+<text x="792" y="327.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="end">UDP 51821</text>
+<rect x="430" y="352" width="380" height="42" rx="21.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="448" y="379.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">RIVET / H3</text>
+<text x="792" y="379.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="end">QUIC · UDP 8443</text>
+<rect x="430" y="404" width="380" height="42" rx="21.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="448" y="431.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">RIVET / S1</text>
+<text x="792" y="431.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="end">TLS · TCP 8443</text>
+<rect x="430" y="456" width="380" height="42" rx="21.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="448" y="483.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">Xray / REALITY</text>
+<text x="792" y="483.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="end">TCP 4443</text>
+<rect x="430" y="508" width="380" height="42" rx="21.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="448" y="535.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">OpenVPN / Cloak</text>
+<text x="792" y="535.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="end">TCP 9443</text>
+<rect x="900" y="246" width="320" height="250" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="924" y="280" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">VPS</text>
+<text x="924" y="314" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">xio-managed</text>
+<text x="924" y="344" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">RIVET entry + gateway</text>
+<text x="924" y="374" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">Xray · Cloak · AWG</text>
+<text x="924" y="404" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">NAT44 / NAT66</text>
+<text x="924" y="434" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">counters · firewall</text>
+<path d="M360 380 H418" fill="none" stroke="#C0F57B" stroke-width="3"/>
+<path d="M416 373 L430 380 L416 387" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="395.0" y="366" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="middle">xio://</text>
+<path d="M810 380 H888" fill="none" stroke="#C0F57B" stroke-width="3"/>
+<path d="M886 373 L900 380 L886 387" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="855.0" y="366" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="middle">transport</text>
+<rect x="960" y="540" width="200" height="60" rx="18" fill="#101823" stroke="#27313E" stroke-width="2" stroke-dasharray="6 6"/>
+<text x="1060" y="576" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#E7EFDE" text-anchor="middle">Internet</text>
+<path d="M1060 496 V528" fill="none" stroke="#C0F57B" stroke-width="3"/>
+<path d="M1053 526 L1060 540 L1067 526" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="60" y="610" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">Full matrix: Android — 5 transports, Windows/Ubuntu — 4, iOS — 2 (source only).</text>
+</svg>

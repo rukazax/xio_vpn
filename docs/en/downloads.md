@@ -31,7 +31,12 @@ iOS is not built: it needs a Mac, Xcode and Apple signing.
 | Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-x64.tar.gz) | 57.9 MiB |
 | Server package | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21.3 MiB, server payload for a Linux host |
 
-Ubuntu packages (`.deb`/`.tar.gz`) are not part of 0.23.1: they need a Linux toolchain and are built separately. The 0.23.0 packages remain in the [previous release](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0).
+Ubuntu packages are part of 0.23.1: install the `.deb` with `apt`, or unpack the `.tar.gz`.
+
+> **Known issue in 0.23.1.** The server payload embedded in the Full builds fails during install on the
+> `POSTROUTING` firewall rule (`iptables: Can't use -i with POSTROUTING`); on IPv6-only hosts the stats
+> timer also fails with `Command failed: wg`. Fixed in commit `19d55dc`, next build. Client-only use of
+> RIVET and AWG is unaffected.
 
 ## Verifying files
 

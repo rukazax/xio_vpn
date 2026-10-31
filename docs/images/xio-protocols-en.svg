@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img">
+<rect width="1280" height="700" rx="26" fill="#0C1119"/>
+<text x="60" y="68" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="34" font-weight="bold" fill="#C0F57B" text-anchor="start">Five transports</text>
+<text x="60" y="102" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#9BAABC" text-anchor="start">different jobs: speed, camouflage, surviving UDP blocking</text>
+<rect x="60" y="150" width="380" height="226" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="84" y="190" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="22" font-weight="bold" fill="#C0F57B" text-anchor="start">AmneziaWG</text>
+<rect x="84" y="206" width="210" height="30" rx="15.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="189.0" y="227.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">UDP 51821</text>
+<text x="84" y="264" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">WireGuard + obfuscation</text>
+<text x="84" y="291" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">Jc/Jmin/Jmax, S1/S2, H1–H4</text>
+<text x="84" y="318" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">fast everyday tunnel</text>
+<text x="84" y="352" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">Android · Windows · Ubuntu</text>
+<rect x="470" y="150" width="380" height="226" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="494" y="190" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="22" font-weight="bold" fill="#C0F57B" text-anchor="start">RIVET / S1</text>
+<rect x="494" y="206" width="210" height="30" rx="15.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="599.0" y="227.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">TCP 8443</text>
+<text x="494" y="264" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">in-house transport</text>
+<text x="494" y="291" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">TLS 1.3 over TCP</text>
+<text x="494" y="318" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">when UDP is blocked</text>
+<text x="494" y="352" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">Android · Windows · Ubuntu · iOS</text>
+<rect x="880" y="150" width="380" height="226" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="904" y="190" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="22" font-weight="bold" fill="#C0F57B" text-anchor="start">RIVET / H3</text>
+<rect x="904" y="206" width="210" height="30" rx="15.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="1009.0" y="227.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">UDP 8443</text>
+<text x="904" y="264" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">QUIC / HTTP/3, TLS 1.3</text>
+<text x="904" y="291" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">two entrances to one server</text>
+<text x="904" y="318" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">resists TLS fingerprinting</text>
+<text x="904" y="352" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">Android · Windows · Ubuntu · iOS</text>
+<rect x="60" y="392" width="380" height="226" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="84" y="432" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="22" font-weight="bold" fill="#C0F57B" text-anchor="start">Xray / REALITY</text>
+<rect x="84" y="448" width="210" height="30" rx="15.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="189.0" y="469.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">TCP 4443</text>
+<text x="84" y="506" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">VLESS + REALITY</text>
+<text x="84" y="533" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">masquerades as a real site</text>
+<text x="84" y="560" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">when plain-looking TLS helps</text>
+<text x="84" y="594" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">Android · Windows · Ubuntu</text>
+<rect x="470" y="392" width="380" height="226" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="494" y="432" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="22" font-weight="bold" fill="#C0F57B" text-anchor="start">OpenVPN / Cloak</text>
+<rect x="494" y="448" width="210" height="30" rx="15.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="599.0" y="469.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">TCP 9443</text>
+<text x="494" y="506" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">OpenVPN inside Cloak</text>
+<text x="494" y="533" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">TLS obfuscation</text>
+<text x="494" y="560" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">last resort in strict networks</text>
+<text x="494" y="594" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">Android</text>
+<rect x="880" y="392" width="380" height="226" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="904" y="432" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="22" font-weight="bold" fill="#C0F57B" text-anchor="start">Server only</text>
+<rect x="904" y="448" width="210" height="30" rx="15.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="1009.0" y="469.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">51820 · 8388 · 500/4500</text>
+<text x="904" y="506" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">WireGuard — kernel, no obfuscation</text>
+<text x="904" y="533" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">Shadowsocks — TCP/UDP 8388</text>
+<text x="904" y="560" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">IKEv2 — 500/4500 UDP</text>
+<text x="904" y="594" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">not offered by the XIO client</text>
+<text x="60" y="668" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">RIVET: pinned gateway certificate, per-server gatewayId, per-user secret and entryToken.</text>
+</svg>

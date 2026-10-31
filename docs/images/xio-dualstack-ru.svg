@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img">
+<rect width="1280" height="700" rx="26" fill="#0C1119"/>
+<text x="60" y="68" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="34" font-weight="bold" fill="#C0F57B" text-anchor="start">IPv4 и IPv6</text>
+<text x="60" y="102" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#9BAABC" text-anchor="start">внешний транспорт и внутренний адрес независимы</text>
+<rect x="60" y="150" width="330" height="260" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="84" y="186" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">Клиент</text>
+<rect x="84" y="206" width="282" height="38" rx="19.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="225.0" y="231.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">IPv4 · 10.7x.0.N</text>
+<rect x="84" y="254" width="282" height="38" rx="19.0" fill="#1B2735" stroke="#27313E" stroke-width="1.6"/>
+<text x="225.0" y="279.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="middle">IPv6 · fd7x:1::N</text>
+<text x="84" y="320" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">Внешний сокет:</text>
+<rect x="84" y="332" width="282" height="38" rx="19.0" fill="#24331C" stroke="#C0F57B" stroke-width="1.6"/>
+<text x="225.0" y="357.0" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#C0F57B" text-anchor="middle">IPv4 или IPv6</text>
+<text x="84" y="396" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">DNS — из профиля, через туннель</text>
+<rect x="450" y="150" width="380" height="260" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="474" y="186" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">Сервер</text>
+<text x="474" y="222" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">вход IPv4 + IPv6</text>
+<text x="474" y="254" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">NAT44 → 10.77–10.82/24</text>
+<text x="474" y="286" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">NAT66 → fd77:1::/64 … fd80:1::/64</text>
+<text x="474" y="318" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">firewall с receipts</text>
+<text x="474" y="350" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">счётчики каждые 30 с</text>
+<rect x="890" y="150" width="330" height="260" rx="18" fill="#101823" stroke="#27313E" stroke-width="2" stroke-dasharray="7 7"/>
+<text x="914" y="186" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">Интернет</text>
+<text x="914" y="226" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">IPv4-сайты</text>
+<text x="914" y="256" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">IPv6-сайты</text>
+<text x="914" y="286" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">NAT66: ответ приходит</text>
+<text x="914" y="316" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#9BAABC" text-anchor="start">с глобального адреса VPS</text>
+<path d="M390 280 H438" fill="none" stroke="#C0F57B" stroke-width="3"/>
+<path d="M436 273 L450 280 L436 287" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="420.0" y="266" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="middle">TUN</text>
+<path d="M830 280 H878" fill="none" stroke="#C0F57B" stroke-width="3"/>
+<path d="M876 273 L890 280 L876 287" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="860.0" y="266" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="middle">NAT</text>
+<rect x="60" y="428" width="560" height="136" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="84" y="462" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="bold" fill="#C0F57B" text-anchor="start">IPv6-only VPS</text>
+<text x="84" y="492" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">restricted-режим: нет IPv4 default route,</text>
+<text x="84" y="516" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">без kernel WireGuard; порты 4443/tcp, 9443/tcp,</text>
+<text x="84" y="540" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">8443, 51821/udp</text>
+<rect x="650" y="428" width="570" height="136" rx="18" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="674" y="462" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="bold" fill="#C0F57B" text-anchor="start">DNS64 / NAT64 / CLAT</text>
+<text x="674" y="502" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">XIO их не предоставляет: IPv4-литералы и IPv4-пакеты</text>
+<text x="674" y="526" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">внутри IPv6-only сети не переводятся. Нужен IPv4-выход</text>
+<text x="674" y="550" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#9BAABC" text-anchor="start">или NAT64 у провайдера.</text>
+<text x="60" y="606" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#E7EFDE" text-anchor="start">Проверено: POCO X6 — fd79:1::fe/128, ping6 и wget -6 через туннель;</text>
+<text x="60" y="632" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="normal" fill="#E7EFDE" text-anchor="start">внешний вход по глобальному IPv6 [2a0c:b641:1a0:800::2a2]:18443 — 129–159 мс.</text>
+<text x="60" y="670" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">IPv6 extension headers, фрагменты и jumbograms не поддерживаются; TCP, UDP и ограниченный ICMPv6 — да.</text>
+</svg>
