@@ -21,7 +21,7 @@ class DualstackTests(unittest.TestCase):
         import json,tempfile
         from pathlib import Path
         with tempfile.TemporaryDirectory() as temporary:
-            folder=Path(temporary);state=folder/'state.json';receipt=folder/'receipt.json';up=folder/'network-up'
+            folder=Path(temporary);state=folder/'state.json';receipt=folder/'receipt.json';up=folder/'network-up';forward=folder/'forward';forward.write_text('0')
             owned={'args':['--zone=trusted'],'option':'rich-rule','value':'rule family="ipv6" source address="fd78:1::/64" drop'}
             foreign=dict(owned,value='rule family="ipv6" source address="fd99::/64" drop')
             state.write_text(json.dumps({'owner':'xio-managed-v1','firewall':{'kind':'firewalld','added':[owned,foreign]}}))
@@ -32,7 +32,7 @@ class DualstackTests(unittest.TestCase):
             def call(*args,**kwargs):
                 calls.append(args)
                 return type('Result',(),{'returncode':1 if rollback and any(str(a).startswith('--query-rich-rule=') for a in args) else 0})()
-            with patch.object(dualstack,'STATE',state),patch.object(dualstack,'RECEIPT',receipt),patch.object(dualstack,'CONFIG_DIR',folder),patch.object(dualstack,'NETWORK_UP',up),patch.object(dualstack.os,'geteuid',return_value=0),patch.object(dualstack,'ipv6_ready',return_value=True),patch.object(dualstack,'listener',return_value='::'),patch.object(dualstack,'call',side_effect=call):
+            with patch.object(dualstack,'FORWARDING',forward),patch.object(dualstack,'SYS_NET',folder),patch.object(dualstack,'STATE',state),patch.object(dualstack,'RECEIPT',receipt),patch.object(dualstack,'CONFIG_DIR',folder),patch.object(dualstack,'NETWORK_UP',up),patch.object(dualstack.os,'geteuid',return_value=0),patch.object(dualstack,'ipv6_ready',return_value=True),patch.object(dualstack,'listener',return_value='::'),patch.object(dualstack,'call',side_effect=call):
                 dualstack.configure()
                 config=json.loads((folder/'config.json').read_text())
                 self.assertEqual(config['inbounds'][0],{'listen':'::','privateKey':'unchanged-test-key'})

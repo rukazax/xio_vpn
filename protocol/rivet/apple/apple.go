@@ -9,6 +9,7 @@ import (
 	"net"
 	"sync"
 	"time"
+	"xio.local/rivet/internal/physical"
 	"xio.local/rivet/internal/rivet"
 )
 
@@ -37,7 +38,10 @@ var global struct {
 }
 
 func resolve(ctx context.Context, c rivet.ClientConfig, p Protector) (rivet.ClientConfig, error) {
-	h, port, _ := net.SplitHostPort(c.Endpoint)
+	h, port, e := physical.ParseEndpoint(c.Endpoint)
+	if e != nil {
+		return c, e
+	}
 	if net.ParseIP(h) != nil {
 		return c, nil
 	}
@@ -45,10 +49,11 @@ func resolve(ctx context.Context, c rivet.ClientConfig, p Protector) (rivet.Clie
 	go func() { result <- p.Resolve(h) }()
 	select {
 	case ip := <-result:
-		if net.ParseIP(ip) == nil {
+		addresses, e := physical.Addresses(ip)
+		if e != nil || len(addresses) != 1 {
 			return c, errors.New("physical endpoint resolution failed")
 		}
-		c.Endpoint = net.JoinHostPort(ip, port)
+		c.Endpoint = net.JoinHostPort(addresses[0], port)
 		return c, nil
 	case <-ctx.Done():
 		return c, ctx.Err()
@@ -111,11 +116,24 @@ func Start(raw string, p Protector, sink PacketSink, timeoutMillis int64) (strin
 func dial(ctx context.Context, c rivet.ClientConfig, p Protector, budget time.Duration) (*rivet.Session, error) {
 	return rivet.DialWithTimeout(ctx, c, p, budget)
 }
+
+// IPv6 is enabled only by the validated, bound profile; old IPv4-only profiles
+// continue to reject it rather than permitting traffic outside the tunnel.
+func (t *tunnel) outboundAllowed(packet []byte) bool {
+	return len(packet) > 0 && (packet[0]>>4 != 6 || t.cfg.IP6 != "") && rivet.CheckIP(packet, t.cfg.IP, true) == nil
+}
+func (t *tunnel) inboundAllowed(packet []byte) bool {
+	if rivet.CheckIP(packet, "", false) != nil {
+		return false
+	}
+	destination := rivet.Destination(packet)
+	return destination == t.cfg.IP || (t.cfg.IP6 != "" && destination == t.cfg.IP6)
+}
 func Input(packet []byte) bool {
 	global.Lock()
 	t := global.t
 	global.Unlock()
-	if t == nil || rivet.CheckIPv4(packet, t.cfg.IP, true) != nil {
+	if t == nil || !t.outboundAllowed(packet) {
 		return false
 	}
 	select {
@@ -164,7 +182,7 @@ func (t *tunnel) receive() {
 			if e != nil {
 				break
 			}
-			if rivet.CheckIPv4(b, "", false) != nil || rivet.Destination(b) != t.cfg.IP {
+			if !t.inboundAllowed(b) {
 				break
 			}
 			if !t.sink.WritePacket(b) {
@@ -244,6 +262,6 @@ func Status() string {
 	}
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	b, _ := json.Marshal(map[string]any{"active": t.ctx.Err() == nil, "phase": t.phase, "protocol": t.cfg.Protocol, "rx": t.rx, "tx": t.tx, "handshake": t.handshake})
+	b, _ := json.Marshal(map[string]any{"active": t.ctx.Err() == nil, "phase": t.phase, "protocol": t.cfg.Protocol, "rx": t.rx, "tx": t.tx, "handshake": t.handshake, "ipv6Payload": t.ctx.Err() == nil && t.cfg.IP6 != ""})
 	return string(b)
 }

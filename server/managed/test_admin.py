@@ -2,6 +2,10 @@ import importlib.util,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('managed',Path(__file__).with_name('admin.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+_read_text=Path.read_text
+def fixture_read(path,*args,**kwargs):
+ if path.as_posix()=='/proc/sys/kernel/random/boot_id':return 'unit-fixture-boot'
+ return _read_text(path,*args,**kwargs)
 class PolicyTests(unittest.TestCase):
  def test_scoped_quota_and_roles(self):
   d={'users':{'a':{'role':'admin','userLimit':1,'revoked':False},'b':{'createdBy':'a','revoked':False}}}
@@ -13,7 +17,7 @@ class PolicyTests(unittest.TestCase):
   d['users']['a']['revoked']=True
   with self.assertRaises(AssertionError):m.authority(d,'a','inspect',{})
  def test_monthly_delta_reset_and_rollover(self):
-  with tempfile.TemporaryDirectory() as directory,patch.object(m,'ROOT',Path(directory)),patch.object(m,'run',return_value='generation-1'):
+  with tempfile.TemporaryDirectory() as directory,patch.object(Path,'read_text',fixture_read),patch.object(m,'ROOT',Path(directory)),patch.object(m,'run',return_value='generation-1'):
    d={'owner':m.OWNER,'id':'s','host':'example','protocols':['wireguard','awg'],'publicKeys':{},'awg':{},'users':{'u':{'keys':{'wireguard':'pub'},'revoked':False}}}
    with patch.object(m,'counters',return_value={('wireguard','pub'):(10,20,1000)}),patch.object(m.time,'time',return_value=1001),patch.object(m.time,'strftime',return_value='2026-10'):
     m.stats(d);self.assertEqual(d['users']['u']['monthBytes'],30);self.assertTrue(d['users']['u']['online'])
@@ -27,7 +31,7 @@ class RivetStatisticsTests(unittest.TestCase):
   original=Path.read_text
   snapshot={'u':{'rx':40,'tx':50,'month':'2026-10','monthBytes':90,'online':True,'sampledAt':1000}}
   def read(path,*args,**kwargs):
-   return json.dumps(snapshot) if str(path)=='/var/lib/xio-rivet/stats.json' else original(path,*args,**kwargs)
+   return json.dumps(snapshot) if path.as_posix()=='/var/lib/xio-rivet/stats.json' else fixture_read(path,*args,**kwargs)
   with tempfile.TemporaryDirectory() as directory,patch.object(m,'ROOT',Path(directory)),patch.object(m,'run',return_value='generation-1'),patch.object(Path,'read_text',read),patch.object(m,'counters',return_value={}),patch.object(m.time,'strftime',return_value='2026-10'),patch.object(m.time,'time',return_value=1001):
    d={'owner':m.OWNER,'id':'s','host':'example','protocols':['wireguard','awg'],'publicKeys':{},'awg':{},'users':{'u':{'keys':{},'rivet':True,'revoked':False}}}
    m.stats(d);m.stats(d);self.assertEqual(d['users']['u']['monthBytes'],90);self.assertTrue(d['users']['u']['online'])

@@ -10,6 +10,7 @@ import (
 	"net/netip"
 	"strconv"
 	"strings"
+	"xio.local/rivet/internal/physical"
 	"xio.local/rivet/internal/rivet"
 	"xio.local/rivet/internal/xrayclient"
 )
@@ -21,6 +22,10 @@ type Profile struct {
 	Addresses          []netip.Prefix
 	DNS                []netip.Addr
 	Endpoints          []string
+	// EndpointCandidates holds every numeric address resolved for each endpoint,
+	// in OS preference order. Endpoints keeps the first candidate for the
+	// initial configuration; activation walks the full list.
+	EndpointCandidates [][]string
 	MTU                int
 }
 
@@ -36,6 +41,11 @@ func ParseProfile(protocol, raw string) (p Profile, err error) {
 			return p, ErrProfile
 		}
 		p.Addresses = []netip.Prefix{netip.PrefixFrom(netip.MustParseAddr(c.IP), 32)}
+		// IPv6 payload is opt-in: old Rivet servers did not advertise ip6.
+		if c.IP6 != "" {
+			p.Addresses = append(p.Addresses, netip.PrefixFrom(netip.MustParseAddr(c.IP6), 128))
+			p.DNS = append(p.DNS, netip.MustParseAddr("2606:4700:4700::1111"))
+		}
 		p.Endpoints = []string{c.Endpoint}
 	case "awg":
 		return parseWG(p)
@@ -52,7 +62,9 @@ func ParseProfile(protocol, raw string) (p Profile, err error) {
 		a := settings[key].([]any)[0].(map[string]any)
 		port := int(a["port"].(float64))
 		p.Endpoints = []string{net.JoinHostPort(a["address"].(string), strconv.Itoa(port))}
-		p.Addresses = []netip.Prefix{netip.MustParsePrefix("10.80.0.2/32")}
+		// tun2socks terminates both IP families locally; these are not server leases.
+		p.Addresses = []netip.Prefix{netip.MustParsePrefix("10.80.0.2/32"), netip.MustParsePrefix("fd80:1::2/128")}
+		p.DNS = append(p.DNS, netip.MustParseAddr("2606:4700:4700::1111"))
 	default:
 		return p, ErrProfile
 	}
@@ -64,7 +76,7 @@ func parseWG(p Profile) (Profile, error) {
 	private := false
 	public := false
 	endpoint := false
-	full := false
+	full4, full6 := false, false
 	seen := map[string]bool{}
 	var ipc strings.Builder
 	ipc.WriteString("replace_peers=true\n")
@@ -110,19 +122,17 @@ func parseWG(p Profile) (Profile, error) {
 			case "address":
 				for _, a := range strings.Split(v, ",") {
 					ip, e := netip.ParsePrefix(strings.TrimSpace(a))
-					if e != nil || !ip.Addr().IsGlobalUnicast() {
+					if e != nil || !ip.Addr().IsGlobalUnicast() || ip.Addr().Is4In6() {
 						return p, ErrProfile
 					}
-					if ip.Addr().Is4() {
-						p.Addresses = append(p.Addresses, ip)
-					}
+					p.Addresses = append(p.Addresses, ip)
 				}
 				continue
 			case "dns":
 				p.DNS = nil
 				for _, a := range strings.Split(v, ",") {
 					ip, e := netip.ParseAddr(strings.TrimSpace(a))
-					if e != nil || !ip.Is4() || !ip.IsGlobalUnicast() {
+					if e != nil || !ip.IsGlobalUnicast() || ip.Is4In6() {
 						return p, ErrProfile
 					}
 					p.DNS = append(p.DNS, ip)
@@ -192,9 +202,7 @@ func parseWG(p Profile) (Profile, error) {
 			case "presharedkey":
 				key = "preshared_key"
 			case "endpoint":
-				host, port, e := net.SplitHostPort(v)
-				n, e2 := strconv.Atoi(port)
-				if e != nil || host == "" || e2 != nil || n < 1 || n > 65535 {
+				if _, _, e := physical.ParseEndpoint(v); e != nil {
 					return p, ErrProfile
 				}
 				p.Endpoints = []string{v}
@@ -208,7 +216,10 @@ func parseWG(p Profile) (Profile, error) {
 						return p, ErrProfile
 					}
 					if prefix.String() == "0.0.0.0/0" {
-						full = true
+						full4 = true
+					}
+					if prefix.String() == "::/0" {
+						full6 = true
 					}
 					ipc.WriteString("allowed_ip=" + prefix.String() + "\n")
 				}
@@ -232,8 +243,21 @@ func parseWG(p Profile) (Profile, error) {
 		}
 		ipc.WriteString(key + "=" + value + "\n")
 	}
-	if scanner.Err() != nil || !private || !public || !endpoint || !full || len(p.Addresses) == 0 || len(p.DNS) == 0 {
+	if scanner.Err() != nil || !private || !public || !endpoint || len(p.Addresses) == 0 || len(p.DNS) == 0 {
 		return p, ErrProfile
+	}
+	// Full-tunnel policy must cover every configured payload family. The OS
+	// blocks any family that was not provisioned instead of leaking it.
+	if p.hasFamily(false) && !full4 || p.hasFamily(true) && !full6 {
+		return p, ErrProfile
+	}
+	if !seen["idns"] && !p.hasFamily(false) {
+		p.DNS = []netip.Addr{netip.MustParseAddr("2606:4700:4700::1111")}
+	}
+	for _, dns := range p.DNS {
+		if !p.hasFamily(dns.Is6()) {
+			return p, ErrProfile
+		}
 	}
 	if p.Protocol == "awg" {
 		fields := map[string]int{}

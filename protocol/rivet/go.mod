@@ -1,6 +1,6 @@
 module xio.local/rivet
 
-go 1.27.2
+go 1.27.3
 
 require (
 	github.com/ajg/form v1.6.1 // indirect
@@ -89,3 +89,5 @@ replace github.com/cbeuw/Cloak => ../../vendor/cloak
 replace tailscale.com => ../../vendor/tailscale
 
 replace github.com/amnezia-vpn/amnezia-tun2socks/v2 => ../../vendor/tun2socks
+
+replace github.com/amnezia-vpn/amneziawg-go/v3 => ../../vendor/amneziawg-go

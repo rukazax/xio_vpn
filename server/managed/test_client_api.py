@@ -3,6 +3,7 @@ import fcntl
 import hashlib
 import importlib.util
 import json
+import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import tempfile
@@ -87,7 +88,16 @@ class ClientApiTests(unittest.TestCase):
         self.assertEqual(sum(r is not None for r in results), 1)
         result = next(r for r in results if r is not None)
         uid = result['user']['id']
-        self.assertEqual(self.admin.request(create(uid)), result)
+        # Profiles are one-time material: a replay returns the same routing
+        # metadata and explicitly says the configs are not re-issued, so no
+        # private key is stored in deployment.json for the retry.
+        replay = self.admin.request(create(uid))
+        self.assertEqual(replay['user'], result['user'])
+        self.assertEqual(replay['server'], result['server'])
+        self.assertNotIn('configs', replay)
+        self.assertTrue(replay['configsUnavailable'])
+        stored = json.dumps(self.admin.load())
+        self.assertNotIn('"configs"', stored)
         self.assertEqual(self.admin.calls, 1)
         self.assertNotIn('MUST_NOT_LEAK', json.dumps(result))
         self.assertNotIn('clientApiTokenHash', json.dumps(result))
@@ -123,6 +133,7 @@ class ClientApiTests(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
+@unittest.skipUnless(os.name == 'posix', 'socketserver.UnixStreamServer is unavailable on this Windows Python build; verify Unix transport on Linux')
 class ClientTransportTests(unittest.TestCase):
     def test_json_charset_and_fixed_length_cross_the_unix_boundary(self):
         import http.client
@@ -171,6 +182,7 @@ class ClientTransportTests(unittest.TestCase):
                         worker.join(timeout=3)
 
 
+@unittest.skipUnless(os.name == 'posix', 'Exact chmod/umask enforcement requires POSIX; Windows mode bits do not enforce 0755/0644')
 class FrontendPermissionsTests(unittest.TestCase):
     def test_strict_installer_umask_keeps_public_frontend_readable(self):
         import os

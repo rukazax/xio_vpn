@@ -3,6 +3,22 @@
 import json,os,subprocess,shutil,sys,ipaddress,socket,time,shlex,re
 from pathlib import Path
 ROOT=Path('/etc/xio-rivet'); LIB=Path('/usr/local/lib/xio-rivet'); RECEIPT=ROOT/'install-receipt.json'
+def valid_name(name):
+ if not isinstance(name,str) or not name or name!=name.strip() or len(name)>253:return False
+ if any(c in name for c in '/\\\r\n\x00[]%@'):return False
+ try:
+  ipaddress.ip_address(name);return True
+ except ValueError:pass
+ if ':' in name:return False
+ bare=name[:-1] if name.endswith('.') else name
+ if not bare or len(bare)>253 or re.fullmatch(r'[0-9.]+',name):return False
+ for label in bare.split('.'):
+  if not 1<=len(label)<=63 or not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?',label):return False
+ return True
+def public_address(name):
+ if not valid_name(name):raise ValueError('Invalid RIVET public host')
+ host='['+name+']' if ':' in name else name
+ return {'endpoint':host+':8443','serverName':name}
 def run(*args,data=None):
  p=subprocess.run(args,input=data,capture_output=True,text=True)
  if p.returncode:raise RuntimeError('RIVET setup command failed: '+args[0])
@@ -48,7 +64,8 @@ def managed_firewall(receipt,remove=False):
 def outbound_device():
  for family in ['-4','-6']:
   routes=json.loads(run('ip','-j',family,'route','show','default'))
-  if routes:return min(routes,key=lambda r:r.get('metric',0))['dev']
+  usable=[r for r in routes if re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',r.get('dev','')) and r.get('type','unicast')=='unicast']
+  if usable:return min(usable,key=lambda r:r.get('metric',0))['dev']
  raise RuntimeError('No IPv4 or IPv6 default route')
 def main():
  action=sys.argv[1];binary=str(LIB/'rivet')
@@ -67,8 +84,7 @@ def main():
    return
   assert not ROOT.exists(),'Unowned RIVET directory'
   assert not run('ss','-H','-lntu','sport = :8443'),'RIVET port in use'
-  cert=Path(req['cert']) if req.get('cert') else None;key=Path(req['key']) if req.get('key') else None;name=req['serverName'];assert (cert is None and key is None) or (cert.is_absolute() and key.is_absolute() and cert.is_file() and key.is_file())
-  assert len(name)<=253 and name and not any(c in name for c in '/\\\r\n\x00')
+  cert=Path(req['cert']) if req.get('cert') else None;key=Path(req['key']) if req.get('key') else None;name=req['serverName'];assert valid_name(name),'Invalid RIVET public host';assert (cert is None and key is None) or (cert.is_absolute() and key.is_absolute() and cert.is_file() and key.is_file())
   before=Path('/proc/sys/net/ipv4/ip_forward').read_text().strip();outbound=outbound_device()
   assert outbound.replace('-','').replace('.','').isalnum()
   # Fail before creating accounts if namespace names are already in use.
@@ -91,7 +107,7 @@ def main():
    shutil.copyfile(cert,ROOT/'outer.crt');shutil.copyfile(key,ROOT/'outer.key')
   # A normal local landing page for ordinary requests; no VPN-specific banner.
   write(ROOT/'index.html','<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Service</title><body><main><h1>Service</h1><p>Secure connection service.</p></main></body></html>')
-  public.update(endpoint=name+':8443',serverName=name);write(ROOT/'public.json',json.dumps(public),0o644)
+  public.update(public_address(name));write(ROOT/'public.json',json.dumps(public),0o644)
   ROOT.chmod(0o755)
   for filename in ['gateway.json','users.json','seal.key','inner.crt','inner.key']:
    run('chown','root:xio-rivet',str(ROOT/filename));(ROOT/filename).chmod(0o640)

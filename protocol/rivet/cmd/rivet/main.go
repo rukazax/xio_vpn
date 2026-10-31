@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -154,10 +155,13 @@ func main() {
 			if e != nil {
 				fail(e)
 			}
-			if _, e = rivet.Decode(req.EntryToken, 32); e != nil {
+			entry, e := rivet.Decode(req.EntryToken, 32)
+			if e != nil {
 				fail(e)
 			}
-			if req.Secret == req.EntryToken {
+			// Compare decoded bytes: a non-canonical base64 spelling of the same
+			// 32 bytes must not create a user whose secret equals its entry token.
+			if subtle.ConstantTimeCompare(secret, entry) == 1 {
 				fail(rivet.ErrProtocol)
 			}
 			master, e := os.ReadFile(filepath.Join(*dir, "seal.key"))
@@ -197,7 +201,9 @@ func main() {
 		}
 		probeCtx, end := context.WithTimeout(ctx, 15*time.Second)
 		defer end()
-		s, e := rivet.Dial(probeCtx, c, nil)
+		// Explicit diagnostic resolution: the protected VPN path never resolves
+		// hostnames with the system resolver.
+		s, e := rivet.DialDiagnostic(probeCtx, c, 15*time.Second)
 		if e != nil {
 			fail(e)
 		}
