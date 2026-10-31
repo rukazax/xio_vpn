@@ -14,7 +14,8 @@
     "flutterTest": "185 passed, 10 skipped, 0 failed",
     "clientUnitTests": "15 passed, 3 skipped (Windows symlink privilege)",
     "androidSigning": "apksigner v2 verified; zipalign -c -P 16 4 passed (client verify.py: 4 artifacts, verified=true)",
-    "linuxBuild": "Debian 13: Flutter 3.47.7, Go 1.27.3 toolchain for RIVET; flutter build linux --release + helper + package-ubuntu.py; server via tools/package-server.py (recipeVersion 25, exit 0); the .deb installs /usr/bin/xio and /opt/xio/libexec/xio-tunnel", "windowsBuild": "flutter build windows --release (Full) and client/prepare_platform.py windows + flutter build windows --release (Client, binary XIOClient.exe, no server assets); helper go build ./cmd/xio-desktop; wintun 0.14.1 pinned sha256 07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51"
+    "linuxBuild": "Debian 13: Flutter 3.47.7, Go 1.27.3 toolchain for RIVET; flutter build linux --release + helper + package-ubuntu.py; server via tools/package-server.py (recipeVersion 25, exit 0); the .deb installs /usr/bin/xio and /opt/xio/libexec/xio-tunnel",
+    "windowsBuild": "flutter build windows --release (Full) and client/prepare_platform.py windows + flutter build windows --release (Client, binary XIOClient.exe, no server assets); helper go build ./cmd/xio-desktop; wintun 0.14.1 pinned sha256 07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51"
   },
   "liveRuns": [
     {
@@ -44,25 +45,74 @@
       "what": "XIO Full 0.23.1 on Android: install, onboarding, no black screens",
       "result": "clean install over 0.23.0 (adb install -r), versionName 0.23.1, onboarding passed, the Connection tab renders fully (screenshot full-shot1.png), connect path now uses the non-site-check verification (error text changed from the site-check message to 'No available route confirmed the tunnel')",
       "date": "2026-10-31"
+    },
+    {
+      "what": "XIO Full 0.23.1 (installed from XIO-Full-0.23.1-android-arm64-v8a.apk), live connection on Android",
+      "result": "profile imported from a file; tun0 10.79.0.254/32; UI 'Interface active' + 'Tunnel active'; curl https://ifconfig.co -> HTTP 200; egress 95.130.128.78; counters rx 15.4 KB / tx 9.1 KB; server tun xioacc0 RX 13759 bytes / TX 17485 bytes",
+      "date": "2026-10-31"
+    },
+    {
+      "what": "XIO Full 0.23.1: outage and auto-reconnect on Android",
+      "result": "entry stopped -> 'Reconnecting…' held 105+ s without falling back to 'Disconnected'; entry restarted -> HTTP 200 within 13 s",
+      "date": "2026-10-31"
     }
   ],
   "artifacts": [
-    { "file": "XIO-Client-0.23.1-android-arm64-v8a.apk", "sha256": "5e84b6a0cebcb720a564470487b997fe0834c2eaa647f7a4e762f7a600712d72" },
-    { "file": "XIO-Client-0.23.1-android-armeabi-v7a.apk", "sha256": "883397278b4c53cd93f37330743a4acf409c3237e2b679d8d541ceb2a7eb74f3" },
-    { "file": "XIO-Client-0.23.1-android-x86_64.apk", "sha256": "8451f8aa861136cfede13b7c948c44cdab429b22adf0a1ff3368203e1e6cff27" },
-    { "file": "XIO-Client-0.23.1-android-universal.apk", "sha256": "32370cba2b377b8ef999b2b62013e52ebbdd042ee4df6b383e0d3efefa4208f4" },
-    { "file": "XIO-Full-0.23.1-android-arm64-v8a.apk", "sha256": "cf8ff3d951ff53e76202d51b2ddb79694df2792d3178bd4869454d9dbebbc067" },
-    { "file": "XIO-Full-0.23.1-android-armeabi-v7a.apk", "sha256": "f4ad36f33dbecc65f07919bee193922dd502187ee7ee9005646fd93870fc766b" },
-    { "file": "XIO-Full-0.23.1-android-x86_64.apk", "sha256": "8f6d2d84ea74516e24a16c05d9c276e2220f91a1c220855aea0f90c389fbea32" },
-    { "file": "XIO-Full-0.23.1-android-universal.apk", "sha256": "d74fd8d7703cb2856cbb44a8a078d03214b0b72a0d3c4699001d97d6fa58da20" },
-    { "file": "XIO-Full-0.23.1-windows-x64.zip", "sha256": "1252622f53379c3d8ff35bece03052ad1c3898bfc16dbfc70f0b2318b9ad71f6" },
-    { "file": "XIO-Client-0.23.1-windows-x64.zip", "sha256": "1aa2dee6a03c6cdf88d8df7e5b696e06b3eda624e06f5c6c2d7c59f8bf80c640" },
-    { "file": "XIO-Full-0.23.1-ubuntu-amd64.deb", "sha256": "f973eeac1546e296f31121b03d91aee9670fc0dff9a9fbec605fd1fc86fa6cdd" },
-    { "file": "XIO-Full-0.23.1-ubuntu-x64.tar.gz", "sha256": "2fead860ccab3dc9d9791b3f2c5f323e2bf20a93905820816eca18b51c6381e1" },
-    { "file": "xio-server-0.23.1.tar.gz", "sha256": "3a335c06cfa48f5d2e5c931adca0d3f2d9258d9a48a4d4565cc4475ed2e58b8c" }
+    {
+      "file": "XIO-Client-0.23.1-android-arm64-v8a.apk",
+      "sha256": "5e84b6a0cebcb720a564470487b997fe0834c2eaa647f7a4e762f7a600712d72"
+    },
+    {
+      "file": "XIO-Client-0.23.1-android-armeabi-v7a.apk",
+      "sha256": "883397278b4c53cd93f37330743a4acf409c3237e2b679d8d541ceb2a7eb74f3"
+    },
+    {
+      "file": "XIO-Client-0.23.1-android-x86_64.apk",
+      "sha256": "8451f8aa861136cfede13b7c948c44cdab429b22adf0a1ff3368203e1e6cff27"
+    },
+    {
+      "file": "XIO-Client-0.23.1-android-universal.apk",
+      "sha256": "32370cba2b377b8ef999b2b62013e52ebbdd042ee4df6b383e0d3efefa4208f4"
+    },
+    {
+      "file": "XIO-Full-0.23.1-android-arm64-v8a.apk",
+      "sha256": "cf8ff3d951ff53e76202d51b2ddb79694df2792d3178bd4869454d9dbebbc067"
+    },
+    {
+      "file": "XIO-Full-0.23.1-android-armeabi-v7a.apk",
+      "sha256": "f4ad36f33dbecc65f07919bee193922dd502187ee7ee9005646fd93870fc766b"
+    },
+    {
+      "file": "XIO-Full-0.23.1-android-x86_64.apk",
+      "sha256": "8f6d2d84ea74516e24a16c05d9c276e2220f91a1c220855aea0f90c389fbea32"
+    },
+    {
+      "file": "XIO-Full-0.23.1-android-universal.apk",
+      "sha256": "d74fd8d7703cb2856cbb44a8a078d03214b0b72a0d3c4699001d97d6fa58da20"
+    },
+    {
+      "file": "XIO-Full-0.23.1-windows-x64.zip",
+      "sha256": "1252622f53379c3d8ff35bece03052ad1c3898bfc16dbfc70f0b2318b9ad71f6"
+    },
+    {
+      "file": "XIO-Client-0.23.1-windows-x64.zip",
+      "sha256": "1aa2dee6a03c6cdf88d8df7e5b696e06b3eda624e06f5c6c2d7c59f8bf80c640"
+    },
+    {
+      "file": "XIO-Full-0.23.1-ubuntu-amd64.deb",
+      "sha256": "f973eeac1546e296f31121b03d91aee9670fc0dff9a9fbec605fd1fc86fa6cdd"
+    },
+    {
+      "file": "XIO-Full-0.23.1-ubuntu-x64.tar.gz",
+      "sha256": "2fead860ccab3dc9d9791b3f2c5f323e2bf20a93905820816eca18b51c6381e1"
+    },
+    {
+      "file": "xio-server-0.23.1.tar.gz",
+      "sha256": "3a335c06cfa48f5d2e5c931adca0d3f2d9258d9a48a4d4565cc4475ed2e58b8c"
+    }
   ],
   "notVerified": [
-    "A live GUI connection on XIO Full 0.23.1 for Android was not completed: after the acceptance server was re-provisioned the phone-side profile import did not take effect, so the app kept using a profile whose token no longer matches the server. The install, onboarding, tab rendering and the new verification path were observed; the tunnel itself was not established on this build.",
+    "Acceptance harness note: the stale acceptance setup script wrote client ip 10.203.79.2, which the client rejects (it validates 10.79.0.0/24); the product's own server setup uses 10.79.0.1/24 and 10.79.0.N, so this was a harness defect, not a product defect. After correcting the profile the Full build connected.",
     "Windows: the 0.23.1 helper is rebuilt with the firewall fix, but no live GUI connection was run on 0.23.1; the last live Windows run was the 0.22.5 helper with the 0.23.0 application.",
     "Ubuntu: no .deb/.tar.gz in this release (needs a Linux toolchain); the 0.23.0 Ubuntu limitation (GUI window does not appear) is not re-tested.",
     "Xray/REALITY with the Xray 26.7.28 gateway still does not connect.",
