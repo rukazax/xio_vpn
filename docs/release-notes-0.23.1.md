@@ -8,7 +8,7 @@ RU: проверка соединения больше не зависит от 
 
 Впервые проверен сквозной IPv6-payload. Сервер развёрнут на VPS-721137 с глобальным IPv6 `2a0c:b641:1a0:800::2a2` (TUN/TAP включён поддержкой провайдера), клиент получает внутри туннеля `fd79:1::fe/128`, `ping6` и `wget -6` проходят через туннель, ответ — глобальный адрес VPS (NAT66 на шлюзе). Внешний транспорт по глобальному IPv6 проверен отдельно: подключение к `[2a0c:b641:1a0:800::2a2]:18443` за 129–159 мс.
 
-**Это тестовый релиз.** Проверены один физический Android (POCO X6), Debian 13 и Windows x64; ARM32/x86-64 — только подписанные сборки. Публичный IPv6 проверен на VPS с IPv6; у клиента в локальной сети глобального IPv6 нет, поэтому сквозной прогон шёл из network namespace на самом VPS. iOS не собирался.
+**Продакшен-выпуск.** Проверены один физический Android (POCO X6 — Client и Full, включая живое подключение через туннель и автопереподключение), Debian 13 и Windows x64 (запуск приложения); ARM32/x86-64 — подписанные сборки. Публичный IPv6 проверен на VPS с IPv6; у клиента в локальной сети глобального IPv6 нет, поэтому сквозной прогон шёл из network namespace на самом VPS. iOS не собирался.
 
 [Русский: методика и критерии](https://github.com/rukazax/xio_vpn/blob/main/docs/compatibility/0.23.1.ru.md) · [Клиент и субклиенты](https://github.com/rukazax/xio_vpn/blob/main/client/README.ru.md)
 
@@ -22,6 +22,6 @@ A live link watchdog was added. While the owner wants the tunnel, the watchdog v
 
 End-to-end IPv6 payload was verified for the first time. The server runs on VPS-721137 with global IPv6 `2a0c:b641:1a0:800::2a2` (TUN/TAP enabled by the provider's support), the client receives `fd79:1::fe/128` inside the tunnel, `ping6` and `wget -6` pass through the tunnel, and the answer is the VPS global address (NAT66 on the gateway). IPv6 outer transport was verified separately: connecting to `[2a0c:b641:1a0:800::2a2]:18443` in 129–159 ms.
 
-**Prerelease.** Verified on one physical Android (POCO X6), Debian 13 and Windows x64; ARM32/x86-64 are build-verified only. Public IPv6 was verified on a VPS that has IPv6; the client's LAN has no global IPv6, so the end-to-end run was executed from a network namespace on the VPS itself. iOS was not built.
+**Production release.** Verified on one physical Android (POCO X6 — Client and Full, including a live tunnel connection and auto-reconnect), Debian 13 and Windows x64 (application launch); ARM32/x86-64 are build-verified only. Public IPv6 was verified on a VPS that has IPv6; the client's LAN has no global IPv6, so the end-to-end run was executed from a network namespace on the VPS itself. iOS was not built.
 
 [English methodology and criteria](https://github.com/rukazax/xio_vpn/blob/main/docs/compatibility/0.23.1.en.md) · [Client and subclient setup](https://github.com/rukazax/xio_vpn/blob/main/client/README.en.md)
