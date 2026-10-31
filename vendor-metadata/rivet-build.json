@@ -7,5 +7,5 @@
   "serverSha256": "2a4f67a2eab92089738b9efe12d117614a25dc03d6ccd4e9728962e32366c48b",
   "androidRuntime": "single Go runtime; private CLOCK_BOOTTIME patch, crypto unchanged",
   "awgModule": "v3.1.20260814",
-  "androidAarSha256": "41c9a486c7ff09f88af3bbb0c87b059e3cd6505c874aee6f0b6b4ac7f2c29e5c"
+  "androidAarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7"
 }
