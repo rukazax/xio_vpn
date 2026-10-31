@@ -27,6 +27,9 @@ iOS is not built: it needs a Mac, Xcode and Apple signing.
 | Android 8+ · x86-64 | [XIO-Full-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-x86_64.apk) | 59.2 MiB |
 | Android 8+ · universal | [XIO-Full-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-universal.apk) | 103.1 MiB |
 | Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: app, helper, Wintun |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-amd64.deb) | 49.1 MiB |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-x64.tar.gz) | 57.9 MiB |
+| Server package | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21.3 MiB, server payload for a Linux host |
 
 Ubuntu packages (`.deb`/`.tar.gz`) are not part of 0.23.1: they need a Linux toolchain and are built separately. The 0.23.0 packages remain in the [previous release](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.0).
 
