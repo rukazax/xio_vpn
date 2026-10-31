@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'server_address.dart';
+
 const rivetProtocols = ['rivet-h3', 'rivet-s1'];
 
 /// Conservative automatic candidates for restricted networks. This is a policy,
@@ -19,6 +21,7 @@ class RivetProfile {
   final String protocol, endpoint;
   final Map<String, dynamic> data;
   RivetProfile._(this.protocol, this.endpoint, this.data);
+  String get encoded => jsonEncode(data);
   static RivetProfile parse(String raw) {
     try {
       if (raw.length > 16384) throw const FormatException();
@@ -54,20 +57,13 @@ class RivetProfile {
           throw const FormatException();
         }
       }
-      final uri = Uri.parse('https://${j['endpoint']}');
-      if (uri.host.isEmpty ||
-          !uri.hasPort ||
-          uri.port < 1 ||
-          uri.port > 65535 ||
-          uri.userInfo.isNotEmpty ||
-          uri.path.isNotEmpty ||
-          uri.hasQuery ||
-          uri.hasFragment) {
+      final endpoint = ServerEndpoint.parse(j['endpoint'] as String);
+      final serverName = j['serverName'] as String;
+      if (serverName.contains('[') || serverName.contains(']')) {
         throw const FormatException();
       }
-      if (!RegExp(r'^[a-zA-Z0-9.:-]{1,253}$').hasMatch(j['serverName'])) {
-        throw const FormatException();
-      }
+      j['serverName'] = normalizeServerHost(serverName);
+      j['endpoint'] = endpoint.formatted;
       for (final entry in {
         'pin': 32,
         'gatewayId': 16,
@@ -95,7 +91,7 @@ class RivetProfile {
           (j['outerCA'] is! String || (j['outerCA'] as String).length > 8192)) {
         throw const FormatException();
       }
-      return RivetProfile._(j['protocol'], j['endpoint'], j);
+      return RivetProfile._(j['protocol'], endpoint.formatted, j);
     } catch (_) {
       throw const FormatException('Некорректный профиль RIVET');
     }

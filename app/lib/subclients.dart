@@ -7,6 +7,7 @@ import 'package:cryptography/cryptography.dart';
 
 import 'account_access.dart';
 import 'core.dart';
+import 'server_address.dart';
 
 class SubclientApi {
   final AccountAccess access;
@@ -220,25 +221,25 @@ UserBundle provisioningBundle(
       response.containsKey('clientAccess')) {
     throw const FormatException('Неожиданные данные субклиента');
   }
-  final host = server['host'] as String;
-  if (!RegExp(r'^[a-zA-Z0-9.:-]+$').hasMatch(host)) {
+  final rawHost = server['host'];
+  if (rawHost is! String) {
     throw const FormatException('Некорректный endpoint');
   }
-  final endpoint = host.contains(':') ? '[$host]' : host;
+  final host = normalizeServerHost(rawHost);
   final slot = remoteUser['slot'] as int;
   final configs = <String, String>{};
   final extensions = (server['awg'] as Map).entries
       .map((e) => '${e.key} = ${e.value}')
       .join('\n');
   configs['awg'] =
-      '[Interface]\nPrivateKey = ${private['awg']}\nAddress = 10.78.0.$slot/32, fd78:1::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(server)}\nMTU = 1280\n$extensions\n\n[Peer]\nPublicKey = ${server['publicKeys']['awg']}\nEndpoint = $endpoint:51821\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
+      '[Interface]\nPrivateKey = ${private['awg']}\nAddress = 10.78.0.$slot/32, fd78:1::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(server)}\nMTU = 1280\n$extensions\n\n[Peer]\nPublicKey = ${server['publicKeys']['awg']}\nEndpoint = ${serverEndpoint(host, 51821)}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
   WireGuardProfile.parse(configs['awg']!, amnezia: true);
   if (server['rivet'] is Map) {
     final meta = Map<String, dynamic>.from(server['rivet']);
     for (final protocol in rivetProtocols) {
       final config = jsonEncode({
         'protocol': protocol,
-        'endpoint': '$endpoint:8443',
+        'endpoint': serverEndpoint(host, 8443),
         'serverName': meta['serverName'],
         'pin': meta['pin'],
         'gatewayId': meta['gatewayId'],
@@ -249,8 +250,7 @@ UserBundle provisioningBundle(
         if (meta['ipv6'] == true) 'ip6': 'fd79:1::${slot.toRadixString(16)}',
         if (meta['outerCA'] != null) 'outerCA': meta['outerCA'],
       });
-      RivetProfile.parse(config);
-      configs[protocol] = config;
+      configs[protocol] = RivetProfile.parse(config).encoded;
     }
   }
   for (final e in Map<String, dynamic>.from(

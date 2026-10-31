@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
+
+import 'server_address.dart';
 
 const extendedProtocols = ['xray', 'cloak'];
 const nativePrefix = {'xray': 'xr', 'cloak': 'ck'};
@@ -23,11 +24,14 @@ class ExtendedProfile {
 
   static String _host(dynamic value) {
     final s = _text(value, max: 253);
-    if (InternetAddress.tryParse(s) == null &&
-        !RegExp(r'^[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?$').hasMatch(s)) {
+    if (s.startsWith('[') || s.contains(']')) {
       throw const FormatException('Некорректный адрес сервера');
     }
-    return s;
+    try {
+      return normalizeServerHost(s);
+    } on FormatException {
+      throw const FormatException('Некорректный адрес сервера');
+    }
   }
 
   static int _port(dynamic value) {
@@ -38,8 +42,7 @@ class ExtendedProfile {
     return n;
   }
 
-  static String _endpoint(String host, int port) =>
-      '${host.contains(':') ? '[$host]' : host}:$port';
+  static String _endpoint(String host, int port) => serverEndpoint(host, port);
   static String _uuid(String raw) {
     final h = raw.replaceAll('-', '').toLowerCase();
     if (!RegExp(r'^[0-9a-f]{32}$').hasMatch(h)) {
@@ -95,6 +98,7 @@ class ExtendedProfile {
       final server = Map<String, dynamic>.from(servers.single as Map);
       host = _host(server['address']);
       port = _port(server['port']);
+      server['address'] = host;
       final users = server['users'] as List;
       if (users.length != 1) throw const FormatException();
       final u = Map<String, dynamic>.from(users.single as Map);
@@ -119,7 +123,9 @@ class ExtendedProfile {
       final server = Map<String, dynamic>.from(servers.single as Map);
       host = _host(server['address']);
       port = _port(server['port']);
-      _text(server['password'], max: 2048);
+      server['address'] = host;
+      server['password'] = _text(server['password'], max: 2048);
+      settings['servers'] = [server];
     }
     final stream = Map<String, dynamic>.from(
       (o['streamSettings'] ?? {}) as Map,
@@ -376,7 +382,7 @@ class ExtendedProfile {
             password: j['password'] as String? ?? '',
           );
           final c = Map<String, dynamic>.from(j['cloak'] as Map);
-          _host(c['RemoteHost']);
+          c['RemoteHost'] = _host(c['RemoteHost']);
           c['RemotePort'] = '${_port(c['RemotePort'])}';
           for (final field in ['UID', 'PublicKey']) {
             final b = base64Decode(_text(c[field]));

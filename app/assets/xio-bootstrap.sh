@@ -14,7 +14,20 @@ esac
 if [ "$manager" = apt ]; then command -v apt-get >/dev/null; else command -v dnf >/dev/null; fi
 [ "$(uname -m)" = x86_64 ] || { echo 'x86_64 server required' >&2; exit 1; }
 [ -d /run/systemd/system ] || { echo 'systemd required' >&2; exit 1; }
-[ -c /dev/net/tun ] || { echo '/dev/net/tun required' >&2; exit 1; }
+# Read-only/non-configuring host preflight BEFORE receipts, packages or uploads.
+# Never create device nodes, mount, load modules or weaken container security.
+preflight_fail() { printf '%s\n' "$1" >&2; exit 1; }
+[ -c /dev/net/tun ] || preflight_fail 'TUN preflight: /dev/net/tun (10:200) unavailable. The container host/provider must expose and permit it; sysfs visibility/root alone is not sufficient. Full VPN installation stopped before writes.'
+[ "$(stat -Lc '%t:%T' /dev/net/tun)" = a:c8 ] || preflight_fail 'TUN preflight: /dev/net/tun is not character device 10:200.'
+for field in CapEff CapBnd; do
+ mask=$(awk -v field="$field:" '$1==field {print $2}' /proc/self/status | sed 's/.*\(........\)$/\1/')
+ case "$mask" in ''|*[!0-9a-fA-F]*) preflight_fail 'Network preflight: cannot verify effective/bounding capabilities.' ;; esac
+ [ "$((0x$mask & 4096))" -ne 0 ] || preflight_fail "Network preflight: CAP_NET_ADMIN absent from $field. Host delegation is required; no guest security bypass is attempted."
+ [ "$((0x$mask & 8192))" -ne 0 ] || preflight_fail "Network preflight: CAP_NET_RAW absent from $field. Host delegation is required."
+done
+# Opening catches device/cgroup/LSM denial without TUNSETIFF/interface creation.
+( exec 3<>/dev/net/tun ) 2>/dev/null || preflight_fail 'TUN preflight: device open denied/unavailable. Ask the host/provider to verify device/cgroup/LSM delegation; root and node presence do not prove access.'
+printf '%s\n' 'Preflight: TUN node/open and capability masks passed; TUNSETIFF, kernel WireGuard, netfilter writes and end-to-end connectivity remain unverified.' >&2
 command -v tar >/dev/null
 lib=/usr/local/lib/xio-managed
 if [ -d "$lib" ]; then
@@ -42,7 +55,17 @@ fi
 # Replace the executable atomically: an existing AWG process may still use it.
 tmp=$(mktemp -d "$lib/.upload.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT HUP INT TERM
-tar -xzf - -C "$tmp"
+if [ -n "${XIO_EXPECTED_ARCHIVE_SHA256:-}" ]; then
+  # The app pins this digest from assets/xio-server-release.json; a truncated or
+  # substituted stream stops here instead of being unpacked as root.
+  cat > "$tmp/archive.tgz"
+  printf '%s  %s\n' "$XIO_EXPECTED_ARCHIVE_SHA256" "$tmp/archive.tgz" | sha256sum -c - >/dev/null 2>&1 \
+    || { echo 'Server bundle digest mismatch; installation refused' >&2; exit 1; }
+  tar -xzf "$tmp/archive.tgz" -C "$tmp"
+  rm -f "$tmp/archive.tgz"
+else
+  tar -xzf - -C "$tmp"
+fi
 chmod 700 "$tmp/amneziawg-go"
 mv "$tmp/admin.py" "$lib/admin.py"
 mv "$tmp/client_api.py" "$lib/client_api.py"

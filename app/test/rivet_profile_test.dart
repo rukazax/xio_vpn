@@ -59,10 +59,11 @@ void main() {
       expect(store.connectionCandidates(store.profiles.first), isEmpty);
       store.serverMaintenance = false;
       store.users.clear();
-      expect(
-        store.connectionCandidates(store.profiles.first).single.protocol,
-        nativeProtocols.first,
-      );
+      // Without a managed user the selected profile stays first, and the other
+      // local profiles follow it as fallbacks (same principle on every build).
+      final withoutUser = store.connectionCandidates(store.profiles.first);
+      expect(withoutUser.first.protocol, nativeProtocols.first);
+      expect(withoutUser.length, greaterThan(1));
       store.dispose();
     },
   );

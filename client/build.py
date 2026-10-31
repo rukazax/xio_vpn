@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Build the Android-only client from the current app, never the stale Git HEAD.
 
 The isolated staging tree has its own pubspec, package ID, manifest and outputs.
@@ -8,18 +8,37 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 FLUTTER = 'flutter.bat' if os.name == 'nt' else 'flutter'
+RELEASE = '0.23.1'
+VERSION = RELEASE + '+5016'
+
 STAGE = ROOT / '.build-support/client'
 APP = STAGE / 'app'
 
 
 def prepare():
+    # Review version changes before any staging writes or refresh/removal.
+    source = (ROOT / 'app/pubspec.yaml').read_text()
+    if re.findall(r'(?m)^version: ([^\r\n]+)', source) != [VERSION]:
+        raise RuntimeError('Review the client version before using a different base')
+    stage = STAGE.resolve()
+    if stage in {ROOT.resolve(), (ROOT / 'app').resolve()} or APP.is_symlink():
+        raise RuntimeError('Unsafe client staging path')
+    owner = STAGE / '.xio-client-stage.json'
+    if owner.exists():
+        record = json.loads(owner.read_text())
+        if record.get('owner') != 'xio-client-staging-v1' or record.get('sourceRoot') != str(ROOT.resolve()):
+            raise RuntimeError('Foreign staging tree preserved')
+    elif APP.exists():
+        raise RuntimeError('Unowned staging tree preserved; choose a fresh --stage')
     STAGE.mkdir(parents=True, exist_ok=True)
+    owner.write_text(json.dumps({'owner': 'xio-client-staging-v1', 'sourceRoot': str(ROOT.resolve()), 'version': VERSION}) + '\n')
     # Reuse Gradle caches and outputs, refreshing source inputs each time.
     for name in ['lib', 'android', 'assets']:
         target = APP / name
@@ -33,7 +52,7 @@ def prepare():
         shutil.copy2(ROOT / 'app' / name, APP / name)
     for name in ['vendor', '.signing']:
         link = STAGE / name
-        if not link.exists():
+        if (ROOT / name).exists() and not link.exists():
             link.symlink_to(ROOT / name, target_is_directory=True)
     assets = APP / 'assets'
     for name in ['help', 'licenses', 'l10n', 'security']:
@@ -44,8 +63,6 @@ def prepare():
     (assets/'fonts').mkdir(exist_ok=True)
     shutil.copy2(ROOT/'app/assets/fonts/NotoSans-Regular.ttf',assets/'fonts/NotoSans-Regular.ttf')
     # System fonts handle scripts: do not bundle the 16 MB CJK font or server tools.
-    source = (ROOT / 'app/pubspec.yaml').read_text()
-    assert 'version: 0.22.5+5014' in source, 'Review the client version before using a newer base'
     source = source[:source.index('  assets:')] + '''  assets:
     - assets/help/
     - assets/licenses/
@@ -58,6 +75,7 @@ def prepare():
 '''
     source = source.replace('"XIO вЂ” X in, 1 out. VPN, mesh and network laboratory."',
                             '"XIO Client вЂ” connect to existing VPN servers."')
+    source = re.sub(r'(?m)^description:.*$', 'description: "XIO Client - connect to existing VPN servers."', source, count=1)
     (APP / 'pubspec.yaml').write_text(source)
     manifest = APP / 'android/app/src/main/AndroidManifest.xml'
     import xml.etree.ElementTree as ET
@@ -92,15 +110,24 @@ def prepare():
             if path.is_file() and path.name != 'GeneratedPluginRegistrant.java':
                 inputs[str(path.relative_to(APP))] = hashlib.sha256(path.read_bytes()).hexdigest()
     for name in ['pubspec.yaml', 'pubspec.lock', 'android/app/build.gradle.kts',
-                 'android/build.gradle.kts', 'android/settings.gradle.kts']:
+                 'android/build.gradle.kts', 'android/settings.gradle.kts', 'android/gradle.properties',
+                 'android/app/libs/rivet.aar']:
         inputs[name] = hashlib.sha256((APP / name).read_bytes()).hexdigest()
+    for path in sorted((ROOT / 'vendor/amneziawg/android').rglob('*')):
+        if path.is_file() and not any(part in {'.gradle', 'build', '.cxx'} for part in path.parts):
+            inputs[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     (STAGE / 'source-inputs.json').write_text(json.dumps(inputs, indent=2) + '\n')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--prepare-only', action='store_true')
+    parser.add_argument('--stage', type=Path, help='Fresh, owned staging root; source tree is never changed')
+    parser.add_argument('--output-dir', type=Path, help='Separate artifact directory')
     args = parser.parse_args()
+    if args.stage:
+        STAGE = args.stage.resolve()
+        APP = STAGE / 'app'
     prepare()
     if not args.prepare_only:
         env = os.environ.copy()
@@ -110,15 +137,15 @@ if __name__ == '__main__':
             subprocess.run([FLUTTER, 'build', 'apk', '--no-pub', '--release', *split,
                             '--target', 'lib/client_main.dart',
                             '--dart-define=XIO_CLIENT_ONLY=true'], cwd=APP, env=env, check=True)
-        output = ROOT / 'releases/client-0.22.5'
+        output = args.output_dir or ROOT / f'releases/client-{RELEASE}'
         output.mkdir(parents=True, exist_ok=True)
         packages = APP / 'build/app/outputs/flutter-apk'
         for abi in ['arm64-v8a', 'armeabi-v7a', 'x86_64']:
             shutil.copy2(packages / f'app-{abi}-release.apk',
-                         output / f'XIO-Client-0.22.5-{abi}.apk')
-        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.22.5-universal.apk')
+                         output / f'XIO-Client-{RELEASE}-android-{abi}.apk')
+        shutil.copy2(packages / 'app-release.apk', output / 'XIO-Client-0.23.0-android-universal.apk')
         shutil.copy2(STAGE / 'source-inputs.json', output / 'source-inputs.json')
         for name in ['README.ru.md', 'README.en.md']:
             shutil.copy2(ROOT / 'client' / name, output / name)
-        subprocess.run([os.sys.executable, ROOT / 'client/verify.py'], cwd=ROOT, check=True)
+        subprocess.run([os.sys.executable, ROOT / 'client/verify.py', '--output-dir', output], cwd=ROOT, check=True)
         print(output)

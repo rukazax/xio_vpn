@@ -1,15 +1,73 @@
 import 'account_access.dart';
 import 'credentials.dart';
+import 'server_address.dart';
 
 import 'package:dartssh2/dartssh2.dart';
 
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart' as hashes;
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
+
+/// The server bundle described by `assets/xio-server-release.json`.
+/// Installation must never upload an archive that does not match this manifest.
+class ServerRelease {
+  final int recipeVersion;
+  final String sha256;
+
+  /// Digest of `assets/xio-bootstrap.sh`. The script runs as root over SSH, so
+  /// the manifest must pin it as well as the archive.
+  final String? bootstrapSha256;
+  const ServerRelease(this.recipeVersion, this.sha256, {this.bootstrapSha256});
+  static const manifestAsset = 'assets/xio-server-release.json';
+  static Future<ServerRelease> load(AssetBundle assets) async =>
+      parse(await assets.loadString(manifestAsset));
+  static ServerRelease parse(String raw) {
+    final data = jsonDecode(raw);
+    if (data is! Map || data['schema'] != 1) {
+      throw const FormatException('Некорректный манифест серверного релиза');
+    }
+    final recipe = data['recipeVersion'], sha = data['sha256'];
+    final bootstrap = data['bootstrapSha256'];
+    if (recipe is! int ||
+        recipe < 1 ||
+        sha is! String ||
+        !RegExp(r'^[a-f0-9]{64}$').hasMatch(sha) ||
+        (bootstrap != null &&
+            (bootstrap is! String ||
+                !RegExp(r'^[a-f0-9]{64}$').hasMatch(bootstrap)))) {
+      throw const FormatException('Некорректный манифест серверного релиза');
+    }
+    return ServerRelease(
+      recipe,
+      sha,
+      bootstrapSha256: bootstrap as String?,
+    );
+  }
+
+  void verifyBootstrap(String script) {
+    final pinned = bootstrapSha256;
+    if (pinned == null) return; // Older manifest: archive digest still applies.
+    if (digest(utf8.encode(script)) != pinned) {
+      throw StateError(
+        'Установочный скрипт не совпадает с манифестом приложения',
+      );
+    }
+  }
+
+  String digest(List<int> bytes) => hashes.sha256.convert(bytes).toString();
+  void verifyArchive(List<int> bytes) {
+    if (digest(bytes) != sha256) {
+      throw StateError(
+        'Архив серверного релиза не совпадает с манифестом приложения',
+      );
+    }
+  }
+}
 
 Future<(String, String)> newManagementKey() async {
   final pair = await Ed25519().newKeyPair();
@@ -59,7 +117,9 @@ Future<(String, String)> newManagementKey() async {
 
 class ManagedService {
   final VpsService ssh;
-  ManagedService(this.ssh);
+  final AssetBundle assets;
+  ManagedService(this.ssh, {AssetBundle? assets})
+    : assets = assets ?? rootBundle;
 
   /// Only an owner with a previously verified SSH identity may update an
   /// existing installation. Delegated users cannot replace server executables.
@@ -74,22 +134,25 @@ class ManagedService {
         'Для обновления нужна сохранённая SSH-идентичность сервера',
       );
     }
-    final local = Map<String, dynamic>.from(
-      jsonDecode(await rootBundle.loadString('assets/xio-server-release.json')),
-    );
+    final local = await ServerRelease.load(assets);
     final remote = await command({'action': 'inspect'});
     final metadata = Map<String, dynamic>.from(remote['server']);
     if (metadata['id'] != server.id) {
       throw StateError('Идентичность сервера изменилась');
     }
     final revision = metadata['recipeVersion'] as int? ?? 13;
-    if (revision > (local['recipeVersion'] as int)) return; // Never downgrade.
-    if (revision == local['recipeVersion'] &&
-        metadata['bundleSha256'] == local['sha256']) {
+    if (revision > local.recipeVersion) return; // Never downgrade.
+    if (revision == local.recipeVersion &&
+        metadata['bundleSha256'] == local.sha256) {
       return;
     }
-    final archive = await rootBundle.load('assets/xio-server.tar.gz');
-    final program = await rootBundle.loadString('assets/xio-server-update.py');
+    final archive = await assets.load('assets/xio-server.tar.gz');
+    final archiveBytes = archive.buffer.asUint8List(
+      archive.offsetInBytes,
+      archive.lengthInBytes,
+    );
+    local.verifyArchive(archiveBytes);
+    final program = await assets.loadString('assets/xio-server-update.py');
     String quoted(String value) => "'${value.replaceAll("'", "'\\''")}'";
     if (store.status.active || store.busy || store.serverMaintenance) return;
     store.serverMaintenance = true;
@@ -97,11 +160,8 @@ class ManagedService {
     try {
       await store.saveNativePlan();
       final bytes = await ssh.executeInput(
-        'python3 -c ${quoted(program)} ${quoted(local['sha256'] as String)} ${quoted(server.id)}',
-        archive.buffer.asUint8List(
-          archive.offsetInBytes,
-          archive.lengthInBytes,
-        ),
+        'python3 -c ${quoted(program)} ${quoted(local.sha256)} ${quoted(server.id)}',
+        archiveBytes,
         timeout: const Duration(minutes: 12),
       );
       final result = Map<String, dynamic>.from(jsonDecode(utf8.decode(bytes)));
@@ -144,33 +204,153 @@ class ManagedService {
     return result;
   }
 
-  Future<ManagedServer> install(AppStore store) async {
-    final archive = await rootBundle.load('assets/xio-server.tar.gz');
-    final bootstrap = await rootBundle.loadString('assets/xio-bootstrap.sh');
+  /// Returns the server record only for a complete owned installation. A
+  /// missing admin.py, or an installation that is not ready, is not silently
+  /// treated as a fresh server; an incomplete receipt is a hard stop.
+  Future<Map<String, dynamic>?> _inspectReady() async {
+    try {
+      final result = await command({'action': 'inspect'});
+      if (result['phase'] != 'ready') {
+        throw StateError(
+          'Незавершённая установка XIO. Удалите её перед повторной установкой.',
+        );
+      }
+      final server = result['server'];
+      if (server is! Map) {
+        throw StateError('Сервер не подтвердил идентичность установки');
+      }
+      return Map<String, dynamic>.from(server);
+    } on StateError catch (e) {
+      if (e.message.startsWith('Незавершённая установка')) rethrow;
+      // No owned admin.py yet: a fresh server belongs to the bootstrap path.
+      return null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Future<ManagedServer> _registerInstalled(
+    AppStore store,
+    SshTarget target, {
+    required Map<String, dynamic> remote,
+    required String requestedHost,
+    required bool explicitVpnHost,
+    required bool existing,
+    required String fingerprint,
+  }) async {
+    final id = remote['id'], confirmedRaw = remote['host'];
+    if (id is! String || id.isEmpty) {
+      throw StateError('Сервер не подтвердил идентичность установки');
+    }
+    if (confirmedRaw is! String || confirmedRaw.isEmpty) {
+      throw StateError('Сервер не подтвердил VPN-адрес');
+    }
+    final confirmed = normalizeServerHost(confirmedRaw);
+    // A ready installation returns its original host. Never silently build
+    // client profiles for a domain the server is not actually configured for.
+    if (canonicalServerHost(confirmed) != canonicalServerHost(requestedHost)) {
+      if (!existing || explicitVpnHost) {
+        throw StateError(
+          existing
+              ? 'Сервер уже настроен на другой VPN-адрес: $confirmed. '
+                    'Укажите этот адрес в поле VPN-адреса или удалите установку.'
+              : 'Сервер подтвердил другой VPN-адрес: $confirmed',
+        );
+      }
+    }
+    final server = ManagedServer(
+      id: id,
+      host: target.host,
+      publicHost: confirmed,
+      port: target.port,
+      username: target.username,
+      country: remote['country'] ?? '',
+      hostKey: fingerprint,
+    );
+    final known = store.servers.where((s) => s.id == server.id).firstOrNull;
+    if (known != null) {
+      if (known.host != server.host ||
+          known.port != server.port ||
+          known.username != server.username ||
+          known.publicHost != server.publicHost) {
+        throw StateError(
+          'Сервер с этим идентификатором уже добавлен с другими параметрами',
+        );
+      }
+      if (known.hostKey.isEmpty) {
+        known.hostKey = server.hostKey;
+        await store.save();
+      }
+      return known;
+    }
+    store.servers.add(server);
+    await store.save();
+    store.changed();
+    return server;
+  }
+
+  Future<ManagedServer> install(AppStore store, {String? publicHost}) async {
+    final target = ssh.target;
+    if (target == null) throw StateError('Сначала подключитесь по SSH');
+    final fingerprint = ssh.verifiedFingerprint;
+    if (!RegExp(r'^SHA256:[A-Za-z0-9+/]{43}$').hasMatch(fingerprint)) {
+      throw StateError('Нет проверенного ключа SSH сервера');
+    }
+    // Validate before uploading anything. A provider SSH proxy is not a VPN endpoint.
+    final requested = publicHost?.trim();
+    final explicitVpnHost = requested != null && requested.isNotEmpty;
+    final vpnHost = normalizeServerHost(
+      explicitVpnHost ? requested : target.host,
+    );
+    // Never overwrite a ready installation with the (possibly older) bundled
+    // archive just because the user opened setup again.
+    final ready = await _inspectReady();
+    if (ready != null) {
+      return _registerInstalled(
+        store,
+        target,
+        remote: ready,
+        requestedHost: vpnHost,
+        explicitVpnHost: explicitVpnHost,
+        existing: true,
+        fingerprint: fingerprint,
+      );
+    }
+    final release = await ServerRelease.load(assets);
+    final archive = await assets.load('assets/xio-server.tar.gz');
+    final archiveBytes = archive.buffer.asUint8List(
+      archive.offsetInBytes,
+      archive.lengthInBytes,
+    );
+    release.verifyArchive(archiveBytes);
+    final bootstrap = await assets.loadString('assets/xio-bootstrap.sh');
+    release.verifyBootstrap(bootstrap);
+    // The script compares its stdin against this digest before unpacking.
+    final script =
+        "export XIO_EXPECTED_ARCHIVE_SHA256='${release.sha256}'\n$bootstrap";
     await ssh.executeInput(
-      bootstrap,
-      archive.buffer.asUint8List(archive.offsetInBytes, archive.lengthInBytes),
+      script,
+      archiveBytes,
       timeout: const Duration(minutes: 30),
     );
     final result = await command({
       'action': 'init',
-      'host': ssh.target!.host,
+      'host': vpnHost,
       'restrictedNetwork': true,
     }, timeout: const Duration(minutes: 30));
-    final server = ManagedServer(
-      id: result['server']['id'],
-      host: ssh.target!.host,
-      port: ssh.target!.port,
-      username: ssh.target!.username,
-      country: result['server']['country'] ?? '',
-      hostKey: ssh.verifiedFingerprint,
-    );
-    if (!store.servers.any((s) => s.id == server.id)) {
-      store.servers.add(server);
-      await store.save();
-      store.changed();
+    final remote = result['server'];
+    if (remote is! Map) {
+      throw StateError('Сервер не подтвердил установку VPN');
     }
-    return server;
+    return _registerInstalled(
+      store,
+      target,
+      remote: Map<String, dynamic>.from(remote),
+      requestedHost: vpnHost,
+      explicitVpnHost: explicitVpnHost,
+      existing: result['existing'] == true,
+      fingerprint: fingerprint,
+    );
   }
 
   Future<ManagedUser> createUser(
@@ -228,17 +408,19 @@ class ManagedService {
                 .map((e) => '${e.key} = ${e.value}')
                 .join('\n')
           : '';
-      final host = server.host.contains(':') ? '[${server.host}]' : server.host;
+      final endpoint = serverEndpoint(
+        server.publicHost,
+        p == 'awg' ? 51821 : 51820,
+      );
       configs[p] =
-          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(remote)}\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $host:${p == 'awg' ? 51821 : 51820}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
+          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(remote)}\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $endpoint\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
     }
     if (remote['rivet'] is Map) {
       final meta = Map<String, dynamic>.from(remote['rivet']);
       for (final protocol in rivetProtocols) {
         configs[protocol] = jsonEncode({
           'protocol': protocol,
-          'endpoint':
-              '${server.host.contains(':') ? '[${server.host}]' : server.host}:8443',
+          'endpoint': serverEndpoint(server.publicHost, 8443),
           'serverName': meta['serverName'],
           'pin': meta['pin'],
           'gatewayId': meta['gatewayId'],
@@ -255,10 +437,29 @@ class ManagedService {
       response['configs'] ?? {},
     ).entries) {
       if (['xray', 'cloak'].contains(e.key)) {
-        configs[e.key] = e.value as String;
+        final value = e.value;
+        if (value is! String) {
+          throw const FormatException('Некорректный профиль сервера');
+        }
+        final parsed = ExtendedProfile.parse(value);
+        if (parsed.protocol != e.key) {
+          throw const FormatException('Протокол не совпадает с конфигурацией');
+        }
+        configs[e.key] = parsed.encoded;
       }
     }
     try {
+      // The server response is authenticated transport input, not a trusted
+      // config: validate every generated profile before storing or exporting it.
+      for (final p in configs.keys) {
+        if (p == 'awg') {
+          WireGuardProfile.parse(configs[p]!, amnezia: true);
+        } else if (rivetProtocols.contains(p)) {
+          RivetProfile.parse(configs[p]!);
+        } else if (extendedProtocols.contains(p)) {
+          ExtendedProfile.parse(configs[p]!);
+        }
+      }
       final user = await store.importBundle(
         UserBundle(name.trim(), uid, server.id, configs),
       );
@@ -380,13 +581,13 @@ class ManagedService {
       'mesh_stack.py': 'assets/xio-mesh-stack.py',
       'mesh-pins.json': 'assets/mesh-pins.json',
     }.entries) {
-      final asset = await rootBundle.load(entry.value);
+      final asset = await assets.load(entry.value);
       await ssh.executeInput(
         'set -eu\numask 077\ntest "\$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1\ncat > /usr/local/lib/xio-managed/${entry.key}.next\nmv /usr/local/lib/xio-managed/${entry.key}.next /usr/local/lib/xio-managed/${entry.key}\n',
         asset.buffer.asUint8List(asset.offsetInBytes, asset.lengthInBytes),
       );
     }
-    final networkScript = await rootBundle.load('assets/xio-network-stack.py');
+    final networkScript = await assets.load('assets/xio-network-stack.py');
     await ssh.executeInput(
       r'''set -eu
 umask 077
@@ -399,7 +600,7 @@ mv /usr/local/lib/xio-managed/network_stack.py.next /usr/local/lib/xio-managed/n
         networkScript.lengthInBytes,
       ),
     );
-    final stackScript = await rootBundle.load('assets/xio-stack.py');
+    final stackScript = await assets.load('assets/xio-stack.py');
     await ssh.executeInput(
       r'''set -eu
 umask 077
@@ -412,7 +613,7 @@ mv /usr/local/lib/xio-managed/stack.py.next /usr/local/lib/xio-managed/stack.py
         stackScript.lengthInBytes,
       ),
     );
-    final script = await rootBundle.load('assets/xio-admin.py');
+    final script = await assets.load('assets/xio-admin.py');
     await ssh.executeInput(r'''set -eu
 umask 077
 test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1

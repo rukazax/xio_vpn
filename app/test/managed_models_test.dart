@@ -12,10 +12,14 @@ class _SettingsStore extends AppStore {
     String site,
     String priority, {
     int? timeoutSeconds,
+    bool? siteCheck,
+    bool? reconnect,
   }) async {
     checkSite = validateCheckSite(site).toString();
     priorityProtocol = priority;
     protocolTimeoutSeconds = timeoutSeconds ?? protocolTimeoutSeconds;
+    siteCheckEnabled = siteCheck ?? siteCheckEnabled;
+    autoReconnect = reconnect ?? autoReconnect;
     changed();
   }
 }
@@ -170,23 +174,33 @@ void main() {
     },
   );
   testWidgets(
-    'connection settings default to youtube and save chosen HTTPS site',
+    'site check is off by default and saves the chosen HTTPS site when enabled',
     (tester) async {
       final store = _SettingsStore();
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: ConnectionSettings(store: store)),
+          home: Scaffold(
+            body: SingleChildScrollView(child: ConnectionSettings(store: store)),
+          ),
         ),
       );
+      await tester.pumpAndSettle();
+      // Off by default: the tunnel itself confirms the connection, so the
+      // site field stays hidden until the owner opts in.
+      expect(find.byType(TextField), findsNothing);
+      await tester.tap(find.text('Проверять доступность сайта'));
       await tester.pumpAndSettle();
       expect(
         tester.widget<TextField>(find.byType(TextField)).controller!.text,
         'https://youtube.com',
       );
       await tester.enterText(find.byType(TextField), 'example.org');
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Сохранить'));
       await tester.tap(find.text('Сохранить'));
       await tester.pumpAndSettle();
       expect(store.checkSite, 'https://example.org');
+      expect(store.siteCheckEnabled, isTrue);
       await tester.pumpWidget(const SizedBox());
       store.dispose();
     },

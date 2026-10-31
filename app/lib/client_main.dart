@@ -194,38 +194,67 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
 
   Future<void> settings() async {
     final site = TextEditingController(text: store.checkSite);
+    var enabled = store.siteCheckEnabled;
+    var reconnect = store.autoReconnect;
     try {
       final value = await showDialog<String>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const LText('Проверка соединения'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const LText(
-                'HTTPS-сайт для проверки доступности после запуска туннеля. Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
+        builder: (context) => StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const LText('Проверка соединения'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: reconnect,
+                  onChanged: (v) => setDialogState(() => reconnect = v),
+                  title: const LText('Переподключаться при потере связи'),
+                  subtitle: const LText(
+                    'Пока туннель активен, приложение проверяет связь и при потере поднимает соединение заново — по тому же плану: выбранный сервер, затем другой протокол, затем другой профиль.',
+                  ),
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: enabled,
+                  onChanged: (v) => setDialogState(() => enabled = v),
+                  title: const LText('Проверять доступность сайта'),
+                  subtitle: const LText(
+                    'По умолчанию выключено. Соединение подтверждается самим туннелем: свежий handshake, счётчики и DNS-ответ через туннель.',
+                  ),
+                ),
+                if (enabled) ...[
+                  const LText(
+                    'HTTPS-сайт для проверки доступности после запуска туннеля. Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
+                  ),
+                  TextField(
+                    controller: site,
+                    keyboardType: TextInputType.url,
+                    decoration: InputDecoration(labelText: 'HTTPS URL'),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const LText('Отмена'),
               ),
-              TextField(
-                controller: site,
-                keyboardType: TextInputType.url,
-                decoration: InputDecoration(labelText: 'HTTPS URL'),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, site.text),
+                child: const LText('Сохранить'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const LText('Отмена'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, site.text),
-              child: const LText('Сохранить'),
-            ),
-          ],
         ),
       );
       if (value != null) {
-        await store.saveConnectionSettings(value, store.priorityProtocol);
+        await store.saveConnectionSettings(
+          value,
+          store.priorityProtocol,
+          siteCheck: enabled,
+          reconnect: reconnect,
+        );
       }
     } finally {
       site.dispose();
