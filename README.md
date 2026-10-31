@@ -138,7 +138,7 @@ flowchart LR
 
 ## Download
 
-> **v0.23.1 is a pre-release.** The links below download files from this tagged release: Android and Windows. Linux packages (`.deb`/`.tar.gz`) are not part of 0.23.1 yet — they need a Linux toolchain and will follow in the next build. Read the [limitations](#limitations) before installing.
+> **v0.23.1 is the current release.** The links below download files from this tagged release: Android and Windows. Linux packages (`.deb`/`.tar.gz`) are not part of 0.23.1 yet — they need a Linux toolchain and will follow in the next build. Read the [limitations](#limitations) before installing.
 
 One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. App is `Client` or `Full`; OS is
 `android`, `windows` or `ubuntu`; architecture is `arm64-v8a`, `armeabi-v7a`, `x86_64`,

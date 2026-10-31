@@ -1,6 +1,6 @@
 # Download XIO
 
-> **v0.23.1 is a pre-release.** The [release page](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1) and direct links below do not rely on `/latest`. Check the [limitations](../compatibility/0.23.1.en.md) before installing.
+> **v0.23.1 is the current release.** The [release page](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1) and direct links below do not rely on `/latest`. Check the [limitations](../compatibility/0.23.1.en.md) before installing.
 
 One naming rule:
 `XIO-<App>-<version>-<OS>-<arch>.<ext>`
