@@ -15,8 +15,8 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 FLUTTER = 'flutter.bat' if os.name == 'nt' else 'flutter'
-RELEASE = '0.23.1'
-VERSION = RELEASE + '+5016'
+RELEASE = '0.24.0'
+VERSION = RELEASE + '+5017'
 
 STAGE = ROOT / '.build-support/client'
 APP = STAGE / 'app'

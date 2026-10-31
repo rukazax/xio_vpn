@@ -23,8 +23,8 @@ parser.add_argument('--android-build-tools', type=Path, help='Explicit installed
 parser.add_argument('--architectures', default='arm64-v8a,armeabi-v7a,x86_64,universal', help='Exact expected candidate set; default still requires all four APKs')
 parser.add_argument('--native-aar', type=Path, default=ROOT/'app/android/app/libs/rivet.aar')
 args = parser.parse_args()
-RELEASE = '0.23.1'
-VERSION_CODE = '5016'
+RELEASE = '0.24.0'
+VERSION_CODE = '5017'
 if args.android_build_tools:
     SDK = args.android_build_tools
 expected_architectures = args.architectures.split(',')
@@ -104,7 +104,7 @@ for path in sorted(OUTPUT.glob('*.apk')):
                     'signatureVerified': True, 'zipalign16KiB': True,
                     'nativePayload': native['nativePayload'], 'nativeAbiComplete': True, 'nativeAbis': native_abis, 'libraries': libraries})
 assert len(records) == len(expected_files), 'Need the complete explicitly requested APK set'
-report = {'appId': 'app.xio.client', 'version': RELEASE + '+5016',
+report = {'appId': 'app.xio.client', 'version': RELEASE + '+5017',
           'artifacts': records, 'expectedArchitectures': expected_architectures, 'allFourArtifactSet': len(expected_files) == 4, 'physicalAndroidTestedByVerifier': False,
           'realServerConnectionTested': False,
           'limits': ['Local build/unit/widget/artifact checks only; no device or server contacted.']}
