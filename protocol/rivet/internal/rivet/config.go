@@ -21,6 +21,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"xio.local/rivet/internal/physical"
 )
 
 type User struct {
@@ -120,13 +122,25 @@ func (c ClientConfig) Validate() error {
 	if c.Protocol != "rivet-s1" && c.Protocol != "rivet-h3" {
 		return ErrProtocol
 	}
-	host, port, e := net.SplitHostPort(c.Endpoint)
-	if e != nil || host == "" || port == "" || c.ServerName == "" {
+	if _, _, e := physical.ParseEndpoint(c.Endpoint); e != nil || !physical.ValidHost(c.ServerName) {
 		return ErrProtocol
 	}
-	for s, n := range map[string]int{c.Pin: 32, c.GatewayID: 16, c.Secret: 32, c.EntryToken: 32} {
-		if _, e = Decode(s, n); e != nil {
-			return e
+	secret, e := Decode(c.Secret, 32)
+	if e != nil {
+		return e
+	}
+	entryToken, e := Decode(c.EntryToken, 32)
+	if e != nil {
+		return e
+	}
+	// Compare decoded key material. String comparison can be bypassed with a
+	// non-canonical base64 spelling of the same 32 bytes.
+	if subtle.ConstantTimeCompare(secret, entryToken) == 1 {
+		return ErrProtocol
+	}
+	for s, n := range map[string]int{c.Pin: 32, c.GatewayID: 16} {
+		if _, err := Decode(s, n); err != nil {
+			return err
 		}
 	}
 	id, e := hex.DecodeString(c.ID)
@@ -235,6 +249,9 @@ func Unseal(master []byte, s, id string) ([]byte, error) {
 // GenerateOuter is the explicit private-CA fallback for a VPS without a public
 // certificate. The anchor is scoped to this connection, never installed globally.
 func GenerateOuter(dir, name string) (string, error) {
+	if !physical.ValidHost(name) {
+		return "", ErrProtocol
+	}
 	key, e := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if e != nil {
 		return "", e

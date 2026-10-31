@@ -9,6 +9,7 @@ import 'legal_record.dart';
 import 'credentials.dart';
 import 'rivet_profile.dart';
 import 'extended_profile.dart';
+import 'server_address.dart';
 export 'extended_profile.dart';
 export 'rivet_profile.dart';
 import 'status_poll.dart';
@@ -17,12 +18,10 @@ import 'l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'managed_models.dart';
 export 'managed_models.dart';
 
-import 'package:crypto/crypto.dart' show sha256;
 import 'package:cryptography/cryptography.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/foundation.dart';
@@ -251,30 +250,9 @@ class WireGuardProfile {
         throw const FormatException('Некорректный CIDR');
       }
     }
-    final endpoint = peer['endpoint']!;
-    final match = RegExp(r'^(\[[0-9a-fA-F:]+\]|[a-zA-Z0-9._-]+):(\d{1,5})$')
-        .firstMatch(endpoint);
-    if (match == null ||
-        int.parse(match[2]!) < 1 ||
-        int.parse(match[2]!) > 65535) {
-      throw const FormatException('Некорректный Endpoint');
-    }
-    final host = match[1]!;
-    if (host.startsWith('[')) {
-      if (InternetAddress.tryParse(host.substring(1, host.length - 1)) ==
-          null) {
-        throw const FormatException('Некорректный IPv6 Endpoint');
-      }
-    } else if (host
-        .split('.')
-        .any(
-          (label) =>
-              label.isEmpty || label.startsWith('-') || label.endsWith('-'),
-        )) {
-      throw const FormatException('Некорректное имя Endpoint');
-    }
+    final endpoint = ServerEndpoint.parse(peer['endpoint']!);
     return WireGuardProfile(
-      endpoint,
+      endpoint.formatted,
       peer['allowedips']!
               .replaceAll(' ', '')
               .split(',')
@@ -288,10 +266,6 @@ class TunnelStatus {
   final bool active;
   final String state, path;
   final int? rx, tx, handshake;
-
-  /// Адрес в туннеле, который сообщает движок (например `10.79.0.6/32`).
-  /// Нужен, чтобы найти шлюз этого туннеля без жёстких таблиц подсетей.
-  final String? ip;
   const TunnelStatus({
     this.active = false,
     this.state = 'Отключено',
@@ -299,7 +273,6 @@ class TunnelStatus {
     this.rx,
     this.tx,
     this.handshake,
-    this.ip,
   });
 }
 
@@ -389,7 +362,7 @@ class ClientImport {
       if (ip == null) throw const FormatException();
       address = '$address/${ip.type == InternetAddressType.IPv4 ? 32 : 128}';
     }
-    final host = value('hostName');
+    final host = normalizeServerHost(value('hostName'));
     final port = client['port'];
     if (port is! int || port < 1 || port > 65535) throw const FormatException();
     final allowed = client['allowed_ips'];
@@ -429,9 +402,7 @@ class ClientImport {
     if (client['psk_key'] != null && client['psk_key'] != '') {
       out.writeln('PresharedKey = ${value('psk_key')}');
     }
-    out.writeln(
-      'Endpoint = ${host.contains(':') && !host.startsWith('[') ? '[$host]' : host}:$port',
-    );
+    out.writeln('Endpoint = ${serverEndpoint(host, port)}');
     out.writeln('AllowedIPs = ${allowed.join(', ')}');
     if (client['persistent_keep_alive'] != null &&
         client['persistent_keep_alive'] != '') {
@@ -662,10 +633,9 @@ class AppStore extends ChangeNotifier {
   final List<ManagedUser> users = [];
   final Map<String, String> endpointCountries = {};
   String checkSite = 'https://youtube.com';
-
-  /// Проверка доступности сайта — необязательная. По умолчанию выключена:
-  /// готовность туннеля определяется его собственными признаками (рукопожатие,
-  /// обмен пакетами, эхо шлюза), без обращения к внешним сайтам.
+  // Disabled by default: a connection is confirmed by the tunnel itself
+  // (fresh handshake, counters, DNS through the tunnel) unless the owner
+  // explicitly opts into the HTTPS-site probe in the settings.
   bool siteCheckEnabled = false;
   String priorityProtocol = Platform.isIOS ? 'rivet-s1' : 'xray';
   int protocolTimeoutSeconds = 15;
@@ -677,6 +647,15 @@ class AppStore extends ChangeNotifier {
   String? error;
   Directory? directory;
   Timer? _timer;
+  // Live connection control: while the tunnel is up the app re-checks it and
+  // reconnects (through the same protocol-fallback plan) when the link is lost.
+  Timer? _watchdog;
+  int _watchdogMisses = 0;
+  Timer? _retry;
+  int _retryCount = 0;
+  bool _desired = false;
+  bool reconnecting = false;
+  bool autoReconnect = true;
   final _statusPoll = StatusPoll();
   bool _storageHealthy = true;
   Future<void> _saveQueue = Future.value();
@@ -700,7 +679,10 @@ class AppStore extends ChangeNotifier {
       } catch (_) {}
     }
     try {
-      directory = await applicationDirectory();
+      // A caller may inject `directory` (tests, embedders); resolve the platform
+      // default only when none was provided. macOS is not a supported host, so
+      // applicationDirectory() throws there by design and must not be forced.
+      directory ??= await applicationDirectory();
       final file = File('${directory!.path}/profiles.json');
       if (await file.exists()) {
         final j = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
@@ -740,7 +722,8 @@ class AppStore extends ChangeNotifier {
         }
         checkSite = validateCheckSite(j['checkSite'] ?? 'https://youtube.com')
             .toString();
-        siteCheckEnabled = (j['siteCheckEnabled'] as bool?) ?? false;
+        siteCheckEnabled = j['siteCheckEnabled'] == true;
+        autoReconnect = j['autoReconnect'] != false;
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
             .toInt()
             .clamp(5, 60);
@@ -800,6 +783,7 @@ class AppStore extends ChangeNotifier {
       'users': users.map((u) => u.toJson()).toList(),
       'checkSite': checkSite,
       'siteCheckEnabled': siteCheckEnabled,
+      'autoReconnect': autoReconnect,
       'priorityProtocol': priorityProtocol,
       'protocolTimeoutSeconds': protocolTimeoutSeconds,
       'selected': selectedId,
@@ -1009,13 +993,18 @@ class AppStore extends ChangeNotifier {
         .where((u) => u.profileIds.values.contains(initial.id))
         .firstOrNull;
     if (user?.revoked == true) return [];
-    // The small client connects only to the explicitly selected profile.
-    if (clientOnlyBuild) {
-      return supportedProtocols.contains(initial.protocol) ? [initial] : [];
-    }
-    final candidates =
-        (user == null
-                ? [initial]
+    // Every build and platform keeps the same order: the selected profile
+    // first, then protocol variants of the same endpoint (a fingerprint-blocked
+    // protocol is replaced by another one), and only after them other profiles
+    // allowed for this account.
+    int preference(Profile p) =>
+        protocolPreference(p.protocol, priorityProtocol, restricted: true);
+    bool usable(Profile p) =>
+        nativeProtocols.contains(p.protocol) &&
+        (!nativeTunnel || supportedProtocols.contains(p.protocol));
+    final pool =
+        (clientOnlyBuild || user == null
+                ? profiles
                 : profiles
                       .where(
                         (p) =>
@@ -1023,23 +1012,31 @@ class AppStore extends ChangeNotifier {
                             nativeProtocols.contains(p.protocol),
                       )
                       .toList())
-            .where(
-              (p) =>
-                  nativeProtocols.contains(p.protocol) &&
-                  (!nativeTunnel || supportedProtocols.contains(p.protocol)),
-            )
+            .where(usable)
             .toList();
-    candidates.sort(
-      (a, b) =>
-          protocolPreference(
-            a.protocol,
-            priorityProtocol,
-            restricted: true,
-          ).compareTo(
-            protocolPreference(b.protocol, priorityProtocol, restricted: true),
-          ),
-    );
-    return candidates;
+    final ordered = <Profile>[];
+    void add(Profile p) {
+      if (!ordered.any((x) => x.id == p.id)) ordered.add(p);
+    }
+
+    if (usable(initial)) add(initial);
+    final variants =
+        pool
+            .where((p) => p.id != initial.id && p.endpoint == initial.endpoint)
+            .toList()
+          ..sort((a, b) => preference(a).compareTo(preference(b)));
+    for (final p in variants) {
+      add(p);
+    }
+    final fallbacks =
+        pool
+            .where((p) => p.id != initial.id && p.endpoint != initial.endpoint)
+            .toList()
+          ..sort((a, b) => preference(a).compareTo(preference(b)));
+    for (final p in fallbacks) {
+      add(p);
+    }
+    return ordered;
   }
 
   Future<void> saveNativePlan() async {
@@ -1135,7 +1132,10 @@ class AppStore extends ChangeNotifier {
     final id =
         '${parsed.protocol == 'rivet-h3' ? 'rvh' : 'rvs'}${DateTime.now().microsecondsSinceEpoch}';
     final previous = selectedId;
-    await native.invokeMethod('saveConfig', {'id': id, 'config': raw});
+    await native.invokeMethod('saveConfig', {
+      'id': id,
+      'config': parsed.encoded,
+    });
     profiles.add(
       Profile(
         id: id,
@@ -1202,6 +1202,7 @@ class AppStore extends ChangeNotifier {
     String priority, {
     int? timeoutSeconds,
     bool? siteCheck,
+    bool? reconnect,
   }) async {
     if (timeoutSeconds != null && (timeoutSeconds < 5 || timeoutSeconds > 60)) {
       throw const FormatException('Время ожидания: от 5 до 60 секунд');
@@ -1213,10 +1214,12 @@ class AppStore extends ChangeNotifier {
     final oldSite = checkSite, oldPriority = priorityProtocol;
     final oldTimeout = protocolTimeoutSeconds;
     final oldSiteCheck = siteCheckEnabled;
+    final oldReconnect = autoReconnect;
     checkSite = normalized;
     priorityProtocol = priority;
     protocolTimeoutSeconds = timeoutSeconds ?? protocolTimeoutSeconds;
-    if (siteCheck != null) siteCheckEnabled = siteCheck;
+    siteCheckEnabled = siteCheck ?? siteCheckEnabled;
+    autoReconnect = reconnect ?? autoReconnect;
     connectionCheck = null;
     try {
       await save();
@@ -1225,113 +1228,49 @@ class AppStore extends ChangeNotifier {
       priorityProtocol = oldPriority;
       protocolTimeoutSeconds = oldTimeout;
       siteCheckEnabled = oldSiteCheck;
+      autoReconnect = oldReconnect;
       rethrow;
     }
     notifyListeners();
   }
 
-  /// Постоянные шлюзы протоколов: используются, если движок не сообщил адрес
-  /// в туннеле. Подсети закреплены продуктовым контрактом.
-  static const Map<String, String> _fallbackGateways = {
-    'awg': '10.78.0.1',
-    'rivet-h3': '10.79.0.1',
-    'rivet-s1': '10.79.0.1',
-    'xray': '10.80.0.1',
-    'cloak': '10.81.0.1',
-    'openvpn-tcp': '10.82.0.1',
-  };
-
-  /// Шлюз туннеля: адрес `.1` в той же подсети, что выдал движок.
-  String? gatewayAddress([String? protocol]) {
-    final raw = status.ip;
-    if (raw != null && raw.isNotEmpty) {
-      final octets = raw.split('/').first.split('.');
-      if (octets.length == 4 && octets.every((o) => int.tryParse(o) != null)) {
-        return '${octets[0]}.${octets[1]}.${octets[2]}.1';
-      }
-    }
-    return _fallbackGateways[protocol ?? activeProfile?.protocol ?? ''];
-  }
-
-  /// Эхо шлюза туннеля: 16 случайных байт уходят, 32 байта возвращаются,
-  /// первые 31 — SHA-256 от запроса. Пакет обязан пройти через туннель и
-  /// вернуться, поэтому проверка не зависит ни от DNS, ни от внешних сайтов.
-  Future<bool> gatewayEcho({
-    Duration timeout = const Duration(milliseconds: 1500),
-    String? protocol,
+  /// Confirms the tunnel without contacting a third-party website: a fresh
+  /// handshake, live counters and a DNS answer resolved through the tunnel are
+  /// enough to know that payload reaches the exit.
+  Future<bool> verifyTunnel({
+    Duration timeout = const Duration(seconds: 15),
   }) async {
-    final gateway = gatewayAddress(protocol);
-    if (gateway == null) return false;
-    Socket? socket;
-    try {
-      socket = await Socket.connect(gateway, 7447, timeout: timeout);
-      final random = Random.secure();
-      final nonce = List<int>.generate(16, (_) => random.nextInt(256));
-      socket.add(nonce);
-      await socket.flush();
-      final reply = <int>[];
-      await for (final chunk in socket.timeout(timeout)) {
-        reply.addAll(chunk);
-        if (reply.length >= 32) break;
-      }
-      if (reply.length != 32 || reply.first != 0x01) return false;
-      final digest = sha256.convert(nonce).bytes;
-      for (var i = 0; i < 31; i++) {
-        if (reply[i + 1] != digest[i]) return false;
-      }
-      return true;
-    } catch (_) {
-      return false;
-    } finally {
-      socket?.destroy();
-    }
-  }
-
-  /// Готовность туннеля без проверки сайта.
-  ///
-  /// Порядок признаков:
-  ///  1. движок сообщает активную сессию и свежее рукопожатие;
-  ///  2. шлюз ответил эхом — сильный признак «пакеты ушли и вернулись»;
-  ///  3. если эхо недоступно (старый сервер, закрытый порт) — принимаются
-  ///     счётчики: байты прошли в обе стороны.
-  /// Проверка сайта сюда не входит: она включается отдельно в настройках.
-  Future<bool> tunnelReady({
-    required int startedAtMillis,
-    required Duration budget,
-  }) async {
-    if (budget <= Duration.zero) return false;
-    final clock = Stopwatch()..start();
-    final protocol = activeProfile?.protocol ?? selected?.protocol;
+    if (timeout <= Duration.zero) return false;
     connectionCheck = 'Проверка туннеля…';
     notifyListeners();
+    final clock = Stopwatch()..start();
+    var dns = false;
     try {
-      while (clock.elapsed < budget) {
+      while (clock.elapsed < timeout) {
         await refresh();
-        if (!status.active) return false;
-        final freshHandshake =
-            (status.handshake ?? 0) >= startedAtMillis - 2000;
-        if (await gatewayEcho(protocol: protocol)) {
-          connectionCheck = 'Туннель отвечает';
-          return true;
+        if (!status.active) break;
+        if (!dns) {
+          try {
+            final addrs = await InternetAddress.lookup('example.com')
+                .timeout(const Duration(seconds: 4));
+            dns = addrs.isNotEmpty;
+          } catch (_) {
+            // Keep polling: DNS may answer only after the first payload.
+          }
         }
-        final rx = status.rx ?? 0, tx = status.tx ?? 0;
-        if (freshHandshake && rx > 0 && tx > 0) {
-          connectionCheck = 'Туннель поднят · обмен идёт';
-          return true;
-        }
-        final left = budget - clock.elapsed;
-        if (left <= const Duration(milliseconds: 250)) break;
-        await Future<void>.delayed(
-          left < const Duration(milliseconds: 500)
-              ? left
-              : const Duration(milliseconds: 500),
-        );
+        final handshake = status.handshake ?? 0;
+        final traffic = (status.tx ?? 0) > 0;
+        if (handshake > 0 && (dns || traffic)) break;
+        await Future<void>.delayed(const Duration(milliseconds: 500));
       }
-      connectionCheck = 'Туннель не отвечает';
-      return false;
-    } catch (_) {
-      connectionCheck = 'Туннель не отвечает';
-      return false;
+      final ok =
+          status.active &&
+          (status.handshake ?? 0) > 0 &&
+          (dns || (status.tx ?? 0) > 0);
+      connectionCheck = ok
+          ? 'Туннель активен${dns ? ' · DNS через туннель' : ''}'
+          : 'Туннель не подтверждён';
+      return ok;
     } finally {
       notifyListeners();
     }
@@ -1339,7 +1278,8 @@ class AppStore extends ChangeNotifier {
 
   Future<bool> checkConnection({
     Duration timeout = const Duration(seconds: 15),
-  }) async {    if (timeout <= Duration.zero) return false;
+  }) async {
+    if (timeout <= Duration.zero) return false;
     connectionCheck = 'Проверка $checkSite…';
     notifyListeners();
     final clock = Stopwatch()..start();
@@ -1705,7 +1645,7 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> connect() async {
+  Future<void> connect({bool resuming = false}) async {
     if (enforceConsent && !consentReady) {
       throw StateError("Сначала ознакомьтесь с лицензией и уведомлением VPN");
     }
@@ -1724,6 +1664,10 @@ class AppStore extends ChangeNotifier {
       return;
     }
     final candidates = connectionCandidates(initial);
+    _desired = true;
+    _retry?.cancel();
+    _retry = null;
+    if (!resuming) _retryCount = 0;
     busy = true;
     error = null;
     connectionCheck = null;
@@ -1747,29 +1691,34 @@ class AppStore extends ChangeNotifier {
                   milliseconds: (activation?['connectMillis'] as num? ?? 0)
                       .toInt(),
                 );
-            // Готовность определяется самим туннелем: активная сессия, свежее
-            // рукопожатие и ответ шлюза. Проверка сайта — отдельный,
-            // необязательный шаг, который включается в настройках.
+            // Generate traffic to trigger handshake, then require a fresh handshake.
             await refresh(fresh: true);
-            final ready = await tunnelReady(
-              startedAtMillis: started,
-              budget: budget - attempt.elapsed,
-            );
-            if (!ready) throw StateError('Туннель не отвечает');
-            if (siteCheckEnabled) {
-              final left = budget - attempt.elapsed;
-              final website = await checkConnection(
-                timeout: left < const Duration(seconds: 2)
-                    ? const Duration(seconds: 2)
-                    : left,
-              );
-              if (!website) throw StateError('Сайт проверки недоступен');
+            final verified = siteCheckEnabled
+                ? await checkConnection(timeout: budget - attempt.elapsed)
+                : await verifyTunnel(timeout: budget - attempt.elapsed);
+            if (!verified) throw StateError('Проверка соединения не пройдена');
+            for (
+              var i = 0;
+              attempt.elapsed < budget &&
+                  (status.handshake ?? 0) < started - 2000;
+              i++
+            ) {
+              await Future<void>.delayed(const Duration(milliseconds: 500));
+              await refresh();
+            }
+            if (!verified ||
+                !status.active ||
+                (status.handshake ?? 0) < started - 2000) {
+              throw StateError('Проверка соединения не пройдена');
             }
           } else {
             continue;
           }
           await save();
-          log('Автоматически выбран ${p.protocol}; туннель готов');
+          log(
+            'Автоматически выбран ${p.protocol}; '
+            '${siteCheckEnabled ? 'сайт доступен' : 'туннель подтверждён'}',
+          );
           return;
         } catch (e) {
           if (nativeTunnel) {
@@ -1785,7 +1734,9 @@ class AppStore extends ChangeNotifier {
         }
       }
       throw StateError(
-        'Ни один протокол не поднял рабочий туннель. Проверьте точку входа и сеть: смена протокола помогает не всегда.',
+        siteCheckEnabled
+            ? 'Ни один доступный маршрут не прошёл проверку сайта. Проверьте точку входа: смена протокола не снимает блокировку IP.'
+            : 'Ни один доступный маршрут не подтвердил туннель. Проверьте точку входа и доступность сервера.',
       );
     } catch (e) {
       selectedId = initial.id;
@@ -1802,6 +1753,10 @@ class AppStore extends ChangeNotifier {
 
   Future<void> disconnect() async {
     if (busy) return;
+    _desired = false;
+    _retry?.cancel();
+    _retry = null;
+    _retryCount = 0;
     busy = true;
     notifyListeners();
     try {
@@ -1843,7 +1798,6 @@ class AppStore extends ChangeNotifier {
           rx: j['rx'],
           tx: j['tx'],
           handshake: j['handshake'],
-          ip: j['ip'] is String ? j['ip'] as String : null,
         );
         if (up) {
           _activeId = j['id'];
@@ -1858,6 +1812,91 @@ class AppStore extends ChangeNotifier {
         path: 'вЂ”',
       );
     } finally {
+      _syncWatchdog();
+      notifyListeners();
+    }
+  }
+
+  /// Runs while the owner wants the tunnel: it re-checks the live link and
+  /// restores the connection when the engine dropped or the link died, on every
+  /// platform and build.
+  void _syncWatchdog() {
+    if (_desired && autoReconnect) {
+      _watchdog ??= Timer.periodic(
+        const Duration(seconds: 15),
+        (_) => unawaited(_watchdogTick()),
+      );
+    } else {
+      _watchdog?.cancel();
+      _watchdog = null;
+      _watchdogMisses = 0;
+    }
+  }
+
+  Future<void> _watchdogTick() async {
+    if (reconnecting || busy || !_desired) return;
+    // The engine may have dropped the tunnel on its own: restore it.
+    if (!status.active) {
+      await _reconnect();
+      return;
+    }
+    var alive = false;
+    try {
+      final addrs = await InternetAddress.lookup('example.com')
+          .timeout(const Duration(seconds: 6));
+      alive = addrs.isNotEmpty;
+    } catch (_) {
+      alive = false;
+    }
+    if (alive) {
+      _watchdogMisses = 0;
+      return;
+    }
+    // Two consecutive misses rule out a single lost DNS answer.
+    if (++_watchdogMisses < 2) return;
+    _watchdogMisses = 0;
+    await _reconnect();
+  }
+
+  Future<void> _reconnect() async {
+    if (reconnecting || busy) return;
+    reconnecting = true;
+    connectionCheck = 'Связь потеряна · переподключение…';
+    log('Связь потеряна; переподключение');
+    notifyListeners();
+    try {
+      if (nativeTunnel) {
+        try {
+          await native.invokeMethod('disconnect');
+        } catch (_) {
+          // A dead engine may already be down; the new attempt still counts.
+        }
+      }
+      status = const TunnelStatus();
+      _activeId = null;
+      await connect(resuming: true);
+      // connect() reports failures through `error` instead of throwing; the
+      // attempt only counts as restored when the engine is really up again.
+      if (!status.active) {
+        throw StateError(error ?? 'Переподключение не удалось');
+      }
+      _retryCount = 0;
+    } catch (e) {
+      error = e is StateError ? e.message : 'Переподключение не удалось';
+      // Keep trying while the owner still wants the tunnel: 5 s for the first
+      // attempts, then every 15 s, up to a bounded number of rounds.
+      if (autoReconnect && _desired && _retryCount < 20) {
+        _retryCount++;
+        _retry?.cancel();
+        _retry = Timer(
+          Duration(seconds: _retryCount <= 3 ? 5 : 15),
+          () => unawaited(_reconnect()),
+        );
+        connectionCheck =
+            'Связь потеряна · повтор через ${_retryCount <= 3 ? 5 : 15} с';
+      }
+    } finally {
+      reconnecting = false;
       notifyListeners();
     }
   }
@@ -1876,6 +1915,10 @@ class AppStore extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _watchdog?.cancel();
+    _watchdog = null;
+    _retry?.cancel();
+    _retry = null;
     super.dispose();
   }
 }
@@ -1885,11 +1928,7 @@ class SshTarget {
   final int port;
   const SshTarget(this.host, this.port, this.username, [this.fingerprint = '']);
   void validate() {
-    if (host.isEmpty ||
-        host.startsWith('-') ||
-        !RegExp(r'^[a-zA-Z0-9.:-]+$').hasMatch(host)) {
-      throw const FormatException('Некорректный адрес VPS');
-    }
+    normalizeServerHost(host);
     if (port < 1 || port > 65535) {
       throw const FormatException('Некорректный SSH-порт');
     }
@@ -1900,6 +1939,40 @@ class SshTarget {
         !RegExp(r'^SHA256:[A-Za-z0-9+/]{43}$').hasMatch(fingerprint)) {
       throw const FormatException('Некорректный SHA256-отпечаток SSH');
     }
+  }
+}
+
+/// Releases an SSH password only after the server host key was accepted for
+/// this connection. dartssh2 verifies the host key before userauth; this gate
+/// keeps that ordering an explicit invariant and fails closed if the library
+/// or a future client ever asks for a password first.
+class SshPasswordGate {
+  bool _verified = false;
+  String _fingerprint = '';
+  bool get verified => _verified;
+  String get fingerprint => _fingerprint;
+
+  void accept(String fingerprint) {
+    if (!RegExp(r'^SHA256:[A-Za-z0-9+/]{43}$').hasMatch(fingerprint)) {
+      throw const FormatException('Некорректный ключ SSH сервера');
+    }
+    if (_verified && _fingerprint != fingerprint) {
+      throw const FormatException('Ключ SSH сервера изменился в рамках сессии');
+    }
+    _verified = true;
+    _fingerprint = fingerprint;
+  }
+
+  String release(String password) {
+    if (!_verified) {
+      throw StateError('SSH-пароль не отправлен: ключ сервера ещё не проверен');
+    }
+    return password;
+  }
+
+  void close() {
+    _verified = false;
+    _fingerprint = '';
   }
 }
 
@@ -1932,7 +2005,10 @@ class SshHostKeyStore {
         }
         keys = decoded;
       }
-      final endpoint = '[${target.host.toLowerCase()}]:${target.port}';
+      // Alias spellings (case, trailing root dot, bracketed IPv6) must share
+      // one pin entry; otherwise a re-spelled host could auto-trust a new key.
+      final host = canonicalServerHost(target.host);
+      final endpoint = '[$host]:${target.port}';
       final known = keys[endpoint];
       if (known != null && known != fingerprint) {
         throw const FormatException(
@@ -1957,7 +2033,9 @@ class SshHostKeyStore {
     } on FormatException catch (e) {
       if (e.message.startsWith('Ключ SSH') ||
           e.message.startsWith('Не удалось') ||
-          e.message.startsWith('Некорректный ключ')) {
+          e.message.startsWith('Некорректный ключ') ||
+          e.message.startsWith('Некорректный IP') ||
+          e.message.startsWith('Некорректный IPv6')) {
         rethrow;
       }
       throw const FormatException('Повреждено хранилище ключей SSH');
@@ -1967,10 +2045,53 @@ class SshHostKeyStore {
   }
 }
 
+typedef SocketConnector = Future<SSHSocket> Function(
+  String host,
+  int port,
+  Duration timeout,
+);
+
+/// Test seam for the SSH client. Production uses [SSHClient] with the same
+/// host-key and password callbacks that [VpsService.open] supplies.
+typedef SshClientFactory = SSHClient Function({
+  required SSHSocket socket,
+  required String username,
+  required List<SSHKeyPair> identities,
+  required String Function() onPasswordRequest,
+  required SSHHostkeyVerifyHandler onVerifyHostKey,
+});
+
+SSHClient _defaultSshClient({
+  required SSHSocket socket,
+  required String username,
+  required List<SSHKeyPair> identities,
+  required String Function() onPasswordRequest,
+  required SSHHostkeyVerifyHandler onVerifyHostKey,
+}) => SSHClient(
+  socket,
+  username: username,
+  identities: identities,
+  onPasswordRequest: onPasswordRequest,
+  onVerifyHostKey: onVerifyHostKey,
+  handshakeTimeout: const Duration(seconds: 15),
+  authTimeout: const Duration(seconds: 20),
+);
+
 class VpsService {
   final SshHostKeyStore hostKeys;
-  VpsService({SshHostKeyStore? hostKeys})
-    : hostKeys = hostKeys ?? SshHostKeyStore();
+  final ServerLookup? lookup;
+
+  /// Optional socket factory for deterministic address-order tests; production
+  /// uses the platform socket via [SSHSocket.connect].
+  final SocketConnector? socketConnector;
+  final SshClientFactory clientFactory;
+  VpsService({
+    SshHostKeyStore? hostKeys,
+    this.lookup,
+    this.socketConnector,
+    SshClientFactory? clientFactory,
+  }) : hostKeys = hostKeys ?? SshHostKeyStore(),
+       clientFactory = clientFactory ?? _defaultSshClient;
   SSHClient? _client;
   SshTarget? target;
   String verifiedFingerprint = '';
@@ -1982,20 +2103,18 @@ class VpsService {
   ) async {
     t.validate();
     await close();
+    final sshHost = normalizeServerHost(t.host);
     final identities = privateKey.trim().isEmpty
         ? <SSHKeyPair>[]
         : await compute(_decodeKey, (privateKey, passphrase));
-    final socket = await SSHSocket.connect(
-      t.host,
-      t.port,
-      timeout: const Duration(seconds: 12),
-    );
+    final socket = await _connect(sshHost, t.port);
     Object? hostKeyError;
-    final c = SSHClient(
-      socket,
+    final passwordGate = SshPasswordGate();
+    final c = clientFactory(
+      socket: socket,
       username: t.username,
       identities: identities,
-      onPasswordRequest: () => password,
+      onPasswordRequest: () => passwordGate.release(password),
       onVerifyHostKey: (type, fp) async {
         final fingerprint = utf8.decode(fp);
         if (t.fingerprint.isNotEmpty && fingerprint != t.fingerprint) {
@@ -2003,6 +2122,7 @@ class VpsService {
         }
         try {
           await hostKeys.verify(t, fingerprint);
+          passwordGate.accept(fingerprint);
           verifiedFingerprint = fingerprint;
           return true;
         } catch (e) {
@@ -2010,8 +2130,6 @@ class VpsService {
           return false;
         }
       },
-      handshakeTimeout: const Duration(seconds: 15),
-      authTimeout: const Duration(seconds: 20),
     );
     _client = c;
     try {
@@ -2022,6 +2140,35 @@ class VpsService {
       if (hostKeyError != null) throw hostKeyError!;
       rethrow;
     }
+  }
+
+  /// Tries interleaved A/AAAA answers through the platform resolver.
+  ///
+  /// DNS is bounded separately (8 s per family, queried in parallel); the 12 s
+  /// deadline here covers only socket attempts. Once a socket is established no
+  /// other address is tried: the host key is verified against [SshTarget] in
+  /// that session and a pin mismatch aborts before authentication.
+  Future<SSHSocket> _connect(String host, int port) async {
+    final candidates = await resolveServerHost(host, lookup: lookup);
+    final deadline = DateTime.now().add(const Duration(seconds: 12));
+    Object? lastError;
+    for (final candidate in candidates) {
+      final remaining = deadline.difference(DateTime.now());
+      if (remaining <= Duration.zero) break;
+      final perAttempt = candidates.length == 1
+          ? remaining
+          : (remaining < const Duration(seconds: 5)
+                ? remaining
+                : const Duration(seconds: 5));
+      try {
+        return await (socketConnector?.call(candidate.host, port, perAttempt) ??
+            SSHSocket.connect(candidate.host, port, timeout: perAttempt));
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    if (lastError != null) throw lastError;
+    throw const FormatException('Не удалось подключиться к серверу');
   }
 
   static List<SSHKeyPair> _decodeKey((String, String) input) =>
@@ -2116,26 +2263,27 @@ printf '\nX1O\n'; if test -e /etc/wireguard/xio0.conf; then printf 'existing ins
 }
 
 class NetworkChecks {
-  static Future<List<Map<String, dynamic>>> run(String host, int port) async {
-    if (host.isEmpty ||
-        port < 1 ||
-        port > 65535 ||
-        host.contains(RegExp(r'\s'))) {
+  static Future<List<Map<String, dynamic>>> run(
+    String host,
+    int port, {
+    ServerLookup? lookup,
+  }) async {
+    final normalized = normalizeServerHost(host);
+    if (port < 1 || port > 65535) {
       throw const FormatException('Проверьте адрес и порт');
     }
     final result = <Map<String, dynamic>>[];
     var timer = Stopwatch()..start();
+    var candidates = <ServerAddressCandidate>[];
     try {
-      final addresses = await InternetAddress.lookup(host)
-          .timeout(const Duration(seconds: 8));
+      candidates = await resolveServerHost(normalized, lookup: lookup);
+      final v4 = candidates.where((c) => c.family == 'IPv4').length;
+      final v6 = candidates.where((c) => c.family == 'IPv6').length;
       result.add({
         'test': 'DNS',
         'ok': true,
         'ms': timer.elapsedMilliseconds,
-        'detail': addresses
-            .map((a) => a.type == InternetAddressType.IPv6 ? 'IPv6' : 'IPv4')
-            .toSet()
-            .join(', '),
+        'detail': [if (v4 > 0) 'IPv4', if (v6 > 0) 'IPv6'].join(', '),
       });
     } catch (_) {
       result.add({
@@ -2145,15 +2293,20 @@ class NetworkChecks {
       });
     }
     final samples = <int>[];
+    final families = <String>{};
     for (var i = 0; i < 3; i++) {
       timer = Stopwatch()..start();
+      final candidate = candidates.isEmpty
+          ? null
+          : candidates[i % candidates.length];
       try {
         final s = await Socket.connect(
-          host,
+          candidate?.host ?? normalized,
           port,
           timeout: const Duration(seconds: 5),
         );
         samples.add(timer.elapsedMilliseconds);
+        if (candidate != null) families.add(candidate.family);
         s.destroy();
       } catch (_) {}
     }
@@ -2164,7 +2317,9 @@ class NetworkChecks {
           ? null
           : samples.reduce((a, b) => a + b) ~/ samples.length,
       'detail':
-          '${samples.length}/3 TCP-соединений. Это не ICMP RTT и не тест пропускной способности.',
+          '${samples.length}/3 TCP-соединений'
+          '${families.isEmpty ? '' : ' · ${families.join(', ')}'}.'
+          ' Это не ICMP RTT и не тест пропускной способности.',
     });
     return result;
   }

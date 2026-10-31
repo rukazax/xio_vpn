@@ -16,6 +16,7 @@ import 'package:flutter/services.dart';
 
 import 'core.dart';
 import 'managed_service.dart';
+import 'server_address.dart';
 import 'main.dart' show BrandMark, ImportDialog, AndroidControls, LabPage;
 import 'split_routing.dart';
 import 'vpn_sharing_ui.dart';
@@ -798,6 +799,7 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
   late String priority = widget.store.priorityProtocol;
   late int timeoutSeconds = widget.store.protocolTimeoutSeconds;
   late bool siteCheck = widget.store.siteCheckEnabled;
+  late bool reconnect = widget.store.autoReconnect;
   @override
   void dispose() {
     site.dispose();
@@ -825,15 +827,24 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         onTap: widget.onProtocols,
       ),
       const VpnSharingControl(),
-      const SizedBox(height: 16),
+      const SizedBox(height: 8),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: reconnect,
+        onChanged: (v) => setState(() => reconnect = v),
+        title: const LText('Переподключаться при потере связи'),
+        subtitle: const LText(
+          'Пока туннель активен, приложение проверяет связь и при потере поднимает соединение заново — выбранный сервер, затем другой протокол, затем другой профиль.',
+        ),
+      ),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
         value: siteCheck,
+        onChanged: (v) => setState(() => siteCheck = v),
         title: const LText('Проверять доступность сайта'),
         subtitle: const LText(
-          'Необязательно и по умолчанию выключено. Готовность туннеля определяется его собственными признаками: сессия поднялась, рукопожатие состоялось, шлюз ответил эхом.',
+          'По умолчанию выключено: соединение подтверждается самим туннелем — свежий handshake, счётчики и DNS-ответ через туннель.',
         ),
-        onChanged: (v) => setState(() => siteCheck = v),
       ),
       if (siteCheck) ...[
         TextField(
@@ -842,15 +853,11 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
           autocorrect: false,
           decoration: InputDecoration(
             labelText: tr(context, 'Сайт для проверки'),
-            hintText: 'https://www.google.com',
+            hintText: 'https://youtube.com',
           ),
         ),
-        const SizedBox(height: 8),
-        const LText(
-          'Сайт проверяется после подключения. При раздельном туннелировании запрос следует правилам приложения; успешный ответ сам по себе не подтверждает маршрут всего трафика.',
-        ),
+        const SizedBox(height: 16),
       ],
-      const SizedBox(height: 16),
       DropdownButtonFormField<String>(
         initialValue: priority,
         decoration: InputDecoration(
@@ -890,8 +897,10 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         },
       ),
       const SizedBox(height: 16),
-      const LText(
-        'Готовность туннеля проверяется его собственными признаками, без внешних сайтов. Сначала берётся приоритетный протокол; если он не поднял рабочий туннель — следующий из профиля пользователя.',
+      LText(
+        siteCheck
+            ? 'Сайт проверяется после подключения. При раздельном туннелировании запрос следует правилам приложения; успешный ответ сам по себе не подтверждает маршрут всего трафика. Сначала проверяется приоритетный протокол; при неудаче — следующий из профиля пользователя.'
+            : 'Проверка сайта выключена: соединение подтверждается самим туннелем (свежий handshake, счётчики, DNS-ответ через туннель). При неудаче проверяется следующий протокол из профиля пользователя.',
       ),
       const SizedBox(height: 20),
       FilledButton(
@@ -901,6 +910,7 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
             priority,
             timeoutSeconds: timeoutSeconds,
             siteCheck: siteCheck,
+            reconnect: reconnect,
           );
           if (context.mounted) Navigator.pop(context);
         }),
@@ -1220,6 +1230,9 @@ class ManagedAdminDialog extends StatefulWidget {
 class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   late final host = TextEditingController(text: widget.server?.host ?? '');
   late final port = TextEditingController(text: '${widget.server?.port ?? 22}');
+  late final publicHost = TextEditingController(
+    text: widget.server?.publicHost ?? '',
+  );
   late final username = TextEditingController(
     text: widget.server?.username ?? 'root',
   );
@@ -1273,6 +1286,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     ssh.close();
     for (final c in [
       host,
+      publicHost,
       port,
       username,
       password,
@@ -1312,6 +1326,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   }
 
   Future<void> login() async {
+    host.text = normalizeServerHost(host.text);
     await ssh.open(
       SshTarget(
         host.text.trim(),
@@ -1353,6 +1368,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
         server = ManagedServer(
           id: known['server']['id'],
           host: host.text.trim(),
+          publicHost: known['server']['host'],
           port: int.parse(port.text),
           username: username.text.trim(),
           country: known['server']['country'] ?? '',
@@ -1452,8 +1468,15 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                 TextField(
                   controller: host,
                   enabled: server == null,
+                  autocorrect: false,
+                  enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText: tr(context, 'IP / домен VPS'),
+                    hintText: 'vpn.example',
+                    helperText: tr(
+                      context,
+                      'IPv4, IPv6 или домен; SSH-порт — в отдельном поле.',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -1526,11 +1549,34 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                     'Установка всех доступных протоколов XIO на совместимый Linux VPS. Нужны x86_64, systemd, TUN и права администратора. Будут добавлены пакеты, сетевые службы и правила firewall. Создаётся отдельный профиль пользователя для подключения; чужие службы и общие журналы ОС не стираются.',
                   ),
                   const SizedBox(height: 16),
+                  TextField(
+                    controller: publicHost,
+                    enabled: !busy,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    decoration: InputDecoration(
+                      labelText: tr(
+                        context,
+                        'Адрес VPN (если отличается от SSH)',
+                      ),
+                      hintText: 'vpn.example',
+                      helperText: tr(
+                        context,
+                        'IPv4, IPv6 или домен самого VPS, не SSH-прокси. Пусто — адрес SSH.',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   FilledButton(
                     onPressed: busy
                         ? null
                         : () => perform(() async {
-                            server = await service.install(widget.store);
+                            server = await service.install(
+                              widget.store,
+                              publicHost: publicHost.text.trim().isEmpty
+                                  ? null
+                                  : publicHost.text,
+                            );
                             await create();
                           }),
                     child: const LText('Установить VPN'),

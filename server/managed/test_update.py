@@ -6,7 +6,9 @@ import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 import update
+NO_NETWORK = SimpleNamespace(delta_begin=lambda work: None, delta_commit=lambda plan: None, delta_rollback=lambda plan: None)
 
 
 def archive(extra=None):
@@ -60,7 +62,7 @@ class UpdateTests(unittest.TestCase):
                     raise RuntimeError('simulated start failure')
                 return type('Result', (), {'returncode': 0})()
             raw, digest = archive()
-            with patch.object(update, 'NETWORK_CONFIGS', ()), patch.object(update, 'DUAL_RECEIPT', root/'dual-receipt.json'), patch.object(update, 'WG_CONFIG', root/'wg.conf'), patch.object(update, 'STACK_CONFIG', root/'xray.json'), patch.object(update, 'LEGACY_UNITS', ()), patch.object(update, 'LIB', lib), patch.object(update, 'STATE', state), patch.object(update, 'RUNTIMES', {'rivet': str(runtime)}), patch.object(update, 'command', command), patch.object(update.os, 'geteuid', return_value=0):
+            with patch.object(update, 'ipv6_transaction_module', return_value=NO_NETWORK), patch.object(update, 'NETWORK_CONFIGS', ()), patch.object(update, 'DUAL_RECEIPT', root/'dual-receipt.json'), patch.object(update, 'WG_CONFIG', root/'wg.conf'), patch.object(update, 'STACK_CONFIG', root/'xray.json'), patch.object(update, 'LEGACY_UNITS', ()), patch.object(update, 'LIB', lib), patch.object(update, 'STATE', state), patch.object(update, 'RUNTIMES', {'rivet': str(runtime)}), patch.object(update, 'command', command), patch.object(update.os, 'geteuid', return_value=0):
                 if failure:
                     with self.assertRaises(RuntimeError):
                         update.update(raw, digest, 'server')

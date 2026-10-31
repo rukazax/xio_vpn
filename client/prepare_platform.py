@@ -2,9 +2,9 @@
 """Prepare isolated client source for Linux/Windows/iOS. Preparation is not a native build."""
 from pathlib import Path
 import argparse,importlib.util,shutil,subprocess,json
-r=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('platform',choices=['linux','windows','ios']);a=p.parse_args()
+r=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument('platform',choices=['linux','windows','ios']);p.add_argument('--stage',type=Path,help='Fresh owned staging root');a=p.parse_args()
 spec=importlib.util.spec_from_file_location('client_stage',r/'client/build.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
-m.STAGE=r/'.build-support'/('client-'+a.platform);m.APP=m.STAGE/'app';m.prepare();app=m.APP
+m.STAGE=a.stage.resolve() if a.stage else r/'.build-support'/('client-'+a.platform);m.APP=m.STAGE/'app';m.prepare();app=m.APP
 shutil.copytree(r/'app'/a.platform,app/a.platform,dirs_exist_ok=True,ignore=shutil.ignore_patterns('ephemeral','build','.symlinks'))
 if a.platform=='windows':
  shutil.copy2(r/'client/brand/client-windows.ico',app/'windows/runner/resources/app_icon.ico')

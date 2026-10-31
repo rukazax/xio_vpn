@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -18,7 +19,16 @@ void main() {
     messenger.setMockMethodCallHandler(native, (call) async => null);
     addTearDown(() => messenger.setMockMethodCallHandler(native, null));
 
+    // Keep the test hermetic: the platform default directory is not available on
+    // every host this suite runs on (macOS CI included), and a shared directory
+    // would make the result depend on the machine state.
+    final dir = await Directory.systemTemp.createTemp('xio-profile-removal-');
+    addTearDown(() async {
+      if (await dir.exists()) await dir.delete(recursive: true);
+    });
+
     final store = AppStore(nativeTunnelOverride: true);
+    store.directory = dir;
     try {
       await store.load();
       // Unique per run: the store is backed by the real profile directory.

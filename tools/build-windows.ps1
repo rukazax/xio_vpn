@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $XioRoot = Split-Path $PSScriptRoot -Parent
-$Version = '0.22.0'
+$Version = '0.23.1'
 Push-Location (Join-Path $XioRoot 'app')
 try {
     flutter pub get

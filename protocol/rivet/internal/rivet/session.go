@@ -117,13 +117,23 @@ func (s *Session) ServerAuth(gateway []byte, lookup func(string) (User, []byte, 
 	id := hex.EncodeToString(body[:16])
 	params := body[16 : len(body)-32]
 	proof := body[len(body)-32:]
+	// Reject a wrong carrier before the users file is read. This keeps
+	// unauthenticated parameter tampering from becoming a lookup/resource
+	// amplification path.
+	if !CheckParams(params, s.Carrier) {
+		return errors.New("rivet: authentication failed")
+	}
 	u, secret, lookupErr := lookup(id)
 	if lookupErr != nil {
 		secret = make([]byte, 32)
 	}
 	valid := hmac.Equal(proof, Proof(secret, gateway, nonce, exporter, params))
-	if lookupErr != nil || !valid || !CheckParams(params, s.Carrier) {
+	if lookupErr != nil || !valid || u.Revoked || u.ID != id {
 		return errors.New("rivet: authentication failed")
+	}
+	ip := net.ParseIP(u.IP).To4()
+	if ip == nil || ip[0] != 10 || ip[1] != 79 || ip[2] != 0 || ip[3] < 2 || ip[3] > 254 {
+		return ErrProtocol
 	}
 	sid := make([]byte, 16)
 	if _, e = rand.Read(sid); e != nil {
@@ -131,10 +141,6 @@ func (s *Session) ServerAuth(gateway []byte, lookup func(string) (User, []byte, 
 	}
 	if e = s.Wire.Send(AuthOK, sid); e != nil {
 		return e
-	}
-	ip := net.ParseIP(u.IP).To4()
-	if ip == nil {
-		return ErrProtocol
 	}
 	conf := EncodeConfig(ip, sid)
 	if e = s.Wire.Send(Configure, conf); e != nil {

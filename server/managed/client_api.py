@@ -158,7 +158,12 @@ def account_request(admin, envelope):
         assert previous['state'] == 'complete', 'Operation outcome unknown; owner reconciliation required'
         child = deployment['users'].get(uid, {})
         assert child.get('createdBy') == actor and not child.get('revoked'), 'Client access revoked'
-        return previous['response']
+        # Profiles are one-time material: they are delivered once and never
+        # replayed from durable state.
+        cached = dict(previous['response'])
+        cached.pop('configs', None)
+        cached['configsUnavailable'] = True
+        return cached
     admin.authority(deployment, actor, 'add', req)
     assert len(operations) < 10000, 'Operation history limit reached'
     operations[opid] = {'requestSha256': fingerprint, 'state': 'pending'}
@@ -171,7 +176,12 @@ def account_request(admin, envelope):
                            ['id', 'host', 'publicKeys', 'awg', 'rivet'] if key in result['server']},
                 'configs': result.get('configs', {})}
     deployment = admin.load()
-    deployment['clientApiOperations'][opid].update(state='complete', response=response)
+    # The completion receipt carries only routing metadata plus a delivery
+    # marker; private keys, IKE passwords and auth keys stay out of
+    # deployment.json and its backups entirely.
+    durable = {key: value for key, value in response.items() if key != 'configs'}
+    durable['configsDelivered'] = True
+    deployment['clientApiOperations'][opid].update(state='complete', response=durable)
     admin.save(deployment)
     return response
 

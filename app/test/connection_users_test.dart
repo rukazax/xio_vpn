@@ -112,7 +112,9 @@ void main() {
                   ++probes == 1 ? first.future : Future.value(true),
             )
             ..protocolTimeoutSeconds = 5
-            ..priorityProtocol = 'awg';
+            ..priorityProtocol = 'awg'
+            // The site probe is opt-in now; this test covers its fallback path.
+            ..siteCheckEnabled = true;
       store.profiles.addAll([
         const Profile(
           id: 'awg1',

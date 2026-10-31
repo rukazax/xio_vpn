@@ -230,7 +230,11 @@ func Status() string {
 // Android's DNS callback can outlive a request; a bounded, buffered result
 // releases the caller on timeout/cancellation without replacing its life context.
 func resolveTimed(ctx context.Context, c rivet.ClientConfig, p Protector, timeout time.Duration) (rivet.ClientConfig, error) {
-	if host, _, e := net.SplitHostPort(c.Endpoint); e == nil && net.ParseIP(host) != nil {
+	host, _, e := physical.ParseEndpoint(c.Endpoint)
+	if e != nil {
+		return c, e
+	}
+	if net.ParseIP(host) != nil {
 		return c, nil
 	}
 	wait, cancel := context.WithTimeout(ctx, timeout)
@@ -250,7 +254,7 @@ func resolveTimed(ctx context.Context, c rivet.ClientConfig, p Protector, timeou
 }
 
 func resolve(c rivet.ClientConfig, p Protector) (rivet.ClientConfig, error) {
-	host, port, e := net.SplitHostPort(c.Endpoint)
+	host, port, e := physical.ParseEndpoint(c.Endpoint)
 	if e != nil {
 		return c, e
 	}
@@ -284,7 +288,7 @@ func Validate(raw string) error {
 func dialPhysical(ctx context.Context, c rivet.ClientConfig, p Protector, timeout time.Duration) (*rivet.Session, error) {
 	attempt, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	host, port, err := net.SplitHostPort(c.Endpoint)
+	host, port, err := physical.ParseEndpoint(c.Endpoint)
 	if err != nil {
 		return nil, err
 	}

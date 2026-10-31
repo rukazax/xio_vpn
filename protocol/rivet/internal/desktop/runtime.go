@@ -14,6 +14,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"xio.local/rivet/internal/awgactivation"
+	"xio.local/rivet/internal/physical"
 	"xio.local/rivet/internal/xrayclient"
 	"xio.local/rivet/mobile"
 )
@@ -84,6 +86,8 @@ func (d *deviceIO) Close() error              { return d.dev.Close() }
 func (d *deviceIO) WritePacket(b []byte) bool { _, e := d.Write(b); return e == nil }
 
 type Runtime struct {
+	pendingMu        sync.Mutex
+	pendingAWG       *awgConnectOperation
 	mu               sync.Mutex
 	current          *session
 	sharingWanted    bool
@@ -96,7 +100,40 @@ type session struct {
 	network      *networkState
 }
 
-func (r *Runtime) Disconnect() { r.mu.Lock(); defer r.mu.Unlock(); r.stop() }
+type awgConnectOperation struct{ cancel context.CancelFunc }
+
+func (r *Runtime) Disconnect() {
+	// Connect owns mu while waiting for authentication. Cancel its bounded AWG
+	// operation BEFORE waiting for mu so DOWN can interrupt a pending handshake.
+	r.pendingMu.Lock()
+	if op := r.pendingAWG; op != nil {
+		op.cancel()
+	}
+	r.pendingMu.Unlock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.stop()
+}
+func (r *Runtime) withAWGContext(timeout int64, run func(context.Context) error) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Millisecond)
+	op := &awgConnectOperation{cancel: cancel}
+	r.pendingMu.Lock()
+	r.pendingAWG = op
+	r.pendingMu.Unlock()
+	defer func() {
+		r.pendingMu.Lock()
+		if r.pendingAWG == op {
+			r.pendingAWG = nil
+		}
+		r.pendingMu.Unlock()
+		cancel()
+	}()
+	err := run(ctx)
+	if err == nil {
+		err = ctx.Err()
+	}
+	return err
+}
 func (r *Runtime) stop() {
 	if s := r.current; s != nil {
 		if r.sharingWanted {
@@ -149,21 +186,8 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 		}
 	}()
 	started := time.Now()
-	// Resolve endpoints on the physical network before installing full-tunnel routes.
-	for i, ep := range p.Endpoints {
-		h, port, _ := net.SplitHostPort(ep)
-		resolved := n.Resolve(h)
-		if net.ParseIP(resolved) == nil {
-			return nil, errors.New("endpoint DNS failed")
-		}
-		ip, e := netip.ParseAddr(resolved)
-		if e != nil || !ip.Is4() {
-			return nil, errors.New("this desktop release requires an IPv4 endpoint")
-		}
-		p.Endpoints[i] = net.JoinHostPort(resolved, port)
-		if e = n.bypass(ip); e != nil {
-			return nil, e
-		}
+	if e = prepareEndpoints(&p, n); e != nil {
+		return nil, e
 	}
 	switch protocol {
 	case "rivet-h3", "rivet-s1":
@@ -206,6 +230,9 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 		if e = d.Up(); e != nil {
 			return nil, e
 		}
+		if e = r.withAWGContext(timeout, func(ctx context.Context) error { return activateAWGContext(ctx, d, p, timeout) }); e != nil {
+			return nil, e
+		}
 	case "xray":
 		x, e := xrayclient.Start(raw, n, time.Duration(timeout)*time.Millisecond)
 		if e != nil {
@@ -234,6 +261,76 @@ func (r *Runtime) Connect(id, protocol, raw string, timeout int64) (map[string]a
 	failed = false
 	return map[string]any{"connectMillis": time.Since(started).Milliseconds()}, nil
 }
+
+// Endpoints are resolved on the physical network before full-tunnel routes.
+func prepareEndpoints(p *Profile, n interface {
+	Resolve(string) string
+	bypass(netip.Addr) error
+}) error {
+	p.EndpointCandidates = make([][]string, len(p.Endpoints))
+	for i, ep := range p.Endpoints {
+		h, port, err := physical.ParseEndpoint(ep)
+		if err != nil {
+			return ErrProfile
+		}
+		resolved := n.Resolve(h)
+		addresses, e := physical.Addresses(resolved)
+		if e != nil {
+			return errors.New("endpoint DNS failed")
+		}
+		// Rivet/Xray race their protected numeric candidates; reserve bypass
+		// routes for ALL of them, not just the first family. AWG uses the first
+		// for its initial configuration and walks every candidate for proof.
+		p.Endpoints[i] = net.JoinHostPort(addresses[0], port)
+		candidates := make([]string, 0, len(addresses))
+		for _, address := range addresses {
+			if e = n.bypass(netip.MustParseAddr(address)); e != nil {
+				return e
+			}
+			candidates = append(candidates, net.JoinHostPort(address, port))
+		}
+		p.EndpointCandidates[i] = candidates
+	}
+	return nil
+}
+
+// awgPeerKey returns the single peer public key of generated IPC. Multiple
+// peers keep the legacy path because one activation run proves one peer.
+func awgPeerKey(ipc string) (string, bool) {
+	key := ""
+	for _, line := range strings.Split(ipc, "\n") {
+		if !strings.HasPrefix(line, "public_key=") {
+			continue
+		}
+		if key != "" {
+			return "", false
+		}
+		key = strings.TrimPrefix(line, "public_key=")
+	}
+	if key == "" {
+		return "", false
+	}
+	return key, true
+}
+
+// activateAWG proves an authenticated initial handshake from the exact packet
+// source of one numeric candidate. Only the peer endpoint changes between
+// attempts; the device, TUN, keypairs, counters, timers and bind are kept.
+func activateAWGContext(ctx context.Context, d *awgdev.Device, p Profile, timeout int64) error {
+	if len(p.Endpoints) != 1 || len(p.EndpointCandidates) != 1 || len(p.EndpointCandidates[0]) == 0 {
+		return ErrProfile
+	}
+	key, ok := awgPeerKey(p.IPC)
+	if !ok {
+		return ErrProfile
+	}
+	public, candidates, err := awgactivation.Validate(key, strings.Join(p.EndpointCandidates[0], ","), timeout)
+	if err != nil {
+		return ErrProfile
+	}
+	return awgactivation.Run(ctx, d, public, candidates)
+}
+
 func resolvedIPC(raw, ep string) string {
 	var out strings.Builder
 	for _, l := range strings.Split(raw, "\n") {

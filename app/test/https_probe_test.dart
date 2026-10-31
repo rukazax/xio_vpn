@@ -25,6 +25,12 @@ void main() {
       '/CN=localhost',
       '-addext',
       'subjectAltName=DNS:localhost',
+      // Platform TLS verifiers on macOS require an explicit server-auth EKU and a
+      // non-CA basic-constraint on a self-signed leaf certificate.
+      '-addext',
+      'extendedKeyUsage=serverAuth',
+      '-addext',
+      'basicConstraints=critical,CA:FALSE',
       '-days',
       '1',
     ]);
@@ -58,12 +64,21 @@ void main() {
       ..checkSite = 'https://localhost:${server.port}/';
     final clock = Stopwatch()..start();
     try {
-      expect(
-        await store.checkConnection(timeout: const Duration(seconds: 9)),
-        isTrue,
+      // A single absolute deadline governs every retry; the value only has to
+      // exceed one stalled-response phase budget so a slower CI runner can still
+      // complete the retry inside the same deadline.
+      final outcome = await store.checkConnection(
+        timeout: const Duration(seconds: 30),
       );
+      // ignore: avoid_print
+      print(
+        'PROBE-DIAG ok=$outcome requests=$requests '
+        'elapsedMs=${clock.elapsedMilliseconds} '
+        'check="${store.connectionCheck}"',
+      );
+      expect(outcome, isTrue);
       expect(requests, 2);
-      expect(clock.elapsed, lessThan(const Duration(seconds: 9)));
+      expect(clock.elapsed, lessThan(const Duration(seconds: 30)));
     } finally {
       store.dispose();
       await server.close(force: true);

@@ -1,5 +1,6 @@
 import 'account_access.dart';
 import 'client_policy.dart';
+import 'server_address.dart';
 
 import 'dart:convert';
 
@@ -13,7 +14,8 @@ String managedDnsServers(Map<dynamic, dynamic> server) {
 }
 
 class ManagedServer {
-  final String id, host, username;
+  /// [host] is the SSH transport; [publicHost] is the VPN service address.
+  final String id, host, publicHost, username;
   String name, country, hostKey;
   final String actorId;
   bool get delegated => actorId.isNotEmpty;
@@ -22,27 +24,39 @@ class ManagedServer {
   final int port;
   ManagedServer({
     required this.id,
-    required this.host,
+    required String host,
+    String? publicHost,
     this.port = 22,
     this.username = 'root',
     this.name = '',
     this.country = '',
     this.hostKey = '',
     this.actorId = '',
-  });
-  factory ManagedServer.fromJson(Map<String, dynamic> j) => ManagedServer(
-    id: j['id'],
-    host: j['host'],
-    port: j['port'] ?? 22,
-    username: j['username'] ?? 'root',
-    name: j['name'] ?? '',
-    country: j['country'] ?? '',
-    hostKey: j['hostKey'] ?? '',
-    actorId: j['actorId'] ?? '',
-  );
+  }) : host = normalizeServerHost(host),
+       publicHost = normalizeServerHost(
+         publicHost == null || publicHost.trim().isEmpty ? host : publicHost,
+       );
+  factory ManagedServer.fromJson(Map<String, dynamic> j) {
+    final host = j['host'], publicHost = j['publicHost'];
+    if (host is! String || (publicHost != null && publicHost is! String)) {
+      throw const FormatException('Некорректный адрес сервера');
+    }
+    return ManagedServer(
+      id: j['id'],
+      host: host,
+      publicHost: publicHost,
+      port: j['port'] ?? 22,
+      username: j['username'] ?? 'root',
+      name: j['name'] ?? '',
+      country: j['country'] ?? '',
+      hostKey: j['hostKey'] ?? '',
+      actorId: j['actorId'] ?? '',
+    );
+  }
   Map<String, dynamic> toJson() => {
     'id': id,
     'host': host,
+    'publicHost': publicHost,
     'port': port,
     'username': username,
     'name': name,

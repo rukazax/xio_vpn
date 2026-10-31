@@ -15,11 +15,13 @@ source = root / 'vendor/amneziawg/go'
 go = Path(os.environ.get('XIO_GO_ROOT', root / '.build-support/go'))
 ndk = Path(os.environ.get('ANDROID_NDK_HOME', Path.home() / 'Android/Sdk/ndk/30.0.16248370'))
 version = (go / 'VERSION').read_text().splitlines()[0]
-if version != 'go1.27.2':
-    raise SystemExit('This recipe pins Go 1.27.2; review runtime changes before changing the pin')
+if version != 'go1.27.3':
+    raise SystemExit('This recipe pins Go 1.27.3 (GO-2026-6809 fixed); review runtime changes before changing the pin')
 if 'Pkg.Revision = 30.0.16248370' not in (ndk / 'source.properties').read_text():
     raise SystemExit('This recipe pins Android NDK 30.0.16248370')
-patched = root / '.build-support/go-awg'
+patched = root / '.build-support/go-awg-1.27.3'
+if (patched / '.xio-patched').exists() and (patched / 'VERSION').read_text().splitlines()[0] != version:
+    raise SystemExit('Private Go cache version differs; old toolchain preserved')
 if not (patched / '.xio-patched').exists():
     if patched.exists():
         raise SystemExit('Incomplete private Go copy; inspect/remove .build-support/go-awg before retrying')

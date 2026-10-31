@@ -115,7 +115,7 @@ func endpoint(c Config) (map[string]any, string, error) {
 	s, _ := a[0].(map[string]any)
 	host, _ := s["address"].(string)
 	port, ok := s["port"].(float64)
-	if host == "" || strings.ContainsAny(host, "\x00\r\n/") || !ok || port < 1 || port > 65535 || port != float64(int(port)) {
+	if !physical.ValidHost(host) || !ok || port < 1 || port > 65535 || port != float64(int(port)) {
 		return nil, "", ErrConfig
 	}
 	return s, net.JoinHostPort(host, strconv.Itoa(int(port))), nil
@@ -160,6 +160,19 @@ func init() {
 
 type protectedDialer struct{}
 
+// endpointProtector is the optional refinement of Protector. address is the
+// numeric dial target, so the platform can pin the endpoint's own route.
+type endpointProtector interface {
+	ProtectAddr(fd int64, address string) bool
+}
+
+func protectSocket(p Protector, fd int64, address string) bool {
+	if ep, ok := p.(endpointProtector); ok {
+		return ep.ProtectAddr(fd, address)
+	}
+	return p.Protect(fd)
+}
+
 func (protectedDialer) DestIpAddress() net.IP { return nil }
 func (protectedDialer) Dial(ctx context.Context, _ xnet.Address, dest xnet.Destination, _ *internet.SocketConfig) (net.Conn, error) {
 	current.RLock()
@@ -168,9 +181,9 @@ func (protectedDialer) Dial(ctx context.Context, _ xnet.Address, dest xnet.Desti
 	if s == nil || s.closed.Load() || dest.NetAddr() != s.endpoint {
 		return nil, ErrProtect
 	}
-	d := net.Dialer{Timeout: 10 * time.Second, Control: func(_, _ string, c syscall.RawConn) error {
+	d := net.Dialer{Timeout: 10 * time.Second, Control: func(_, address string, c syscall.RawConn) error {
 		ok := false
-		e := c.Control(func(fd uintptr) { ok = s.p != nil && s.p.Protect(int64(fd)) })
+		e := c.Control(func(fd uintptr) { ok = s.p != nil && protectSocket(s.p, int64(fd), address) })
 		if e != nil {
 			return e
 		}

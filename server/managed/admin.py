@@ -12,6 +12,7 @@ else:
   def remove(self,d):assert not Path('/etc/xio-stack/receipt.json').exists(),'Stack removal module missing; update installer'
  stack=LegacyStack()
 ROOT=Path('/etc/xio-managed'); LIB=Path('/usr/local/lib/xio-managed'); OWNER='xio-managed-v1'
+RECIPE=25
 
 def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True)
@@ -83,6 +84,34 @@ def purge_packages(d):
      run('rpm','-e',package);removed.append(package);pending.remove(package);progress=True
    if not progress:break
  return {'packagesRemoved':removed,'packagesRetained':sorted(owned-set(removed))}
+UNITS_HARDENED=['xio-managed-awg','xio-managed-stats','xio-rivet-gateway','xio-rivet-entry','xio-stack','xio-openvpn-udp','xio-openvpn-tcp','xio-cloak','xio-ikev2','xio-client-api','xio-client-api-backend']
+def sandbox_supported():
+ # systemd implements ProtectSystem= by remounting /usr,/boot,/etc read-only.
+ # Containers whose root is a shared LVM/ext4 mount reject that remount even for
+ # root, so the unit dies with 226/NAMESPACE. Probe it instead of guessing by
+ # provider: the answer is a kernel/mount fact, identical on any host.
+ probe=Path('/var/tmp/xio-sandbox-probe')
+ try:
+  probe.mkdir(mode=0o700,exist_ok=True)
+  if subprocess.run(['mount','--bind','/usr',str(probe)],capture_output=True).returncode:return False
+  try:return subprocess.run(['mount','-o','remount,ro,bind',str(probe)],capture_output=True).returncode==0
+  finally:subprocess.run(['umount',str(probe)],capture_output=True)
+ finally:shutil.rmtree(probe,ignore_errors=True)
+def sandbox_prepare(d):
+ supported=sandbox_supported()
+ d['sandboxMode']='strict' if supported else 'compat'
+ for unit in UNITS_HARDENED:
+  dropin=Path('/etc/systemd/system/'+unit+'.service.d')
+  target=dropin/'50-xio-sandbox.conf'
+  if supported:
+   target.unlink(missing_ok=True)
+   if dropin.is_dir() and not any(dropin.iterdir()):dropin.rmdir()
+  else:
+   # Keep PrivateTmp/NoNewPrivileges/CapabilityBoundingSet: only the
+   # read-only remount is impossible here, so only ProtectSystem is dropped.
+   dropin.mkdir(parents=True,exist_ok=True);write(target,'[Service]\nProtectSystem=no\n')
+ save(d)
+ return d['sandboxMode']
 def firewall_prepare(d):
  active=lambda unit:subprocess.run(['systemctl','is-active','--quiet',unit],capture_output=True).returncode==0
  if active('firewalld'):
@@ -105,14 +134,14 @@ def firewall_managed(d,remove=False):
     args=item['args']
     if subprocess.run(['firewall-cmd',*args,'--query-'+item['option']+'='+item['value']],capture_output=True).returncode==0:run('firewall-cmd',*args,'--remove-'+item['option']+'='+item['value'])
   else:
-   items=[('trusted','interface',i) for i in ['xio0','xioawg0']]+[(f['zone'],'port',str(p)+'/udp') for p in [51820,51821]]
+   items=[('trusted','interface',i) for i in (['xioawg0'] if d.get('restrictedNetwork') else ['xio0','xioawg0'])]+[(f['zone'],'port',str(p)+'/udp') for p in ([51821] if d.get('restrictedNetwork') else [51820,51821])]
    items += [(f['zone'],'rich-rule','rule family="ipv4" source address="'+n+'" masquerade') for n in ['10.77.0.0/24','10.78.0.0/24']]
    if stack.network.dualstack().ipv6_ready():
     for item in f['added'][:]:
      if item['option']=='rich-rule' and 'family="ipv6"' in item['value'] and item['value'].endswith(' drop'):
       if subprocess.run(['firewall-cmd',*item['args'],'--query-rich-rule='+item['value']],capture_output=True).returncode==0:run('firewall-cmd',*item['args'],'--remove-rich-rule='+item['value'])
       f['added'].remove(item);save(d)
-    items += [(f['zone'],'rich-rule','rule family="ipv6" source address="fd78:1::/64" masquerade')]
+    items += [(f['zone'],'rich-rule','rule family="ipv6" source address="'+n+'" masquerade') for n in ['fd77:1::/64','fd78:1::/64']]
    else:
     items += [('trusted','rich-rule','rule family="ipv6" source address="'+n+'" drop') for n in ['fd77:1::/64','fd78:1::/64']]
    for zone,option,value in items:
@@ -135,7 +164,7 @@ def firewall_managed(d,remove=False):
    if not f.get('profileOwned'):
     assert not profile.exists(),'Existing XIO UFW application profile'
     f['profileOwned']=True;save(d)
-   write(profile,'[XIO VPN]\ntitle=XIO VPN\ndescription=XIO managed VPN ports\nports=51820,51821/udp\n')
+   write(profile,'[XIO VPN]\ntitle=XIO VPN\ndescription=XIO managed VPN ports\nports='+('51821' if d.get('restrictedNetwork') else '51820,51821')+'/udp\n')
    rules=[['allow','in','on',d['outbound'],'to','any','app','XIO VPN']]
    rules += [['route','allow','in','on',i,'out','on',d['outbound'],'from',n] for i,n in [('xio0','10.77.0.0/24'),('xioawg0','10.78.0.0/24')]]
    existing=[]
@@ -150,11 +179,12 @@ def key():
  private=base64.b64encode(secrets.token_bytes(32)).decode();return private,run('wg','pubkey',input=private+'\n')
 def rules(d,remove=False):
  if firewall_managed(d,remove):return
- for proto,iface,subnet in [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]:
+ outbound6=stack.network.dualstack().outbounds().get('ipv6',d['outbound'])
+ for proto,iface,subnet in ([('awg','xioawg0','10.78.0.0/24')] if d.get('restrictedNetwork') else [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]):
   comment=OWNER+'-'+proto
   for cmd,table,rule in [
    ('iptables',[],['INPUT','-i',d['outbound'],'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
-   ('ip6tables',[],['INPUT','-i',d['outbound'],'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
+   ('ip6tables',[],['INPUT','-i',outbound6,'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
    ('iptables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','ACCEPT']),
    ('iptables',[],['FORWARD','-o',iface,'-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',comment,'-j','ACCEPT']),
    ('iptables',['-t','nat'],['POSTROUTING','-s',subnet,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','MASQUERADE']),
@@ -171,15 +201,21 @@ def awg_uapi(lines):
    if not part:raise RuntimeError('AWG closed UAPI')
    data+=part
   if data!=b'errno=0\n\n':raise RuntimeError('AWG configuration rejected')
+def wireguard_enabled(d):
+ # Restricted installs publish no WireGuard peer and must not run the interface
+ # or open 51820 at all; AWG stays the only UDP tunnel.
+ return not d.get('restrictedNetwork')
 def render(d):
+ if not wireguard_enabled(d):return
  lines=['[Interface]','PrivateKey = '+(ROOT/'wg.key').read_text().strip(),'Address = 10.77.0.1/24, fd77:1::1/64','ListenPort = 51820','MTU = 1280']
  for user in d['users'].values():
   if not user.get('revoked') and not d.get('restrictedNetwork'):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
  write('/etc/wireguard/xio0.conf','\n'.join(lines)+'\n')
 def apply(d):
  render(d)
- # No user-controlled command interpolation; stdin is wg config without addresses.
- text=run('wg-quick','strip','xio0');run('wg','syncconf','xio0','/dev/stdin',input=text+'\n')
+ if wireguard_enabled(d):
+  # No user-controlled command interpolation; stdin is wg config without addresses.
+  text=run('wg-quick','strip','xio0');run('wg','syncconf','xio0','/dev/stdin',input=text+'\n')
  lines=[]
  for u in d['users'].values():
   if u.get('revoked'):
@@ -279,7 +315,7 @@ def rivet_install(d):
    if 'cert' in request:break
  except Exception:pass
  run('python3',str(base/'setup.py'),'install',input=json.dumps(request))
- d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=24;save(d)
+ d['rivet']=json.loads(Path('/etc/xio-rivet/public.json').read_text());packages_install(d);stack.install(d);d['recipeVersion']=RECIPE;save(d)
  if changed:
   dest=Path('/usr/local/bin/xio-rivet.new');shutil.copyfile(LIB/'rivet',dest);dest.chmod(0o755);os.replace(dest,Path('/usr/local/bin/xio-rivet'))
   if shutil.which('restorecon'):run('restorecon','/usr/local/bin/xio-rivet')
@@ -294,7 +330,8 @@ def stats(d):
  mesh_stats=stack.mesh.stats(d) if d.get('mesh') else {}
  current=counters();boot=Path('/proc/sys/kernel/random/boot_id').read_text().strip()
  # Generation also changes on service restart even within the same boot.
- generations={p:boot+':'+run('systemctl','show',unit,'--property=InvocationID','--value') for p,unit in [('wireguard','wg-quick@xio0'),('awg','xio-managed-awg')]}
+ pairs=[('awg','xio-managed-awg')] if d.get('restrictedNetwork') else [('wireguard','wg-quick@xio0'),('awg','xio-managed-awg')]
+ generations={p:boot+':'+run('systemctl','show',unit,'--property=InvocationID','--value') for p,unit in pairs}
  for uid,u in d['users'].items():
   u.setdefault('stats',{})
   for p,pub in u['keys'].items():
@@ -329,9 +366,23 @@ def stats(d):
 def public(d):
  protocols=d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else [])
  if d.get('restrictedNetwork'):protocols=[p for p in protocols if p in ['xray','rivet-s1','cloak','awg','rivet-h3']]
- return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=stack.network.dualstack().ipv6_ready())} if d.get('rivet') else {})}
+ return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':stack.network.dualstack().capabilities(),'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=stack.network.dualstack().ipv6_ready())} if d.get('rivet') else {})}
+
+def valid_host(host):
+ if not isinstance(host,str) or not host or host!=host.strip() or len(host)>253:return False
+ if any(c in host for c in '/\\\r\n\x00[]%@'):return False
+ try:
+  ipaddress.ip_address(host);return True
+ except ValueError:pass
+ if ':' in host:return False
+ bare=host[:-1] if host.endswith('.') else host
+ if not bare or len(bare)>253 or re.fullmatch(r'[0-9.]+',host):return False
+ for label in bare.split('.'):
+  if not 1<=len(label)<=63 or not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?',label):return False
+ return True
 
 def init(req):
+ network=stack.network.dualstack().preflight()
  if (ROOT/'deployment.json').exists():
   existing=load()
   if existing.get('phase')!='ready':raise RuntimeError('Incomplete installation; remove before retry')
@@ -347,22 +398,22 @@ def init(req):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['10.77.0.0/24','10.78.0.0/24']),'Subnet conflict'
  for route in json.loads(run('ip','-j','-6','route')):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['fd77:1::/64','fd78:1::/64']),'IPv6 subnet conflict'
- host=req['host'];assert re.fullmatch(r'[a-zA-Z0-9.:-]{1,253}',host)
+ host=req['host'];assert valid_host(host),'Invalid server host'
  installed='wireguard-tools' in installed_packages(platform['manager'])
- d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':stack.network.dualstack().outbound(),'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':24,'restrictedNetwork':True,'phase':'installing','country':country()}
+ d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':stack.network.dualstack().outbound(),'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':RECIPE,'restrictedNetwork':True,'phase':'installing','country':country()}
+ d['networkCapabilities']=network
  assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',d['outbound']);save(d)
- packages_install(d);firewall_prepare(d)
+ packages_install(d);firewall_prepare(d);sandbox_prepare(d)
  binary=Path('/usr/local/bin/xio-amneziawg-go');assert not binary.exists(),'Existing XIO binary path'
  d['binaryOwned']=True;save(d);shutil.copyfile(LIB/'amneziawg-go',binary);binary.chmod(0o700)
  if shutil.which('restorecon'):run('restorecon',str(binary))
  for p in d['protocols']:
   private,pub=key();write(ROOT/('wg.key' if p=='wireguard' else 'awg.key'),private+'\n');d['publicKeys'][p]=pub
  save(d);render(d);write('/etc/sysctl.d/91-xio-managed.conf','net.ipv4.ip_forward=1\n');run('sysctl','-q','-w','net.ipv4.ip_forward=1')
+ depends='' if d.get('restrictedNetwork') else 'After=network-online.target wg-quick@xio0.service\nRequires=wg-quick@xio0.service\n'
  unit='''[Unit]
 Description=xio managed AmneziaWG
-After=network-online.target wg-quick@xio0.service
-Requires=wg-quick@xio0.service
-[Service]
+'''+depends+'''[Service]
 Type=simple
 UMask=0077
 Environment=WG_PROCESS_FOREGROUND=1
@@ -378,7 +429,9 @@ WantedBy=multi-user.target
  write('/etc/systemd/system/xio-managed-awg.service',unit)
  write('/etc/systemd/system/xio-managed-stats.service','[Unit]\nDescription=xio counters\nAfter=xio-managed-awg.service\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/admin.py sample\n')
  write('/etc/systemd/system/xio-managed-stats.timer','[Unit]\nDescription=xio periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
- run('systemctl','daemon-reload');run('systemctl','enable','--now','wg-quick@xio0');run('systemctl','enable','--now','xio-managed-awg');run('systemctl','enable','--now','xio-managed-stats.timer');d=load();d['phase']='ready';save(d);rivet_install(d);stack.network.dualstack().apply();return {'server':public(d),'existing':False}
+ run('systemctl','daemon-reload')
+ if wireguard_enabled(d):run('systemctl','enable','--now','wg-quick@xio0')
+ run('systemctl','enable','--now','xio-managed-awg');run('systemctl','enable','--now','xio-managed-stats.timer');d=load();rivet_install(d);stack.network.dualstack().apply();d['phase']='ready';save(d);return {'server':public(d),'existing':False}
 def remove(d):
  stack.network.dualstack().remove()
  if (ROOT/'client-api').exists():

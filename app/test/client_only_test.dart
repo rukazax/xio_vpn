@@ -53,8 +53,8 @@ class SwitchingStore extends AppStore {
   }
 
   @override
-  Future<void> connect() async {
-    calls.add('connect:$selectedId');
+  Future<void> connect({bool resuming = false}) async {
+    calls.add('connect:$selectedId${resuming ? ':resume' : ''}');
   }
 }
 
@@ -86,12 +86,49 @@ void main() {
     expect(store.profiles, isEmpty);
     expect(store.servers, isEmpty);
   });
-  test('selected profile is not silently replaced with priority protocol', () {
+  test('selected profile stays first; fallbacks follow it', () {
     final store = SwitchingStore();
     store.priorityProtocol = 'awg';
-    expect(store.connectionCandidates(store.selected).map((p) => p.id), [
-      'xr1',
+    final ids = store
+        .connectionCandidates(store.selected)
+        .map((p) => p.id)
+        .toList();
+    // The explicitly selected profile is never replaced by the priority
+    // protocol; other imported profiles only follow it as fallbacks.
+    expect(ids.first, 'xr1');
+    expect(ids, contains('awg2'));
+  });
+  test('same-endpoint variant goes before another endpoint profile', () {
+    final store = SwitchingStore();
+    store.profiles.addAll(const [
+      Profile(
+        id: 'variant',
+        name: 'Тот же сервер, другой протокол',
+        protocol: 'rivet-h3',
+        endpoint: 'one.example:443',
+      ),
+      Profile(
+        id: 'far',
+        name: 'Другой сервер',
+        protocol: 'awg',
+        endpoint: 'three.example:443',
+      ),
     ]);
+    final ids = store
+        .connectionCandidates(store.selected)
+        .map((p) => p.id)
+        .toList();
+    expect(ids.first, 'xr1');
+    expect(
+      ids.indexOf('variant'),
+      lessThan(ids.indexOf('awg2')),
+      reason: 'вариант того же endpoint пробуется раньше чужих профилей',
+    );
+    expect(
+      ids.indexOf('awg2'),
+      lessThan(ids.indexOf('far')),
+      reason: 'остальные профили идут последними',
+    );
   });
   for (final fail in [false, true]) {
     testWidgets('switch waits for stop and refuses failed stop: $fail', (

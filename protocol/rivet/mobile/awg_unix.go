@@ -12,61 +12,51 @@ import (
 	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
 	"golang.org/x/sys/unix"
 	"runtime/debug"
-	"sync"
 )
 
-var awgHandles = struct {
-	sync.Mutex
-	next    int64
-	devices map[int64]*device.Device
-}{devices: map[int64]*device.Device{}}
-
-// AwgTurnOn takes ownership of tunFD, including failure paths.
+// AwgTurnOn owns tunFD on every path. Creation is reserved independently of
+// the registry mutex; IPC, Up and native close can never block cancellation.
 func AwgTurnOn(name string, tunFD int64, settings string, p Protector) int64 {
 	if tunFD < 0 || tunFD > 2147483647 {
 		return -1
 	}
-	awgHandles.Lock()
-	defer awgHandles.Unlock()
-	if p == nil || len(awgHandles.devices) > 0 || len(settings) > 200000 {
+	if p == nil || len(settings) > 200000 || !awgReserveCreation() {
 		unix.Close(int(tunFD))
 		return -1
 	}
 	t, _, err := tun.CreateUnmonitoredTUNFromFD(int(tunFD))
 	if err != nil {
 		unix.Close(int(tunFD))
+		awgAbortCreation()
 		return -1
 	}
 	logger := &device.Logger{Verbosef: func(string, ...any) {}, Errorf: func(string, ...any) {}}
 	d := device.NewDevice(t, &protectedAwgBind{Bind: conn.NewStdNetBind(), p: p}, logger)
 	if d.IpcSet(settings) != nil {
-		d.Close()
+		awgCloseDevice(d)
+		awgAbortCreation()
 		return -1
 	}
 	d.DisableSomeRoamingForBrokenMobileSemantics()
 	if d.Up() != nil {
-		d.Close()
+		awgCloseDevice(d)
+		awgAbortCreation()
 		return -1
 	}
-	awgHandles.next++
-	if awgHandles.next > 2147483647 {
-		awgHandles.next = 1
+	handle := awgPublishDevice(d)
+	if handle < 0 {
+		awgCloseDevice(d)
+		awgAbortCreation()
 	}
-	awgHandles.devices[awgHandles.next] = d
-	return awgHandles.next
+	return handle
 }
-func AwgTurnOff(handle int64) {
-	awgHandles.Lock()
-	defer awgHandles.Unlock()
-	if d := awgHandles.devices[handle]; d != nil {
-		delete(awgHandles.devices, handle)
-		d.Close()
-	}
-}
+
+// AwgTurnOff joins native close and the pending operation before capacity is
+// released. Concurrent/stale calls cannot release a newer device's reservation.
+func AwgTurnOff(handle int64) { awgTurnOff(handle) }
+
 func AwgGetConfig(handle int64) string {
-	awgHandles.Lock()
-	defer awgHandles.Unlock()
-	d := awgHandles.devices[handle]
+	d := awgDevice(handle)
 	if d == nil {
 		return ""
 	}
@@ -76,12 +66,11 @@ func AwgGetConfig(handle int64) string {
 	}
 	return value
 }
+
 func AwgGetSocketV4(handle int64) int64 { return awgSocket(handle, false) }
 func AwgGetSocketV6(handle int64) int64 { return awgSocket(handle, true) }
 func awgSocket(handle int64, v6 bool) int64 {
-	awgHandles.Lock()
-	defer awgHandles.Unlock()
-	d := awgHandles.devices[handle]
+	d := awgDevice(handle)
 	if d == nil {
 		return -1
 	}

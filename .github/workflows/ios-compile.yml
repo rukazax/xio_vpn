@@ -1,0 +1,92 @@
+name: iOS compile and Simulator smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, xio-ios-ci]
+    paths:
+      - 'app/**'
+      - 'protocol/rivet/**'
+      - 'vendor/**'
+      - 'tooling/cross-platform/check-ios.sh'
+      - 'tools/restore-ios-ci-assets.py'
+      - 'tools/test_restore_ios_ci_assets.py'
+      - '.github/workflows/ios-compile.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-compile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-compile:
+    runs-on: macos-15
+    timeout-minutes: 50
+    env:
+      CI: 'true'
+      FLUTTER_SUPPRESS_ANALYTICS: 'true'
+      GOTOOLCHAIN: local
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: protocol/rivet/go.mod
+          cache-dependency-path: protocol/rivet/go.sum
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - name: Resource integrity tests
+        run: python3 -m unittest discover -s tools -p test_restore_ios_ci_assets.py
+      - name: Restore the hash-verified release resource
+        run: python3 tools/restore-ios-ci-assets.py
+      - name: Pure Go Apple adapter tests
+        working-directory: protocol/rivet
+        run: go test ./apple
+      - name: OpenSSL for TLS test fixtures
+        run: |
+          brew list openssl@3 >/dev/null 2>&1 || brew install openssl@3
+          echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
+      - name: Dart dependencies
+        working-directory: app
+        run: flutter pub get --enforce-lockfile
+      - name: Dart static checks
+        working-directory: app
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Flutter unit tests
+        working-directory: app
+        run: flutter test
+      - name: Compile unsigned app and VPN extension; boot Simulator
+        run: |
+          mkdir -p .build-support/ios-ci
+          bash tooling/cross-platform/check-ios.sh 2>&1 | tee .build-support/ios-ci/build.log
+      - name: Preserve small verification evidence only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: xio-ios-evidence-${{ github.sha }}
+          path: .build-support/ios-ci/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 1
+          compression-level: 9
+      - name: Explicit acceptance boundaries
+        if: always()
+        run: |
+          {
+            echo '## iOS verification boundaries'
+            echo 'Unsigned compile is not an installable IPA or a signing/provisioning check.'
+            echo 'Simulator boot/app screenshot is not a physical-iPhone VPN test.'
+            if test -f .build-support/ios-ci/result.json; then
+              echo '```json'
+              cat .build-support/ios-ci/result.json
+              echo '```'
+            else
+              echo 'Native checks NOT RUN: inspect the earlier failing step.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

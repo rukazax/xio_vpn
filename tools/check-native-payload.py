@@ -24,9 +24,10 @@ def allocated(raw):
 r = Path(__file__).resolve().parent.parent
 p = argparse.ArgumentParser()
 p.add_argument('apk', type=Path)
+p.add_argument('--aar', type=Path, default=r/'app/android/app/libs/rivet.aar', help='Explicit native reference for an isolated candidate build')
 a = p.parse_args()
 records = []
-with zipfile.ZipFile(a.apk) as apk, zipfile.ZipFile(r/'app/android/app/libs/rivet.aar') as aar:
+with zipfile.ZipFile(a.apk) as apk, zipfile.ZipFile(a.aar) as aar:
     for name in apk.namelist():
         if not name.endswith(('/libgojni.so', '/libxio_openvpn.so')):
             continue
@@ -35,4 +36,4 @@ with zipfile.ZipFile(a.apk) as apk, zipfile.ZipFile(r/'app/android/app/libs/rive
         assert allocated(original) == allocated(apk.read(name)), 'Stale or mismatched native payload: '+name
         records.append({'abi': abi, 'library': library, 'allocatedSectionsMatch': True})
 assert len(records) >= 2
-print(json.dumps({'apk': a.apk.name, 'nativePayload': records}, indent=2))
+print(json.dumps({'apk': a.apk.name, 'referenceAarSha256': hashlib.sha256(a.aar.read_bytes()).hexdigest(), 'nativePayload': records}, indent=2))

@@ -3,6 +3,7 @@
 import base64,ipaddress,json,os,re,secrets,shutil,socket,subprocess,tempfile,time
 from pathlib import Path
 ROOT=Path('/etc/xio-stack');PKI=ROOT/'pki';RUN=Path('/run/xio-openvpn');STATE=Path('/var/lib/xio-network')
+SYSTEMD=Path('/etc/systemd/system')
 def dualstack():
  import importlib.util
  spec=importlib.util.spec_from_file_location('xio_dualstack',str(Path(__file__).with_name('dualstack.py')))
@@ -53,18 +54,28 @@ subjectAltName = {('IP:' if _is_ip(d['host']) else 'DNS:')+d['host']}
 def _is_ip(s):
  try:ipaddress.ip_address(s);return True
  except ValueError:return False
+def firewall_rules(subnet,iface,outbound,ipsec=False):
+ # Every rule carries the interface the packet arrives on: an unscoped
+ # `-s 10.80.0.0/24` also matches spoofed traffic from any other interface.
+ scope=['-i',iface] if iface else (['-m','policy','--dir','in','--pol','ipsec'] if ipsec else [])
+ return [['-t','nat','POSTROUTING',*scope,'-s',subnet,'-o',outbound,'-m','comment','--comment','xio-stack-net-v1','-j','MASQUERADE'],
+         ['FORWARD',*scope,'-s',subnet,'-o',outbound,'-m','comment','--comment','xio-stack-net-v1','-j','ACCEPT'],
+         ['FORWARD','-d',subnet,*(['-i',outbound] if iface else ['-m','policy','--dir','out','--pol','ipsec']),'-m','conntrack','--ctstate','ESTABLISHED,RELATED','-m','comment','--comment','xio-stack-net-v1','-j','ACCEPT']]
+def apply_rules(rules,remove=False):
+ for rule in rules:
+  table=[]
+  if rule[:2]==['-t','nat']:table=rule[:2];rule=rule[2:]
+  exists=subprocess.run(['iptables','-w','5',*table,'-C',*rule],capture_output=True).returncode==0
+  if remove and exists:run('iptables','-w','5',*table,'-D',*rule)
+  elif not remove and not exists:run('iptables','-w','5',*table,'-I',*rule)
 def firewall(d,remove=False):
- for subnet,tun in [('10.80.0.0/24','xioovpn0'),('10.81.0.0/24','xioovpn1'),('10.82.0.0/24',None)]:
-  rules=[['-t','nat','POSTROUTING','-s',subnet,'-o',d['outbound'],'-m','comment','--comment','xio-stack-net-v1','-j','MASQUERADE'],['FORWARD','-s',subnet,'-o',d['outbound'],'-m','comment','--comment','xio-stack-net-v1','-j','ACCEPT'],['FORWARD','-d',subnet,'-m','conntrack','--ctstate','ESTABLISHED,RELATED','-m','comment','--comment','xio-stack-net-v1','-j','ACCEPT']]
-  for rule in rules:
-   table=[]
-   if rule[:2]==['-t','nat']:table=rule[:2];rule=rule[2:]
-   exists=subprocess.run(['iptables','-w','5',*table,'-C',*rule],capture_output=True).returncode==0
-   if remove and exists:run('iptables','-w','5',*table,'-D',*rule)
-   elif not remove and not exists:run('iptables','-w','5',*table,'-I',*rule)
+ # OpenVPN TUNs are named, IPsec has no TUN: its pool is scoped by the xfrm policy.
+ for subnet,iface,ipsec in [('10.80.0.0/24','xioovpn0',False),('10.81.0.0/24','xioovpn1',False)]:
+  apply_rules(firewall_rules(subnet,iface,d['outbound']),remove)
 def openvpn_configs():
  for transport,proto,subnet,device in [('udp','udp','10.80.0.0','xioovpn0'),('tcp','tcp-server','10.81.0.0','xioovpn1')]:
-  v6=transport=='tcp' and dualstack().ipv6_ready()
+  v6=dualstack().ipv6_ready()
+  if transport=='udp' and v6:proto='udp6'
   v6push='push \"redirect-gateway ipv6\"\npush \"dhcp-option DNS6 2620:fe::fe\"' if v6 else ''
   write(ROOT/(transport+'.ovpn'),f'''port {1194 if transport=='udp' else 1195}
 proto {proto}
@@ -73,7 +84,7 @@ dev {device}
 dev-type tun
 topology subnet
 server {subnet} 255.255.255.0
-{('server-ipv6 fd80:1::/64' if v6 else '')}
+{('server-ipv6 fd80:'+('0' if transport=='udp' else '1')+'::/64' if v6 else '')}
 ca {PKI}/ca.crt
 cert {PKI}/server.crt
 key {PKI}/server.key
@@ -95,6 +106,38 @@ status-version 3
 management {RUN}/{transport}.sock unix
 verb 0
 ''')
+def ipv6_hook(transport):
+ return 'ExecStartPost=+/usr/bin/python3 /usr/local/lib/xio-managed/network_stack.py dualstack-up xioovpn'+('0' if transport=='udp' else '1')+'\n'
+
+def reconcile_ipv6_hooks():
+ # Merge only an existing owned service. The updater backs these units up first.
+ for transport in ['udp','tcp']:
+  unit=SYSTEMD/('xio-openvpn-'+transport+'.service')
+  if not unit.exists():continue
+  if unit.is_symlink() or any(p.is_symlink() for p in unit.parents):raise RuntimeError('Symlink in OpenVPN service')
+  receipt=json.loads((ROOT/'receipt.json').read_text())
+  if receipt.get('owner')!='xio-stack-v1':raise RuntimeError('Unowned OpenVPN stack receipt')
+  text=unit.read_text();hook=ipv6_hook(transport)
+  if 'Description=XIO managed xio-openvpn-'+transport+'\n' not in text or ' --config '+str(ROOT/(transport+'.ovpn'))+'\n' not in text:raise RuntimeError('Unowned OpenVPN service')
+  if hook not in text:
+   if text.count('[Install]')!=1:raise RuntimeError('Unrecognized OpenVPN service structure')
+   write(unit,text.replace('[Install]',hook+'[Install]'),unit.stat().st_mode&0o777)
+
+def dualstack_up(interface):
+ if interface not in ['xioovpn0','xioovpn1']:raise RuntimeError('Invalid owned OpenVPN interface')
+ network=dualstack()
+ if not network.ipv6_ready():return
+ expected=next(address.split('/')[0] for name,_,address in network.SUBNETS if name==interface)
+ # Type=simple starts before OpenVPN configures TUN. Wait for its IPv6 address,
+ # not process spawn/link existence, then reconcile our narrowly owned rules.
+ for _ in range(100):
+  if Path('/sys/class/net',interface).exists():
+   entries=json.loads(run('ip','-j','-6','address','show','dev',interface))
+   if any(x.get('local')==expected for e in entries for x in e.get('addr_info',[])):
+    return network.apply()
+  time.sleep(.1)
+ raise RuntimeError('OpenVPN IPv6 interface was not configured before forwarding reconciliation')
+
 def service(name,exec_start,extra=''):
  write('/etc/systemd/system/'+name+'.service',f'''[Unit]
 Description=XIO managed {name}
@@ -237,7 +280,7 @@ def install(d):
  pki(d)
  if not (ROOT/'tls-crypt-v2.key').exists():run('openvpn','--genkey','tls-crypt-v2-server',str(ROOT/'tls-crypt-v2.key'))
  openvpn_configs()
- for transport in (['tcp'] if d.get('restrictedNetwork') else ['udp','tcp']):service('xio-openvpn-'+transport,shutil.which('openvpn')+' --config '+str(ROOT/(transport+'.ovpn')),'ExecStartPre=+'+shutil.which('python3')+' /usr/local/lib/xio-managed/network_stack.py firewall\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW\n')
+ for transport in (['tcp'] if d.get('restrictedNetwork') else ['udp','tcp']):service('xio-openvpn-'+transport,shutil.which('openvpn')+' --config '+str(ROOT/(transport+'.ovpn')),'ExecStartPre=+'+shutil.which('python3')+' /usr/local/lib/xio-managed/network_stack.py firewall\n'+ipv6_hook(transport)+'CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW\n')
  firewall(d);run('systemctl','daemon-reload')
  for unit in (['xio-openvpn-tcp'] if d.get('restrictedNetwork') else ['xio-openvpn-udp','xio-openvpn-tcp']):run('systemctl','enable','--now',unit);run('systemctl','restart',unit);run('systemctl','is-active','--quiet',unit)
 def create(d,uid):
@@ -253,7 +296,7 @@ def create(d,uid):
   write(ROOT/(uid+'.crt'),cert.read_text())
   cfg=f'''client
 dev tun
-proto udp
+proto {('udp6' if _is_ip(d['host']) and ipaddress.ip_address(d['host']).version==6 else 'udp')}
 remote {d['host']} 1194
 nobind
 persist-key
@@ -434,6 +477,7 @@ def ike_install(d):
  charon=next((p for p in ['/usr/lib/ipsec/charon','/usr/libexec/strongswan/charon'] if Path(p).exists()),None)
  assert charon,'StrongSwan daemon missing'
  service('xio-ikev2',charon,'Environment=STRONGSWAN_CONF=/etc/xio-stack/strongswan.conf\nEnvironment=XIO_IKE_NAMESPACE=1\nBindPaths=/run/xio-openvpn:/run\nReadWritePaths=/run\nExecStartPost='+shutil.which('python3')+' /usr/local/lib/xio-managed/network_stack.py load-ike\nCapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID CAP_SETPCAP CAP_CHOWN CAP_IPC_LOCK CAP_DAC_OVERRIDE CAP_AUDIT_WRITE\n')
+ apply_rules(firewall_rules('10.82.0.0/24',None,d['outbound'],ipsec=True))
  run('systemctl','daemon-reload');run('systemctl','enable','--now','xio-ikev2');run('systemctl','restart','xio-ikev2');run('systemctl','is-active','--quiet','xio-ikev2')
 def ike_profile(d,uid):
  u=d['users'][uid]['stack'];u['ikePassword']=secrets.token_urlsafe(32);ike_config(d);load_ike()
@@ -454,7 +498,7 @@ def cloak_install(d):
 def cloak_profile(d,uid,openvpn):
  u=d['users'][uid]['stack'];u['cloakUID']=base64.b64encode(secrets.token_bytes(16)).decode();r=json.loads((ROOT/'receipt.json').read_text());p=json.loads(openvpn)
  p.update(protocol='cloak',cloak={'UID':u['cloakUID'],'PublicKey':r['cloakPublicKey'],'ServerName':r['serverName'],'RemoteHost':d['host'],'RemotePort':'9443','ProxyMethod':'openvpn','EncryptionMethod':'aes-gcm','Transport':'direct','BrowserSig':'chrome','NumConn':1})
- p['config']=p['config'].replace('proto udp\n','proto tcp-client\n').replace('remote '+d['host']+' 1194\n','remote '+d['host']+' 9443\n')
+ p['config']=re.sub(r'(?m)^proto udp6?$', 'proto tcp-client',p['config']).replace('remote '+d['host']+' 1194\n','remote '+d['host']+' 9443\n')
  # The enclosing committed stack.apply activates this user once.
  return {'cloak':json.dumps(p)}
 
@@ -464,9 +508,13 @@ def remove(d):
   if p.exists():subprocess.run(['systemctl','disable','--now',unit],capture_output=True);p.unlink()
  Path('/usr/local/bin/xio-cloak').unlink(missing_ok=True)
  apparmor(True);selinux_setup(True)
- firewall(d,True);shutil.rmtree(RUN,ignore_errors=True);shutil.rmtree(STATE,ignore_errors=True);run('systemctl','daemon-reload')
+ firewall(d,True)
+ apply_rules(firewall_rules('10.82.0.0/24',None,d['outbound'],ipsec=True),True)
+ shutil.rmtree(RUN,ignore_errors=True);shutil.rmtree(STATE,ignore_errors=True);run('systemctl','daemon-reload')
 
 if __name__=='__main__':
  import sys
  if sys.argv[1:]==['load-ike']:load_ike()
  elif sys.argv[1:]==['firewall']:firewall(json.loads(Path('/etc/xio-managed/deployment.json').read_text()))
+ elif sys.argv[1:]==['reconcile-ipv6-hooks']:reconcile_ipv6_hooks()
+ elif len(sys.argv)==3 and sys.argv[1]=='dualstack-up':dualstack_up(sys.argv[2])

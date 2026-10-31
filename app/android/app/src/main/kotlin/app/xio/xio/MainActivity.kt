@@ -146,6 +146,9 @@ object Engine {
         val policy = routing.read()
         val effective = routing.apply(config, policy)
         backend.setAllowUnroutedFamilies(policy.mode.startsWith("ip"))
+        val budget=org.json.JSONObject(app.getSharedPreferences("xio",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
+        val remaining=budget-(android.os.SystemClock.elapsedRealtime()-started);check(remaining>0){"Connection deadline"}
+        backend.setEndpointResolutionTimeoutMillis(remaining)
         backend.setState(tunnel, Tunnel.State.UP, effective)
         app.getSharedPreferences("xio",0).edit().putBoolean("vpnWanted",true).commit()
         app.getSharedPreferences("xio", 0).edit().putString("activeId", id).commit()
@@ -167,6 +170,7 @@ class MainActivity : FlutterActivity() {
         Engine.initialize(this)
         engineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.xio/engine")
         engineChannel.setMethodCallHandler { call, result ->
+            if(call.method=="disconnect" && Engine.kind=="awg") Engine.backend.cancelPendingHandshake()
             if (BuildConfig.CLIENT_ONLY && call.method in setOf(
                 "sharingStatus", "sharingSet", "credentialRead", "credentialWrite", "credentialDelete",
                 "prepareUpdateInstall", "consumeUpdateRequest", "updateAbi", "scheduleUpdateCheck",
