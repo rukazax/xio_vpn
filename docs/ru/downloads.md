@@ -1,55 +1,42 @@
-# Скачать XIO
+# Загрузки XIO
 
-> **v0.23.1 — текущий выпуск.** [Страница выпуска](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1) и прямые ссылки ниже доступны без `/latest`. Перед установкой проверьте [ограничения](../compatibility/0.23.1.ru.md).
+> **v0.24.0 — текущий выпуск.** [Страница релиза](https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0) и прямые ссылки ниже не зависят от `/latest`. Перед установкой прочитайте [ограничения](../compatibility/0.24.0.ru.md).
 
-Единый принцип имён файлов:
-`XIO-<Приложение>-<версия>-<ОС>-<архитектура>.<расширение>`
+Одно правило имён файлов:
+`XIO-<Приложение>-<версия>-<ОС>-<архитектура>.<формат>`
 
-> **0.23.1 ставится поверх 0.23.0.** Имена пакетов не менялись, Android обновляет приложение и сохраняет профили и настройки.
+> **0.24.0 ставится поверх 0.23.1.** Имена пакетов и подпись не менялись, поэтому Android обновляет приложение и сохраняет профили и настройки.
 
 ## XIO Client — подключение к готовым серверам
 
 | Система | Файл | Размер |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-arm64-v8a.apk) | 22.9 МиБ |
-| Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | 22.8 МиБ |
-| Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | 24.2 МиБ |
-| Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | 67.0 МиБ |
+| Android 8+ · ARM64 | [XIO-Client-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-arm64-v8a.apk) | 22.9 МиБ |
+| Android 8+ · ARM32 | [XIO-Client-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-armeabi-v7a.apk) | 22.8 МиБ |
+| Android 8+ · x86-64 | [XIO-Client-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-x86_64.apk) | 24.2 МиБ |
+| Android 8+ · universal | [XIO-Client-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-universal.apk) | 67.0 МиБ |
 
-iOS не собран: нужен Mac, Xcode и подпись Apple.
+iOS не собран: нужны Mac, Xcode и подпись Apple.
 
 ## Full XIO — свой сервер
 
 | Система | Файл | Размер |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-arm64-v8a.apk) | 57.9 МиБ |
-| Android 8+ · ARM32 | [XIO-Full-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-armeabi-v7a.apk) | 57.9 МиБ |
-| Android 8+ · x86-64 | [XIO-Full-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-x86_64.apk) | 59.2 МиБ |
-| Android 8+ · universal | [XIO-Full-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-universal.apk) | 103.1 МиБ |
-| Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-amd64.deb) | 49.1 МиБ |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-x64.tar.gz) | 57.9 МиБ |
-| Серверный пакет | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21.3 МиБ, серверная часть для Linux-хоста |
+| Android 8+ · ARM64 | [XIO-Full-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-arm64-v8a.apk) | 57.9 МиБ |
+| Android 8+ · ARM32 | [XIO-Full-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-armeabi-v7a.apk) | 57.9 МиБ |
+| Android 8+ · x86-64 | [XIO-Full-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-x86_64.apk) | 59.1 МиБ |
+| Android 8+ · universal | [XIO-Full-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-universal.apk) | 103.1 МиБ |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-amd64.deb) | 49.0 МиБ, ставится через `apt` |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-x64.tar.gz) | 57.9 МиБ, переносимая сборка |
+| Windows 11 x64 | [XIO-Full-0.24.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
+| Серверный архив | [xio-server-0.24.0.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/xio-server-0.24.0.tar.gz) | 21.3 МиБ, рецепт 25 |
 
-Ubuntu-пакеты входят в 0.23.1: `.deb` ставится через `apt`, `.tar.gz` распаковывается.
+> **Windows Client в 0.24.0 не входит.** Настольный клиент для Windows опубликован в 0.23.1.
 
-> **Известный дефект 0.23.1.** Серверный пакет, опубликованный в 0.23.1, падает при установке на правиле
-> `POSTROUTING` (`iptables: Can't use -i with POSTROUTING`); на хостах только с IPv6 дополнительно
-> падает таймер статистики с `Command failed: wg`. Исправлено коммитом `19d55dc`, войдёт в следующую
-> сборку. На работу клиента с RIVET и AWG это не влияет.
+## Что проверено в 0.24.0
 
-## Проверка файлов
+- серверный архив — живая установка на Debian 13 (LXC, `fr-host.fr`), `init` ok, рецепт 25;
+- XIO Full 0.24.0 на POCO X6 5G (Android 16): установка поверх 0.23.1, импорт профиля, подключение по RIVET/S1, отключение и повторное подключение;
+- подпись и `zipalign` всех APK, сборка Windows и Ubuntu-пакетов.
 
-- [SHA256SUMS-0.23.1.txt](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/SHA256SUMS-0.23.1.txt) — контрольные суммы всех файлов 0.23.1
-- [verification-0.23.1.json](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/verification-0.23.1.json) — отчёт проверки сборок
-- [release-notes-0.23.1.md](https://github.com/rukazax/xio_vpn/blob/main/docs/release-notes-0.23.1.md) — что изменилось
-
-Проверить локально: `sha256sum -c SHA256SUMS-0.23.1.txt` (Linux/macOS) или `Get-FileHash <файл> -Algorithm SHA256` (Windows).
-
-## Установка
-
-- **Android:** откройте APK; Android 8+ спросит разрешение на установку из этого источника. Обновление ставится поверх 0.23.0 с сохранением профилей.
-- **Windows:** распакуйте ZIP и запустите `XIO.exe`. Помощник (`libexec\xio-tunnel.exe`) запускается с правами администратора — это нужно для создания сетевого интерфейса.
-- Проверка соединения в 0.23.1 не требует внешнего сайта: туннель подтверждается свежим обменом, счётчиками и DNS через туннель. Опрос сайта включается отдельно в настройках.
-
-[Все релизы](https://github.com/rukazax/xio_vpn/releases) · [Совместимость 0.23.1](../compatibility/0.23.1.ru.md) · [На главную](../../README.ru.md)
+Подробности и хэши — в `verification-0.24.0.json` на странице релиза.

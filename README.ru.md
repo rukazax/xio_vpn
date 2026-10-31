@@ -11,12 +11,12 @@
 <p align="center">Android &middot; Windows &middot; Ubuntu &middot; iOS (исходники) &middot; IPv4 + IPv6</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
   <a href="#протоколы"><img alt="transports" src="https://img.shields.io/badge/transports-5-brightgreen?style=flat-square" /></a>
   <a href="#ipv4-и-ipv6"><img alt="dual stack" src="https://img.shields.io/badge/network-IPv4%20%2B%20IPv6-informational?style=flat-square" /></a>
-  <a href="docs/compatibility/0.23.1.ru.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
+  <a href="docs/compatibility/0.24.0.ru.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
 </p>
 
 <p align="center">
@@ -253,7 +253,7 @@ WireGuard, Shadowsocks и IKEv2 устанавливаются на сервер
 
 ## Установка
 
-> **0.23.1 — предрелиз.** Ставится поверх 0.23.0: имена пакетов не менялись, поэтому Android обновляет
+> **0.24.0 — предрелиз.** Ставится поверх 0.23.0: имена пакетов не менялись, поэтому Android обновляет
 > приложение и сохраняет профили и настройки. Перед установкой прочитайте
 > [Ограничения](#ограничения).
 
@@ -265,35 +265,34 @@ WireGuard, Shadowsocks и IKEv2 устанавливаются на сервер
 
 | Система | Файл | Что это |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-arm64-v8a.apk) | обычный выбор для современных телефонов |
-| Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | старые 32-битные устройства |
-| Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | эмуляторы и x86-планшеты |
-| Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | одна сборка на все архитектуры |
-| Windows 11 x64 | [XIO-Client-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
+| Android 8+ · ARM64 | [XIO-Client-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-arm64-v8a.apk) | обычный выбор для современных телефонов |
+| Android 8+ · ARM32 | [XIO-Client-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-armeabi-v7a.apk) | старые 32-битные устройства |
+| Android 8+ · x86-64 | [XIO-Client-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-x86_64.apk) | эмуляторы и x86-планшеты |
+| Android 8+ · universal | [XIO-Client-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-universal.apk) | одна сборка на все архитектуры |
 | iOS | - | IPA нет: нужны Mac, Xcode и подпись Apple |
 
 ### Полная XIO — свой сервер
 
 | Система | Файл | Что это |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-arm64-v8a.apk) | полное приложение с администрированием |
-| Android 8+ · ARM32 | [XIO-Full-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-armeabi-v7a.apk) | старые 32-битные устройства |
-| Android 8+ · x86-64 | [XIO-Full-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-x86_64.apk) | эмуляторы |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-amd64.deb) | 49,1 МиБ, ставится через `apt` |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-x64.tar.gz) | 57,9 МиБ, переносимый архив |
-| Серверный пакет | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21,3 МиБ, серверная часть для Linux |
-| Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
+| Android 8+ · ARM64 | [XIO-Full-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-arm64-v8a.apk) | полное приложение с администрированием |
+| Android 8+ · ARM32 | [XIO-Full-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-armeabi-v7a.apk) | старые 32-битные устройства |
+| Android 8+ · x86-64 | [XIO-Full-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-x86_64.apk) | эмуляторы |
+| Android 8+ · universal | [XIO-Full-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-universal.apk) | одна сборка для всех архитектур |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-amd64.deb) | 49,0 МиБ, ставится через `apt` |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-x64.tar.gz) | 57,9 МиБ, переносимая сборка |
+| Серверный пакет | [xio-server-0.24.0.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/xio-server-0.24.0.tar.gz) | 21,3 МиБ, серверная часть для Linux |
+| Windows 11 x64 | [XIO-Full-0.24.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-windows-x64.zip) | ZIP: приложение, помощник, Wintun |
 
-> **Известный дефект 0.23.1.** Серверный пакет, опубликованный в 0.23.1, падает на шаге firewall:
-> `iptables: Can't use -i with POSTROUTING`, затем `Network stack operation failed: iptables`. На
-> сервере только с IPv6 дополнительно падают таймер статистики и `status` с `Command failed: wg`,
-> потому что интерфейса `xio0` нет. Оба дефекта исправлены коммитом `19d55dc`; в 0.23.1
-> исправление не входит. На работу клиента с RIVET и AWG это не влияет.
+> **Дефект серверного пакета 0.23.1 здесь исправлен.** Пакет, опубликованный в 0.23.1, падал на шаге
+> firewall (`iptables: Can't use -i with POSTROUTING`), а на хостах только с IPv6 его `status` и таймер
+> статистики падали с `Command failed: wg`. В 0.24.0 входит исправленный пакет, проверенный живой
+> установкой на Debian 13. На работу клиента с RIVET и AWG это не влияло.
 
-Всё лежит в [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1): сборки,
-[SHA256SUMS](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/SHA256SUMS-0.23.1.txt),
-[отчёт проверки](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/verification-0.23.1.json).
-Проверка: `sha256sum -c SHA256SUMS-0.23.1.txt` или `Get-FileHash <file> -Algorithm SHA256`.
+Всё лежит в [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0): сборки,
+[SHA256SUMS](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/SHA256SUMS-0.24.0.txt),
+[отчёт проверки](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/verification-0.24.0.json).
+Проверка: `sha256sum -c SHA256SUMS-0.24.0.txt` или `Get-FileHash <file> -Algorithm SHA256`.
 
 ### Android
 
@@ -309,7 +308,6 @@ WireGuard, Shadowsocks и IKEv2 устанавливаются на сервер
 ### Ubuntu
 
 ```sh
-sudo apt install ./XIO-Full-0.23.1-ubuntu-amd64.deb
 ```
 
 или распакуйте `.tar.gz`. Интерфейс работает от вашего пользователя; сетевой помощник запрашивает
@@ -460,22 +458,22 @@ flowchart LR
 
 `FAIL`, `BLOCKED` и `NOT_EXECUTED` пишутся как есть и никогда не заменяются на «работает». Каждый
 прогон хранит версию, коммит, устройство, команды и результаты отдельно от предыдущих. Подробности:
-[совместимость 0.23.1](docs/compatibility/0.23.1.ru.md).
+[совместимость 0.24.0](docs/compatibility/0.24.0.ru.md).
 
 ## Ограничения
 
-- **Серверный пакет 0.23.1 падает при установке** на правиле firewall `POSTROUTING`, а на хостах только
+- **Серверный пакет 0.24.0 падает при установке** на правиле firewall `POSTROUTING`, а на хостах только
   с IPv6 — ещё и в таймере статистики (`Command failed: wg`). Исправлено в `19d55dc`, войдёт в
   следующую сборку. См. [Установка](#установка).
 - **Xray/REALITY не подключается** на клиенте 0.23.x со шлюзом Xray 26.7.28: реализация REALITY в ядре
   клиента несовместима. AWG и RIVET работают.
-- **Windows 0.23.1:** помощник пересобран с исправлением firewall через WFP (правила по SID
+- **Windows 0.24.0:** помощник пересобран с исправлением firewall через WFP (правила по SID
   пользователя и App ID вместо `netsh`), analyze, тесты и упаковка проходят. Живое подключение через GUI
-  на 0.23.1 не перепроверялось; последний живой прогон — помощник 0.22.5 с приложением 0.23.0.
-- **Опрос сайта необязателен** с 0.23.1 и по умолчанию выключен. Если включить, сайт-пробник должен
+  на 0.24.0 не перепроверялось; последний живой прогон — помощник 0.22.5 с приложением 0.23.0.
+- **Опрос сайта необязателен** с 0.24.0 и по умолчанию выключен. Если включить, сайт-пробник должен
   быть доступен через туннель.
 - **GUI Ubuntu:** в 0.23.0 окно не создавалось (процесс жил, поверхность Impeller/EGL не поднималась).
-  Пакеты 0.23.1 собраны, но GUI живьём не перепроверялся. Туннель работает через
+  Пакеты 0.24.0 собраны, но GUI живьём не перепроверялся. Туннель работает через
   `libexec/xio-tunnel` и требует `systemd-resolved`.
 - **Полный туннель на Linux отрезает локальную сеть:** пока туннель поднят, машина не отвечает по SSH
   из LAN, потому что весь немаркированный IPv4 уходит в туннель.
@@ -507,10 +505,10 @@ flutter test
 
 ## Документация
 
-- [Совместимость и статус 0.23.1](docs/compatibility/0.23.1.ru.md)
+- [Совместимость и статус 0.24.0](docs/compatibility/0.24.0.ru.md)
 - [Подробности загрузки](docs/ru/downloads.md) &middot; [Сборка](docs/ru/build.md) &middot; [FAQ](docs/ru/faq.md) &middot; [Инструкция](docs/ru/guide.md)
 - [Протоколы](docs/ru/protocols.md) &middot; [Dual-stack](docs/dualstack/0.22.3.ru.md) &middot; [Реализация RIVET](RIVET-IMPLEMENTATION-0.2.ru.md)
-- [Заметки о выпуске 0.23.1](docs/release-notes-0.23.1.md) &middot; [Changelog](CHANGELOG.md)
+- [Заметки о выпуске 0.24.0](docs/release-notes-0.24.0.md) &middot; [Changelog](CHANGELOG.md)
 - [Клиент и субклиенты](client/README.ru.md) &middot; [Сторонние компоненты](THIRD-PARTY-NOTICES.md)
 
 ## Лицензия

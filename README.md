@@ -11,12 +11,12 @@
 <p align="center">Android &middot; Windows &middot; Ubuntu &middot; iOS (source) &middot; IPv4 + IPv6</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
   <a href="#protocols"><img alt="transports" src="https://img.shields.io/badge/transports-5-brightgreen?style=flat-square" /></a>
   <a href="#ipv4-and-ipv6"><img alt="dual stack" src="https://img.shields.io/badge/network-IPv4%20%2B%20IPv6-informational?style=flat-square" /></a>
-  <a href="docs/compatibility/0.23.1.en.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
+  <a href="docs/compatibility/0.24.0.en.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
 </p>
 
 <p align="center">
@@ -252,7 +252,7 @@ Verified on a VPS with global IPv6 `2a0c:b641:1a0:800::2a2`: the client receives
 
 ## Install
 
-> **0.23.1 is a pre-release.** Install over 0.23.0: package names did not change, so Android updates
+> **0.24.0 is the current release.** Install over 0.23.1: package names did not change, so Android updates
 > the app and keeps profiles and settings. Read [Limitations](#limitations) before installing.
 
 One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. `App` is `Client` or `Full`, `OS` is
@@ -263,36 +263,34 @@ One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. `App` is `Client` or `
 
 | System | File | What it is |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-arm64-v8a.apk) | the usual choice for modern phones |
-| Android 8+ · ARM32 | [XIO-Client-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-armeabi-v7a.apk) | older 32-bit devices |
-| Android 8+ · x86-64 | [XIO-Client-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-x86_64.apk) | emulators and x86 tablets |
-| Android 8+ · universal | [XIO-Client-0.23.1-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-android-universal.apk) | one build for all architectures |
-| Windows 11 x64 | [XIO-Client-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Client-0.23.1-windows-x64.zip) | ZIP: app, helper, Wintun |
+| Android 8+ · ARM64 | [XIO-Client-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-arm64-v8a.apk) | the usual choice for modern phones |
+| Android 8+ · ARM32 | [XIO-Client-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-armeabi-v7a.apk) | older 32-bit devices |
+| Android 8+ · x86-64 | [XIO-Client-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-x86_64.apk) | emulators and x86 tablets |
+| Android 8+ · universal | [XIO-Client-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-universal.apk) | one build for all architectures |
 | iOS | - | no IPA: needs a Mac, Xcode and Apple signing |
 
 ### Full XIO — your own server
 
 | System | File | What it is |
 |---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.23.1-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-arm64-v8a.apk) | full application with administration |
-| Android 8+ · ARM32 | [XIO-Full-0.23.1-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-armeabi-v7a.apk) | older 32-bit devices |
-| Android 8+ · x86-64 | [XIO-Full-0.23.1-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-android-x86_64.apk) | emulators |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-amd64.deb) | 49.1 MiB, installs with `apt` |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.23.1-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-ubuntu-x64.tar.gz) | 57.9 MiB, portable archive |
-| Server package | [xio-server-0.23.1.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/xio-server-0.23.1.tar.gz) | 21.3 MiB, server payload for a Linux host |
-| Windows 11 x64 | [XIO-Full-0.23.1-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/XIO-Full-0.23.1-windows-x64.zip) | ZIP: app, helper, Wintun |
+| Android 8+ · ARM64 | [XIO-Full-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-arm64-v8a.apk) | full application with administration |
+| Android 8+ · ARM32 | [XIO-Full-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-armeabi-v7a.apk) | older 32-bit devices |
+| Android 8+ · x86-64 | [XIO-Full-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-x86_64.apk) | emulators |
+| Android 8+ · universal | [XIO-Full-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-universal.apk) | one build for all architectures |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-amd64.deb) | 49.0 MiB, installs with `apt` |
+| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-x64.tar.gz) | 57.9 MiB, portable archive |
+| Server package | [xio-server-0.24.0.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/xio-server-0.24.0.tar.gz) | 21.3 MiB, server payload for a Linux host |
+| Windows 11 x64 | [XIO-Full-0.24.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-windows-x64.zip) | ZIP: app, helper, Wintun |
 
-> **Known issue in 0.23.1.** The server payload published with 0.23.1 fails during install on the
-> firewall step: `iptables: Can't use -i with POSTROUTING`, then
-> `Network stack operation failed: iptables`. The Linux and Windows Full bundles verified here embed the
-> same payload. On an IPv6-only server the stats timer and `status` also
-> fail with `Command failed: wg` because `xio0` does not exist. Both defects are fixed in commit
-> `19d55dc`; the fix is not part of 0.23.1. Client-only use of RIVET and AWG is not affected.
+> **The 0.23.1 server payload defect is fixed here.** The payload published with 0.23.1 failed during
+> install on the firewall step (`iptables: Can't use -i with POSTROUTING`) and, on IPv6-only hosts, its
+> `status` and statistics timer failed with `Command failed: wg`. 0.24.0 ships the fixed payload,
+> verified by a live install on Debian 13. Client-only use of RIVET and AWG was never affected.
 
-Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.23.1): builds,
-[SHA256SUMS](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/SHA256SUMS-0.23.1.txt),
-[verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.23.1/verification-0.23.1.json).
-Verify with `sha256sum -c SHA256SUMS-0.23.1.txt` or
+Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0): builds,
+[SHA256SUMS](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/SHA256SUMS-0.24.0.txt),
+[verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/verification-0.24.0.json).
+Verify with `sha256sum -c SHA256SUMS-0.24.0.txt` or
 `Get-FileHash <file> -Algorithm SHA256`.
 
 ### Android
@@ -309,7 +307,6 @@ SmartScreen warns. Wintun is included with its licence.
 ### Ubuntu
 
 ```sh
-sudo apt install ./XIO-Full-0.23.1-ubuntu-amd64.deb
 ```
 
 or unpack the `.tar.gz`. The GUI runs as your user; the network helper asks for system authorisation
@@ -458,22 +455,22 @@ flowchart LR
 
 `FAIL`, `BLOCKED` and `NOT_EXECUTED` are written as such and never replaced with "works". Every run
 stores version, commit, device, commands and results separately from previous runs. Details:
-[compatibility 0.23.1](docs/compatibility/0.23.1.en.md).
+[compatibility 0.24.0](docs/compatibility/0.24.0.en.md).
 
 ## Limitations
 
-- **0.23.1 server payload fails during install** on the `POSTROUTING` firewall rule and, on IPv6-only
+- **0.24.0 server payload fails during install** on the `POSTROUTING` firewall rule and, on IPv6-only
   hosts, in the stats timer (`Command failed: wg`). Fixed in `19d55dc`, next build. See
   [Install](#install).
 - **Xray/REALITY does not connect** on the 0.23.x client with the Xray 26.7.28 gateway: the REALITY
   implementation in the client core is incompatible. AWG and RIVET work.
-- **Windows 0.23.1:** the helper is rebuilt with the WFP firewall fix (rules by user SID and App ID
-  instead of `netsh`), and analyze, tests and packaging pass. A live GUI connection on 0.23.1 was not
+- **Windows 0.24.0:** the helper is rebuilt with the WFP firewall fix (rules by user SID and App ID
+  instead of `netsh`), and analyze, tests and packaging pass. A live GUI connection on 0.24.0 was not
   re-run; the last live run was the 0.22.5 helper with the 0.23.0 application.
-- **The site probe is optional** since 0.23.1 and off by default. If you enable it, the probe site must
+- **The site probe is optional** since 0.24.0 and off by default. If you enable it, the probe site must
   be reachable through the tunnel.
 - **Ubuntu GUI:** 0.23.0 did not create a window (the process lived, the Impeller/EGL surface never
-  came up). 0.23.1 packages are built, but the GUI was not re-verified live. The tunnel works through
+  came up). 0.24.0 packages are built, but the GUI was not re-verified live. The tunnel works through
   `libexec/xio-tunnel` and needs `systemd-resolved`.
 - **A full tunnel on Linux cuts off the local network:** while the tunnel is up the machine stops
   answering SSH from the LAN, because all unmarked IPv4 goes into the tunnel.
@@ -504,10 +501,10 @@ Full instructions: [Build from source](docs/en/build.md) &middot; [source proven
 
 ## Documentation
 
-- [Compatibility and status 0.23.1](docs/compatibility/0.23.1.en.md)
+- [Compatibility and status 0.24.0](docs/compatibility/0.24.0.en.md)
 - [Download details](docs/en/downloads.md) &middot; [Build](docs/en/build.md) &middot; [FAQ](docs/en/faq.md) &middot; [Guide](docs/en/guide.md)
 - [Protocols](docs/en/protocols.md) &middot; [Dual-stack notes](docs/dualstack/0.22.3.en.md) &middot; [RIVET implementation](RIVET-IMPLEMENTATION-0.2.ru.md)
-- [Release notes 0.23.1](docs/release-notes-0.23.1.md) &middot; [Changelog](CHANGELOG.md)
+- [Release notes 0.24.0](docs/release-notes-0.24.0.md) &middot; [Changelog](CHANGELOG.md)
 - [Client and subclients](client/README.en.md) &middot; [Third-party notices](THIRD-PARTY-NOTICES.md)
 
 ## License

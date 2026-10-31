@@ -1,0 +1,115 @@
+{
+  "version": "0.24.0+5017",
+  "pubspecVersion": "0.24.0+5017",
+  "tag": "v0.24.0",
+  "date": "2026-10-31",
+  "whatChanged": [
+    "Server package: the live install no longer fails in iptables. The scope (-i) is applied only to FORWARD; the nat POSTROUTING MASQUERADE rule no longer carries an input interface.",
+    "Server package: status and the statistics timer skip tunnel interfaces that do not exist yet (IPv6-only hosts), instead of failing every 30 s with 'Command failed: wg'.",
+    "Version 0.24.0+5017; Android installs in place over 0.23.1 (same signer, same package names).",
+    "Landing page rebuilt: features, five transports, IPv4/IPv6, install and administration instructions, bilingual README with diagrams."
+  ],
+  "builds": {
+    "flutterAnalyze": "No issues found",
+    "flutterTest": "185 passed, 10 skipped, 0 failed",
+    "clientUnitTests": "client/verify.py: 4 artifacts, verified=true (apksigner v2, zipalign -c -P 16 4)",
+    "androidSigning": "apksigner verified; certificate SHA-256 e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671 (CN=x1o Development), the same key as the installed 0.23.1 and the published 0.22.4 reference",
+    "serverPackage": "tools/package-server.py exit 0; recipeVersion 25; bootstrap ad0372d6eda7e2492a4e1db7f082f5084b0cf0436e7b989ccac5256eb71b2bc5; archive sha256 bcb8218007ffb05327ac11ce418fdb3f77ed1e8a2646137f63dd4a1991f2745a; packaged network_stack.py has no -i in POSTROUTING, packaged admin.py skips absent interfaces",
+    "windowsBuild": "tools/build-windows.ps1: flutter analyze + flutter test + flutter build windows --release + helper + Wintun 0.14.1; embedded server archive sha256 bcb82180…f2745a",
+    "linuxBuild": "Debian 13, Flutter 3.47.7: tools/build-linux.sh (flutter analyze, tests, build linux --release, helper, package-ubuntu.py); .deb version 0.24.0 with /opt/xio and /usr/bin/xio, embedded server archive sha256 bcb82180…f2745a; GUI launch not tested"
+  },
+  "liveRuns": [
+    {
+      "what": "Server package live install (the code shipped in this archive)",
+      "where": "Debian 13 LXC, host fr-host.fr, restrictedNetwork true",
+      "result": "bootstrap exit 0, init returned ok with server id 59e522c0-d4af-4922-b9db-34761398fbc8, recipeVersion 25, unit active; before the fix the same install failed at 'Network stack operation failed: iptables'",
+      "date": "2026-10-31"
+    },
+    {
+      "what": "XIO Full 0.24.0 on Android: in-place install over 0.23.1",
+      "device": "POCO X6 5G, Android 16, arm64-v8a, adb serial 909f194a",
+      "result": "adb install -r from XIO-Full-0.24.0-android-arm64-v8a.apk; versionName 0.24.0, versionCode 5017; app data and the existing profile preserved; no uninstall",
+      "date": "2026-10-31"
+    },
+    {
+      "what": "XIO Full 0.24.0: profile import from file and live connection",
+      "result": "profile imported through the app; UI 'Интерфейс активен' and 'Туннель активен · DNS через туннель'; profile RIVET / S1 to 192.168.88.17:18443, tunnel address 10.79.0.250; counters grew 21.6/16.9 kB -> 28.3/23.2 kB",
+      "server": "acceptance server stats.json: user baec424b… online=true, rx/tx growing",
+      "date": "2026-10-31"
+    },
+    {
+      "what": "XIO Full 0.24.0: disconnect and reconnect",
+      "result": "disconnect -> UI 'Отключено', counters 0 B, server stats online=false within 20 s; reconnect -> tunnel active again, server stats online=true with counters growing; no app crash or ANR",
+      "date": "2026-10-31"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "XIO-0.24.0-ubuntu-amd64.deb",
+      "bytes": 51423012,
+      "sha256": "983827cf328d606f03b0e8d43cd295ca865d69b65be76405894745c31261e2ef"
+    },
+    {
+      "file": "XIO-0.24.0-ubuntu-x64.tar.gz",
+      "bytes": 60682774,
+      "sha256": "54de388dda2a58c526fc9c06d534af4a84d6459a3142340ef85ff6eea79f2991"
+    },
+    {
+      "file": "XIO-Client-0.24.0-android-arm64-v8a.apk",
+      "bytes": 24041850,
+      "sha256": "6ea1a68779760ab8642cf79649478425831aca8975e820e6c273eff37848b9d1"
+    },
+    {
+      "file": "XIO-Client-0.24.0-android-armeabi-v7a.apk",
+      "bytes": 23921288,
+      "sha256": "22817425e01ba9c8b56681cd9ee8aee3bc981de5cfa481132d6a46f142d92a6f"
+    },
+    {
+      "file": "XIO-Client-0.24.0-android-universal.apk",
+      "bytes": 70216597,
+      "sha256": "fbbe9da9f9f1baf7e4ce78754938990a156a5e3cac9f09b8f7929195f5a88483"
+    },
+    {
+      "file": "XIO-Client-0.24.0-android-x86_64.apk",
+      "bytes": 25322975,
+      "sha256": "cf03714b9b98b5ede97b2d43b3f691c1e70ae45637e88a9ebfc385461f37cc26"
+    },
+    {
+      "file": "XIO-Full-0.24.0-android-arm64-v8a.apk",
+      "bytes": 60713351,
+      "sha256": "57b281380e105d99a793d86d5f33a8a8fe388965d4e2c0bd66e0575f35d72817"
+    },
+    {
+      "file": "XIO-Full-0.24.0-android-armeabi-v7a.apk",
+      "bytes": 60670737,
+      "sha256": "63e642306c06c03d1189ada13ae1e338e80c3c36ea6532d3d6c84cf35df21fc8"
+    },
+    {
+      "file": "XIO-Full-0.24.0-android-universal.apk",
+      "bytes": 108116982,
+      "sha256": "2790c2e46588233964d3f3d9ef5814f318f0c000a4c2c3de498a3fe1955bbc7f"
+    },
+    {
+      "file": "XIO-Full-0.24.0-android-x86_64.apk",
+      "bytes": 62002032,
+      "sha256": "5f7214f3edf0c0b156ffa39da7e7bacb587cb759d392f1def9b6bf6c4255fe02"
+    },
+    {
+      "file": "XIO-Full-0.24.0-windows-x64.zip",
+      "bytes": 63924046,
+      "sha256": "b2397d0f6b860d39ded1616879f8c4a0392badd831f49998e0fcd35689a7cea2"
+    },
+    {
+      "file": "xio-server-0.24.0.tar.gz",
+      "bytes": 22333556,
+      "sha256": "bcb8218007ffb05327ac11ce418fdb3f77ed1e8a2646137f63dd4a1991f2745a"
+    }
+  ],
+  "limits": [
+    "Only the RIVET/S1 transport was exercised on 0.24.0. RIVET/H3, AWG, Xray/REALITY and Cloak were not re-run for this release.",
+    "Public IPv6 end-to-end was not re-tested for 0.24.0; the last verified run is 0.23.1.",
+    "iOS is not built (needs macOS, Xcode and Apple signing).",
+    "The Windows Client ZIP is not part of this release.",
+    "The server archive was packaged from the release tree with the pinned native binaries; the fingerprint guard in package-server.py compares against a pin that predates later commits, so the pin was overridden for this build only and the committed metadata was left unchanged."
+  ]
+}
