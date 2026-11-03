@@ -274,6 +274,21 @@ class TunnelStatus {
     this.tx,
     this.handshake,
   });
+
+  /// Lets the 3 s status poll stay silent while the tunnel state is unchanged:
+  /// value equality is what keeps an idle window from redrawing continuously.
+  @override
+  bool operator ==(Object other) =>
+      other is TunnelStatus &&
+      other.active == active &&
+      other.state == state &&
+      other.path == path &&
+      other.rx == rx &&
+      other.tx == tx &&
+      other.handshake == handshake;
+
+  @override
+  int get hashCode => Object.hash(active, state, path, rx, tx, handshake);
 }
 
 /// Imports only client data; never SSH credentials, commands or subscription URLs.
@@ -577,6 +592,7 @@ class AppStore extends ChangeNotifier {
   bool get consentReady =>
       legalRecord?.current == true && vpnDisclosure == vpnDisclosureRevision;
   void setForeground(bool active) {
+    _foreground = active;
     _timer?.cancel();
     _timer = null;
     if (active && ready) {
@@ -584,6 +600,10 @@ class AppStore extends ChangeNotifier {
       _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
     }
   }
+
+  /// The poll runs only while a window is visible. Kept as state because a load
+  /// that finishes after the window was hidden must not restart the timer.
+  bool _foreground = true;
 
   Future<void> acknowledgeLegal(String text, String language) async {
     final previous = legalRecord;
@@ -759,7 +779,9 @@ class AppStore extends ChangeNotifier {
     }
     ready = true;
     notifyListeners();
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    if (_foreground) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    }
     if (Platform.isAndroid &&
         (!enforceConsent || consentReady) &&
         await native.invokeMethod<bool>('consumeConnectRequest') == true) {
@@ -830,6 +852,9 @@ class AppStore extends ChangeNotifier {
       '${DateTime.now().toIso8601String().substring(11, 19)}  $event',
     );
     if (events.length > 100) events.removeLast();
+    // The journal is on screen; publish the new line instead of waiting for the
+    // next status tick to repaint it.
+    notifyListeners();
   }
 
   Future<void> select(String id) async {
@@ -1780,6 +1805,7 @@ class AppStore extends ChangeNotifier {
       _statusPoll.run(_readStatus, fresh: fresh);
 
   Future<void> _readStatus() async {
+    final previous = status;
     try {
       final p = activeProfile ?? selected;
       if (nativeProtocols.contains(p?.protocol) && nativeTunnel) {
@@ -1813,6 +1839,22 @@ class AppStore extends ChangeNotifier {
       );
     } finally {
       _syncWatchdog();
+      // An unchanged read must not repaint: the poll runs every 3 s and a full
+      // rebuild of the three workspace pages was the largest idle CPU cost.
+      _notifyStatusChange(previous);
+    }
+  }
+
+  int _unchangedTicks = 0;
+  /// Safety net for state that is written without its own notification.
+  static const _unchangedTickLimit = 20; // 60 s at the 3 s poll interval.
+
+  void _notifyStatusChange(TunnelStatus previous) {
+    if (status != previous) {
+      _unchangedTicks = 0;
+      notifyListeners();
+    } else if (++_unchangedTicks >= _unchangedTickLimit) {
+      _unchangedTicks = 0;
       notifyListeners();
     }
   }
