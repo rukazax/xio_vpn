@@ -182,11 +182,26 @@ def rules(d,remove=False):
  outbound6=stack.network.dualstack().outbounds().get('ipv6',d['outbound'])
  for proto,iface,subnet in ([('awg','xioawg0','10.78.0.0/24')] if d.get('restrictedNetwork') else [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]):
   comment=OWNER+'-'+proto
+  # Client isolation for IPv4. rules() inserts with -I, so the list order is the
+  # reverse of the resulting chain: DROP first, then RELATED, then established
+  # replies, then the forward to the uplink ends up on top. RELATED (not only
+  # ESTABLISHED) is required so ICMP fragmentation-needed from the path is not
+  # dropped, otherwise large packets silently die with MTU 1232.
+  ipv4_forward = [
+   ('iptables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','DROP']),
+   ('iptables',[],['FORWARD','-i',iface,'-m','conntrack','--ctstate','RELATED','-m','comment','--comment',comment,'-j','ACCEPT']),
+   ('iptables',[],['FORWARD','-o',iface,'-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',comment,'-j','ACCEPT']),
+   ('iptables',[],['FORWARD','-i',iface,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','ACCEPT'])]
+  if not remove:
+   # The wide "anything from this interface" rule from 0.24.0/0.24.1-rc3 is
+   # superseded; remove it so the chain has a single readable policy.
+   legacy=['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','ACCEPT']
+   if subprocess.run(['iptables','-w','5','-C',*legacy],capture_output=True).returncode==0:
+    subprocess.run(['iptables','-w','5','-D',*legacy],capture_output=True)
   for cmd,table,rule in [
    ('iptables',[],['INPUT','-i',d['outbound'],'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
    ('ip6tables',[],['INPUT','-i',outbound6,'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
-   ('iptables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','ACCEPT']),
-   ('iptables',[],['FORWARD','-o',iface,'-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',comment,'-j','ACCEPT']),
+   *ipv4_forward,
    ('iptables',['-t','nat'],['POSTROUTING','-s',subnet,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','MASQUERADE']),
    ('ip6tables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','DROP'])]:
    if not shutil.which(cmd):continue
