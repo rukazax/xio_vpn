@@ -57,11 +57,17 @@ def add_peer(server, name, public, uid):
 
 def finish(config, private):
     # The server never sees the client private key, so the placeholder is filled here.
+    if '<client-private-key>' not in config:
+        raise SystemExit('admin.py returned a profile without the private-key placeholder')
     return config.replace('<client-private-key>', private)
 
 
 def qr(path):
+    if not sys.stdout.isatty():
+        print('qr: stdout is not a terminal, refusing to print a private key into a log', file=sys.stderr)
+        return False
     if not shutil.which('qrencode'):
+        print('qr: qrencode is not installed (apt-get install -y qrencode)', file=sys.stderr)
         return False
     result = run('qrencode', '-t', 'ansiutf8', '-r', path)
     if result.returncode == 0:
@@ -75,6 +81,7 @@ def main():
     parser.add_argument('name', help='device name, e.g. router-jeton or iphone')
     parser.add_argument('--out', default='')
     parser.add_argument('--qr', action='store_true', help='print a terminal QR code')
+    parser.add_argument('--force', action='store_true', help='replace an existing profile file')
     args = parser.parse_args()
     if not re.fullmatch(r'[A-Za-z0-9 ._-]{1,80}', args.name):
         raise SystemExit('invalid name')
@@ -83,8 +90,13 @@ def main():
     answer = add_peer(server_id(), args.name, public, uid)
     config = finish(answer['config'], private)
     target = Path(args.out or ('/root/%s.conf' % re.sub(r'[^A-Za-z0-9._-]', '-', args.name)))
-    target.write_text(config)
-    target.chmod(0o600)
+    if target.exists() and not args.force:
+        raise SystemExit('profile already exists: %s (use --force to replace)' % target)
+    handle = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        os.write(handle, config.encode('utf-8'))
+    finally:
+        os.close(handle)
     print(json.dumps({'ok': True, 'conf': str(target), 'user': answer['user'],
                       'endpoint': [line for line in config.splitlines() if line.startswith('Endpoint')][0].split(' = ')[1]}))
     if args.qr:
@@ -93,4 +105,10 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except Exception as error:  # noqa: BLE001 - the CLI must always exit with a code
+        print('xio-peer: %s' % error, file=sys.stderr)
+        sys.exit(2)

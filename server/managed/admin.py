@@ -280,7 +280,7 @@ def authority(d,actor,action,req):
  u=d['users'].get(actor)
  assert u and not u.get('revoked') and u.get('role')=='admin','Admin access revoked'
  assert action in ['inspect','status','add','add-awg','revoke','catalog'],'Operation not permitted'
- if action=='add':
+ if action in ('add','add-awg'):
   assert not req.get('admin',False),'Only owner may create admins'
   children=sum(not x.get('revoked') and x.get('createdBy')==actor for x in d['users'].values())
   assert children < u.get('userLimit',0),'User quota exceeded'
@@ -491,6 +491,7 @@ def catalog_state():
 def awg_client_config(d,user):
  """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
+ host='[%s]'%host if ':' in host else host
  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9']
  for key in ['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']:
@@ -524,16 +525,19 @@ def dispatch(req,actor=None):
   # They have no XIO client, so no other transport key is issued for them.
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
-  public=req['publicKey'];assert isinstance(public,str) and len(base64.b64decode(public,validate=True))==32,'Invalid public key'
+  public=req['publicKey'];raw=base64.b64decode(public,validate=True) if isinstance(public,str) else b''
+  assert len(raw)==32 and raw!=b'\x00'*32,'Invalid public key'
+  assert public!=d['publicKeys']['awg'],'Refusing the server key'
   if uid in d['users']:raise RuntimeError('User id already exists')
-  assert not any(public in u['keys'].values() for u in d['users'].values()),'Duplicate key'
+  seen={base64.b64decode(v,validate=True) for u in d['users'].values() for v in u.get('keys',{}).values() if isinstance(v,str) and len(v)%4==0}
+  assert raw not in seen,'Duplicate key'
   used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
   d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public},'revoked':False,
                    'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
   try:
    save(d);apply(d)
   except Exception:
-   d['users'].pop(uid,None);raise
+   d['users'].pop(uid,None);save(d);raise
   return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
           'config':awg_client_config(d,d['users'][uid])}
  if action=='add':

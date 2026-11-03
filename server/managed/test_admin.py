@@ -72,7 +72,6 @@ class InstallerTests(unittest.TestCase):
    self.assertFalse(m.firewall_managed(d,True))
   self.assertIn(unittest.mock.call('ufw','--force','route','delete',*rule[1:]),calls.call_args_list)
   self.assertEqual(len(calls.call_args_list),2)
-if __name__=='__main__':unittest.main()
 
 class RestrictedPolicyTests(unittest.TestCase):
  def test_public_profiles_advertise_only_restricted_candidates(self):
@@ -174,7 +173,7 @@ class StaticAwgTests(unittest.TestCase):
  def test_add_awg_returns_profile_and_marks_transport(self):
   d=self.deployment(); saved={}
   with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x: saved.update(x)),patch.object(m,'apply',return_value=None):
-   answer=m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='})
+   answer=m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='})
   user=answer['user']; self.assertEqual(user['transports'],['awg']); self.assertEqual(user['slot'],2)
   conf=answer['config']
   self.assertIn('Endpoint = 203.0.113.9:51821',conf)
@@ -182,10 +181,49 @@ class StaticAwgTests(unittest.TestCase):
   self.assertIn('Jc = 4',conf)
   self.assertIn('MTU = 1232',conf)
   self.assertIn('10.78.0.2/24',conf)
-  self.assertEqual(d['users']['a'*32]['keys'],{'awg':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='})
+  self.assertEqual(d['users']['a'*32]['keys'],{'awg':'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='})
 
  def test_add_awg_rejects_short_key(self):
   d=self.deployment()
   with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
    with self.assertRaises(AssertionError):
     m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'b'*32,'publicKey':'AAAA'})
+
+class StaticAwgGuardTests(unittest.TestCase):
+ KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='
+ ZERO='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+ def deployment(self):
+  return {'owner':m.OWNER,'id':'srv','host':'2001:db8::1','phase':'ready','protocols':['wireguard','awg'],
+          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
+          'H1':1,'H2':2,'H3':3,'H4':4}}
+ def dispatch(self,d,**extra):
+  request={'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':self.KEY}
+  request.update(extra)
+  return m.dispatch(request)
+
+ def test_failed_apply_removes_the_peer_from_disk_state(self):
+  d=self.deployment(); saved={}
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x: saved.update(x)),patch.object(m,'apply',side_effect=RuntimeError('uapi down')):
+   with self.assertRaises(RuntimeError): self.dispatch(d)
+  self.assertEqual(saved['users'],{})
+
+ def test_ipv6_host_endpoint_is_bracketed(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   answer=self.dispatch(d)
+  self.assertIn('Endpoint = [2001:db8::1]:51821',answer['config'])
+
+ def test_zero_key_and_server_key_are_rejected(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   with self.assertRaises(AssertionError): self.dispatch(d,publicKey=self.ZERO)
+   with self.assertRaises(AssertionError): self.dispatch(d,publicKey='SERVERPUBKEY')
+
+ def test_static_peer_does_not_appear_in_wireguard_config(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   self.dispatch(d)
+  self.assertNotIn('wireguard',d['users']['a'*32]['keys'])
+
+
+if __name__=='__main__':unittest.main()
