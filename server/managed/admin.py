@@ -514,7 +514,7 @@ def awg_client_config(d,user):
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
   if key in awg:
    lines.append('%s = %s'%(key,awg[key]))
- lines+=['MTU = 1232','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
+ lines+=['MTU = 1280','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
          'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
  return '\n'.join(lines)
 

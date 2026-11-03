@@ -179,7 +179,7 @@ class StaticAwgTests(unittest.TestCase):
   self.assertIn('Endpoint = 203.0.113.9:51821',conf)
   self.assertIn('PublicKey = SERVERPUBKEY',conf)
   self.assertIn('Jc = 4',conf)
-  self.assertIn('MTU = 1232',conf)
+  self.assertIn('MTU = 1280',conf)
   self.assertNotIn('S3 =',conf)  # not present in this deployment, so not invented
   self.assertIn('10.78.0.2/24',conf)
   self.assertEqual(d['users']['a'*32]['keys'],{'awg':'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='})
@@ -225,6 +225,42 @@ class StaticAwgGuardTests(unittest.TestCase):
   with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
    self.dispatch(d)
   self.assertNotIn('wireguard',d['users']['a'*32]['keys'])
+
+
+if __name__=='__main__':unittest.main()
+
+class IsolationRulesTests(unittest.TestCase):
+ def payload(self):
+  return {'restrictedNetwork':True,'outbound':'eth0','users':{},'firewall':{'kind':'iptables'}}
+
+ def test_ipv4_chain_order_and_removal(self):
+  calls=[]
+  fake=type('R',(),{'returncode':1})()
+  with patch.object(m,'run',side_effect=lambda *a,**k: calls.append(a)), \
+       patch.object(m,'shutil') as sh, patch.object(m,'stack') as st, \
+       patch.object(m.subprocess,'run',return_value=fake):
+   sh.which.return_value='/usr/bin/iptables'
+   st.network.dualstack.return_value.outbounds.return_value={'ipv6':'eth0'}
+   m.rules(self.payload())
+  inserts=[c for c in calls if c[0]=='iptables' and 'FORWARD' in c and '-I' in c and 'xio-managed-v1-awg' in c]
+  targets=[c[c.index('-j')+1] for c in inserts if '-j' in c]
+  self.assertEqual(targets[0],'DROP','the drop is inserted first so it ends up below the accepts')
+  self.assertEqual(targets[-1],'ACCEPT')
+  joined=' '.join(' '.join(c) for c in inserts)
+  self.assertIn('RELATED',joined)
+  self.assertIn('-o eth0',joined)
+
+ def test_remove_deletes_the_forward_rules(self):
+  calls=[]
+  fake=type('R',(),{'returncode':0})()
+  with patch.object(m,'run',side_effect=lambda *a,**k: calls.append(a)), \
+       patch.object(m,'shutil') as sh, patch.object(m,'stack') as st, \
+       patch.object(m.subprocess,'run',return_value=fake):
+   sh.which.return_value='/usr/bin/iptables'
+   st.network.dualstack.return_value.outbounds.return_value={'ipv6':'eth0'}
+   m.rules(self.payload(),remove=True)
+  deletes=[c for c in calls if c[0]=='iptables' and 'FORWARD' in c and '-D' in c and 'xio-managed-v1-awg' in c]
+  self.assertEqual(len(deletes),4)  # the four FORWARD rules of the isolation policy
 
 
 if __name__=='__main__':unittest.main()
