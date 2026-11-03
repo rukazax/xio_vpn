@@ -58,7 +58,10 @@ def firewall_rules(subnet,iface,outbound,ipsec=False):
  # Every rule carries the interface the packet arrives on: an unscoped
  # `-s 10.80.0.0/24` also matches spoofed traffic from any other interface.
  scope=['-i',iface] if iface else (['-m','policy','--dir','in','--pol','ipsec'] if ipsec else [])
- return [['-t','nat','POSTROUTING',*scope,'-s',subnet,'-o',outbound,'-m','comment','--comment','xio-stack-net-v1','-j','MASQUERADE'],
+ # POSTROUTING has no input interface: both `-i` and the inbound policy match are
+ # rejected there, so the MASQUERADE rule is scoped by source subnet and outbound
+ # interface only. Arrival-interface enforcement stays in the FORWARD rules.
+ return [['-t','nat','POSTROUTING','-s',subnet,'-o',outbound,'-m','comment','--comment','xio-stack-net-v1','-j','MASQUERADE'],
          ['FORWARD',*scope,'-s',subnet,'-o',outbound,'-m','comment','--comment','xio-stack-net-v1','-j','ACCEPT'],
          ['FORWARD','-d',subnet,*(['-i',outbound] if iface else ['-m','policy','--dir','out','--pol','ipsec']),'-m','conntrack','--ctstate','ESTABLISHED,RELATED','-m','comment','--comment','xio-stack-net-v1','-j','ACCEPT']]
 def apply_rules(rules,remove=False):

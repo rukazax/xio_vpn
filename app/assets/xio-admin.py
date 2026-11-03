@@ -12,7 +12,7 @@ else:
   def remove(self,d):assert not Path('/etc/xio-stack/receipt.json').exists(),'Stack removal module missing; update installer'
  stack=LegacyStack()
 ROOT=Path('/etc/xio-managed'); LIB=Path('/usr/local/lib/xio-managed'); OWNER='xio-managed-v1'
-RECIPE=25
+RECIPE=26
 
 def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True)
@@ -231,6 +231,9 @@ def start_awg(d):
 def counters():
  result={}
  for protocol,iface in [('wireguard','xio0'),('awg','xioawg0')]:
+  # Restricted installs have no kernel WireGuard interface at all; querying it
+  # fails the whole sample and takes the stats timer and `status` down with it.
+  if not Path('/sys/class/net/'+iface).exists():continue
   if protocol=='wireguard':
    text=run('wg','show',iface,'dump');rows=text.splitlines()[1:]
    for row in rows:
@@ -337,9 +340,11 @@ def stats(d):
   for p,pub in u['keys'].items():
    rx,tx,hs=current.get((p,pub),(0,0,0));s=u.setdefault('stats',{}).setdefault(p,{'rx':0,'tx':0,'lastRx':0,'lastTx':0})
    if u.get('revoked'):continue
-   reset=s.get('generation')!=generations[p]
+   # Protocols without a running unit (e.g. wireguard in restricted installs) have no
+   # generation; their counters stay zero and must not fail the whole sample.
+   reset=s.get('generation')!=generations.get(p)
    dr=rx if reset or rx<s['lastRx'] else rx-s['lastRx'];dt=tx if reset or tx<s['lastTx'] else tx-s['lastTx']
-   s['rx']+=dr;s['tx']+=dt;s.update(lastRx=rx,lastTx=tx,handshake=hs,generation=generations[p])
+   s['rx']+=dr;s['tx']+=dt;s.update(lastRx=rx,lastTx=tx,handshake=hs,generation=generations.get(p))
    month=time.strftime('%Y-%m',time.gmtime());months=u.setdefault('monthly',{});months[month]=months.get(month,0)+dr+dt
   u['month']=time.strftime('%Y-%m',time.gmtime());u['monthBytes']=u.get('monthly',{}).get(u['month'],0)
   u['online']=not u.get('revoked') and any(0<=time.time()-v.get('handshake',0)<=180 for p,v in u.get('stats',{}).items() if p in d['protocols'])
