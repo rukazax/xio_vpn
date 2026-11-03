@@ -53,3 +53,9 @@ server/catalog/whitelist-state.json
 server/catalog/whitelist-manifest.json
 server/catalog/*.sig
 __pycache__/
+# Local build and measurement artifacts (added 2026-11-04).
+work/.stage-server-assets/
+work/assets-backup-*/
+work/quarantine-*/
+work/*/stage/
+work/opt-runtime-*/
