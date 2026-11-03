@@ -19,7 +19,7 @@ def fixture(root):
     (managed / 'mesh-pins.json').write_text('{}')
     (managed / 'bootstrap.sh').write_bytes(b'set -eu\n')
     (managed / 'xio_vici/__init__.py').write_text('# vici fixture\n')
-    (managed / 'xio_vici/LICENSE').write_text('fixture-license')
+    (managed / 'xio_vici/LICENSE').write_text('fixture-license\nsecond line\n')
     catalog_dir = root / 'server/catalog'; catalog_dir.mkdir(parents=True)
     for name in ['catalog.py','lint_catalog.py','whitelist-pins.json','README.md','xio-catalog.service','xio-catalog.timer']:
         (catalog_dir / name).write_bytes(b'# catalog fixture\n')
@@ -99,14 +99,20 @@ class PackageGuardTests(unittest.TestCase):
             one = root / 'out-lf'; two = root / 'out-crlf'
             with patch.object(package, 'AWG_SHA256', pin):
                 first = package.package(root, root, one)
-            for path in root.rglob('*'):
-                if path.is_file() and path.suffix in ('.py', '.json', '.sh'):
-                    data = path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
-                    path.write_bytes(data)
+            # Every text member the packer claims to normalise, taken from the packer's
+            # own rule: a suffix list alone missed the vendored LICENSE and shipped CRLF.
+            for source, name in package.sources(root):
+                if package.is_text_member(name):
+                    source.write_bytes(source.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n'))
             with patch.object(package, 'AWG_SHA256', pin):
                 second = package.package(root, root, two)
             self.assertEqual(first['sha256'], second['sha256'])
             self.assertEqual((one / 'xio-server.tar.gz').read_bytes(), (two / 'xio-server.tar.gz').read_bytes())
+            # The LICENSE is published next to the tarball as well as packed inside it.
+            published = (two / 'xio_vici/LICENSE').read_bytes()
+            self.assertNotIn(b'\r\n', published)
+            with tarfile.open(two / 'xio-server.tar.gz', 'r:gz') as tar:
+                self.assertEqual(tar.extractfile('xio_vici/LICENSE').read(), published)
 
     def test_real_canonical_recipe_constants_match_without_importing_or_packaging(self):
         import ast
