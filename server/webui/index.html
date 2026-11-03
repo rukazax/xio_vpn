@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>XIO — панель сервера</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #131a22;
+    --panel-2: #18212b;
+    --line: #24303d;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #38bdf8;
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --err: #f87171;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  body {
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+    padding: 16px;
+  }
+  h1, h2, h3 { margin: 0; font-weight: 600; }
+  a { color: var(--accent); }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
+  header.top {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .logo {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(140deg, #0ea5e9, #6366f1);
+    display: grid; place-items: center; font-weight: 700; font-size: 14px; color: #fff;
+  }
+  .brand small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
+  .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 8px rgba(52, 211, 153, .7); }
+  .dot.err { background: var(--err); }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(12, 1fr); }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; min-width: 0;
+  }
+  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+  .span-4 { grid-column: span 4; }
+  .span-6 { grid-column: span 6; }
+  .span-8 { grid-column: span 8; }
+  .span-12 { grid-column: span 12; }
+  @media (max-width: 900px) { .span-4, .span-6, .span-8 { grid-column: span 12; } }
+  dl.kv { display: grid; grid-template-columns: minmax(110px, 38%) 1fr; gap: 6px 12px; margin: 0; }
+  dl.kv dt { color: var(--muted); }
+  dl.kv dd { margin: 0; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  tr:last-child td { border-bottom: 0; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); }
+  .badge.ok { color: #062f21; background: var(--ok); border-color: var(--ok); }
+  .badge.off { color: #d1d5db; background: #374151; }
+  .badge.warn { color: #3b2a04; background: var(--warn); border-color: var(--warn); }
+  .badge.err { color: #3b0a0a; background: var(--err); border-color: var(--err); }
+  button {
+    font: inherit; font-size: 13px; color: var(--text); background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: #0b5c86; border-color: #0e7490; }
+  button.danger { color: #fecaca; border-color: #7f1d1d; background: #2a1215; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  input[type="text"], input[type="password"] {
+    font: inherit; font-size: 14px; color: var(--text); background: #0d141b;
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; flex: 1 1 160px;
+  }
+  input:focus, button:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12.5px; }
+  .msg { border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-top: 10px; display: none; }
+  .msg.show { display: block; }
+  .msg.ok { background: #052e22; border: 1px solid #065f46; }
+  .msg.err { background: #2a1215; border: 1px solid #7f1d1d; }
+  ul.plain { list-style: none; margin: 0; padding: 0; }
+  ul.plain li { padding: 6px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 10px; }
+  ul.plain li:last-child { border-bottom: 0; }
+  .login {
+    position: fixed; inset: 0; background: rgba(5, 8, 12, .92); display: grid; place-items: center;
+    padding: 16px; z-index: 10;
+  }
+  .login[hidden] { display: none; }
+  .login .card { width: 100%; max-width: 420px; }
+  .traffic { display: flex; gap: 20px; flex-wrap: wrap; }
+  .traffic b { font-size: 22px; display: block; }
+  footer { color: var(--muted); font-size: 12px; margin: 18px 0 4px; }
+</style>
+</head>
+<body>
+
+<div class="login" id="login" hidden>
+  <div class="card">
+    <h2>Вход в панель XIO</h2>
+    <p class="small muted">Вставьте токен с сервера: <code>cat /opt/xio-webui/token</code>. Токен хранится в этой вкладке (sessionStorage) и отправляется только по TLS.</p>
+    <form id="login-form" class="row" autocomplete="off">
+      <input type="password" id="token-input" placeholder="токен" aria-label="токен" autocomplete="off" spellcheck="false">
+      <button class="primary" type="submit">Войти</button>
+    </form>
+    <div class="msg err" id="login-msg"></div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo">XIO</div>
+    <div>
+      <h1 id="hostname">загрузка…</h1>
+      <small id="subtitle">панель управления сервером</small>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span class="dot" id="health-dot"></span>
+    <span class="small muted" id="health-text">нет связи</span>
+    <button type="button" id="refresh">Обновить</button>
+    <button type="button" id="logout">Выйти</button>
+  </div>
+</header>
+
+<div class="grid">
+  <section class="card span-4">
+    <h2>Сервер</h2>
+    <dl class="kv" id="server-info">
+      <dt>Загрузка</dt><dd class="muted">…</dd>
+    </dl>
+  </section>
+
+  <section class="card span-8">
+    <h2>Сервисы</h2>
+    <div class="msg err" id="svc-msg"></div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Юнит</th><th>Состояние</th><th>Автозапуск</th><th></th></tr></thead>
+        <tbody id="services"><tr><td colspan="4" class="muted">…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card span-6">
+    <h2>Пользователи</h2>
+    <div class="msg err" id="user-msg"></div>
+    <ul class="plain" id="users"><li class="muted">…</li></ul>
+    <form id="add-form" class="row" style="margin-top:12px" autocomplete="off">
+      <input type="text" id="add-name" placeholder="имя пользователя" aria-label="имя пользователя" spellcheck="false" maxlength="32">
+      <input type="text" id="add-note" placeholder="заметка (необязательно)" aria-label="заметка" maxlength="200">
+      <button class="primary" type="submit">Добавить</button>
+    </form>
+  </section>
+
+  <section class="card span-6">
+    <h2>Каскад</h2>
+    <div class="msg err" id="cascade-msg"></div>
+    <dl class="kv">
+      <dt>Роль</dt><dd id="cascade-role">…</dd>
+      <dt>Состояние</dt><dd id="cascade-state">…</dd>
+      <dt>Юнит</dt><dd id="cascade-unit" class="mono">…</dd>
+    </dl>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" type="button" id="cascade-on">Включить</button>
+      <button class="danger" type="button" id="cascade-off">Выключить</button>
+    </div>
+    <p class="small muted" style="margin-bottom:0">Включение/выключение каскада управляет юнитом <span class="mono">xio-rivet-gateway</span>.</p>
+  </section>
+
+  <section class="card span-6">
+    <h2>Трафик</h2>
+    <div class="traffic">
+      <div><span class="muted small">принято</span><b id="traffic-rx">—</b></div>
+      <div><span class="muted small">отдано</span><b id="traffic-tx">—</b></div>
+    </div>
+    <p class="small muted" style="margin:10px 0 0" id="traffic-note">данные из admin.py inspect</p>
+  </section>
+
+  <section class="card span-6">
+    <h2>Белые списки</h2>
+    <div id="whitelists"><p class="muted small" style="margin:0">нет данных</p></div>
+  </section>
+
+  <section class="card span-12" id="warnings-card" hidden>
+    <h2>Предупреждения</h2>
+    <ul class="plain small" id="warnings"></ul>
+  </section>
+</div>
+
+<footer>
+  XIO WebUI <span id="app-version">—</span> · обновление каждые 5 с · <span id="last-update">—</span>
+  · отпечаток сертификата <span class="mono" id="cert-fp">—</span>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var TOKEN_KEY = "xio_token";
+  var state = null;
+  var csrf = "";
+  var busy = false;
+  var timer = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  function token() { return sessionStorage.getItem(TOKEN_KEY) || ""; }
+
+  function showLogin(show) { $("login").hidden = !show; if (show) $("token-input").focus(); }
+
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (ch) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
+    });
+  }
+
+  function bytes(value) {
+    var n = Number(value);
+    if (!isFinite(n) || n < 0) return "—";
+    var units = ["Б", "КиБ", "МиБ", "ГиБ", "ТиБ"];
+    var i = 0;
+    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+    return (i === 0 ? n : n.toFixed(1)) + " " + units[i];
+  }
+
+  function uptime(seconds) {
+    var s = Number(seconds);
+    if (!isFinite(s) || s <= 0) return "—";
+    var d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60);
+    if (d) return d + " д " + h + " ч";
+    if (h) return h + " ч " + m + " мин";
+    return m + " мин";
+  }
+
+  function setMsg(id, text) {
+    var el = $(id);
+    if (!text) { el.className = "msg err"; el.textContent = ""; return; }
+    el.className = "msg err show";
+    el.textContent = text;
+  }
+
+  function api(path, options) {
+    options = options || {};
+    var headers = { "Accept": "application/json" };
+    if (token()) headers["Authorization"] = "Bearer " + token();
+    if (options.method === "POST") {
+      headers["Content-Type"] = "application/json";
+      headers["X-XIO-CSRF"] = csrf;
+      if (options.unit) headers["X-XIO-Unit"] = options.unit;
+    }
+    return fetch(path, {
+      method: options.method || "GET",
+      headers: headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      credentials: "same-origin",
+      cache: "no-store"
+    }).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (data) {
+        if (response.status === 401 || response.status === 429) {
+          if (response.status === 401) showLogin(true);
+          throw new Error(data.error || ("HTTP " + response.status));
+        }
+        if (!response.ok) throw new Error(data.error || ("HTTP " + response.status));
+        return data;
+      });
+    });
+  }
+
+  function renderServer(s) {
+    $("hostname").textContent = s.hostname || "xio";
+    $("subtitle").textContent = "роль: " + (s.role || "неизвестна") + " · версия: " + (s.version || "неизвестна");
+    var rows = [
+      ["Имя", s.hostname],
+      ["Роль каскада", s.role],
+      ["Версия XIO", s.version],
+      ["Uptime", uptime(s.uptime_seconds)],
+      ["deployment.json", s.deployment_present ? "найден" : "нет"],
+      ["admin.py", s.admin_present ? "найден" : "нет"],
+      ["TLS SHA-256", s.cert_fingerprint]
+    ];
+    $("server-info").innerHTML = rows.map(function (row) {
+      return "<dt>" + esc(row[0]) + "</dt><dd>" + esc(row[1] || "—") + "</dd>";
+    }).join("");
+    $("cert-fp").textContent = s.cert_fingerprint || "—";
+  }
+
+  function renderServices(services) {
+    var body = $("services");
+    if (!services || !services.length) {
+      body.innerHTML = '<tr><td colspan="4" class="muted">нет данных</td></tr>';
+      return;
+    }
+    body.innerHTML = services.map(function (svc) {
+      var active = svc.active === "active";
+      var cls = active ? "ok" : (svc.active === "failed" ? "err" : "off");
+      var buttons = ["start", "stop", "restart"].map(function (verb) {
+        var label = verb === "start" ? "Старт" : (verb === "stop" ? "Стоп" : "Рестарт");
+        var dis = (verb === "start" && active) || (verb === "stop" && !active) ? " disabled" : "";
+        return '<button type="button" data-verb="' + verb + '" data-unit="' + esc(svc.unit) + '"' + dis + ">" + label + "</button>";
+      }).join(" ");
+      return "<tr><td class=\"mono\">" + esc(svc.unit) + "</td>" +
+        '<td><span class="badge ' + cls + '">' + esc(svc.active) + " / " + esc(svc.sub) + "</span></td>" +
+        "<td>" + esc(svc.enabled) + "</td>" +
+        '<td><div class="row">' + buttons + "</div></td></tr>";
+    }).join("");
+  }
+
+  function renderUsers(users, source) {
+    var list = $("users");
+    if (!users || !users.length) {
+      list.innerHTML = '<li class="muted">нет данных (' + esc(source || "") + ")</li>";
+      return;
+    }
+    list.innerHTML = users.map(function (user) {
+      return '<li><span class="mono">' + esc(user.name) + "</span><span>" +
+        '<span class="badge off">' + esc(user.status) + "</span> " +
+        '<button type="button" class="danger" data-revoke="' + esc(user.name) + '">Отозвать</button></span></li>';
+    }).join("");
+  }
+
+  function renderCascade(cascade) {
+    $("cascade-role").textContent = cascade.role || "неизвестна";
+    $("cascade-state").innerHTML = '<span class="badge ' + (cascade.enabled ? "ok" : "off") + '">' +
+      (cascade.enabled ? "включён" : "выключен") + "</span>";
+    $("cascade-unit").textContent = cascade.unit || "—";
+  }
+
+  function renderTraffic(traffic) {
+    traffic = traffic || {};
+    $("traffic-rx").textContent = traffic.rx != null ? bytes(traffic.rx) : "—";
+    $("traffic-tx").textContent = traffic.tx != null ? bytes(traffic.tx) : "—";
+    $("traffic-note").textContent = (traffic.rx != null || traffic.tx != null)
+      ? "данные из admin.py inspect" : "admin.py inspect не отдал счётчики трафика";
+  }
+
+  function renderWhitelists(lists) {
+    var box = $("whitelists");
+    if (!lists || !lists.length) {
+      box.innerHTML = '<p class="muted small" style="margin:0">нет данных</p>';
+      return;
+    }
+    box.innerHTML = lists.map(function (group) {
+      var items = (group.items || []).map(function (item) {
+        return "<li><span class=\"mono small\">" + esc(item) + "</span></li>";
+      }).join("");
+      return '<div style="margin-bottom:10px"><div class="muted small">' + esc(group.name) +
+        '</div><ul class="plain">' + (items || '<li class="muted small">пусто</li>') + "</ul></div>";
+    }).join("");
+  }
+
+  function renderWarnings(warnings) {
+    var card = $("warnings-card");
+    if (!warnings || !warnings.length) { card.hidden = true; return; }
+    card.hidden = false;
+    $("warnings").innerHTML = warnings.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("");
+  }
+
+  function render(data) {
+    state = data;
+    csrf = data.csrf || csrf;
+    renderServer(data.server || {});
+    renderServices(data.services || []);
+    renderUsers(data.users || [], data.users_source);
+    renderCascade(data.cascade || {});
+    renderTraffic(data.traffic || {});
+    renderWhitelists(data.whitelists || []);
+    renderWarnings(data.warnings || []);
+    $("app-version").textContent = data.app_version || "—";
+    $("last-update").textContent = new Date().toLocaleTimeString();
+    $("health-dot").className = "dot ok";
+    $("health-text").textContent = "онлайн";
+  }
+
+  function load() {
+    if (busy) return Promise.resolve();
+    if (!token()) { showLogin(true); return Promise.resolve(); }
+    busy = true;
+    return api("/api/state").then(function (data) {
+      showLogin(false);
+      setMsg("svc-msg", "");
+      render(data);
+    }).catch(function (error) {
+      $("health-dot").className = "dot err";
+      $("health-text").textContent = "ошибка: " + error.message;
+      if (/authentication required/i.test(error.message)) showLogin(true);
+    }).then(function () { busy = false; });
+  }
+
+  function act(path, body, unit, msgId, label) {
+    api(path, { method: "POST", body: body || {}, unit: unit }).then(function () {
+      setMsg(msgId, "");
+      return load();
+    }).catch(function (error) {
+      setMsg(msgId, label + ": " + error.message);
+    });
+  }
+
+  function debounce(fn, wait) {
+    var handle = null;
+    return function () {
+      var args = arguments, self = this;
+      clearTimeout(handle);
+      handle = setTimeout(function () { fn.apply(self, args); }, wait);
+    };
+  }
+
+  document.addEventListener("click", function (event) {
+    var target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    var verb = target.getAttribute("data-verb");
+    if (verb) {
+      target.disabled = true;
+      act("/api/service/" + encodeURIComponent(verb), {}, target.getAttribute("data-unit"),
+          "svc-msg", "Сервис");
+      return;
+    }
+    var revoke = target.getAttribute("data-revoke");
+    if (revoke) {
+      if (!confirm("Отозвать пользователя " + revoke + "?")) return;
+      act("/api/user/revoke", { name: revoke }, null, "user-msg", "Отзыв");
+    }
+  });
+
+  $("login-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var value = $("token-input").value.trim();
+    if (!value) return;
+    sessionStorage.setItem(TOKEN_KEY, value);
+    $("login-msg").className = "msg err";
+    api("/api/state").then(function (data) {
+      $("token-input").value = "";
+      showLogin(false);
+      render(data);
+    }).catch(function (error) {
+      sessionStorage.removeItem(TOKEN_KEY);
+      $("login-msg").className = "msg err show";
+      $("login-msg").textContent = "Не удалось войти: " + error.message;
+    });
+  });
+
+  $("add-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var name = $("add-name").value.trim();
+    if (!name) return;
+    act("/api/user/add", { name: name, note: $("add-note").value.trim() }, null, "user-msg", "Добавление");
+    $("add-name").value = "";
+    $("add-note").value = "";
+  });
+
+  $("cascade-on").addEventListener("click", function () {
+    act("/api/cascade/enable", {}, null, "cascade-msg", "Каскад");
+  });
+  $("cascade-off").addEventListener("click", function () {
+    act("/api/cascade/disable", {}, null, "cascade-msg", "Каскад");
+  });
+  $("refresh").addEventListener("click", function () { load(); });
+  $("logout").addEventListener("click", function () {
+    sessionStorage.removeItem(TOKEN_KEY);
+    csrf = "";
+    state = null;
+    showLogin(true);
+  });
+
+  var onResize = debounce(function () { /* зарезервировано под мобильную вёрстку */ }, 200);
+  window.addEventListener("resize", onResize, { passive: true });
+
+  showLogin(!token());
+  // токен можно передать ссылкой: https://host:9443/?token=...
+  (function takeTokenFromUrl() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var fromUrl = params.get("token");
+      if (!fromUrl) return;
+      sessionStorage.setItem(TOKEN_KEY, fromUrl.trim());
+      params.delete("token");
+      var rest = params.toString();
+      window.history.replaceState(null, "", window.location.pathname + (rest ? "?" + rest : ""));
+    } catch (error) { /* игнорируем: токен можно ввести вручную */ }
+  })();
+  load();
+  timer = setInterval(load, 5000);
+  window.addEventListener("pagehide", function () { clearInterval(timer); });
+})();
+</script>
+</body>
+</html>

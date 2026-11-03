@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'cascade_ui.dart';
 import 'client_policy.dart';
 import 'core.dart';
 import 'help_legal_ui.dart';
@@ -67,6 +68,9 @@ class ClientApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: xioTheme(Brightness.light, client: true),
       darkTheme: xioTheme(Brightness.dark, client: true),
+      routes: <String, WidgetBuilder>{
+        CascadeScreen.routeName: (_) => const CascadeScreen(),
+      },
       home: FirstRunGate(
         store: store,
         child: ClientHome(store: store),

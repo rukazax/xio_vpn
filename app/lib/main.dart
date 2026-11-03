@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart'
     show LicenseRegistry, LicenseEntryWithLineBreaks;
 import 'package:flutter/services.dart';
 
+import 'cascade_ui.dart';
 import 'core.dart';
 import 'workspace_ui.dart';
 
@@ -102,6 +103,9 @@ class XioApp extends StatelessWidget {
       theme: xioTheme(Brightness.light),
       darkTheme: xioTheme(Brightness.dark),
       themeMode: ThemeMode.system,
+      routes: <String, WidgetBuilder>{
+        CascadeScreen.routeName: (_) => const CascadeScreen(),
+      },
       home: requireConsent
           ? FirstRunGate(
               store: store,
