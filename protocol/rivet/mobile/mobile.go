@@ -125,6 +125,9 @@ func (s *state) readTun() {
 	}
 }
 func (s *state) monitor() {
+	// One reusable backoff timer: time.After in the reconnect loop allocated a
+	// timer that lived until it fired on every attempt.
+	var pause *time.Timer
 	for {
 		s.mu.Lock()
 		session := s.session
@@ -137,7 +140,8 @@ func (s *state) monitor() {
 			if e != nil {
 				break
 			}
-			if rivet.CheckIP(packet, "", false) != nil || (rivet.Destination(packet) != s.cfg.IP && (s.cfg.IP6 == "" || rivet.Destination(packet) != s.cfg.IP6)) {
+			destination := rivet.Destination(packet)
+			if rivet.CheckIP(packet, "", false) != nil || (destination != s.cfg.IP && (s.cfg.IP6 == "" || destination != s.cfg.IP6)) {
 				break
 			}
 			if _, e = s.tun.Write(packet); e != nil {
@@ -160,10 +164,17 @@ func (s *state) monitor() {
 		s.mu.Unlock()
 		for attempt := 0; ; attempt++ {
 			delay := time.Duration(min(1<<min(attempt, 3), 8)) * time.Second
+			if pause == nil {
+				pause = time.NewTimer(delay)
+			} else {
+				// The channel was drained by the previous iteration.
+				pause.Reset(delay)
+			}
 			select {
 			case <-s.ctx.Done():
+				pause.Stop()
 				return
-			case <-time.After(delay):
+			case <-pause.C:
 			}
 			if attempt%2 == 0 {
 				if cfg.Protocol == "rivet-h3" {

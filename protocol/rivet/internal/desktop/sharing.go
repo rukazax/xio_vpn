@@ -1,9 +1,6 @@
 package desktop
 
-import (
-	"encoding/json"
-	"errors"
-)
+import "errors"
 
 func (r *Runtime) SharingStatus() (map[string]any, error) {
 	r.mu.Lock()
@@ -40,15 +37,4 @@ func (r *Runtime) SetSharing(enabled bool, iface string) (map[string]any, error)
 	result["enabled"] = enabled
 	result["interface"] = iface
 	return result, nil
-}
-func (r *Runtime) sharingActive() bool {
-	if r.current == nil {
-		return false
-	}
-	var value map[string]any
-	if json.Unmarshal([]byte(r.current.status()), &value) != nil {
-		return false
-	}
-	active, _ := value["active"].(bool)
-	return active
 }

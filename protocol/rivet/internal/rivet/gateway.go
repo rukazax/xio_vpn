@@ -37,6 +37,12 @@ type Gateway struct {
 	slots  chan struct{}
 	master []byte
 	id     []byte
+	// monthMonth/monthNext cache the current UTC month string (the guard for
+	// per-user monthly counters). Formatting it once per minute instead of once
+	// per counted packet keeps time.Format off the packet path; both callers
+	// (count and persist) read it under mu.
+	monthMonth string
+	monthNext  int64
 }
 
 func NewGateway(c GatewayConfig, tun io.ReadWriteCloser) (*Gateway, error) {
@@ -106,13 +112,24 @@ func (g *Gateway) remove(p *peer) {
 	defer g.mu.Unlock()
 	if g.peers[p.s.IP] == p {
 		delete(g.peers, p.s.IP)
-		if g.peers[IPv6For(p.s.IP)] == p {
-			delete(g.peers, IPv6For(p.s.IP))
+		v6 := IPv6For(p.s.IP)
+		if g.peers[v6] == p {
+			delete(g.peers, v6)
 		}
 		if s := g.stats[p.s.ID]; s != nil {
 			s.Online = false
 		}
 	}
+}
+// monthUTC returns the current UTC month, refreshed at most once a minute.
+// Callers must hold g.mu. Every user of the month string goes through this
+// helper so the rollover value stays consistent between count and persist.
+func (g *Gateway) monthUTC(now time.Time) string {
+	if unix := now.Unix(); unix >= g.monthNext {
+		g.monthMonth = now.UTC().Format("2006-01")
+		g.monthNext = unix + 60
+	}
+	return g.monthMonth
 }
 func (g *Gateway) count(id string, n int, rx bool) {
 	g.mu.Lock()
@@ -121,7 +138,7 @@ func (g *Gateway) count(id string, n int, rx bool) {
 	if s == nil {
 		return
 	}
-	month := time.Now().UTC().Format("2006-01")
+	month := g.monthUTC(time.Now())
 	if s.Month != month {
 		s.Month = month
 		s.MonthBytes = 0
@@ -189,7 +206,7 @@ func (g *Gateway) localDestination(dst string) bool {
 		return true
 	}
 	address, err := netip.ParseAddr(dst)
-	if err == nil && address.Is6() && netip.MustParsePrefix("64:ff9b::/96").Contains(address) {
+	if err == nil && address.Is6() && nat64.Contains(address) {
 		bytes := address.As16()
 		return g.locals[netip.AddrFrom4([4]byte(bytes[12:16])).String()]
 	}
@@ -201,6 +218,9 @@ func (g *Gateway) route(ctx context.Context) error {
 	go func() { <-ctx.Done(); g.tun.Close() }()
 	buf := make([]byte, 65536)
 	var downSince time.Time
+	// One lazily created pause timer replaces time.After in the retry path, so a
+	// recovery loop cannot allocate a timer per iteration.
+	var pause *time.Timer
 	for {
 		n, e := g.tun.Read(buf)
 		if e != nil {
@@ -212,10 +232,18 @@ func (g *Gateway) route(ctx context.Context) error {
 					downSince = time.Now()
 				}
 				if time.Since(downSince) < 5*time.Second {
+					if pause == nil {
+						pause = time.NewTimer(50 * time.Millisecond)
+					} else {
+						// The channel was drained by the previous iteration, so
+						// Reset is safe here.
+						pause.Reset(50 * time.Millisecond)
+					}
 					select {
 					case <-ctx.Done():
+						pause.Stop()
 						return nil
-					case <-time.After(50 * time.Millisecond):
+					case <-pause.C:
 						continue
 					}
 				}
@@ -348,10 +376,10 @@ func (g *Gateway) persist(ctx context.Context) {
 	flush := func() {
 		g.mu.Lock()
 		defer g.mu.Unlock()
-		now := time.Now().Unix()
-		month := time.Now().UTC().Format("2006-01")
+		now := time.Now()
+		month := g.monthUTC(now)
 		for _, s := range g.stats {
-			s.SampledAt = now
+			s.SampledAt = now.Unix()
 			if s.Month != month {
 				s.Month = month
 				s.MonthBytes = 0

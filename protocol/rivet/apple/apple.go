@@ -170,6 +170,8 @@ func (t *tunnel) send() {
 	}
 }
 func (t *tunnel) receive() {
+	// One reusable backoff timer instead of time.After per reconnect attempt.
+	var pause *time.Timer
 	for {
 		t.mu.Lock()
 		s := t.session
@@ -199,10 +201,18 @@ func (t *tunnel) receive() {
 		cfg := t.cfg
 		t.mu.Unlock()
 		for i := 0; ; i++ {
+			delay := time.Duration(1<<min(i, 3)) * time.Second
+			if pause == nil {
+				pause = time.NewTimer(delay)
+			} else {
+				// The channel was drained by the previous iteration.
+				pause.Reset(delay)
+			}
 			select {
 			case <-t.ctx.Done():
+				pause.Stop()
 				return
-			case <-time.After(time.Duration(1<<min(i, 3)) * time.Second):
+			case <-pause.C:
 			}
 			if i%2 == 0 {
 				if cfg.Protocol == "rivet-h3" {

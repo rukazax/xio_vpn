@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"strings"
 	"syscall"
 	"time"
 
@@ -267,4 +266,3 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 	s.StartMaintenance()
 	return s, nil
 }
-func IsRivet(s string) bool { return strings.HasPrefix(s, "rivet-") }

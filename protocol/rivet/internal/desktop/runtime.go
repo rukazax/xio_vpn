@@ -369,4 +369,3 @@ func wgStatus(raw string) string {
 }
 
 var _ io.ReadWriteCloser = (*deviceIO)(nil)
-var _ = context.Canceled
