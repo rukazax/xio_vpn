@@ -180,6 +180,7 @@ class StaticAwgTests(unittest.TestCase):
   self.assertIn('PublicKey = SERVERPUBKEY',conf)
   self.assertIn('Jc = 4',conf)
   self.assertIn('MTU = 1232',conf)
+  self.assertNotIn('S3 =',conf)  # not present in this deployment, so not invented
   self.assertIn('10.78.0.2/24',conf)
   self.assertEqual(d['users']['a'*32]['keys'],{'awg':'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='})
 
