@@ -1862,17 +1862,35 @@ class AppStore extends ChangeNotifier {
   /// Runs while the owner wants the tunnel: it re-checks the live link and
   /// restores the connection when the engine dropped or the link died, on every
   /// platform and build.
+  int _watchdogHealthy = 0;
+  /// A tunnel that has answered six checks in a row is stable enough to be
+  /// checked half as often: the DNS probe is the only periodic radio wakeup the
+  /// app makes, so 30 lookups per hour instead of 120 is real battery.
+  Duration get _watchdogInterval => _watchdogHealthy >= 6
+      ? const Duration(seconds: 30)
+      : const Duration(seconds: 15);
+
+  bool _watchdogScheduled = false;
+
   void _syncWatchdog() {
     if (_desired && autoReconnect) {
-      _watchdog ??= Timer.periodic(
-        const Duration(seconds: 15),
-        (_) => unawaited(_watchdogTick()),
-      );
+      if (_watchdogScheduled) return;
+      _watchdogScheduled = true;
+      _watchdog = Timer(_watchdogInterval, _watchdogRun);
     } else {
       _watchdog?.cancel();
       _watchdog = null;
+      _watchdogScheduled = false;
       _watchdogMisses = 0;
+      _watchdogHealthy = 0;
     }
+  }
+
+  void _watchdogRun() {
+    _watchdogScheduled = false;
+    unawaited(_watchdogTick().whenComplete(() {
+      if (_desired && autoReconnect) _syncWatchdog();
+    }));
   }
 
   Future<void> _watchdogTick() async {
@@ -1892,8 +1910,10 @@ class AppStore extends ChangeNotifier {
     }
     if (alive) {
       _watchdogMisses = 0;
+      if (_watchdogHealthy < 6) _watchdogHealthy++;
       return;
     }
+    _watchdogHealthy = 0;
     // Two consecutive misses rule out a single lost DNS answer.
     if (++_watchdogMisses < 2) return;
     _watchdogMisses = 0;

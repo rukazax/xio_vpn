@@ -462,7 +462,7 @@ WantedBy=multi-user.target
 '''
  write('/etc/systemd/system/xio-managed-awg.service',unit)
  write('/etc/systemd/system/xio-managed-stats.service','[Unit]\nDescription=xio counters\nAfter=xio-managed-awg.service\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/admin.py sample\n')
- write('/etc/systemd/system/xio-managed-stats.timer','[Unit]\nDescription=xio periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
+ write('/etc/systemd/system/xio-managed-stats.timer','[Unit]\nDescription=xio periodic counters\n[Timer]\nOnBootSec=60s\nOnUnitActiveSec=60s\n[Install]\nWantedBy=timers.target\n')
  run('systemctl','daemon-reload')
  if wireguard_enabled(d):run('systemctl','enable','--now','wg-quick@xio0')
  run('systemctl','enable','--now','xio-managed-awg');run('systemctl','enable','--now','xio-managed-stats.timer');d=load();rivet_install(d);stack.network.dualstack().apply();d['phase']='ready';save(d);return {'server':public(d),'existing':False}
