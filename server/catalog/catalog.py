@@ -26,6 +26,7 @@ import socket
 import ssl
 import sys
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -241,10 +242,30 @@ def _bind_to_device(sock: socket.socket, interface: str) -> None:
     sock.setsockopt(socket.SOL_SOCKET, option, interface.encode("ascii") + b"\x00")
 
 
+def _resolve(fqdn: str, timeout: float):
+    """getaddrinfo ignores socket timeouts; a daemon thread keeps a stuck resolver from wedging the run."""
+    box: dict = {}
+
+    def run():
+        try:
+            box["info"] = socket.getaddrinfo(fqdn, 443, type=socket.SOCK_STREAM)
+        except BaseException as error:  # noqa: BLE001 - reported as unresolved below
+            box["error"] = error
+
+    worker = threading.Thread(target=run, daemon=True)
+    worker.start()
+    worker.join(timeout)
+    if worker.is_alive() or "info" not in box:
+        raise socket.gaierror("dns timeout")
+    if "error" in box:
+        raise box["error"]
+    return box["info"]
+
+
 def probe_entry(fqdn: str, timeout: float = PROBE_TIMEOUT, interface: str = "") -> Entry:
     """Run stages 1-5 for one name. Never raises for expected network errors."""
     try:
-        infos = socket.getaddrinfo(fqdn, 443, type=socket.SOCK_STREAM)
+        infos = _resolve(fqdn, timeout)
     except (socket.gaierror, UnicodeError):
         return Entry(fqdn, reject_reason="unresolved")
     addrs = sorted({info[4][0] for info in infos})
@@ -329,19 +350,26 @@ ProbeFn = Callable[[str], Entry]
 def probe_all(names: Sequence[str], probe: ProbeFn, concurrency: int, budget_s: float) -> list[Entry]:
     deadline = time.monotonic() + budget_s
     results: list[Entry] = []
-    workers = max(1, min(8, concurrency))
-    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+    workers = max(1, min(32, concurrency))
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
+    try:
         futures = {pool.submit(probe, name): name for name in names}
-        for future in concurrent.futures.as_completed(futures):
-            if time.monotonic() > deadline:
-                for pending in futures:
-                    pending.cancel()
-                raise CatalogError(EXIT_THRESHOLD, "probe budget exceeded")
-            name = futures[future]
-            try:
-                results.append(future.result())
-            except Exception:  # noqa: BLE001 - a crashed probe must not kill the run
-                results.append(Entry(name, reject_reason="unreachable"))
+        try:
+            # Wait for results no longer than the budget: a stuck probe must not
+            # extend the run past the deadline.
+            for future in concurrent.futures.as_completed(
+                futures, timeout=max(0.0, deadline - time.monotonic())
+            ):
+                name = futures[future]
+                try:
+                    results.append(future.result())
+                except Exception:  # noqa: BLE001 - a crashed probe must not kill the run
+                    results.append(Entry(name, reject_reason="unreachable"))
+        except concurrent.futures.TimeoutError:
+            pool.shutdown(wait=False, cancel_futures=True)
+            raise CatalogError(EXIT_THRESHOLD, "probe budget exceeded")
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
     results.sort(key=lambda entry: entry.fqdn)
     return results
 
