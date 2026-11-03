@@ -279,7 +279,7 @@ def authority(d,actor,action,req):
  if actor is None:return
  u=d['users'].get(actor)
  assert u and not u.get('revoked') and u.get('role')=='admin','Admin access revoked'
- assert action in ['inspect','status','add','revoke','catalog'],'Operation not permitted'
+ assert action in ['inspect','status','add','add-awg','revoke','catalog'],'Operation not permitted'
  if action=='add':
   assert not req.get('admin',False),'Only owner may create admins'
   children=sum(not x.get('revoked') and x.get('createdBy')==actor for x in d['users'].values())
@@ -488,6 +488,17 @@ def catalog_state():
   'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
+def awg_client_config(d,user):
+ """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
+ awg=d['awg'];slot=user['slot'];host=d['host']
+ address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
+ lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9']
+ for key in ['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']:
+  lines.append('%s = %s'%(key,awg[key]))
+ lines+=['MTU = 1280','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
+         'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
+ return '\n'.join(lines)
+
 def dispatch(req,actor=None):
  action=req['action']
  if action=='client-grant':
@@ -508,6 +519,23 @@ def dispatch(req,actor=None):
   if actor:result['users']=[u for u in result['users'] if u['id']==actor or u.get('createdBy')==actor]
   return result
  if action=='remove':return remove(d)
+ if action=='add-awg':
+  # Third-party devices (routers, iPhone with AmneziaVPN) get one static AWG peer.
+  # They have no XIO client, so no other transport key is issued for them.
+  name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
+  uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
+  public=req['publicKey'];assert isinstance(public,str) and len(base64.b64decode(public,validate=True))==32,'Invalid public key'
+  if uid in d['users']:raise RuntimeError('User id already exists')
+  assert not any(public in u['keys'].values() for u in d['users'].values()),'Duplicate key'
+  used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
+  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'wireguard':public,'awg':public},'revoked':False,
+                   'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
+  try:
+   save(d);apply(d)
+  except Exception:
+   d['users'].pop(uid,None);raise
+  return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
+          'config':awg_client_config(d,d['users'][uid])}
  if action=='add':
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
