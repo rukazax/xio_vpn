@@ -1247,6 +1247,62 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   String? error, result;
   ManagedServer? server;
   ManagedService get service => ManagedService(ssh);
+
+  // White-SNI catalog: names that survive SNI-only operator filtering, probed by
+  // the server itself. Read-only; applying a mask stays a deliberate action.
+  Future<void> showMasking() async {
+    final data = await service.catalog();
+    if (!mounted) return;
+    final entries = [
+      for (final item in (data['entries'] as List? ?? const []))
+        Map<String, dynamic>.from(item as Map),
+    ];
+    final available = data['available'] != false;
+    await showDialog<void>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const LText('Маскировка входа (белые SNI)'),
+        content: SizedBox(
+          width: 560,
+          height: 420,
+          child: !available
+              ? LText('${data['reason'] ?? 'Каталог ещё не собран'}')
+              : entries.isEmpty
+              ? const LText('В каталоге нет пригодных имён')
+              : ListView.separated(
+                  itemCount: entries.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (_, index) {
+                    final entry = entries[index];
+                    final rtt = entry['tlsRttMs'];
+                    final notAfter = entry['certNotAfter'];
+                    return ListTile(
+                      dense: true,
+                      title: Text('${entry['fqdn']}'),
+                      subtitle: Text(
+                        '${notAfter ?? 'сертификат не проверен'}'
+                        '${rtt == null ? '' : ' · $rtt мс'}',
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.copy, size: 18),
+                        tooltip: 'Скопировать имя',
+                        onPressed: () => Clipboard.setData(
+                          ClipboardData(text: '${entry['fqdn']}'),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c),
+            child: const LText('Закрыть'),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   void initState() {
     super.initState();
@@ -1587,6 +1643,12 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                     decoration: InputDecoration(
                       labelText: tr(context, 'Название сервера'),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: busy ? null : () => perform(showMasking),
+                    icon: const Icon(Icons.masks_outlined),
+                    label: const LText('Маскировка входа (белые SNI)'),
                   ),
                   TextButton(
                     onPressed: busy

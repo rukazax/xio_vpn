@@ -178,6 +178,9 @@ class ManagedService {
     store.log('Сервер XIO обновлён; пользователи и ключи сохранены');
   }
 
+  /// Read-only: eligible entry names for SNI masking, built by the server timer.
+  Future<Map<String, dynamic>> catalog() => command({'action': 'catalog'});
+
   Future<Map<String, dynamic>> command(
     Map<String, dynamic> request, {
     Duration timeout = const Duration(minutes: 6),
