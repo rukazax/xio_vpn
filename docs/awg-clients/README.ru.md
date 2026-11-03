@@ -26,7 +26,7 @@ python3 /usr/local/sbin/xio-peer.py router-jeton --qr
 
 В профиле: адрес `10.78.0.<slot>/24` и `fd78:1::<slot в hex>/64`, параметры обфускации
 `Jc/Jmin/Jmax/S1/S2/H1..H4` из развёртывания, `Endpoint <host>:51821`, `AllowedIPs 0.0.0.0/0, ::/0`,
-`MTU 1232`, `PersistentKeepalive 25`.
+`MTU 1232`, DNS `9.9.9.9, 2620:fe::fe`, `PersistentKeepalive 25`.
 
 Отозвать доступ: `admin.py` действие `revoke` с `id` пользователя (как для обычного пользователя).
 

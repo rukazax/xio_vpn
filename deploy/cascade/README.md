@@ -31,8 +31,22 @@ ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
 ### bridge
 
-Скрипт `deploy/cascade/xio-cascade-tunnel.sh` (в архиве — `/usr/local/lib/xio-managed/cascade/`,
-ставится в `/usr/local/sbin/`) держит туннель и владеет устройством:
+Серверный пакет ставит скрипты в `/usr/local/sbin/` (`xio-cascade-tunnel.sh`, `xio-cascade-exit.sh`),
+юниты — в `/etc/systemd/system/`, но **не включает их**: роль выбирает администратор.
+
+На bridge:
+
+```sh
+systemctl enable --now xio-cascade.service
+```
+
+На exit:
+
+```sh
+systemctl enable --now xio-cascade-exit.service
+```
+
+Скрипт туннеля (`deploy/cascade/xio-cascade-tunnel.sh`) владеет устройством:
 
 ```sh
 ip link del tun0 2>/dev/null || true          # рестарт не настраивает старый tun0

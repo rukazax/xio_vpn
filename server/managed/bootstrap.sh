@@ -152,10 +152,14 @@ chmod 644 /etc/systemd/system/xio-catalog.service /etc/systemd/system/xio-catalo
 systemctl daemon-reload
 systemctl enable --now xio-catalog.timer >> "$lib/bootstrap.log" 2>&1 || true
 
-# Static AWG profiles for routers and phones, and the cascade role files.
-mv "$tmp/xio-peer.py" /usr/local/sbin/xio-peer.py
-chmod 700 /usr/local/sbin/xio-peer.py
+# Static AWG profiles for routers and phones.
+install -m 700 "$tmp/xio-peer.py" /usr/local/sbin/xio-peer.py
+# Cascade role: scripts go where the units exec them from, units are installed but
+# never enabled automatically - the role is chosen per host by the administrator.
+install -m 700 "$tmp/cascade/xio-cascade-tunnel.sh" /usr/local/sbin/xio-cascade-tunnel.sh
+install -m 700 "$tmp/cascade/xio-cascade-exit.sh" /usr/local/sbin/xio-cascade-exit.sh
+install -m 644 "$tmp/cascade/xio-cascade.service" /etc/systemd/system/xio-cascade.service
+install -m 644 "$tmp/cascade/xio-cascade-exit.service" /etc/systemd/system/xio-cascade-exit.service
 mkdir -p "$lib/cascade"
-mv "$tmp/cascade/"* "$lib/cascade/"
-chmod 644 "$lib"/cascade/*
-chmod 700 "$lib/cascade/xio-cascade-tunnel.sh"
+install -m 644 "$tmp/cascade/README.md" "$lib/cascade/README.md" 2>/dev/null || true
+systemctl daemon-reload >> "$lib/bootstrap.log" 2>&1 || true
