@@ -209,7 +209,7 @@ def render(d):
  if not wireguard_enabled(d):return
  lines=['[Interface]','PrivateKey = '+(ROOT/'wg.key').read_text().strip(),'Address = 10.77.0.1/24, fd77:1::1/64','ListenPort = 51820','MTU = 1280']
  for user in d['users'].values():
-  if not user.get('revoked') and not d.get('restrictedNetwork'):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
+  if not user.get('revoked') and not d.get('restrictedNetwork') and 'wireguard' in user.get('keys',{}):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
  write('/etc/wireguard/xio0.conf','\n'.join(lines)+'\n')
 def apply(d):
  render(d)
@@ -279,8 +279,8 @@ def authority(d,actor,action,req):
  if actor is None:return
  u=d['users'].get(actor)
  assert u and not u.get('revoked') and u.get('role')=='admin','Admin access revoked'
- assert action in ['inspect','status','add','revoke'],'Operation not permitted'
- if action=='add':
+ assert action in ['inspect','status','add','add-awg','revoke','catalog'],'Operation not permitted'
+ if action in ('add','add-awg'):
   assert not req.get('admin',False),'Only owner may create admins'
   children=sum(not x.get('revoked') and x.get('createdBy')==actor for x in d['users'].values())
   assert children < u.get('userLimit',0),'User quota exceeded'
@@ -464,6 +464,42 @@ def remove(d):
  shutil.rmtree(ROOT);shutil.rmtree(LIB);run('systemctl','daemon-reload')
  Path('/run/lock/xio-managed.lock').unlink(missing_ok=True)
  return {'removed':True,'ownedPackageRemoved':'wireguard-tools' in package_result['packagesRemoved'],**package_result,'forwardingRestored':restored,'otherVirtualInterfaces':other}
+CATALOG_DIR=Path('/var/lib/xio-catalog')
+CATALOG_STATE='whitelist-state.json'
+
+def catalog_state():
+ """Read the white-SNI catalog built by the weekly timer; never build it here.
+
+ The builder records the live artifact in whitelist-state.json as
+ {current:{file,sha256},previous:{...}}; there is no separate manifest file, so reading
+ one would report an unbuilt catalog forever.
+ """
+ state_path=CATALOG_DIR/CATALOG_STATE
+ if not state_path.exists():
+  return {'available':False,'reason':'catalog is not built yet; the xio-catalog.timer builds it weekly'}
+ try:
+  state=json.loads(state_path.read_text());current=state['current']
+  document=json.loads((CATALOG_DIR/current['file']).read_text())
+ except (OSError,ValueError,KeyError,TypeError) as error:
+  raise RuntimeError('Catalog unreadable: '+type(error).__name__)
+ entries=[{'fqdn':e['fqdn'],'certNotAfter':e.get('certNotAfter'),'tlsRttMs':e.get('tlsRttMs')} for e in document.get('entries',[]) if e.get('eligible')]
+ source=document.get('source') or {}
+ return {'available':True,'sha256':current.get('sha256'),'contentSha256':document.get('contentSha256'),
+  'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
+  'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
+
+def awg_client_config(d,user):
+ """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
+ awg=d['awg'];slot=user['slot'];host=d['host']
+ host='[%s]'%host if ':' in host else host
+ address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
+ lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9']
+ for key in ['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']:
+  lines.append('%s = %s'%(key,awg[key]))
+ lines+=['MTU = 1232','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
+         'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
+ return '\n'.join(lines)
+
 def dispatch(req,actor=None):
  action=req['action']
  if action=='client-grant':
@@ -478,11 +514,32 @@ def dispatch(req,actor=None):
  authority(d,actor,action,req)
  if action=='inspect':return {'server':public(d),'phase':d['phase']}
  assert req.get('serverId')==d['id'],'Server identity changed; reopen setup'
+ if action=='catalog':return catalog_state()
  if action=='status':
   result=stats(d)
   if actor:result['users']=[u for u in result['users'] if u['id']==actor or u.get('createdBy')==actor]
   return result
  if action=='remove':return remove(d)
+ if action=='add-awg':
+  # Third-party devices (routers, iPhone with AmneziaVPN) get one static AWG peer.
+  # They have no XIO client, so no other transport key is issued for them.
+  name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
+  uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
+  public=req['publicKey'];raw=base64.b64decode(public,validate=True) if isinstance(public,str) else b''
+  assert len(raw)==32 and raw!=b'\x00'*32,'Invalid public key'
+  assert public!=d['publicKeys']['awg'],'Refusing the server key'
+  if uid in d['users']:raise RuntimeError('User id already exists')
+  seen={base64.b64decode(v,validate=True) for u in d['users'].values() for v in u.get('keys',{}).values() if isinstance(v,str) and len(v)%4==0}
+  assert raw not in seen,'Duplicate key'
+  used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
+  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public},'revoked':False,
+                   'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
+  try:
+   save(d);apply(d)
+  except Exception:
+   d['users'].pop(uid,None);save(d);raise
+  return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
+          'config':awg_client_config(d,d['users'][uid])}
  if action=='add':
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
