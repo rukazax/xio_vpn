@@ -243,6 +243,11 @@ def start_awg(d):
   time.sleep(.1)
  lines=['private_key='+base64.b64decode((ROOT/'awg.key').read_text().strip()).hex(),'listen_port=51821']+[k.lower()+'='+str(v) for k,v in d['awg'].items()]
  awg_uapi('\n'.join(lines));run('ip','address','replace','10.78.0.1/24','dev','xioawg0');run('ip','-6','address','replace','fd78:1::1/64','dev','xioawg0');run('ip','link','set','dev','xioawg0','mtu','1280','up');apply(d);rules(d);stack.network.dualstack().apply()
+ # An MTU below 1280 does not fail: the kernel silently drops every IPv6 address on
+ # the interface (rc=0), and the next IPv6 step is what actually breaks. Keep the
+ # guard so a future "smaller MTU" change fails loudly instead of killing IPv6.
+ if 'fd78:1::1' not in run('ip','-6','addr','show','dev','xioawg0'):
+  raise RuntimeError('IPv6 address lost after MTU change; minimum is 1280')
 def counters():
  result={}
  for protocol,iface in [('wireguard','xio0'),('awg','xioawg0')]:
