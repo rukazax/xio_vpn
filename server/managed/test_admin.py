@@ -165,3 +165,26 @@ class CatalogTests(unittest.TestCase):
    (root/'whitelist-state.json').write_text(json.dumps({'current':{'file':'missing.json'}}))
    with patch.object(m,'CATALOG_DIR',root),self.assertRaisesRegex(RuntimeError,'Catalog unreadable'):
     m.catalog_state()
+
+class StaticAwgTests(unittest.TestCase):
+ def deployment(self):
+  return {'owner':m.OWNER,'id':'srv','host':'203.0.113.9','phase':'ready','protocols':['wireguard','awg'],
+          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
+          'H1':1,'H2':2,'H3':3,'H4':4}}
+ def test_add_awg_returns_profile_and_marks_transport(self):
+  d=self.deployment(); saved={}
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x: saved.update(x)),patch.object(m,'apply',return_value=None):
+   answer=m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='})
+  user=answer['user']; self.assertEqual(user['transports'],['awg']); self.assertEqual(user['slot'],2)
+  conf=answer['config']
+  self.assertIn('Endpoint = 203.0.113.9:51821',conf)
+  self.assertIn('PublicKey = SERVERPUBKEY',conf)
+  self.assertIn('Jc = 4',conf)
+  self.assertIn('10.78.0.2/24',conf)
+  self.assertEqual(d['users']['a'*32]['keys'],{'wireguard':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=','awg':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='})
+
+ def test_add_awg_rejects_short_key(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   with self.assertRaises(AssertionError):
+    m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'b'*32,'publicKey':'AAAA'})
