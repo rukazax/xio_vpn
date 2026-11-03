@@ -4,8 +4,9 @@ const https = require('https');
 
 const TOKEN = JSON.parse(fs.readFileSync(process.env.USERPROFILE + '/.dsh/secrets/github.json', 'utf8')).token;
 const OWNER = 'rukazax', REPO = 'xio_vpn';
-const TAG = 'v0.24.1-rc2';
-const TARGET = process.env.XIO_TARGET_COMMIT || 'release-0.24.0';
+const TAG = process.env.XIO_TAG || 'v0.24.1-rc2';
+const TARGET = 'release-0.24.0';
+const COMMIT = process.env.XIO_TARGET_COMMIT || '2ddf5db';
 const RELEASES = 'C:/Users/er-ka/Documents/deepseek-harness/xio_vpn/work/repo-edit/releases';
 const ASSETS = [
   'XIO-Full-0.24.1-windows-x64.zip',

@@ -493,7 +493,7 @@ def awg_client_config(d,user):
  awg=d['awg'];slot=user['slot'];host=d['host']
  host='[%s]'%host if ':' in host else host
  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
- lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9']
+ lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9, 2620:fe::fe']
  for key in ['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']:
   lines.append('%s = %s'%(key,awg[key]))
  lines+=['MTU = 1232','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
