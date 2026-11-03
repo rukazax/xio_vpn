@@ -261,5 +261,57 @@ class IsolationRulesTests(unittest.TestCase):
   deletes=[c for c in calls if c[0]=='iptables' and 'FORWARD' in c and '-D' in c and 'xio-managed-v1-awg' in c]
   self.assertEqual(len(deletes),4)  # the four FORWARD rules of the isolation policy
 
+ def test_rule_presence_comes_from_one_dump_per_table(self):
+  # Steady state reads one `-S` per table instead of one `-C` per rule. A rule found
+  # in the dump is neither probed nor inserted, the implicit `-m udp` that iptables
+  # prints must not defeat the match, and a rule missing from the dump still gets the
+  # `-C` probe before it is inserted.
+  calls=[];inserts=[]
+  view=('-P FORWARD ACCEPT\n'
+        '-A FORWARD -i xioawg0 -m comment --comment xio-managed-v1-awg -j ACCEPT\n'
+        '-A FORWARD -i xioawg0 -m comment --comment xio-managed-v1-awg -j DROP\n'
+        '-A INPUT -i eth0 -p udp -m udp --dport 51821 -m comment --comment xio-managed-v1-awg -j ACCEPT\n')
+  def fake(argv,**kwargs):
+   calls.append(list(argv))
+   if '-S' in argv:return type('R',(),{'returncode':0,'stdout':view if argv[0]=='iptables' else ''})()
+   return type('R',(),{'returncode':1,'stdout':''})()
+  with patch.object(m,'run',side_effect=lambda *a,**k: inserts.append(a)), \
+       patch.object(m,'shutil') as sh, patch.object(m,'stack') as st, \
+       patch.object(m.subprocess,'run',side_effect=fake):
+   sh.which.return_value='/usr/bin/iptables'
+   st.network.dualstack.return_value.outbounds.return_value={'ipv6':'eth0'}
+   m.rules(self.payload())
+  dumps=[c for c in calls if '-S' in c]
+  probes=[c for c in calls if '-C' in c]
+  deletes=[c for c in calls if '-D' in c]
+  self.assertEqual(len(dumps),3)  # iptables filter, iptables nat, ip6tables filter
+  self.assertEqual(len([c for c in dumps if c[0]=='iptables' and c[1:]==['-w','5','-S']]),1)  # filter table once
+  self.assertEqual(len(probes),6)  # eight rules minus the two found in the dump
+  self.assertEqual(len(inserts),6)
+  self.assertEqual(len([c for c in inserts if c[0]=='iptables' and 'FORWARD' in c]),3)
+  self.assertFalse(any(c[0]=='iptables' and 'DROP' in c for c in inserts))  # found in the dump
+  self.assertEqual(len(deletes),1)  # the legacy wide rule, deleted without a probe
+  legacy_probe=['iptables','-w','5','-C','FORWARD','-i','xioawg0','-m','comment',
+                '--comment','xio-managed-v1-awg','-j','ACCEPT']
+  self.assertNotIn(legacy_probe,calls)
+
+
+
+
+class DispatchScopeTests(unittest.TestCase):
+ def test_inspect_is_not_shadowed_by_a_local_named_public(self):
+  # dispatch() used `public` as the decoded add-awg key, which made `public` a local
+  # for the whole function: `inspect` (and a successful `add`) raised UnboundLocalError
+  # instead of returning the server block.
+  d={'owner':m.OWNER,'id':'srv','host':'vpn.example','publicKeys':{'awg':'server'},'awg':{},
+     'protocols':['awg'],'phase':'ready'}
+  capabilities={'outboundByFamily':{'ipv4':'eth0'},'ipv4DefaultRoute':True,'ipv6DefaultRoute':False}
+  with patch.object(m,'load',return_value=d),patch.object(m,'stack') as st:
+   st.network.dualstack.return_value.capabilities.return_value=capabilities
+   answer=m.dispatch({'action':'inspect','serverId':'srv'})
+  self.assertEqual(answer['phase'],'ready')
+  self.assertEqual(answer['server']['id'],'srv')
+  self.assertEqual(answer['server']['networkCapabilities'],capabilities)
+
 
 if __name__=='__main__':unittest.main()

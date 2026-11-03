@@ -177,11 +177,55 @@ def firewall_managed(d,remove=False):
  return kind=='firewalld'
 def key():
  private=base64.b64encode(secrets.token_bytes(32)).decode();return private,run('wg','pubkey',input=private+'\n')
+def _rule_key(argv):
+ # A rule is compared as (flag,value) pairs so an `iptables -S` line and the rule we
+ # asked for compare structurally instead of byte-wise. The only normalisations are
+ # the ones iptables itself applies: it prints the protocol match module derived from
+ # `-p` (`-p udp` becomes `-p udp -m udp`), and a conntrack state list is a set.
+ pairs=[];index=0
+ while index<len(argv):
+  token=argv[index]
+  if token.startswith('-') and index+1<len(argv) and (token.startswith('--') or len(token)==2):
+   pairs.append((token,argv[index+1]));index+=2
+  else:
+   pairs.append((token,None));index+=1
+ protocol=next((value for flag,value in pairs if flag in ('-p','--protocol')),None)
+ key=[]
+ for flag,value in pairs:
+  if flag in ('-m','--match') and value==protocol:continue
+  if flag=='--ctstate' and value is not None:value=','.join(sorted(value.split(',')))
+  key.append((flag,value))
+ return tuple(key)
+def _listed_rules(cmd,table):
+ # One dump per table instead of one `-C` probe per rule; None means "no usable dump"
+ # and keeps the original probe semantics for that table.
+ try:p=subprocess.run([cmd,'-w','5',*table,'-S'],capture_output=True,text=True)
+ except OSError:return None
+ if p.returncode:return None
+ listed={}
+ for line in (getattr(p,'stdout','') or '').splitlines():
+  fields=shlex.split(line)
+  if len(fields)>2 and fields[0]=='-A':listed.setdefault(fields[1],[]).append(_rule_key(fields[2:]))
+ return listed
 def rules(d,remove=False):
  if firewall_managed(d,remove):return
  outbound6=stack.network.dualstack().outbounds().get('ipv6',d['outbound'])
  # One PATH lookup per tool instead of one per rule.
  available={cmd:shutil.which(cmd) for cmd in ('iptables','ip6tables')}
+ dumps={}
+ def listed(cmd,table,chain,rule):
+  # None = no usable dump; an empty chain is a real answer, not a missing one.
+  key=(cmd,tuple(table))
+  if key not in dumps:dumps[key]=_listed_rules(cmd,table)
+  table_rules=dumps[key]
+  return None if table_rules is None else _rule_key(rule) in table_rules.get(chain,())
+ def present(cmd,table,chain,rule):
+  # Steady state (every rule already installed) costs one `-S` per table instead of
+  # one `-C` per rule. A dump miss is still confirmed with the original `-C` probe,
+  # so a table format we did not anticipate can only cost a call, never duplicate
+  # a rule that is already in the chain.
+  if listed(cmd,table,chain,rule):return True
+  return subprocess.run([cmd,'-w','5',*table,'-C',*rule],capture_output=True).returncode==0
  for proto,iface,subnet in ([('awg','xioawg0','10.78.0.0/24')] if d.get('restrictedNetwork') else [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]):
   comment=OWNER+'-'+proto
   # Client isolation for IPv4. rules() inserts with -I, so the list order is the
@@ -198,8 +242,9 @@ def rules(d,remove=False):
    # The wide "anything from this interface" rule from 0.24.0/0.24.1-rc3 is
    # superseded; remove it so the chain has a single readable policy.
    legacy=['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','ACCEPT']
-   if subprocess.run(['iptables','-w','5','-C',*legacy],capture_output=True).returncode==0:
-    subprocess.run(['iptables','-w','5','-D',*legacy],capture_output=True)
+   was_listed=listed('iptables',[],'FORWARD',legacy[1:])
+   if was_listed is None:was_listed=subprocess.run(['iptables','-w','5','-C',*legacy],capture_output=True).returncode==0
+   if was_listed:subprocess.run(['iptables','-w','5','-D',*legacy],capture_output=True)
   for cmd,table,rule in [
    ('iptables',[],['INPUT','-i',d['outbound'],'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
    ('ip6tables',[],['INPUT','-i',outbound6,'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
@@ -207,7 +252,7 @@ def rules(d,remove=False):
    ('iptables',['-t','nat'],['POSTROUTING','-s',subnet,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','MASQUERADE']),
    ('ip6tables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','DROP'])]:
    if not available[cmd]:continue
-   exists=subprocess.run([cmd,'-w','5',*table,'-C',*rule],capture_output=True).returncode==0
+   exists=present(cmd,table,rule[0],rule[1:])
    if remove and exists:run(cmd,'-w','5',*table,'-D',*rule)
    elif not remove and not exists:run(cmd,'-w','5',*table,'-I',*rule)
 def awg_uapi(lines):
@@ -557,14 +602,16 @@ def dispatch(req,actor=None):
   # They have no XIO client, so no other transport key is issued for them.
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
-  public=req['publicKey'];raw=base64.b64decode(public,validate=True) if isinstance(public,str) else b''
+  # `public_key`, not `public`: a local named `public` shadowed the module-level
+  # public() for the whole function and broke `inspect` (and a successful `add`).
+  public_key=req['publicKey'];raw=base64.b64decode(public_key,validate=True) if isinstance(public_key,str) else b''
   assert len(raw)==32 and raw!=b'\x00'*32,'Invalid public key'
-  assert public!=d['publicKeys']['awg'],'Refusing the server key'
+  assert public_key!=d['publicKeys']['awg'],'Refusing the server key'
   if uid in d['users']:raise RuntimeError('User id already exists')
   seen={base64.b64decode(v,validate=True) for u in d['users'].values() for v in u.get('keys',{}).values() if isinstance(v,str) and len(v)%4==0}
   assert raw not in seen,'Duplicate key'
   used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
-  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public},'revoked':False,
+  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public_key},'revoked':False,
                    'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
   try:
    save(d);apply(d)

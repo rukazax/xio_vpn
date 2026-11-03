@@ -258,6 +258,28 @@ def _resolve(fqdn: str, timeout: float):
     return box["info"]
 
 
+_TLS_CONTEXT = None
+
+
+def _tls_context():
+    """One client TLS context per process.
+
+    ``create_default_context()`` parses the whole system CA bundle (~28 ms on the
+    reference host) and ``probe_entry`` used to build a fresh one per socket, so a
+    full catalog paid that once per probed name. Verification is off by design
+    (the peer certificate is inspected, not trusted), so the context holds no
+    per-probe state and can be shared.
+    """
+    global _TLS_CONTEXT
+    if _TLS_CONTEXT is None:
+        import ssl
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        _TLS_CONTEXT = context
+    return _TLS_CONTEXT
+
+
 def probe_entry(fqdn: str, timeout: float = PROBE_TIMEOUT, interface: str = "") -> Entry:
     """Run stages 1-5 for one name. Never raises for expected network errors."""
     import ssl
@@ -287,10 +309,7 @@ def probe_entry(fqdn: str, timeout: float = PROBE_TIMEOUT, interface: str = "") 
             raw.close()
             continue
         try:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            with ctx.wrap_socket(raw, server_hostname=fqdn) as tls:
+            with _tls_context().wrap_socket(raw, server_hostname=fqdn) as tls:
                 version = tls.version()
                 der = tls.getpeercert(binary_form=True) or b""
                 cert = _decode_cert(der)
