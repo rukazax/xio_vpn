@@ -1251,7 +1251,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   // White-SNI catalog: names that survive SNI-only operator filtering, probed by
   // the server itself. Read-only; applying a mask stays a deliberate action.
   Future<void> showMasking() async {
-    final data = await service.catalog();
+    final data = await service.catalog(server!.id);
     if (!mounted) return;
     final entries = [
       for (final item in (data['entries'] as List? ?? const []))
@@ -1266,7 +1266,20 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
           width: 560,
           height: 420,
           child: !available
-              ? LText('${data['reason'] ?? 'Каталог ещё не собран'}')
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const LText('Каталог ещё не собран'),
+                    const SizedBox(height: 8),
+                    // The server's own wording is English and technical; it stays
+                    // visible because it names the unit that builds the catalog.
+                    Text(
+                      '${data['reason'] ?? ''}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ],
+                )
               : entries.isEmpty
               ? const LText('В каталоге нет пригодных имён')
               : ListView.separated(

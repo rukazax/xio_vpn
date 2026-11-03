@@ -113,6 +113,22 @@ class StatsTests(unittest.TestCase):
    self.assertEqual(d['users']['u']['stats']['wireguard']['rx'],0)
 
 class CatalogTests(unittest.TestCase):
+ def test_catalog_action_refuses_a_request_without_server_identity(self):
+  """The action is dispatched, not called directly: the identity check runs first.
+
+  catalog_state() alone is read-only and harmless, so a test that calls it never sees
+  the guard. A client that forgets serverId gets 'Server identity changed; reopen setup'
+  for every press, which is what the masking screen did before this case existed.
+  """
+  d={'id':'server-1','phase':'ready','users':{},'owner':m.OWNER}
+  with tempfile.TemporaryDirectory() as directory:
+   with patch.object(m,'CATALOG_DIR',Path(directory)),patch.object(m,'load',lambda:d):
+    with self.assertRaisesRegex(AssertionError,'identity'):
+     m.dispatch({'action':'catalog'},None)
+    state=m.dispatch({'action':'catalog','serverId':'server-1'},None)
+    self.assertFalse(state['available'])
+    self.assertIn('timer',state['reason'])
+
  def test_missing_catalog_reports_unavailable(self):
   with tempfile.TemporaryDirectory() as directory:
    with patch.object(m,'CATALOG_DIR',Path(directory)):
