@@ -182,11 +182,26 @@ def rules(d,remove=False):
  outbound6=stack.network.dualstack().outbounds().get('ipv6',d['outbound'])
  for proto,iface,subnet in ([('awg','xioawg0','10.78.0.0/24')] if d.get('restrictedNetwork') else [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]):
   comment=OWNER+'-'+proto
+  # Client isolation for IPv4. rules() inserts with -I, so the list order is the
+  # reverse of the resulting chain: DROP first, then RELATED, then established
+  # replies, then the forward to the uplink ends up on top. RELATED (not only
+  # ESTABLISHED) is required so ICMP fragmentation-needed from the path is not
+  # dropped, otherwise large packets silently die with MTU 1232.
+  ipv4_forward = [
+   ('iptables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','DROP']),
+   ('iptables',[],['FORWARD','-i',iface,'-m','conntrack','--ctstate','RELATED','-m','comment','--comment',comment,'-j','ACCEPT']),
+   ('iptables',[],['FORWARD','-o',iface,'-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',comment,'-j','ACCEPT']),
+   ('iptables',[],['FORWARD','-i',iface,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','ACCEPT'])]
+  if not remove:
+   # The wide "anything from this interface" rule from 0.24.0/0.24.1-rc3 is
+   # superseded; remove it so the chain has a single readable policy.
+   legacy=['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','ACCEPT']
+   if subprocess.run(['iptables','-w','5','-C',*legacy],capture_output=True).returncode==0:
+    subprocess.run(['iptables','-w','5','-D',*legacy],capture_output=True)
   for cmd,table,rule in [
    ('iptables',[],['INPUT','-i',d['outbound'],'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
    ('ip6tables',[],['INPUT','-i',outbound6,'-p','udp','--dport','51820' if proto=='wireguard' else '51821','-m','comment','--comment',comment,'-j','ACCEPT']),
-   ('iptables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','ACCEPT']),
-   ('iptables',[],['FORWARD','-o',iface,'-m','conntrack','--ctstate','RELATED,ESTABLISHED','-m','comment','--comment',comment,'-j','ACCEPT']),
+   *ipv4_forward,
    ('iptables',['-t','nat'],['POSTROUTING','-s',subnet,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','MASQUERADE']),
    ('ip6tables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','DROP'])]:
    if not shutil.which(cmd):continue
@@ -494,8 +509,11 @@ def awg_client_config(d,user):
  host='[%s]'%host if ':' in host else host
  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9, 2620:fe::fe']
- for key in ['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']:
-  lines.append('%s = %s'%(key,awg[key]))
+ # AmneziaWG 3.x adds S3/S4 and signature packets I1..I5; the profile must carry
+ # every parameter the server actually applies, otherwise the two sides disagree.
+ for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
+  if key in awg:
+   lines.append('%s = %s'%(key,awg[key]))
  lines+=['MTU = 1232','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
          'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
  return '\n'.join(lines)
