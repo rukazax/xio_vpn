@@ -180,6 +180,8 @@ def key():
 def rules(d,remove=False):
  if firewall_managed(d,remove):return
  outbound6=stack.network.dualstack().outbounds().get('ipv6',d['outbound'])
+ # One PATH lookup per tool instead of one per rule.
+ available={cmd:shutil.which(cmd) for cmd in ('iptables','ip6tables')}
  for proto,iface,subnet in ([('awg','xioawg0','10.78.0.0/24')] if d.get('restrictedNetwork') else [('wireguard','xio0','10.77.0.0/24'),('awg','xioawg0','10.78.0.0/24')]):
   comment=OWNER+'-'+proto
   # Client isolation for IPv4. rules() inserts with -I, so the list order is the
@@ -204,7 +206,7 @@ def rules(d,remove=False):
    *ipv4_forward,
    ('iptables',['-t','nat'],['POSTROUTING','-s',subnet,'-o',d['outbound'],'-m','comment','--comment',comment,'-j','MASQUERADE']),
    ('ip6tables',[],['FORWARD','-i',iface,'-m','comment','--comment',comment,'-j','DROP'])]:
-   if not shutil.which(cmd):continue
+   if not available[cmd]:continue
    exists=subprocess.run([cmd,'-w','5',*table,'-C',*rule],capture_output=True).returncode==0
    if remove and exists:run(cmd,'-w','5',*table,'-D',*rule)
    elif not remove and not exists:run(cmd,'-w','5',*table,'-I',*rule)
@@ -226,11 +228,14 @@ def render(d):
  for user in d['users'].values():
   if not user.get('revoked') and not d.get('restrictedNetwork') and 'wireguard' in user.get('keys',{}):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
  write('/etc/wireguard/xio0.conf','\n'.join(lines)+'\n')
+ # wg syncconf accepts these lines minus the wg-quick-only keys (Address, MTU), so
+ # returning that subset avoids spawning wg-quick on every apply.
+ return '\n'.join(line for line in lines if not line.startswith(('Address =','MTU =')))+'\n'
 def apply(d):
- render(d)
- if wireguard_enabled(d):
+ text=render(d)
+ if text is not None:
   # No user-controlled command interpolation; stdin is wg config without addresses.
-  text=run('wg-quick','strip','xio0');run('wg','syncconf','xio0','/dev/stdin',input=text+'\n')
+  run('wg','syncconf','xio0','/dev/stdin',input=text)
  lines=[]
  for u in d['users'].values():
   if u.get('revoked'):
@@ -355,6 +360,8 @@ def stats(d):
  # Generation also changes on service restart even within the same boot.
  pairs=[('awg','xio-managed-awg')] if d.get('restrictedNetwork') else [('wireguard','wg-quick@xio0'),('awg','xio-managed-awg')]
  generations={p:boot+':'+run('systemctl','show',unit,'--property=InvocationID','--value') for p,unit in pairs}
+ # One clock/month sample for the whole pass instead of one per protocol and user.
+ now=int(time.time());month=time.strftime('%Y-%m',time.gmtime())
  for uid,u in d['users'].items():
   u.setdefault('stats',{})
   for p,pub in u['keys'].items():
@@ -365,33 +372,35 @@ def stats(d):
    reset=s.get('generation')!=generations.get(p)
    dr=rx if reset or rx<s['lastRx'] else rx-s['lastRx'];dt=tx if reset or tx<s['lastTx'] else tx-s['lastTx']
    s['rx']+=dr;s['tx']+=dt;s.update(lastRx=rx,lastTx=tx,handshake=hs,generation=generations.get(p))
-   month=time.strftime('%Y-%m',time.gmtime());months=u.setdefault('monthly',{});months[month]=months.get(month,0)+dr+dt
-  u['month']=time.strftime('%Y-%m',time.gmtime());u['monthBytes']=u.get('monthly',{}).get(u['month'],0)
-  u['online']=not u.get('revoked') and any(0<=time.time()-v.get('handshake',0)<=180 for p,v in u.get('stats',{}).items() if p in d['protocols'])
+   months=u.setdefault('monthly',{});months[month]=months.get(month,0)+dr+dt
+  u['month']=month;u['monthBytes']=u.get('monthly',{}).get(month,0)
+  u['online']=not u.get('revoked') and any(0<=now-v.get('handshake',0)<=180 for p,v in u.get('stats',{}).items() if p in d['protocols'])
   rs=rivet_stats.get(uid,{})
   if u.get('rivet') and rs:
    u['stats']['rivet']={'rx':rs.get('rx',0),'tx':rs.get('tx',0),'handshake':rs.get('sampledAt',0) if rs.get('online') else 0}
    if rs.get('month')==u['month']:u['monthBytes']+=rs.get('monthBytes',0)
-   u['online']=not u.get('revoked') and (u['online'] or (rs.get('online') and 0<=time.time()-rs.get('sampledAt',0)<=20))
+   u['online']=not u.get('revoked') and (u['online'] or (rs.get('online') and 0<=now-rs.get('sampledAt',0)<=20))
   xs=stack_stats.get(uid,{})
   if u.get('stack') and xs:
    u['stats']['stack']={'rx':xs.get('rx',0),'tx':xs.get('tx',0)}
    if xs.get('month')==u['month']:u['monthBytes']+=xs.get('monthBytes',0)
-   u['online']=not u.get('revoked') and (u['online'] or (xs.get('online') and 0<=time.time()-xs.get('sampledAt',0)<=20))
+   u['online']=not u.get('revoked') and (u['online'] or (xs.get('online') and 0<=now-xs.get('sampledAt',0)<=20))
   ns=network_stats.get(uid,{})
   if ns:
    if ns.get('month')==u['month']:u['monthBytes']+=ns.get('monthBytes',0)
-   u['online']=not u.get('revoked') and (u['online'] or (ns.get('online') and 0<=time.time()-ns.get('sampledAt',0)<=20))
+   u['online']=not u.get('revoked') and (u['online'] or (ns.get('online') and 0<=now-ns.get('sampledAt',0)<=20))
   ms=mesh_stats.get(uid,{})
   if ms:
    if ms.get('month')==u['month']:u['monthBytes']+=ms.get('monthBytes',0)
-   u['online']=not u.get('revoked') and (u['online'] or (ms.get('online') and 0<=time.time()-ms.get('sampledAt',0)<=20))
-  u.setdefault('trackingSince',int(time.time()))
- save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':int(time.time()),'statisticsNote':'Server counters; sampled every 30s. Unsampled traffic before a service crash may be lost.'}
+   u['online']=not u.get('revoked') and (u['online'] or (ms.get('online') and 0<=now-ms.get('sampledAt',0)<=20))
+  u.setdefault('trackingSince',now)
+ save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':now,'statisticsNote':'Server counters; sampled every 30s. Unsampled traffic before a service crash may be lost.'}
 def public(d):
+ # One route sample feeds both fields (capabilities.ipv6DefaultRoute == ipv6_ready()).
+ capabilities=stack.network.dualstack().capabilities()
  protocols=d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else [])
  if d.get('restrictedNetwork'):protocols=[p for p in protocols if p in ['xray','rivet-s1','cloak','awg','rivet-h3']]
- return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':stack.network.dualstack().capabilities(),'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=stack.network.dualstack().ipv6_ready())} if d.get('rivet') else {})}
+ return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':capabilities,'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=capabilities['ipv6DefaultRoute'])} if d.get('rivet') else {})}
 
 def valid_host(host):
  if not isinstance(host,str) or not host or host!=host.strip() or len(host)>253:return False
@@ -415,7 +424,7 @@ def init(req):
   return {'server':public(existing),'existing':True}
  platform=platform_info()
  assert Path('/run/systemd/system').is_dir(),'systemd required'
- if run('uname','-m')!='x86_64':raise RuntimeError('amd64 VPS required')
+ if os.uname().machine!='x86_64':raise RuntimeError('amd64 VPS required')
  links=json.loads(run('ip','-j','link'));assert not any(i['ifname'] in ['xio0','xioawg0'] for i in links),'Existing VPN; remove it first'
  assert not Path('/etc/wireguard/xio0.conf').exists(),'Existing xio0 configuration'
  ports=run('ss','-H','-lun');assert not any(line.split()[3].endswith((':51820',':51821')) for line in ports.splitlines()),'VPN ports busy'
@@ -425,7 +434,7 @@ def init(req):
   if route.get('dst','default')!='default':assert not any(ipaddress.ip_network(route['dst'],strict=False).overlaps(ipaddress.ip_network(n)) for n in ['fd77:1::/64','fd78:1::/64']),'IPv6 subnet conflict'
  host=req['host'];assert valid_host(host),'Invalid server host'
  installed='wireguard-tools' in installed_packages(platform['manager'])
- d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':stack.network.dualstack().outbound(),'oldForward':run('sysctl','-n','net.ipv4.ip_forward'),'packageOwned':not installed,'platform':platform,'recipeVersion':RECIPE,'restrictedNetwork':True,'phase':'installing','country':country()}
+ d={'owner':OWNER,'id':str(uuid.uuid4()),'host':host,'protocols':['wireguard','awg'],'users':{},'publicKeys':{},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,'H1':secrets.randbelow(100000)+100000,'H2':secrets.randbelow(100000)+200000,'H3':secrets.randbelow(100000)+300000,'H4':secrets.randbelow(100000)+400000},'outbound':stack.network.dualstack().outbound(),'oldForward':Path('/proc/sys/net/ipv4/ip_forward').read_text().strip(),'packageOwned':not installed,'platform':platform,'recipeVersion':RECIPE,'restrictedNetwork':True,'phase':'installing','country':country()}
  d['networkCapabilities']=network
  assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',d['outbound']);save(d)
  packages_install(d);firewall_prepare(d);sandbox_prepare(d)
@@ -453,7 +462,7 @@ WantedBy=multi-user.target
 '''
  write('/etc/systemd/system/xio-managed-awg.service',unit)
  write('/etc/systemd/system/xio-managed-stats.service','[Unit]\nDescription=xio counters\nAfter=xio-managed-awg.service\n[Service]\nType=oneshot\nExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/admin.py sample\n')
- write('/etc/systemd/system/xio-managed-stats.timer','[Unit]\nDescription=xio periodic counters\n[Timer]\nOnBootSec=30s\nOnUnitActiveSec=30s\n[Install]\nWantedBy=timers.target\n')
+ write('/etc/systemd/system/xio-managed-stats.timer','[Unit]\nDescription=xio periodic counters\n[Timer]\nOnBootSec=60s\nOnUnitActiveSec=60s\n[Install]\nWantedBy=timers.target\n')
  run('systemctl','daemon-reload')
  if wireguard_enabled(d):run('systemctl','enable','--now','wg-quick@xio0')
  run('systemctl','enable','--now','xio-managed-awg');run('systemctl','enable','--now','xio-managed-stats.timer');d=load();rivet_install(d);stack.network.dualstack().apply();d['phase']='ready';save(d);return {'server':public(d),'existing':False}
@@ -475,7 +484,7 @@ def remove(d):
  # Restore global forwarding only if no additional virtual network has appeared.
  links=json.loads(run('ip','-j','link'));other=[i['ifname'] for i in links if i.get('linkinfo',{}).get('info_kind') in ['wireguard','tun','bridge','veth']]
  restored=False
- if not other and run('sysctl','-n','net.ipv4.ip_forward')=='1':run('sysctl','-q','-w','net.ipv4.ip_forward='+d['oldForward']);restored=True
+ if not other and Path('/proc/sys/net/ipv4/ip_forward').read_text().strip()=='1':run('sysctl','-q','-w','net.ipv4.ip_forward='+d['oldForward']);restored=True
  # Remove runtime sockets and install-only temporary data; preserve global package/journal history.
  for socket_path in ['/run/amneziawg/xioawg0.sock','/run/wireguard/xio0.sock']:Path(socket_path).unlink(missing_ok=True)
  d['preserveWireGuardTools']=any(i.get('linkinfo',{}).get('info_kind')=='wireguard' for i in links)

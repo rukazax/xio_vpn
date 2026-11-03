@@ -26,7 +26,7 @@ reapply_v6() {
 ip link del tun0 2>/dev/null || true
 ssh -i "$KEY" -p "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
   -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -w 0:0 \
-  root@"$PROXY" "pkill -f '^sleep infinity$' 2>/dev/null || true; ip addr replace $EXIT_ADDR dev tun0; ip link set tun0 up; exec sleep infinity" &
+  root@"$PROXY" "pkill -f '^sleep infinity$' 2>/dev/null || true; ip addr replace $EXIT_ADDR dev tun0; ip link set tun0 mtu 1400 up; exec sleep infinity" &
 child=$!
 
 i=0
@@ -39,8 +39,9 @@ while [ "$i" -lt 60 ]; do
   sleep 1
   i=$((i + 1))
 done
+# 1400 matches the provider uplink; 1500 caused oversized packets on the exit.
 ip addr replace "$BRIDGE_ADDR" dev tun0
-ip link set tun0 up
+ip link set tun0 mtu 1400 up
 ip -6 route replace default via "$EXIT_GW" dev tun0
 reapply_v6
 
@@ -49,7 +50,7 @@ reapply_v6
 while kill -0 "$child" 2>/dev/null; do
   sleep 10
   if ! ip -6 route show default dev tun0 2>/dev/null | grep -q "via $EXIT_GW"; then
-    ip link set tun0 up 2>/dev/null || true
+    ip link set tun0 mtu 1400 up 2>/dev/null || true
     ip addr replace "$BRIDGE_ADDR" dev tun0 2>/dev/null || true
     ip -6 route replace default via "$EXIT_GW" dev tun0 2>/dev/null || true
     reapply_v6

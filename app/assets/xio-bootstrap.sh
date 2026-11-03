@@ -162,4 +162,10 @@ install -m 644 "$tmp/cascade/xio-cascade.service" /etc/systemd/system/xio-cascad
 install -m 644 "$tmp/cascade/xio-cascade-exit.service" /etc/systemd/system/xio-cascade-exit.service
 mkdir -p "$lib/cascade"
 install -m 644 "$tmp/cascade/README.md" "$lib/cascade/README.md" 2>/dev/null || true
+# Host settings that must survive a reboot: IPv6 forwarding for the cascade and the
+# wg(8) UAPI symlink for the AmneziaWG daemon.
+install -m 644 "$tmp/cascade/99-xio-cascade.conf" /etc/sysctl.d/99-xio-cascade.conf
+install -m 644 "$tmp/cascade/xio-awg-uapi.conf" /etc/tmpfiles.d/xio-awg-uapi.conf
+sysctl -q -p /etc/sysctl.d/99-xio-cascade.conf >> "$lib/bootstrap.log" 2>&1 || true
+systemd-tmpfiles --create /etc/tmpfiles.d/xio-awg-uapi.conf >> "$lib/bootstrap.log" 2>&1 || true
 systemctl daemon-reload >> "$lib/bootstrap.log" 2>&1 || true
