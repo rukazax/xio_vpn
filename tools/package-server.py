@@ -36,7 +36,8 @@ def sources(root):
               if p.is_file() and (p.suffix == '.py' or p.name == 'LICENSE')]
     files += [(root / 'tools/xio-peer.py', 'xio-peer.py')]
     files += [(root / 'deploy/cascade' / name, 'cascade/' + name)
-              for name in ('xio-cascade-tunnel.sh', 'xio-cascade.service')]
+              for name in ('xio-cascade-tunnel.sh', 'xio-cascade.service',
+                           'xio-cascade-exit.sh', 'xio-cascade-exit.service')]
     catalog = root / 'server/catalog'
     files += [(catalog / name, 'catalog/' + name) for name in
               ('catalog.py', 'lint_catalog.py', 'whitelist-pins.json', 'README.md',
