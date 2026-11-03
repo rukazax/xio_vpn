@@ -15,22 +15,16 @@ tests can replace it.
 from __future__ import annotations
 
 import argparse
-import concurrent.futures
 import datetime as dt
-import errno
 import hashlib
 import ipaddress
 import json
 import os
 import socket
-import ssl
-import subprocess
 import sys
 import tempfile
 import threading
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
@@ -194,6 +188,7 @@ def _decode_cert(der: bytes) -> dict:
     ``SSLSocket.getpeercert()`` returns an empty dict when verification is off, so the
     DER form is decoded through the stdlib helper instead.
     """
+    import ssl
     if not der:
         return {}
     pem = ssl.DER_cert_to_PEM_cert(der)
@@ -265,6 +260,7 @@ def _resolve(fqdn: str, timeout: float):
 
 def probe_entry(fqdn: str, timeout: float = PROBE_TIMEOUT, interface: str = "") -> Entry:
     """Run stages 1-5 for one name. Never raises for expected network errors."""
+    import ssl
     try:
         infos = _resolve(fqdn, timeout)
     except (socket.gaierror, UnicodeError):
@@ -349,6 +345,7 @@ ProbeFn = Callable[[str], Entry]
 
 
 def probe_all(names: Sequence[str], probe: ProbeFn, concurrency: int, budget_s: float) -> list[Entry]:
+    import concurrent.futures
     deadline = time.monotonic() + budget_s
     results: list[Entry] = []
     workers = max(1, min(32, concurrency))
@@ -467,15 +464,19 @@ def _entries_from_json(entries: Sequence[dict]) -> list[Entry]:
 # --------------------------------------------------------------------------- io
 
 
-class _SameHostRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D102
-        host = urllib.parse.urlsplit(newurl).hostname or ""
-        if host not in ALLOWED_HOSTS:
-            raise CatalogError(EXIT_SOURCE, f"refusing redirect to {host}")
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
 def fetch_bytes(url: str, timeout: float = 20.0) -> bytes:
+    # urllib costs ~100 ms; only this function fetches (verify/rollback/lint never do).
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    class _SameHostRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D102
+            host = urllib.parse.urlsplit(newurl).hostname or ""
+            if host not in ALLOWED_HOSTS:
+                raise CatalogError(EXIT_SOURCE, f"refusing redirect to {host}")
+            return super().redirect_request(req, fp, code, msg, headers, newurl)
+
     host = urllib.parse.urlsplit(url).hostname or ""
     if host not in ALLOWED_HOSTS:
         raise CatalogError(EXIT_SOURCE, f"host not allowed: {host}")
@@ -651,6 +652,7 @@ def local_egress(interface: str) -> dict:
     """Address this host probes from on `interface`: measured, never guessed."""
     if not interface:
         return {}
+    import subprocess
     try:
         result = subprocess.run(
             ["ip", "-j", "addr", "show", "dev", interface],
@@ -831,6 +833,8 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    import argparse  # only the CLI needs it
+
     parser = argparse.ArgumentParser(prog="catalog.py", description="XIO whitelist catalog")
     sub = parser.add_subparsers(dest="command", required=True)
 
