@@ -227,7 +227,6 @@ class StaticAwgGuardTests(unittest.TestCase):
   self.assertNotIn('wireguard',d['users']['a'*32]['keys'])
 
 
-if __name__=='__main__':unittest.main()
 
 class IsolationRulesTests(unittest.TestCase):
  def payload(self):
