@@ -78,12 +78,20 @@ def check_inputs(root, native_root):
 
 
 TEXT_SUFFIXES = ('.py', '.json', '.sh')
+# Text members whose name carries no text suffix. The vendored VICI LICENSE is the one
+# today: a suffix test alone shipped it with CRLF from a Windows checkout while the
+# archive claimed every text member is LF, so the same commit produced two archives.
+TEXT_MEMBERS = ('xio_vici/LICENSE',)
+
+
+def is_text_member(name):
+    return name.endswith(TEXT_SUFFIXES) or name in TEXT_MEMBERS
 
 
 def member_payload(source, name):
     """Text members are packed with LF endings so Windows and Linux build the same archive."""
     data = source.read_bytes()
-    return data.replace(b'\r\n', b'\n') if name.endswith(TEXT_SUFFIXES) else data
+    return data.replace(b'\r\n', b'\n') if is_text_member(name) else data
 
 
 def archive(files, destination):
@@ -126,7 +134,9 @@ def package(root, native_root, output, check=False):
         (staged / 'xio_vici').mkdir()
         for source, name in files:
             if name.startswith('xio_vici/'):
-                (staged / name).write_bytes(source.read_bytes())
+                # Same bytes as the archive member, not the raw checkout: these files are
+                # published next to the tarball and must match it.
+                (staged / name).write_bytes(member_payload(source, name))
         artifacts = {}
         for source, target in MIRRORS:
             artifacts[target] = sha256(staged / target)
