@@ -99,3 +99,18 @@ mv "$tmp/xio-ready.service" /etc/systemd/system/xio-ready.service
 chmod 644 /etc/systemd/system/xio-ready.service
 systemctl daemon-reload
 systemctl enable --now xio-ready.service >> "$lib/bootstrap.log" 2>&1 || true
+
+# White-SNI catalog: the timer refreshes the list of entry names that survive
+# SNI-only operator filtering. It never touches profiles; choosing a name stays
+# an explicit administrator action.
+mkdir -p "$lib/catalog" /var/lib/xio-catalog
+mv "$tmp/catalog/"* "$lib/catalog/"
+chmod 644 "$lib"/catalog/*
+chmod 644 "$lib/catalog/catalog.py" "$lib/catalog/lint_catalog.py"
+cp "$lib/catalog/whitelist-pins.json" /var/lib/xio-catalog/whitelist-pins.json
+chmod 644 /var/lib/xio-catalog/whitelist-pins.json
+mv "$lib/catalog/xio-catalog.service" /etc/systemd/system/xio-catalog.service
+mv "$lib/catalog/xio-catalog.timer" /etc/systemd/system/xio-catalog.timer
+chmod 644 /etc/systemd/system/xio-catalog.service /etc/systemd/system/xio-catalog.timer
+systemctl daemon-reload
+systemctl enable --now xio-catalog.timer >> "$lib/bootstrap.log" 2>&1 || true

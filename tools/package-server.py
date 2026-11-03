@@ -34,6 +34,10 @@ def sources(root):
               'readiness.py', 'xio-ready.service')]
     files += [(p, 'xio_vici/' + p.name) for p in sorted((managed / 'xio_vici').iterdir())
               if p.is_file() and (p.suffix == '.py' or p.name == 'LICENSE')]
+    catalog = root / 'server/catalog'
+    files += [(catalog / name, 'catalog/' + name) for name in
+              ('catalog.py', 'lint_catalog.py', 'whitelist-pins.json', 'README.md',
+               'xio-catalog.service', 'xio-catalog.timer')]
     files += [(root / 'vendor-server' / name, member) for name, member in
               [('xio-xray-linux-amd64', 'xraygateway'), ('xio-cloak-linux-amd64', 'cloak'),
                ('amneziawg-go-linux-amd64', 'amneziawg-go'), ('xio-rivet-linux-amd64', 'rivet')]]

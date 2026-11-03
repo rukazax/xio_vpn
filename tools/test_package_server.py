@@ -20,6 +20,9 @@ def fixture(root):
     (managed / 'bootstrap.sh').write_bytes(b'set -eu\n')
     (managed / 'xio_vici/__init__.py').write_text('# vici fixture\n')
     (managed / 'xio_vici/LICENSE').write_text('fixture-license')
+    catalog_dir = root / 'server/catalog'; catalog_dir.mkdir(parents=True)
+    for name in ['catalog.py','lint_catalog.py','whitelist-pins.json','README.md','xio-catalog.service','xio-catalog.timer']:
+        (catalog_dir / name).write_bytes(b'# catalog fixture\n')
     (root / 'vendor-server').mkdir()
     for name in ['amneziawg-go-linux-amd64','xio-rivet-linux-amd64','xio-xray-linux-amd64','xio-cloak-linux-amd64']:
         (root / 'vendor-server' / name).write_bytes(('not-an-executable-unit-fixture-' + name).encode())
