@@ -30,6 +30,7 @@ def fixture(root):
     (cascade / 'xio-cascade.service').write_bytes(b'# unit fixture\n')
     (cascade / 'xio-cascade-exit.sh').write_bytes(b'# exit fixture\n')
     (cascade / 'xio-cascade-exit.service').write_bytes(b'# exit unit fixture\n')
+    (cascade / 'README.md').write_bytes(b'# cascade readme fixture\n')
     (root / 'vendor-server').mkdir()
     for name in ['amneziawg-go-linux-amd64','xio-rivet-linux-amd64','xio-xray-linux-amd64','xio-cloak-linux-amd64']:
         (root / 'vendor-server' / name).write_bytes(('not-an-executable-unit-fixture-' + name).encode())
