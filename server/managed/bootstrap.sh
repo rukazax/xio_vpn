@@ -109,6 +109,15 @@ chmod 644 "$lib"/catalog/*
 chmod 644 "$lib/catalog/catalog.py" "$lib/catalog/lint_catalog.py"
 cp "$lib/catalog/whitelist-pins.json" /var/lib/xio-catalog/whitelist-pins.json
 chmod 644 /var/lib/xio-catalog/whitelist-pins.json
+# The unit binds the probe socket to a physical device so it measures the server and
+# not the XIO tunnel. Record the device this host actually routes through: a hardcoded
+# eth0 turns every name into "unreachable" on a host whose NIC is ens3 or enp1s0.
+iface=$(ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* dev \([^ ]*\).*/\1/p' | head -1 || true)
+if [ -z "$iface" ]; then
+  iface=$(ls /sys/class/net 2>/dev/null | grep -Ev '^(lo|tun|tap|wg|xio|awg|docker|veth)' | head -1 || true)
+fi
+printf 'XIO_CATALOG_INTERFACE=%s\n' "${iface:-eth0}" > /etc/default/xio-catalog
+chmod 644 /etc/default/xio-catalog
 mv "$lib/catalog/xio-catalog.service" /etc/systemd/system/xio-catalog.service
 mv "$lib/catalog/xio-catalog.timer" /etc/systemd/system/xio-catalog.timer
 chmod 644 /etc/systemd/system/xio-catalog.service /etc/systemd/system/xio-catalog.timer
