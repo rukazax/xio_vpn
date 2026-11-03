@@ -15,6 +15,7 @@ import sys
 import tempfile
 import time
 import unittest
+import datetime as dt
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -80,7 +81,20 @@ class BuildTests(unittest.TestCase):
             **kwargs,
         )
 
-    # 1 + 2
+    # 1 (contract revision: determinism is stated on a fixed probe input)
+    def test_same_probe_input_gives_byte_identical_artifact(self):
+        fixed_now = dt.datetime(2026, 11, 3, 12, 0, 0, tzinfo=dt.timezone.utc)
+        first = catalog.dumps(self.build(probe=fake_probe(rtt=11), now=fixed_now))
+        second = catalog.dumps(self.build(probe=fake_probe(rtt=11), now=fixed_now))
+        self.assertEqual(first, second)
+        # A different probe result set must produce a different artifact.
+        other = catalog.dumps(self.build(probe=fake_probe(rtt=250), now=fixed_now))
+        self.assertNotEqual(first, other)
+        document = json.loads(first)
+        self.assertEqual(document["contentSha256"], catalog.content_sha256(
+            catalog._entries_from_json(document["entries"])
+        ))
+
     def test_deterministic_content_hash_and_provenance(self):
         first = self.build(probe=fake_probe(rtt=11))
         second = self.build(probe=fake_probe(rtt=999))
