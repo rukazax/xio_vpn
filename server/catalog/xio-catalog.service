@@ -8,16 +8,20 @@ Wants=network-online.target
 Type=oneshot
 WorkingDirectory=/var/lib/xio-catalog
 # The probe socket is bound to a physical device so the run measures the server, not
-# the XIO tunnel. An unset interface means "do not bind", which is why the default is
-# resolved here and not left empty by accident: /etc/default/xio-catalog is written by
-# bootstrap.sh from the default route and may be edited by the administrator.
+# the XIO tunnel. bootstrap.sh writes the device it found into /etc/default/xio-catalog
+# and the administrator may edit it. "Unset" is not the same as "set but empty":
+# - unset          -> eth0, the historical default, so an older host keeps its behaviour;
+# - set and empty  -> do not bind at all, which measures whatever route the host uses;
+# - set to a name  -> bind to that device.
 EnvironmentFile=-/etc/default/xio-catalog
 # Fail with a message that names the real cause. Without this guard a missing device
 # makes every name "unreachable", the build then exits 4 with "eligible 0 below
 # threshold", and the administrator goes looking for a network fault that is not there.
-ExecStartPre=/bin/sh -c 'iface="${XIO_CATALOG_INTERFACE:-eth0}"; if [ ! -d "/sys/class/net/$iface" ]; then echo "xio-catalog: interface $iface not found; set XIO_CATALOG_INTERFACE in /etc/default/xio-catalog" >&2; exit 5; fi'
-ExecStart=/bin/sh -c 'set -e; iface="${XIO_CATALOG_INTERFACE:-eth0}"; set -- --interface "$iface"; exec /usr/bin/python3 /usr/local/lib/xio-managed/catalog/catalog.py build --out-dir /var/lib/xio-catalog --pins /var/lib/xio-catalog/whitelist-pins.json "$@" --node %H'
+# 78 is EX_CONFIG: it cannot be confused with the build's own 2/3/4/5.
+ExecStartPre=/bin/sh -c 'iface="${XIO_CATALOG_INTERFACE-eth0}"; if [ -n "$iface" ] && [ ! -d "/sys/class/net/$iface" ]; then echo "xio-catalog: interface $iface not found; set XIO_CATALOG_INTERFACE in /etc/default/xio-catalog" >&2; exit 78; fi'
+ExecStart=/bin/sh -c 'set -e; iface="${XIO_CATALOG_INTERFACE-eth0}"; set --; if [ -n "$iface" ]; then set -- --interface "$iface"; fi; exec /usr/bin/python3 /usr/local/lib/xio-managed/catalog/catalog.py build --out-dir /var/lib/xio-catalog --pins /var/lib/xio-catalog/whitelist-pins.json "$@" --node %H'
 # Exit codes are part of the contract (2/3/4/5): report, do not mask, and never retry blindly.
+# 78 belongs to the ExecStartPre guard above and means "the configured device is absent".
 SuccessExitStatus=0
 TimeoutStartSec=16min
 Nice=10

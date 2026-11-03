@@ -112,12 +112,40 @@ chmod 644 /var/lib/xio-catalog/whitelist-pins.json
 # The unit binds the probe socket to a physical device so it measures the server and
 # not the XIO tunnel. Record the device this host actually routes through: a hardcoded
 # eth0 turns every name into "unreachable" on a host whose NIC is ens3 or enp1s0.
-iface=$(ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* dev \([^ ]*\).*/\1/p' | head -1 || true)
-if [ -z "$iface" ]; then
-  iface=$(ls /sys/class/net 2>/dev/null | grep -Ev '^(lo|tun|tap|wg|xio|awg|docker|veth)' | head -1 || true)
+# >>> catalog-iface >>>
+# A device is acceptable when it exists and is neither a bridge nor a tunnel. Bridges
+# are detected by structure, not by name: /sys/class/net/<dev>/bridge exists for
+# docker0, every docker br-<id>, cni0, virbr0 and podman0, so no name pattern has to
+# stay current. The IPv6 route is consulted after the IPv4 one because an IPv6-only
+# host has no IPv4 route at all, and a bare scan then returns whatever sorts first --
+# on a docker host that is a bridge, and a probe bound to a bridge reports every name
+# unreachable, which is the same false "network fault" this block exists to remove.
+xio_catalog_iface_ok() {
+  [ -n "$1" ] || return 1
+  [ -d "/sys/class/net/$1" ] || return 1
+  [ ! -e "/sys/class/net/$1/bridge" ] || return 1
+  case "$1" in lo|tun*|tap*|wg*|xio*|awg*|veth*) return 1 ;; esac
+  return 0
+}
+xio_catalog_iface() {
+  for target in 1.1.1.1 2606:4700:4700::1111; do
+    dev=$(ip route get "$target" 2>/dev/null | sed -n 's/.* dev \([^ ]*\).*/\1/p' | head -1 || true)
+    if xio_catalog_iface_ok "$dev"; then printf '%s\n' "$dev"; return 0; fi
+  done
+  for dev in $(ls /sys/class/net 2>/dev/null); do
+    if xio_catalog_iface_ok "$dev"; then printf '%s\n' "$dev"; return 0; fi
+  done
+  return 1
+}
+# <<< catalog-iface <<<
+if iface=$(xio_catalog_iface); then
+  printf 'XIO_CATALOG_INTERFACE=%s\n' "$iface" > /etc/default/xio-catalog
+  chmod 644 /etc/default/xio-catalog
+else
+  # Writing a guess here would hide the real cause, so the file is left untouched and
+  # the unit's own guard reports the missing device by name.
+  printf '%s\n' 'catalog: no routable non-bridge device found; leaving /etc/default/xio-catalog as it is. Set XIO_CATALOG_INTERFACE there if the host routes through a device this scan cannot see.' >&2
 fi
-printf 'XIO_CATALOG_INTERFACE=%s\n' "${iface:-eth0}" > /etc/default/xio-catalog
-chmod 644 /etc/default/xio-catalog
 mv "$lib/catalog/xio-catalog.service" /etc/systemd/system/xio-catalog.service
 mv "$lib/catalog/xio-catalog.timer" /etc/systemd/system/xio-catalog.timer
 chmod 644 /etc/systemd/system/xio-catalog.service /etc/systemd/system/xio-catalog.timer
