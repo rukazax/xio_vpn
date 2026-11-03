@@ -151,3 +151,11 @@ mv "$lib/catalog/xio-catalog.timer" /etc/systemd/system/xio-catalog.timer
 chmod 644 /etc/systemd/system/xio-catalog.service /etc/systemd/system/xio-catalog.timer
 systemctl daemon-reload
 systemctl enable --now xio-catalog.timer >> "$lib/bootstrap.log" 2>&1 || true
+
+# Static AWG profiles for routers and phones, and the cascade role files.
+mv "$tmp/xio-peer.py" /usr/local/sbin/xio-peer.py
+chmod 700 /usr/local/sbin/xio-peer.py
+mkdir -p "$lib/cascade"
+mv "$tmp/cascade/"* "$lib/cascade/"
+chmod 644 "$lib"/cascade/*
+chmod 700 "$lib/cascade/xio-cascade-tunnel.sh"

@@ -23,6 +23,11 @@ def fixture(root):
     catalog_dir = root / 'server/catalog'; catalog_dir.mkdir(parents=True)
     for name in ['catalog.py','lint_catalog.py','whitelist-pins.json','README.md','xio-catalog.service','xio-catalog.timer']:
         (catalog_dir / name).write_bytes(b'# catalog fixture\n')
+    (root / 'tools').mkdir(exist_ok=True)
+    (root / 'tools/xio-peer.py').write_bytes(b'# peer fixture\n')
+    cascade = root / 'deploy/cascade'; cascade.mkdir(parents=True)
+    (cascade / 'xio-cascade-tunnel.sh').write_bytes(b'# tunnel fixture\n')
+    (cascade / 'xio-cascade.service').write_bytes(b'# unit fixture\n')
     (root / 'vendor-server').mkdir()
     for name in ['amneziawg-go-linux-amd64','xio-rivet-linux-amd64','xio-xray-linux-amd64','xio-cloak-linux-amd64']:
         (root / 'vendor-server' / name).write_bytes(('not-an-executable-unit-fixture-' + name).encode())

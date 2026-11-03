@@ -31,7 +31,8 @@ ip6tables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
 ### bridge
 
-`/usr/local/sbin/xio-cascade-tunnel.sh` держит туннель и владеет устройством:
+Скрипт `deploy/cascade/xio-cascade-tunnel.sh` (в архиве — `/usr/local/lib/xio-managed/cascade/`,
+ставится в `/usr/local/sbin/`) держит туннель и владеет устройством:
 
 ```sh
 ip link del tun0 2>/dev/null || true          # рестарт не настраивает старый tun0
@@ -43,7 +44,12 @@ ip -6 route replace default via fd00:201::2 dev tun0
 wait
 ```
 
-`xio-cascade.service` — `Type=simple`, `Restart=always`, `RestartSec=5`.
+Юнит `deploy/cascade/xio-cascade.service` — `Type=simple`, `Restart=always`, `RestartSec=5`.
+
+Порядок важен: правила `FORWARD … -o tun0` в `dualstack.py` считаются в момент применения
+XIO (init/add/revoke) по фактическому IPv6-default. Поэтому каскад поднимают **до** установки
+или до добавления пользователей, либо после поднятия каскада повторяют операцию, которая вызывает
+`apply` (например, добавить и отозвать временного пользователя через `admin.py`).
 
 ## Маршрутизация клиентов
 
