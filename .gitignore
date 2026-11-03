@@ -46,3 +46,10 @@ tmp/
 
 # Per-release manifests that tie a tag to hashed artifacts (see verification/*-release.json).
 !verification/*-release.json
+# Generated white-SNI catalog: server state, not source / артефакты каталога
+server/catalog/whitelist-2*.json
+server/catalog/whitelist-previous.json
+server/catalog/whitelist-state.json
+server/catalog/whitelist-manifest.json
+server/catalog/*.sig
+__pycache__/
