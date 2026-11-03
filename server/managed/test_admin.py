@@ -121,24 +121,31 @@ class CatalogTests(unittest.TestCase):
    self.assertIn('timer',state['reason'])
 
  def test_catalog_lists_only_eligible_entries(self):
+  """Read the artifact exactly as the builder publishes it, not a hand-made manifest."""
+  import sys as _sys
+  _sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'catalog'))
+  import catalog
+  document={'schema':catalog.SCHEMA,'contentSha256':'c'*64,
+            'source':{'commit':'e61be51b','fetchedAt':'2026-11-03T06:00:00Z'},
+            'probe':{'country':'BE'},'counts':{'unique':2},
+            'entries':[{'fqdn':'a.ru','eligible':True,'certNotAfter':'2027','tlsRttMs':10},
+                       {'fqdn':'b.ru','eligible':False,'tlsRttMs':None}]}
   with tempfile.TemporaryDirectory() as directory:
    root=Path(directory)
-   document={'generatedAt':'2026-11-03T06:00:00Z','contentSha256':'c'*64,'source':{'commit':'e61be51b'},
-             'probe':{'country':'BE'},'counts':{'unique':2},
-             'entries':[{'fqdn':'a.ru','eligible':True,'certNotAfter':'2027','tlsRttMs':10},
-                        {'fqdn':'b.ru','eligible':False,'tlsRttMs':None}]}
-   (root/'whitelist-20261103.json').write_text(json.dumps(document))
-   (root/'whitelist-manifest.json').write_text(json.dumps({'file':'whitelist-20261103.json','sha256':'d'*64}))
+   catalog.publish(root,'whitelist-20261103.json',catalog.dumps(document))
    with patch.object(m,'CATALOG_DIR',root):
     state=m.catalog_state()
    self.assertTrue(state['available'])
+   reference=json.loads((root/'whitelist-state.json').read_text())['current']
+   self.assertEqual(state['sha256'],reference['sha256'])
    self.assertEqual([entry['fqdn'] for entry in state['entries']],['a.ru'])
    self.assertEqual(state['eligible'],1)
    self.assertEqual(state['contentSha256'],'c'*64)
+   self.assertEqual(state['fetchedAt'],'2026-11-03T06:00:00Z')
 
- def test_unreadable_manifest_is_an_explicit_error(self):
+ def test_unreadable_state_is_an_explicit_error(self):
   with tempfile.TemporaryDirectory() as directory:
    root=Path(directory)
-   (root/'whitelist-manifest.json').write_text(json.dumps({'file':'missing.json'}))
+   (root/'whitelist-state.json').write_text(json.dumps({'current':{'file':'missing.json'}}))
    with patch.object(m,'CATALOG_DIR',root),self.assertRaisesRegex(RuntimeError,'Catalog unreadable'):
     m.catalog_state()

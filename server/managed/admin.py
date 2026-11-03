@@ -465,19 +465,27 @@ def remove(d):
  Path('/run/lock/xio-managed.lock').unlink(missing_ok=True)
  return {'removed':True,'ownedPackageRemoved':'wireguard-tools' in package_result['packagesRemoved'],**package_result,'forwardingRestored':restored,'otherVirtualInterfaces':other}
 CATALOG_DIR=Path('/var/lib/xio-catalog')
+CATALOG_STATE='whitelist-state.json'
 
 def catalog_state():
- """Read the white-SNI catalog built by the weekly timer; never build it here."""
- manifest=CATALOG_DIR/'whitelist-manifest.json'
- if not manifest.exists():
+ """Read the white-SNI catalog built by the weekly timer; never build it here.
+
+ The builder records the live artifact in whitelist-state.json as
+ {current:{file,sha256},previous:{...}}; there is no separate manifest file, so reading
+ one would report an unbuilt catalog forever.
+ """
+ state_path=CATALOG_DIR/CATALOG_STATE
+ if not state_path.exists():
   return {'available':False,'reason':'catalog is not built yet; the xio-catalog.timer builds it weekly'}
  try:
-  meta=json.loads(manifest.read_text());document=json.loads((CATALOG_DIR/meta['file']).read_text())
- except (OSError,ValueError,KeyError) as error:
+  state=json.loads(state_path.read_text());current=state['current']
+  document=json.loads((CATALOG_DIR/current['file']).read_text())
+ except (OSError,ValueError,KeyError,TypeError) as error:
   raise RuntimeError('Catalog unreadable: '+type(error).__name__)
  entries=[{'fqdn':e['fqdn'],'certNotAfter':e.get('certNotAfter'),'tlsRttMs':e.get('tlsRttMs')} for e in document.get('entries',[]) if e.get('eligible')]
- return {'available':True,'sha256':meta.get('sha256'),'contentSha256':document.get('contentSha256'),
-  'generatedAt':document.get('generatedAt'),'source':document.get('source'),'probe':document.get('probe'),
+ source=document.get('source') or {}
+ return {'available':True,'sha256':current.get('sha256'),'contentSha256':document.get('contentSha256'),
+  'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
 def dispatch(req,actor=None):
