@@ -394,7 +394,7 @@ def stats(d):
    if ms.get('month')==u['month']:u['monthBytes']+=ms.get('monthBytes',0)
    u['online']=not u.get('revoked') and (u['online'] or (ms.get('online') and 0<=now-ms.get('sampledAt',0)<=20))
   u.setdefault('trackingSince',now)
- save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':now,'statisticsNote':'Server counters; sampled every 30s. Unsampled traffic before a service crash may be lost.'}
+ save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':now,'statisticsNote':'Server counters; sampled every 60s. Unsampled traffic before a service crash may be lost.'}
 def public(d):
  # One route sample feeds both fields (capabilities.ipv6DefaultRoute == ipv6_ready()).
  capabilities=stack.network.dualstack().capabilities()

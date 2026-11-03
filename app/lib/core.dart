@@ -585,6 +585,13 @@ class _LimitedBytes implements Sink<List<int>> {
   void close() {}
 }
 
+/// The watchdog probes DNS every 15 s until a tunnel has answered six checks in a
+/// row, then every 20 s: a half of the radio wakeups for a link that is already
+/// proven stable. Any failure resets the counter, so detection stays at 15+20 s.
+Duration watchdogIntervalFor(int healthyChecks) => healthyChecks >= 6
+    ? const Duration(seconds: 20)
+    : const Duration(seconds: 15);
+
 class AppStore extends ChangeNotifier {
   LegalRecord? legalRecord;
   String? vpnDisclosure;
@@ -1866,13 +1873,15 @@ class AppStore extends ChangeNotifier {
   /// A tunnel that has answered six checks in a row is stable enough to be
   /// checked half as often: the DNS probe is the only periodic radio wakeup the
   /// app makes, so 30 lookups per hour instead of 120 is real battery.
-  Duration get _watchdogInterval => _watchdogHealthy >= 6
-      ? const Duration(seconds: 30)
-      : const Duration(seconds: 15);
+  Duration get _watchdogInterval => watchdogIntervalFor(_watchdogHealthy);
+  bool _disposed = false;
 
   bool _watchdogScheduled = false;
 
   void _syncWatchdog() {
+    // A tick in flight can outlive dispose(); re-arming there used to schedule a
+    // timer on a dead ChangeNotifier and the next tick threw after disposal.
+    if (_disposed) return;
     if (_desired && autoReconnect) {
       if (_watchdogScheduled) return;
       _watchdogScheduled = true;
@@ -1889,7 +1898,7 @@ class AppStore extends ChangeNotifier {
   void _watchdogRun() {
     _watchdogScheduled = false;
     unawaited(_watchdogTick().whenComplete(() {
-      if (_desired && autoReconnect) _syncWatchdog();
+      if (!_disposed && _desired && autoReconnect) _syncWatchdog();
     }));
   }
 
@@ -1976,6 +1985,7 @@ class AppStore extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _timer?.cancel();
     _watchdog?.cancel();
     _watchdog = null;
