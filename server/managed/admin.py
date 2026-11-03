@@ -279,7 +279,7 @@ def authority(d,actor,action,req):
  if actor is None:return
  u=d['users'].get(actor)
  assert u and not u.get('revoked') and u.get('role')=='admin','Admin access revoked'
- assert action in ['inspect','status','add','revoke'],'Operation not permitted'
+ assert action in ['inspect','status','add','revoke','catalog'],'Operation not permitted'
  if action=='add':
   assert not req.get('admin',False),'Only owner may create admins'
   children=sum(not x.get('revoked') and x.get('createdBy')==actor for x in d['users'].values())
@@ -464,6 +464,22 @@ def remove(d):
  shutil.rmtree(ROOT);shutil.rmtree(LIB);run('systemctl','daemon-reload')
  Path('/run/lock/xio-managed.lock').unlink(missing_ok=True)
  return {'removed':True,'ownedPackageRemoved':'wireguard-tools' in package_result['packagesRemoved'],**package_result,'forwardingRestored':restored,'otherVirtualInterfaces':other}
+CATALOG_DIR=Path('/var/lib/xio-catalog')
+
+def catalog_state():
+ """Read the white-SNI catalog built by the weekly timer; never build it here."""
+ manifest=CATALOG_DIR/'whitelist-manifest.json'
+ if not manifest.exists():
+  return {'available':False,'reason':'catalog is not built yet; the xio-catalog.timer builds it weekly'}
+ try:
+  meta=json.loads(manifest.read_text());document=json.loads((CATALOG_DIR/meta['file']).read_text())
+ except (OSError,ValueError,KeyError) as error:
+  raise RuntimeError('Catalog unreadable: '+type(error).__name__)
+ entries=[{'fqdn':e['fqdn'],'certNotAfter':e.get('certNotAfter'),'tlsRttMs':e.get('tlsRttMs')} for e in document.get('entries',[]) if e.get('eligible')]
+ return {'available':True,'sha256':meta.get('sha256'),'contentSha256':document.get('contentSha256'),
+  'generatedAt':document.get('generatedAt'),'source':document.get('source'),'probe':document.get('probe'),
+  'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
+
 def dispatch(req,actor=None):
  action=req['action']
  if action=='client-grant':
@@ -478,6 +494,7 @@ def dispatch(req,actor=None):
  authority(d,actor,action,req)
  if action=='inspect':return {'server':public(d),'phase':d['phase']}
  assert req.get('serverId')==d['id'],'Server identity changed; reopen setup'
+ if action=='catalog':return catalog_state()
  if action=='status':
   result=stats(d)
   if actor:result['users']=[u for u in result['users'] if u['id']==actor or u.get('createdBy')==actor]

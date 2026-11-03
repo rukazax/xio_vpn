@@ -1,4 +1,4 @@
-import importlib.util,tempfile,unittest
+import importlib.util,json,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('managed',Path(__file__).with_name('admin.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
@@ -111,3 +111,34 @@ class StatsTests(unittest.TestCase):
     m.stats(d)
    self.assertEqual(d['users']['u']['stats']['awg']['rx'],5)
    self.assertEqual(d['users']['u']['stats']['wireguard']['rx'],0)
+
+class CatalogTests(unittest.TestCase):
+ def test_missing_catalog_reports_unavailable(self):
+  with tempfile.TemporaryDirectory() as directory:
+   with patch.object(m,'CATALOG_DIR',Path(directory)):
+    state=m.catalog_state()
+   self.assertFalse(state['available'])
+   self.assertIn('timer',state['reason'])
+
+ def test_catalog_lists_only_eligible_entries(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory)
+   document={'generatedAt':'2026-11-03T06:00:00Z','contentSha256':'c'*64,'source':{'commit':'e61be51b'},
+             'probe':{'country':'BE'},'counts':{'unique':2},
+             'entries':[{'fqdn':'a.ru','eligible':True,'certNotAfter':'2027','tlsRttMs':10},
+                        {'fqdn':'b.ru','eligible':False,'tlsRttMs':None}]}
+   (root/'whitelist-20261103.json').write_text(json.dumps(document))
+   (root/'whitelist-manifest.json').write_text(json.dumps({'file':'whitelist-20261103.json','sha256':'d'*64}))
+   with patch.object(m,'CATALOG_DIR',root):
+    state=m.catalog_state()
+   self.assertTrue(state['available'])
+   self.assertEqual([entry['fqdn'] for entry in state['entries']],['a.ru'])
+   self.assertEqual(state['eligible'],1)
+   self.assertEqual(state['contentSha256'],'c'*64)
+
+ def test_unreadable_manifest_is_an_explicit_error(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory)
+   (root/'whitelist-manifest.json').write_text(json.dumps({'file':'missing.json'}))
+   with patch.object(m,'CATALOG_DIR',root),self.assertRaisesRegex(RuntimeError,'Catalog unreadable'):
+    m.catalog_state()
