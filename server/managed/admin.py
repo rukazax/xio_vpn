@@ -340,9 +340,11 @@ def stats(d):
   for p,pub in u['keys'].items():
    rx,tx,hs=current.get((p,pub),(0,0,0));s=u.setdefault('stats',{}).setdefault(p,{'rx':0,'tx':0,'lastRx':0,'lastTx':0})
    if u.get('revoked'):continue
-   reset=s.get('generation')!=generations[p]
+   # Protocols without a running unit (e.g. wireguard in restricted installs) have no
+   # generation; their counters stay zero and must not fail the whole sample.
+   reset=s.get('generation')!=generations.get(p)
    dr=rx if reset or rx<s['lastRx'] else rx-s['lastRx'];dt=tx if reset or tx<s['lastTx'] else tx-s['lastTx']
-   s['rx']+=dr;s['tx']+=dt;s.update(lastRx=rx,lastTx=tx,handshake=hs,generation=generations[p])
+   s['rx']+=dr;s['tx']+=dt;s.update(lastRx=rx,lastTx=tx,handshake=hs,generation=generations.get(p))
    month=time.strftime('%Y-%m',time.gmtime());months=u.setdefault('monthly',{});months[month]=months.get(month,0)+dr+dt
   u['month']=time.strftime('%Y-%m',time.gmtime());u['monthBytes']=u.get('monthly',{}).get(u['month'],0)
   u['online']=not u.get('revoked') and any(0<=time.time()-v.get('handshake',0)<=180 for p,v in u.get('stats',{}).items() if p in d['protocols'])

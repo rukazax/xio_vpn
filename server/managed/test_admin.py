@@ -85,3 +85,29 @@ class RestrictedPolicyTests(unittest.TestCase):
    self.assertEqual(m.counters(),{})
    called.assert_not_called()
 
+
+class StatsGenerationTests(unittest.TestCase):
+ def test_protocol_without_unit_does_not_fail_sample(self):
+  # Restricted installs run AWG only, but user keys still carry 'wireguard'.
+  # generations[p] used to raise KeyError and took the stats timer and
+  # status down with it; the sample must stay green.
+  d={'id':'s','phase':'ready','restrictedNetwork':True,'protocols':['wireguard','awg'],'publicKeys':{},'awg':{},
+     'users':{'u':{'keys':{'wireguard':'k1','awg':'k2'},'stats':{},'monthly':{}}}}
+  with patch.object(m,'counters',return_value={}),patch.object(m,'run',return_value='gen'),\
+       patch.object(m,'save'),patch.object(m,'public',return_value={'id':'s'}),\
+       patch.object(m.Path,'read_text',side_effect=lambda *a,**k:'unit-fixture-boot'):
+   result=m.stats(d)
+  self.assertEqual(result['sampledAt']>0,True)
+  self.assertEqual(d['users']['u']['stats']['wireguard']['generation'],None)
+  self.assertEqual(d['users']['u']['stats']['awg']['generation'],'unit-fixture-boot:gen')
+
+class StatsTests(unittest.TestCase):
+ def test_restricted_install_tolerates_keys_without_a_running_unit(self):
+  # restrictedNetwork installs run no kernel WireGuard, but a user may still carry a
+  # wireguard key from an earlier recipe; the whole sample must not fail on it.
+  with tempfile.TemporaryDirectory() as directory,patch.object(Path,'read_text',fixture_read),patch.object(m,'ROOT',Path(directory)):
+   d={'owner':m.OWNER,'id':'s','host':'example','restrictedNetwork':True,'protocols':['wireguard','awg'],'publicKeys':{},'awg':{},'users':{'u':{'keys':{'wireguard':'w','awg':'a'},'revoked':False}}}
+   with patch.object(m,'counters',return_value={('awg','a'):(5,7,1000)}),patch.object(m,'run',return_value='inv'),patch.object(m.time,'time',return_value=1001),patch.object(m.time,'strftime',return_value='2026-10'):
+    m.stats(d)
+   self.assertEqual(d['users']['u']['stats']['awg']['rx'],5)
+   self.assertEqual(d['users']['u']['stats']['wireguard']['rx'],0)
