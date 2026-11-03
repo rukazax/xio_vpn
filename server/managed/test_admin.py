@@ -180,8 +180,9 @@ class StaticAwgTests(unittest.TestCase):
   self.assertIn('Endpoint = 203.0.113.9:51821',conf)
   self.assertIn('PublicKey = SERVERPUBKEY',conf)
   self.assertIn('Jc = 4',conf)
+  self.assertIn('MTU = 1232',conf)
   self.assertIn('10.78.0.2/24',conf)
-  self.assertEqual(d['users']['a'*32]['keys'],{'wireguard':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=','awg':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='})
+  self.assertEqual(d['users']['a'*32]['keys'],{'awg':'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='})
 
  def test_add_awg_rejects_short_key(self):
   d=self.deployment()

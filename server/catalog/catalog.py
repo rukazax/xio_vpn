@@ -24,6 +24,7 @@ import json
 import os
 import socket
 import ssl
+import subprocess
 import sys
 import tempfile
 import threading
@@ -646,6 +647,28 @@ def rollback(directory: Path) -> dict:
 # --------------------------------------------------------------------------- build
 
 
+def local_egress(interface: str) -> dict:
+    """Address this host probes from on `interface`: measured, never guessed."""
+    if not interface:
+        return {}
+    try:
+        result = subprocess.run(
+            ["ip", "-j", "addr", "show", "dev", interface],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode != 0:
+            return {}
+        for link in json.loads(result.stdout):
+            for info in link.get("addr_info", []):
+                family = info.get("family")
+                if family in ("inet", "inet6") and info.get("scope") != "link" and info.get("local"):
+                    return {"interface": interface, "address": info["local"],
+                            "family": "4" if family == "inet" else "6"}
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return {}
+    return {}
+
+
 def build(
     *,
     url: str = SOURCE_URL,
@@ -705,8 +728,16 @@ def build(
         "bypassTunnel": bool(interface),
         "tlsRequires": "1.3",
         "probeMode": "tcp-tls13",
+        "countrySource": "operator" if (probe_meta or {}).get("country") else "unknown",
     }
     probe_block.update(probe_meta or {})
+    # What the probe actually touched, so "country" can be checked against reality.
+    probe_block["families"] = sorted(
+        {"6" if ":" in addr else "4" for entry in entries for addr in entry.resolved}
+    )
+    egress = local_egress(interface)
+    if egress:
+        probe_block["egress"] = egress
 
     document = build_document(entries, metadata, probe_block, counts)
     # Lines rejected at stage 0 never become entries, so their count comes from the parser.

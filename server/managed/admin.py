@@ -209,7 +209,7 @@ def render(d):
  if not wireguard_enabled(d):return
  lines=['[Interface]','PrivateKey = '+(ROOT/'wg.key').read_text().strip(),'Address = 10.77.0.1/24, fd77:1::1/64','ListenPort = 51820','MTU = 1280']
  for user in d['users'].values():
-  if not user.get('revoked') and not d.get('restrictedNetwork'):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
+  if not user.get('revoked') and not d.get('restrictedNetwork') and 'wireguard' in user.get('keys',{}):lines+=['','[Peer]','PublicKey = '+user['keys']['wireguard'],'AllowedIPs = 10.77.0.%d/32, fd77:1::%x/128'%(user['slot'],user['slot'])]
  write('/etc/wireguard/xio0.conf','\n'.join(lines)+'\n')
 def apply(d):
  render(d)
@@ -495,7 +495,7 @@ def awg_client_config(d,user):
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9']
  for key in ['Jc','Jmin','Jmax','S1','S2','H1','H2','H3','H4']:
   lines.append('%s = %s'%(key,awg[key]))
- lines+=['MTU = 1280','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
+ lines+=['MTU = 1232','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
          'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
  return '\n'.join(lines)
 
@@ -528,7 +528,7 @@ def dispatch(req,actor=None):
   if uid in d['users']:raise RuntimeError('User id already exists')
   assert not any(public in u['keys'].values() for u in d['users'].values()),'Duplicate key'
   used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
-  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'wireguard':public,'awg':public},'revoked':False,
+  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public},'revoked':False,
                    'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
   try:
    save(d);apply(d)
