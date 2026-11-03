@@ -9,6 +9,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart' as hashes;
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/services.dart';
 
 import 'core.dart';
@@ -67,7 +68,22 @@ class ServerRelease {
       );
     }
   }
+
+  /// Same check as [verifyArchive], but the 22 MB digest runs off the UI isolate.
+  /// Hashing on the platform thread blocked frames long enough for Android to
+  /// show "приложение не отвечает" right after the app opened the setup screen.
+  Future<void> verifyArchiveOffThread(List<int> bytes) async {
+    final computed = await compute(digestOfBytes, bytes);
+    if (computed != sha256) {
+      throw StateError(
+        'Архив серверного релиза не совпадает с манифестом приложения',
+      );
+    }
+  }
 }
+
+String digestOfBytes(List<int> bytes) =>
+    hashes.sha256.convert(bytes).toString();
 
 Future<(String, String)> newManagementKey() async {
   final pair = await Ed25519().newKeyPair();
@@ -151,7 +167,7 @@ class ManagedService {
       archive.offsetInBytes,
       archive.lengthInBytes,
     );
-    local.verifyArchive(archiveBytes);
+    local.verifyArchiveOffThread(archiveBytes);
     final program = await assets.loadString('assets/xio-server-update.py');
     String quoted(String value) => "'${value.replaceAll("'", "'\\''")}'";
     if (store.status.active || store.busy || store.serverMaintenance) return;
@@ -267,6 +283,23 @@ class ManagedService {
       country: remote['country'] ?? '',
       hostKey: fingerprint,
     );
+    // The installation identity is authoritative per endpoint. A reinstalled
+    // server keeps host, port and user but gets a new id; keeping the stale
+    // record would make every later command present an id the server rejects
+    // ("Server identity changed; reopen setup").
+    final stale = store.servers
+        .where(
+          (s) =>
+              s.id != server.id &&
+              s.host == server.host &&
+              s.port == server.port &&
+              s.username == server.username,
+        )
+        .toList();
+    if (stale.isNotEmpty) {
+      store.servers.removeWhere((s) => stale.contains(s));
+      await store.save();
+    }
     final known = store.servers.where((s) => s.id == server.id).firstOrNull;
     if (known != null) {
       if (known.host != server.host ||
@@ -322,15 +355,30 @@ class ManagedService {
       archive.offsetInBytes,
       archive.lengthInBytes,
     );
-    release.verifyArchive(archiveBytes);
+    await release.verifyArchiveOffThread(archiveBytes);
     final bootstrap = await assets.loadString('assets/xio-bootstrap.sh');
     release.verifyBootstrap(bootstrap);
-    // The script compares its stdin against this digest before unpacking.
-    final script =
-        "export XIO_EXPECTED_ARCHIVE_SHA256='${release.sha256}'\n$bootstrap";
+    // Upload both inputs, then run one short command. The bootstrap compares the
+    // archive it receives on stdin against this digest before unpacking. Output
+    // and exit status are kept in /var/log/xio-bootstrap.* so a failure on a
+    // server we cannot observe is diagnosable from the host itself.
+    final digest = release.sha256;
+    final archivePath = '/tmp/xio-server-$digest.tar.gz';
+    final scriptPath = '/tmp/xio-bootstrap-$digest.sh';
+    await ssh.upload(scriptPath, utf8.encode(bootstrap));
+    await ssh.upload(archivePath, archiveBytes);
+    // Sizes are re-checked on the host: an SFTP write that returned early would
+    // otherwise only show up as an opaque digest failure.
     await ssh.executeInput(
-      script,
-      archiveBytes,
+      "{ [ \"\$(wc -c < '$scriptPath')\" = '${utf8.encode(bootstrap).length}' ] || "
+      "{ echo 'bootstrap upload truncated' >&2; exit 3; }; "
+      "[ \"\$(wc -c < '$archivePath')\" = '${archiveBytes.length}' ] || "
+      "{ echo 'archive upload truncated' >&2; exit 3; }; "
+      "XIO_EXPECTED_ARCHIVE_SHA256='$digest' bash '$scriptPath' < '$archivePath'; } "
+      ">/tmp/xio-bootstrap.out 2>/tmp/xio-bootstrap.err; "
+      "rc=\$?; echo \$rc >/tmp/xio-bootstrap.rc; "
+      "rm -f '$scriptPath' '$archivePath'; exit \$rc",
+      const <int>[],
       timeout: const Duration(minutes: 30),
     );
     final result = await command({

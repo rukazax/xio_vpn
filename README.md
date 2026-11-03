@@ -511,3 +511,37 @@ Full instructions: [Build from source](docs/en/build.md) &middot; [source proven
 
 Original code is GPL-3.0-only. Third-party components keep their own licences:
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+## Cascade: two servers, IPv4 → IPv6
+
+A paid feature (subscription stub for now): the device reaches **bridge** over IPv4,
+the bridge keeps a protected **IPv6-only** tunnel to an **exit** server, and traffic
+leaves from an IPv6-only network.
+
+```mermaid
+flowchart LR
+  A[Phone / PC<br/>IPv4] -->|XIO TLS / QUIC| B[Bridge<br/>IPv4]
+  B -->|protected tunnel<br/>IPv6 only| C[Exit<br/>IPv6-only]
+  C --> D((Internet))
+```
+
+| What | Where |
+|---|---|
+| Route screen with country flags and state | `app/lib/cascade_ui.dart` |
+| Cascade state model | `app/lib/cascade_model.dart` |
+| Installer (bridge/exit/both, container) | `deploy/cascade/` |
+| Terminal install | `deploy/cascade/terminal-install.sh` |
+| Server web UI (TLS + token) | `server/webui/` |
+| Full description and diagram | [docs/cascade/README.md](docs/cascade/README.md) |
+
+**One command on the server:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh | bash -s -- --role bridge --exit-host <ipv6-exit>
+```
+
+The app installs the cascade over SSH with the usual flow (the "Enable cascade"
+checkbox in the full build), while every installer lives in this repository. Both
+server roles run in a dedicated container; split-tunnel whitelists live on the bridge
+and refresh weekly. Service and user management is available through the secured web
+UI (`server/webui`, TLS + bearer token).

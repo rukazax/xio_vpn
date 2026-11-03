@@ -30,6 +30,11 @@ class _Ssh extends VpsService {
   }
   int uploads = 0;
   @override
+  Future<void> upload(String path, List<int> bytes) async {
+    uploads++;
+  }
+
+  @override
   Future<List<int>> executeInput(
     String command,
     List<int> input, {
@@ -488,7 +493,8 @@ void main() {
           expect(server.host, 'VPS-721137.ssh.vps1euro.fr');
           expect(server.port, 9046);
           expect(server.publicHost, 'fr-host.fr');
-          expect(ssh.uploads, 1);
+          // Two SFTP uploads (bootstrap and archive) plus the short installer run.
+          expect(ssh.uploads, 3);
           expect(assets.loaded, [
             'assets/xio-server-release.json',
             'assets/xio-server.tar.gz',

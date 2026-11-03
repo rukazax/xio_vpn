@@ -40,6 +40,14 @@ class _RecordingSsh extends VpsService {
 
   final uploads = <({String command, List<int> input, Duration timeout})>[];
 
+  /// Files pushed with SFTP before the installer runs, keyed by remote path.
+  final files = <String, List<int>>{};
+
+  @override
+  Future<void> upload(String path, List<int> bytes) async {
+    files[path] = List<int>.from(bytes);
+  }
+
   @override
   Future<List<int>> executeInput(
     String command,
@@ -251,17 +259,20 @@ void main() {
       expect(init['host'], 'fr-host.fr');
       expect(init['restrictedNetwork'], isTrue);
 
+      expect(ssh.files, hasLength(2));
+      final archivePath = ssh.files.keys.firstWhere((p) => p.endsWith('.tar.gz'));
+      final scriptPath = ssh.files.keys.firstWhere((p) => p.endsWith('.sh'));
+      expect(ssh.files[archivePath], _archive);
+      expect(ssh.files[scriptPath], utf8.encode(_bootstrap));
+
+      // One short command runs the uploaded script against the uploaded archive;
+      // the 21 MB payload never travels on the command's stdin.
       expect(ssh.uploads, hasLength(1));
-      final upload = ssh.uploads.single;
-      // The manifest digest is exported ahead of the verbatim script body, so the
-      // packager's bootstrap hash keeps applying while the archive is pinned.
-      expect(
-        upload.command,
-        "export XIO_EXPECTED_ARCHIVE_SHA256='${hashes.sha256.convert(_archive)}'\n"
-        '$_bootstrap',
-      );
-      expect(upload.input, _archive);
-      expect(upload.timeout, const Duration(minutes: 30));
+      final run = ssh.uploads.single;
+      expect(run.command, contains("XIO_EXPECTED_ARCHIVE_SHA256="));
+      expect(run.command, contains("bash '$scriptPath' < '$archivePath'"));
+      expect(run.input, isEmpty);
+      expect(run.timeout, const Duration(minutes: 30));
       expect(assets.loaded, [
         'assets/xio-server-release.json',
         'assets/xio-server.tar.gz',
@@ -292,6 +303,7 @@ void main() {
       throwsStateError,
     );
     expect(ssh.uploads, isEmpty);
+    expect(ssh.files, isEmpty);
     expect(service.requests, isEmpty);
     expect(store.servers, isEmpty);
   });
@@ -379,6 +391,7 @@ void main() {
             reason: bad,
           );
           expect(ssh.uploads, isEmpty, reason: bad);
+      expect(ssh.files, isEmpty, reason: bad);
           expect(service.requests, isEmpty, reason: bad);
           expect(assets.loaded, isEmpty, reason: bad);
           expect(local.servers, isEmpty, reason: bad);
@@ -456,6 +469,7 @@ void main() {
     );
     await expectLater(service.install(store), throwsStateError);
     expect(ssh.uploads, isEmpty);
+    expect(ssh.files, isEmpty);
     expect(service.requests, isEmpty);
     expect(assets.loaded, isEmpty);
     expect(store.servers, isEmpty);

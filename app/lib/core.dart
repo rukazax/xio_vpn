@@ -2231,6 +2231,52 @@ printf '\nX1O\n'; if test -e /etc/wireguard/xio0.conf; then printf 'existing ins
     return '[Interface]\nPrivateKey = $private\nAddress = 10.77.0.2/32, fd77:1::2/128\nDNS = 9.9.9.9\nMTU = 1280\n\n[Peer]\nPublicKey = ${match[1]}\nEndpoint = $host:51820\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
   }
 
+  /// Uploads [bytes] to [path] through SFTP.
+  ///
+  /// The server archive is ~21 MB. Pushing it through a command's stdin depends
+  /// on channel window and flow-control behaviour that the app cannot observe: a
+  /// short write only surfaces later as "bundle digest mismatch" and the user
+  /// sees a generic failure. Uploading first keeps the remote command short and
+  /// short-lived, and the remote digest check reads a complete file.
+  ///
+  /// Writes are issued one chunk at a time on purpose: a pipelined
+  /// [SftpFile.writeBytes] call returned while the tail of a 21 MB file was still
+  /// unacknowledged, leaving a truncated upload behind a successful future.
+  Future<void> upload(String path, List<int> bytes) async {
+    final c = _client;
+    if (c == null || target == null) {
+      throw StateError('Сначала подключитесь по SSH');
+    }
+    const chunkSize = 128 * 1024;
+    final sftp = await c.sftp();
+    try {
+      final file = await sftp.open(
+        path,
+        mode:
+            SftpFileOpenMode.create |
+            SftpFileOpenMode.write |
+            SftpFileOpenMode.truncate,
+      );
+      try {
+        for (var offset = 0; offset < bytes.length; offset += chunkSize) {
+          final end = offset + chunkSize < bytes.length
+              ? offset + chunkSize
+              : bytes.length;
+          await file.writeBytes(
+            Uint8List.fromList(bytes.sublist(offset, end)),
+            offset: offset,
+            chunkSize: chunkSize,
+            maxPendingRequests: 1,
+          );
+        }
+      } finally {
+        await file.close();
+      }
+    } finally {
+      await sftp.close();
+    }
+  }
+
   Future<List<int>> executeInput(
     String command,
     List<int> input, {

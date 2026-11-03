@@ -1353,7 +1353,41 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     );
     if (server != null) {
       server!.hostKey = ssh.verifiedFingerprint;
+      // A reinstalled server keeps its address but gets a new identity. Replace
+      // the stored record with the live id before any management command,
+      // otherwise every action is rejected with "Идентичность сервера
+      // изменилась".
+      try {
+        final live = await service.command({'action': 'inspect'});
+        final liveId = (live['server'] as Map?)?['id'];
+        final current = server!;
+        if (liveId is String && liveId.isNotEmpty && liveId != current.id) {
+          final adopted = ManagedServer(
+            id: liveId,
+            host: current.host,
+            publicHost: current.publicHost,
+            port: current.port,
+            username: current.username,
+            name: current.name,
+            country: current.country,
+            hostKey: current.hostKey,
+          );
+          widget.store.servers.removeWhere((s) => s.id == current.id);
+          widget.store.servers.removeWhere(
+            (s) =>
+                s.id != adopted.id &&
+                s.host == adopted.host &&
+                s.port == adopted.port &&
+                s.username == adopted.username,
+          );
+          widget.store.servers.add(adopted);
+          server = adopted;
+        }
+      } catch (_) {
+        /* Fresh or unowned server: keep the stored identity. */
+      }
       await widget.store.save();
+      widget.store.changed();
     }
     password.clear();
     key.clear();

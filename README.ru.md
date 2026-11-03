@@ -515,3 +515,37 @@ flutter test
 
 Оригинальный код — GPL-3.0-only. Сторонние компоненты сохраняют свои лицензии:
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+
+## Каскад: два сервера, IPv4 → IPv6
+
+Новая платная функция (заглушка подписки) — последовательная схема из двух серверов:
+устройство приходит по IPv4 в **bridge**, тот поднимает защищённый туннель **только
+по IPv6** на второй сервер **exit**, и трафик выходит из сети, где работает один IPv6.
+
+```mermaid
+flowchart LR
+  A[Телефон / ПК<br/>IPv4] -->|XIO TLS / QUIC| B[Bridge<br/>IPv4]
+  B -->|защищённый туннель<br/>только IPv6| C[Exit<br/>IPv6-only]
+  C --> D((Интернет))
+```
+
+| Что | Где |
+|---|---|
+| Экраны маршрута с флагами и статусом | `app/lib/cascade_ui.dart` |
+| Модель состояния каскада | `app/lib/cascade_model.dart` |
+| Установка (bridge/exit/both, контейнер) | `deploy/cascade/` |
+| Установка из терминала | `deploy/cascade/terminal-install.sh` |
+| Веб-интерфейс сервера (TLS + токен) | `server/webui/` |
+| Полное описание и схема | [docs/cascade/README.md](docs/cascade/README.md) |
+
+**Одной командой на сервере:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh | bash -s -- --role bridge --exit-host <ipv6-exit>
+```
+
+Приложение ставит каскад по прежней логике через SSH (галочка «Включить каскад» в
+полной версии), а весь код установки берётся из этого репозитория. Серверные части
+живут в отдельном контейнере, белые списки раздельного туннелирования — на bridge и
+обновляются еженедельно. Управление сервисами и пользователями — через защищённый
+веб-интерфейс (`server/webui`, TLS + Bearer-токен).
