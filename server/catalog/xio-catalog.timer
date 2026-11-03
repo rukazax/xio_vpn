@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly XIO whitelist SNI catalog refresh
+
+[Timer]
+OnCalendar=weekly
+RandomizedDelaySec=30min
+Persistent=true
+Unit=xio-catalog.service
+
+[Install]
+WantedBy=timers.target
