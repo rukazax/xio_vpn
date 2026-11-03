@@ -1,3 +1,5 @@
+//go:build windows
+
 // Command probe-physical reports which IPv4 default route the desktop helper
 // would treat as the physical uplink, with and without the hardware filter.
 // It only reads the route table, so it runs as a normal user.

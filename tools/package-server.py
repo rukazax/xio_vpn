@@ -5,6 +5,7 @@ import argparse
 import ast
 import gzip
 import hashlib
+import io
 import json
 import os
 import tarfile
@@ -12,7 +13,7 @@ import tempfile
 from native_fingerprint import fingerprint
 
 ROOT = Path(__file__).resolve().parent.parent
-RECIPE = 25
+RECIPE = 26
 AWG_SHA256 = 'fc1a1f9fae43cd8b8a4ac969b49bf80db9ed8d536d935166286cad53fcf34c9a'
 BINARY_MEMBERS = {'amneziawg-go', 'rivet', 'xraygateway', 'cloak'}
 MIRRORS = [('admin.py', 'xio-admin.py'), ('stack.py', 'xio-stack.py'),
@@ -29,7 +30,8 @@ def sources(root):
     managed = root / 'server/managed'
     files = [(managed / name, name) for name in
              ('dualstack.py', 'client_api.py', 'admin.py', 'stack.py', 'network_stack.py',
-              'mesh_stack.py', 'mesh-pins.json', 'rivet-setup.py')]
+              'mesh_stack.py', 'mesh-pins.json', 'rivet-setup.py',
+              'readiness.py', 'xio-ready.service')]
     files += [(p, 'xio_vici/' + p.name) for p in sorted((managed / 'xio_vici').iterdir())
               if p.is_file() and (p.suffix == '.py' or p.name == 'LICENSE')]
     files += [(root / 'vendor-server' / name, member) for name, member in
@@ -71,9 +73,19 @@ def check_inputs(root, native_root):
     return files
 
 
+TEXT_SUFFIXES = ('.py', '.json', '.sh')
+
+
+def member_payload(source, name):
+    """Text members are packed with LF endings so Windows and Linux build the same archive."""
+    data = source.read_bytes()
+    return data.replace(b'\r\n', b'\n') if name.endswith(TEXT_SUFFIXES) else data
+
+
 def archive(files, destination):
-    # Explicit modes as well as timestamps make Linux/Windows packaging identical.
-    hashes = {name: sha256(source) for source, name in files}
+    # Explicit modes, timestamps and LF text members make Linux/Windows packaging identical.
+    payloads = {name: member_payload(source, name) for source, name in files}
+    hashes = {name: hashlib.sha256(data).hexdigest() for name, data in payloads.items()}
     with destination.open('wb') as raw, gzip.GzipFile(filename='', fileobj=raw, mode='wb', mtime=0) as compressed, tarfile.open(fileobj=compressed, mode='w') as tar:
         for source, name in files:
             entry = tar.gettarinfo(str(source), arcname=name)
@@ -81,15 +93,15 @@ def archive(files, destination):
             entry.uname = entry.gname = ''
             entry.mtime = 0
             entry.mode = 0o755 if name in BINARY_MEMBERS else 0o600
-            with source.open('rb') as data:
-                tar.addfile(entry, data)
+            entry.size = len(payloads[name])
+            tar.addfile(entry, io.BytesIO(payloads[name]))
     with tarfile.open(destination, 'r:gz') as tar:
         if tar.getnames() != [name for _, name in files]:
             raise RuntimeError('Packaged member list mismatch')
         for member in tar:
             if hashlib.sha256(tar.extractfile(member).read()).hexdigest() != hashes[member.name]:
                 raise RuntimeError('Packaged member digest mismatch: ' + member.name)
-    if any(sha256(source) != hashes[name] for source, name in files):
+    if any(member_payload(source, name) != payloads[name] for source, name in files):
         raise RuntimeError('Packaging source changed while building archive')
     return sha256(destination)
 

@@ -23,7 +23,7 @@ import tempfile
 
 LIB = Path('/usr/local/lib/xio-managed')
 STATE = Path('/etc/xio-managed/deployment.json')
-RECIPE = 25
+RECIPE = 26
 OWNER = 'xio-managed-v1'
 UNITS = ('xio-managed-stats.timer', 'xio-managed-awg.service',
          'xio-rivet-entry.service', 'xio-rivet-gateway.service', 'xio-stack.service', 'xio-cloak.service', 'xio-openvpn-tcp.service')
@@ -191,7 +191,7 @@ def update(raw, expected, server_id):
     if current == RECIPE and data.get('bundleSha256'):
         raise RuntimeError('Conflicting bundle at the same recipe revision')
     # Never permit a different archive to replace the same recipe revision.
-    if current not in (13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24):
+    if current not in (13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25):
         raise RuntimeError('Unsupported server recipe')
     public, rivet_guards = rivet_metadata(data)
     guards.update(rivet_guards)

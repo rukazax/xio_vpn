@@ -1,9 +1,8 @@
 [Unit]
 Description=XIO tunnel readiness responder (gateway addresses only)
 Documentation=https://github.com/rukazax/xio_vpn
-After=network-online.target x1o-managed-awg.service xio-rivet-gateway.service
+After=network-online.target xio-managed-awg.service xio-rivet-gateway.service
 Wants=network-online.target
-PartOf=xio-managed.target
 
 [Service]
 Type=simple

@@ -14,10 +14,10 @@ package = importlib.util.module_from_spec(spec); spec.loader.exec_module(package
 
 def fixture(root):
     managed = root / 'server/managed'; (managed / 'xio_vici').mkdir(parents=True)
-    for name in ['dualstack.py','client_api.py','admin.py','stack.py','network_stack.py','mesh_stack.py','rivet-setup.py','update.py']:
-        (managed / name).write_text('RECIPE = 25\n' if name in ['admin.py','update.py'] else '# fixture\n')
+    for name in ['dualstack.py','client_api.py','admin.py','stack.py','network_stack.py','mesh_stack.py','rivet-setup.py','update.py','readiness.py','xio-ready.service']:
+        (managed / name).write_text('RECIPE = 26\n' if name in ['admin.py','update.py'] else '# fixture\n')
     (managed / 'mesh-pins.json').write_text('{}')
-    (managed / 'bootstrap.sh').write_text('set -eu\n')
+    (managed / 'bootstrap.sh').write_bytes(b'set -eu\n')
     (managed / 'xio_vici/__init__.py').write_text('# vici fixture\n')
     (managed / 'xio_vici/LICENSE').write_text('fixture-license')
     (root / 'vendor-server').mkdir()
@@ -60,7 +60,7 @@ class PackageGuardTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); pin = fixture(root); output = root / 'output'
             with patch.object(package, 'AWG_SHA256', pin):
-                self.assertEqual(package.package(root, root, output, check=True)['recipeVersion'], 25)
+                self.assertEqual(package.package(root, root, output, check=True)['recipeVersion'], 26)
                 self.assertFalse(output.exists())
                 (root / 'server/managed/admin.py').write_text('RECIPE = 24\n')
                 with self.assertRaisesRegex(RuntimeError, 'Recipe mismatch'):
@@ -82,12 +82,28 @@ class PackageGuardTests(unittest.TestCase):
             self.assertEqual(json.loads((one / 'xio-server-release.json').read_bytes()), first)
             with tarfile.open(one / 'xio-server.tar.gz','r:gz') as tar:
                 for source, name in package.sources(root):
-                    self.assertEqual(tar.extractfile(name).read(), source.read_bytes())
+                    self.assertEqual(tar.extractfile(name).read(), package.member_payload(source, name))
                     entry = tar.getmember(name)
                     self.assertEqual((entry.uid,entry.gid,entry.mtime),(0,0,0))
                     self.assertEqual(entry.mode, 0o755 if name in package.BINARY_MEMBERS else 0o600)
             for source, target in package.MIRRORS:
                 self.assertEqual((one / target).read_bytes(), (root / 'server/managed' / source).read_bytes())
+
+    def test_crlf_and_lf_sources_produce_the_same_archive(self):
+        """Windows checkouts use CRLF; Linux CI uses LF. The archive must not depend on that."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); pin = fixture(root)
+            one = root / 'out-lf'; two = root / 'out-crlf'
+            with patch.object(package, 'AWG_SHA256', pin):
+                first = package.package(root, root, one)
+            for path in root.rglob('*'):
+                if path.is_file() and path.suffix in ('.py', '.json', '.sh'):
+                    data = path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+                    path.write_bytes(data)
+            with patch.object(package, 'AWG_SHA256', pin):
+                second = package.package(root, root, two)
+            self.assertEqual(first['sha256'], second['sha256'])
+            self.assertEqual((one / 'xio-server.tar.gz').read_bytes(), (two / 'xio-server.tar.gz').read_bytes())
 
     def test_real_canonical_recipe_constants_match_without_importing_or_packaging(self):
         import ast
@@ -96,6 +112,31 @@ class PackageGuardTests(unittest.TestCase):
             tree = ast.parse((root / 'server/managed' / name).read_bytes())
             value = next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id == 'RECIPE' for t in n.targets))
             self.assertEqual(value, package.RECIPE)
+
+    def test_every_bootstrap_move_is_shipped_in_the_archive(self):
+        """bootstrap.sh extracts the archive and moves each file out of it.
+
+        A missing member aborts the install with exit 1 (this shipped in 0.24.0:
+        readiness.py and xio-ready.service were moved but never packed). The test
+        keeps the two sides in sync by parsing the real bootstrap script.
+        """
+        import re
+        root = Path(__file__).resolve().parent.parent
+        bootstrap = root / 'server/managed/bootstrap.sh'
+        if not bootstrap.is_file():
+            self.skipTest('bootstrap.sh is not present in this tree')
+        packed = [name for _, name in package.sources(root)]
+        missing = []
+        # `mv "$tmp/xio_vici/"*` yields "xio_vici/", a directory move; a plain
+        # `mv "$tmp/readiness.py"` yields an exact member name.
+        for target in re.findall(r'mv "\$tmp/([^"]+)"', bootstrap.read_text()):
+            if target.endswith('/'):
+                if not any(name.startswith(target) for name in packed):
+                    missing.append(target + '*')
+            elif target not in packed:
+                missing.append(target)
+        self.assertEqual(sorted(missing), [],
+                         'bootstrap moves files the archive does not ship: ' + ', '.join(sorted(missing)))
 
 
 if __name__ == '__main__':
