@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "source": "https://raw.githubusercontent.com/hxehex/russia-mobile-internet-whitelist/main/whitelist.txt",
+  "sha256": "dfa4ffeec6c97a6feb7c594934d0c8b4e170fadff1d781f0de012ee383832eb9",
+  "commit": "e61be51bb8c89d69df6763da8e02756d8aaa3344",
+  "license": "MIT",
+  "updatedAt": "2026-11-03T00:00:00Z",
+  "updatedBy": "xio"
+}
