@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
+import 'cascade_ui.dart';
 import 'managed_service.dart';
 import 'server_address.dart';
 import 'main.dart' show BrandMark, ImportDialog, AndroidControls, LabPage;
@@ -453,6 +454,14 @@ class _WorkspaceShellState extends State<WorkspaceShell>
         subtitle: const LText('Установить все протоколы XIO'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => openAdmin(context, store),
+      ),
+      const Divider(),
+      ListTile(
+        leading: const Icon(Icons.alt_route),
+        title: const LText('Каскад: два сервера'),
+        subtitle: const LText('IPv4 → bridge → IPv6 exit · по подписке'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.of(context).pushNamed(CascadeScreen.routeName),
       ),
       const Divider(),
       ListTile(
@@ -1244,6 +1253,10 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       passphrase = TextEditingController();
   final ssh = VpsService();
   bool busy = false, authenticated = false, autoLoading = false;
+  /// Paid cascade install: the app cannot run it here (needs a container
+  /// runtime and, for the bridge, a global IPv6 uplink), so the checkbox
+  /// records intent and the finished install shows the exact command.
+  bool cascadeEnabled = false;
   String? error, result;
   ManagedServer? server;
   ManagedService get service => ManagedService(ssh);
@@ -1323,6 +1336,56 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     } finally {
       if (mounted) setState(() => busy = false);
     }
+  }
+
+  /// Cascade needs a container runtime on the server and, for the bridge role,
+  /// a global IPv6 uplink. Those preconditions are checked on the host, so the
+  /// app hands over the exact command and shows the route screen instead of
+  /// pretending to install a schema the host cannot run yet.
+  Future<void> _offerCascade(String address) async {
+    if (!mounted) return;
+    final command =
+        'curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/'
+        'deploy/cascade/terminal-install.sh | bash -s -- '
+        '--role bridge --exit-host <ipv6-exit>';
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const LText('Каскад включён в профиль'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LText(
+                'Сервер $address готов принимать устройства. Второй сервер '
+                '(exit, только IPv6) подключается командой на bridge:',
+              ),
+              const SizedBox(height: 12),
+              SelectableText(command),
+              const SizedBox(height: 12),
+              const LText(
+                'Нужны: container runtime (docker/podman) и глобальный IPv6 на '
+                'bridge. Пока условий нет — команда вернёт понятную ошибку.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const LText('Закрыть'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).pushNamed(CascadeScreen.routeName);
+            },
+            child: const LText('Открыть схему'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> login() async {
@@ -1567,6 +1630,18 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  CheckboxListTile(
+                    value: cascadeEnabled,
+                    onChanged: busy
+                        ? null
+                        : (v) => setState(() => cascadeEnabled = v ?? false),
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: const LText('Включить каскад (по подписке)'),
+                    subtitle: const LText(
+                      'IPv4 → bridge → IPv6 exit. Ставится командой на сервере.',
+                    ),
+                  ),
                   FilledButton(
                     onPressed: busy
                         ? null
@@ -1578,6 +1653,13 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                                   : publicHost.text,
                             );
                             await create();
+                            if (cascadeEnabled && mounted) {
+                              await _offerCascade(
+                                server!.publicHost.isEmpty
+                                    ? server!.host
+                                    : server!.publicHost,
+                              );
+                            }
                           }),
                     child: const LText('Установить VPN'),
                   ),

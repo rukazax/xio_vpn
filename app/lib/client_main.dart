@@ -511,6 +511,15 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                     label: const LText('Субклиенты'),
                   ),
                 TextButton.icon(
+                  onPressed: locked
+                      ? null
+                      : () => Navigator.of(context).pushNamed(
+                          CascadeScreen.routeName,
+                        ),
+                  icon: const Icon(Icons.alt_route),
+                  label: const LText('Каскад: два сервера'),
+                ),
+                TextButton.icon(
                   onPressed: locked || store.status.active
                       ? null
                       : () => perform(settings),
