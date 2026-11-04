@@ -1,0 +1,64 @@
+%% XIO — общая архитектура / XIO overall architecture
+%%
+%% Как использовать: GitHub не подставляет .mmd файлы через include, поэтому эта схема
+%% вставляется в README и docs/features.md блоком ```mermaid с тем же текстом.
+%% Проверка синтаксиса: python3 docs/check-docs-links.py (парсер подмножества flowchart).
+%%
+%% Тёмная тема GitHub и светлая тема документации читаются одинаково,
+%% потому что цвета не задаются: используются классы по умолчанию.
+
+flowchart LR
+  subgraph DEV["Устройство · Android / Windows 11 / Ubuntu"]
+    direction TB
+    UI["Flutter UI<br/>тёмная и светлая темы"]
+    PROF["профиль xio://<br/>Keystore · DPAPI · AES-GCM"]
+    ENG["TUN + движок<br/>приоритет и откат транспортов"]
+  end
+
+  subgraph FULL["Full XIO · свой сервер"]
+    direction TB
+    SSH["SSH + pin ключа хоста"]
+    USERS["пользователи, квоты, отзыв"]
+    UPD["обновление и откат"]
+  end
+
+  subgraph VPS["VPS Linux x86_64 · systemd"]
+    direction TB
+    BOOT["bootstrap.sh<br/>SHA-256 до распаковки"]
+    UNITS["systemd-юниты xio-*<br/>start / stop / restart"]
+    RIVET["RIVET entry + gateway<br/>8443/tcp + 8443/udp"]
+    AWG["AmneziaWG<br/>51821/udp"]
+    XRAY["Xray REALITY<br/>4443/tcp"]
+    CLOAK["Cloak<br/>9443/tcp"]
+    FW["firewall с квитанциями<br/>NAT44 / NAT66"]
+  end
+
+  NET(("Интернет"))
+  CASCADE["Каскад<br/>bridge IPv4 → exit IPv6"]
+  WEB["Веб-панель<br/>TLS + Bearer-токен"]
+
+  UI --> PROF
+  PROF --> ENG
+  ENG -->|"RIVET S1 / H3"| RIVET
+  ENG -->|"AmneziaWG"| AWG
+  ENG -->|"Xray REALITY"| XRAY
+  ENG -->|"OpenVPN в Cloak"| CLOAK
+
+  SSH -->|"bootstrap + архив"| BOOT
+  BOOT --> UNITS
+  UNITS --> RIVET
+  UNITS --> AWG
+  UNITS --> XRAY
+  UNITS --> CLOAK
+  USERS -->|"профили xio://"| PROF
+  UPD --> BOOT
+
+  RIVET --> FW
+  AWG --> FW
+  XRAY --> FW
+  CLOAK --> FW
+  FW --> NET
+
+  ENG -.->|"по подписке"| CASCADE
+  CASCADE -.->|"только IPv6"| NET
+  WEB -->|"systemctl + admin.py"| UNITS

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="XIO transports: five protocols with basis, port, when to choose and platform support">
+<rect width="1200" height="720" rx="26" fill="#0C1119"/>
+<text x="48" y="64" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="34" font-weight="bold" fill="#C0F57B" text-anchor="start">XIO · пять транспортов</text>
+<text x="48" y="102" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#9BAABC" text-anchor="start">один профиль — пять путей до своего сервера</text>
+<rect x="972" y="40" width="180" height="38" rx="19" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="1062" y="65" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#C0F57B" text-anchor="middle">транспортов: 5</text>
+<text x="64" y="160" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="bold" fill="#4E5A69" text-anchor="start">ТРАНСПОРТ</text>
+<text x="320" y="160" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="bold" fill="#4E5A69" text-anchor="start">ОСНОВА</text>
+<text x="580" y="160" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="bold" fill="#4E5A69" text-anchor="start">ПОРТ</text>
+<text x="716" y="160" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="bold" fill="#4E5A69" text-anchor="start">КОГДА ВЫБИРАТЬ</text>
+<text x="956" y="160" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="bold" fill="#4E5A69" text-anchor="start">ГДЕ РАБОТАЕТ</text>
+<rect x="40" y="176" width="1120" height="82" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="64" y="210" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">AmneziaWG</text>
+<text x="64" y="234" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">обфусцированный WireGuard</text>
+<text x="320" y="223" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">AmneziaWG 3.1</text>
+<text x="580" y="223" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="start">51821/udp</text>
+<text x="716" y="212" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#E7EFDE" text-anchor="start">быстрый повседневный</text>
+<text x="716" y="233" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">обфусцированное рукопожатие</text>
+<rect x="956" y="202" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="974" y="223" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">A</text>
+<rect x="1001" y="202" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1019" y="223" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">W</text>
+<rect x="1046" y="202" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1064" y="223" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">U</text>
+<rect x="1091" y="202" width="36" height="30" rx="9" fill="#121821" stroke="#1E2632" stroke-width="1.6"/>
+<text x="1109" y="223" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#4E5A69" text-anchor="middle">—</text>
+<rect x="40" y="268" width="1120" height="82" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="64" y="302" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">RIVET / S1</text>
+<text x="64" y="326" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">наша разработка</text>
+<text x="320" y="315" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">RIVET 1 профиль 0.2</text>
+<text x="580" y="315" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="start">8443/tcp</text>
+<text x="716" y="304" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#E7EFDE" text-anchor="start">UDP закрыт,</text>
+<text x="716" y="325" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">TLS разрешён</text>
+<rect x="956" y="294" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="974" y="315" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">A</text>
+<rect x="1001" y="294" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1019" y="315" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#A8C98A" text-anchor="middle">W*</text>
+<rect x="1046" y="294" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1064" y="315" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#A8C98A" text-anchor="middle">U*</text>
+<rect x="1091" y="294" width="36" height="30" rx="9" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<text x="1109" y="315" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#9BAABC" text-anchor="middle">i</text>
+<rect x="40" y="360" width="1120" height="82" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="64" y="394" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">RIVET / H3</text>
+<text x="64" y="418" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">наша разработка</text>
+<text x="320" y="407" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">RIVET 1 профиль 0.2</text>
+<text x="580" y="407" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="start">8443/udp</text>
+<text x="716" y="396" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#E7EFDE" text-anchor="start">UDP работает, фильтр</text>
+<text x="716" y="417" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">по TLS-отпечатку</text>
+<rect x="956" y="386" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="974" y="407" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">A</text>
+<rect x="1001" y="386" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1019" y="407" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#A8C98A" text-anchor="middle">W*</text>
+<rect x="1046" y="386" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1064" y="407" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#A8C98A" text-anchor="middle">U*</text>
+<rect x="1091" y="386" width="36" height="30" rx="9" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<text x="1109" y="407" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#9BAABC" text-anchor="middle">i</text>
+<rect x="40" y="452" width="1120" height="82" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="64" y="486" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">Xray / REALITY</text>
+<text x="64" y="510" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">VLESS + REALITY</text>
+<text x="320" y="499" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">Xray-core</text>
+<text x="580" y="499" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="start">4443/tcp</text>
+<text x="716" y="488" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#E7EFDE" text-anchor="start">маскировка под</text>
+<text x="716" y="509" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">настоящий TLS-сайт</text>
+<rect x="956" y="478" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="974" y="499" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">A</text>
+<rect x="1001" y="478" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1019" y="499" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#A8C98A" text-anchor="middle">W*</text>
+<rect x="1046" y="478" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="1064" y="499" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#A8C98A" text-anchor="middle">U*</text>
+<rect x="1091" y="478" width="36" height="30" rx="9" fill="#121821" stroke="#1E2632" stroke-width="1.6"/>
+<text x="1109" y="499" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#4E5A69" text-anchor="middle">—</text>
+<rect x="40" y="544" width="1120" height="82" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="64" y="578" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="start">OpenVPN / Cloak</text>
+<text x="64" y="602" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">OpenVPN в TLS-обфускации</text>
+<text x="320" y="591" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="16" font-weight="normal" fill="#E7EFDE" text-anchor="start">OpenVPN + Cloak</text>
+<text x="580" y="591" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="start">9443/tcp</text>
+<text x="716" y="580" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#E7EFDE" text-anchor="start">строгие сети,</text>
+<text x="716" y="601" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="start">последний резерв</text>
+<rect x="956" y="570" width="36" height="30" rx="9" fill="#16211A" stroke="#2F5B38" stroke-width="1.6"/>
+<text x="974" y="591" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">A</text>
+<rect x="1001" y="570" width="36" height="30" rx="9" fill="#121821" stroke="#1E2632" stroke-width="1.6"/>
+<text x="1019" y="591" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#4E5A69" text-anchor="middle">—</text>
+<rect x="1046" y="570" width="36" height="30" rx="9" fill="#121821" stroke="#1E2632" stroke-width="1.6"/>
+<text x="1064" y="591" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#4E5A69" text-anchor="middle">—</text>
+<rect x="1091" y="570" width="36" height="30" rx="9" fill="#121821" stroke="#1E2632" stroke-width="1.6"/>
+<text x="1109" y="591" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#4E5A69" text-anchor="middle">—</text>
+<text x="48" y="676" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">A — Android · W — Windows 11 · U — Ubuntu · i — только исходники · «*» — движок собран, живого прогона на этой платформе не было</text>
+<text x="48" y="700" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#4E5A69" text-anchor="start">«—» — транспорта нет на платформе. Матрица соответствует 0.24.0; сборки для iOS нет, IPA не публикуется.</text>
+</svg>

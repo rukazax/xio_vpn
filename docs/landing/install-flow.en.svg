@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="740" viewBox="0 0 1280 740" role="img" aria-label="XIO server installation flow: from the application, one terminal command, and the web panel">
+<rect width="1280" height="740" rx="26" fill="#0C1119"/>
+<text x="48" y="64" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="34" font-weight="bold" fill="#C0F57B" text-anchor="start">XIO · three ways to install a server</text>
+<text x="48" y="102" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#9BAABC" text-anchor="start">all three end in the same place: XIO systemd units and xio:// profiles for clients</text>
+<rect x="40" y="140" width="380" height="66" rx="16" fill="#1B2735" stroke="#27313E" stroke-width="2"/>
+<circle cx="74" cy="173" r="17" fill="#16211A" stroke="#2F5B38" stroke-width="2"/>
+<text x="74" y="179" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="middle">1</text>
+<text x="104" y="168" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="bold" fill="#E7EFDE" text-anchor="start">From the application</text>
+<text x="104" y="190" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">Full XIO, over SSH</text>
+<rect x="40" y="222" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="66" cy="258" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="88" y="252" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Open Full XIO</text>
+<text x="88" y="274" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">“+” → server setup</text>
+<rect x="40" y="302" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="66" cy="338" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="88" y="332" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Address and SSH</text>
+<text x="88" y="354" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">key or password, port 22</text>
+<rect x="40" y="382" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="66" cy="418" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="88" y="412" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Preflight</text>
+<text x="88" y="434" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">OS, x86_64, systemd, TUN, ports</text>
+<rect x="40" y="462" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="66" cy="498" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="88" y="492" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Install</text>
+<text x="88" y="514" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">bundle + SHA-256, services, units</text>
+<rect x="40" y="542" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="66" cy="578" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="88" y="572" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Users</text>
+<text x="88" y="594" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">xio:// profiles per transport</text>
+<rect x="450" y="140" width="380" height="66" rx="16" fill="#1B2735" stroke="#27313E" stroke-width="2"/>
+<circle cx="484" cy="173" r="17" fill="#16211A" stroke="#2F5B38" stroke-width="2"/>
+<text x="484" y="179" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="middle">2</text>
+<text x="514" y="168" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="bold" fill="#E7EFDE" text-anchor="start">One command</text>
+<text x="514" y="190" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">a terminal on the server, root</text>
+<rect x="450" y="222" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="476" cy="258" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="498" y="252" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Download the archive</text>
+<text x="498" y="274" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">xio-server-0.24.0.tar.gz</text>
+<rect x="450" y="302" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="476" cy="338" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="498" y="332" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Check SHA-256</text>
+<text x="498" y="354" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">SHA256SUMS-0.24.0.txt</text>
+<rect x="450" y="382" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="476" cy="418" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="498" y="412" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Run the bootstrap</text>
+<text x="498" y="434" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">archive on stdin or a sha256 pin</text>
+<rect x="450" y="462" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="476" cy="498" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="498" y="492" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Check the units</text>
+<text x="498" y="514" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">systemctl status xio-managed-awg</text>
+<rect x="450" y="542" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="476" cy="578" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="498" y="572" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Create a user</text>
+<text x="498" y="594" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">admin.py: init, add</text>
+<rect x="860" y="140" width="380" height="66" rx="16" fill="#1B2735" stroke="#27313E" stroke-width="2"/>
+<circle cx="894" cy="173" r="17" fill="#16211A" stroke="#2F5B38" stroke-width="2"/>
+<text x="894" y="179" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="17" font-weight="bold" fill="#C0F57B" text-anchor="middle">3</text>
+<text x="924" y="168" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="bold" fill="#E7EFDE" text-anchor="start">The web panel</text>
+<text x="924" y="190" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">server/webui, TLS + token</text>
+<rect x="860" y="222" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="886" cy="258" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="908" y="252" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">install-webui.sh</text>
+<text x="908" y="274" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">127.0.0.1:10443, self-signed</text>
+<rect x="860" y="302" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="886" cy="338" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="908" y="332" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Open the panel</text>
+<text x="908" y="354" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">https + Bearer token</text>
+<rect x="860" y="382" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="886" cy="418" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="908" y="412" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Services</text>
+<text x="908" y="434" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">start / stop / restart</text>
+<rect x="860" y="462" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="886" cy="498" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="908" y="492" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Users</text>
+<text x="908" y="514" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">add / revoke</text>
+<rect x="860" y="542" width="380" height="72" rx="12" fill="#151E2A" stroke="#27313E" stroke-width="1.6"/>
+<circle cx="886" cy="578" r="9" fill="#151E2A" stroke="#C0F57B" stroke-width="2"/>
+<text x="908" y="572" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#E7EFDE" text-anchor="start">Cascade</text>
+<text x="908" y="594" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">enable / disable, health</text>
+<text x="48" y="668" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">Where the install code lives: server/managed/bootstrap.sh and server/managed/admin.py — in the repository, not only inside the app.</text>
+<text x="48" y="692" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">The cascade is installed separately: deploy/cascade/terminal-install.sh --role bridge|exit|both (one command, a container).</text>
+<text x="48" y="716" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#4E5A69" text-anchor="start">Not verified: the web panel and the terminal bootstrap never ran on a live server with systemd and admin.py — see server/webui/README.md.</text>
+</svg>

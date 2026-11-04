@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img" aria-label="XIO cascade route: device IPv4 to bridge IPv4, bridge to IPv6-only exit, exit to the internet">
+<rect width="1280" height="700" rx="26" fill="#0C1119"/>
+<text x="48" y="62" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="34" font-weight="bold" fill="#C0F57B" text-anchor="start">XIO · каскад: два сервера, IPv4 → IPv6</text>
+<text x="48" y="98" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="18" font-weight="normal" fill="#9BAABC" text-anchor="start">устройство приходит по IPv4 на bridge, а выходит в интернет из сети, где работает только IPv6</text>
+<path d="M228 296 L451 296" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round"/>
+<path d="M451 288 L462 296 M451 304 L462 296" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="345" y="266" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">XIO TLS / QUIC</text>
+<text x="345" y="330" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="normal" fill="#9BAABC" text-anchor="middle">транспорт XIO, pin шлюза</text>
+<path d="M578 296 L801 296" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round"/>
+<path d="M801 288 L812 296 M801 304 L812 296" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="695" y="266" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">защищённый туннель</text>
+<text x="695" y="330" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="normal" fill="#9BAABC" text-anchor="middle">UDP поверх IPv6 · MTU 1280</text>
+<path d="M928 296 L1091 296" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round"/>
+<path d="M1091 288 L1102 296 M1091 304 L1102 296" fill="none" stroke="#C0F57B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="1015" y="266" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="bold" fill="#C0F57B" text-anchor="middle">NAT66</text>
+<text x="1015" y="330" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="12" font-weight="normal" fill="#9BAABC" text-anchor="middle">адрес выхода — IPv6 exit</text>
+<circle cx="170" cy="296" r="58" fill="#151E2A" stroke="#27313E" stroke-width="3"/>
+<text x="170" y="306" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="26" font-weight="bold" fill="#E7EFDE" text-anchor="middle">APP</text>
+<text x="170" y="392" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="middle">Устройство</text>
+<text x="170" y="416" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="middle">IPv4 · 192.168.1.10</text>
+<circle cx="520" cy="296" r="58" fill="#16211A" stroke="#2F5B38" stroke-width="3"/>
+<text x="520" y="306" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="26" font-weight="bold" fill="#C0F57B" text-anchor="middle">NL</text>
+<text x="520" y="392" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="middle">BRIDGE</text>
+<text x="520" y="416" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="middle">IPv4 · 185.14.30.7</text>
+<circle cx="870" cy="296" r="58" fill="#16211A" stroke="#2F5B38" stroke-width="3"/>
+<text x="870" y="306" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="26" font-weight="bold" fill="#C0F57B" text-anchor="middle">SE</text>
+<text x="870" y="392" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="middle">EXIT</text>
+<text x="870" y="416" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="middle">только IPv6 · 2001:db8::7</text>
+<circle cx="1160" cy="296" r="58" fill="#151E2A" stroke="#27313E" stroke-width="3"/>
+<text x="1160" y="306" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="26" font-weight="bold" fill="#9BAABC" text-anchor="middle">NET</text>
+<text x="1160" y="392" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="20" font-weight="bold" fill="#E7EFDE" text-anchor="middle">Интернет</text>
+<text x="1160" y="416" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="14" font-weight="normal" fill="#9BAABC" text-anchor="middle">IPv6-выход</text>
+<text x="48" y="452" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#4E5A69" text-anchor="start">Цвет линии на экране «Каскад» (app/lib/cascade_ui.dart):</text>
+<circle cx="430" cy="447" r="7" fill="#9E9E9E" stroke="#9E9E9E" stroke-width="1"/>
+<text x="446" y="452" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">idle</text>
+<circle cx="510" cy="447" r="7" fill="#FFB300" stroke="#FFB300" stroke-width="1"/>
+<text x="526" y="452" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">установка / degraded</text>
+<circle cx="720" cy="447" r="7" fill="#2ECC71" stroke="#2ECC71" stroke-width="1"/>
+<text x="736" y="452" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">активен</text>
+<circle cx="810" cy="447" r="7" fill="#E53935" stroke="#E53935" stroke-width="1"/>
+<text x="826" y="452" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">failed</text>
+<rect x="48" y="486" width="384" height="140" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="72" y="522" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#C0F57B" text-anchor="start">BRIDGE · публичный IPv4</text>
+<text x="72" y="550" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· 51820/udp — приём устройств</text>
+<text x="72" y="574" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· 8443/tcp — вход и веб-панель</text>
+<text x="72" y="598" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· белые списки: nft xio_whitelist4</text>
+<rect x="448" y="486" width="384" height="140" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="472" y="522" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#C0F57B" text-anchor="start">EXIT · только IPv6</text>
+<text x="472" y="550" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· 9443/udp — туннель от bridge</text>
+<text x="472" y="574" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· NAT66 в IPv6-интернет</text>
+<text x="472" y="598" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· наружу по IPv4 не смотрит</text>
+<rect x="848" y="486" width="384" height="140" rx="14" fill="#151E2A" stroke="#27313E" stroke-width="2"/>
+<text x="872" y="522" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="15" font-weight="bold" fill="#C0F57B" text-anchor="start">УСТРОЙСТВО · экран</text>
+<text x="872" y="550" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· три станции, флаги стран, пинг</text>
+<text x="872" y="574" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· один экран без прокрутки</text>
+<text x="872" y="598" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#E7EFDE" text-anchor="start">· пинг пока демо-значение (заглушка)</text>
+<text x="48" y="668" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start">Проверено: экран «Каскад» на POCO X6 5G (Android 16) — все элементы в границах экрана, без прокрутки.</text>
+<text x="48" y="690" font-family="'Noto Sans','DejaVu Sans','Segoe UI',system-ui,sans-serif" font-size="13" font-weight="normal" fill="#9BAABC" text-anchor="start" opacity="0.85">Не проверено: реальный трафик через два сервера — у тестового bridge нет глобального IPv6, туннель bridge → exit физически не поднять.</text>
+</svg>

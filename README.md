@@ -8,13 +8,13 @@
 
 <p align="center"><b>X in, 1 out.</b> Your VPN, your servers, one interface.</p>
 
-<p align="center">Android &middot; Windows &middot; Ubuntu &middot; iOS (source) &middot; IPv4 + IPv6</p>
+<p align="center">Android &middot; Windows 11 &middot; Ubuntu &middot; Linux server &middot; five transports &middot; IPv4 + IPv6</p>
 
 <p align="center">
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
+  <a href="https://github.com/rukazax/xio_vpn/releases"><img alt="release" src="https://img.shields.io/github/v/release/rukazax/xio_vpn?include_prereleases&style=flat-square&label=release" /></a>
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-GPL--3.0--only-blue?style=flat-square" /></a>
-  <a href="https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
-  <a href="#protocols"><img alt="transports" src="https://img.shields.io/badge/transports-5-brightgreen?style=flat-square" /></a>
+  <a href="#clients-by-platform"><img alt="platforms" src="https://img.shields.io/badge/platform-Android%20%7C%20Windows%20%7C%20Ubuntu%20%7C%20iOS-lightgrey?style=flat-square" /></a>
+  <a href="#five-transports"><img alt="transports" src="https://img.shields.io/badge/transports-5-brightgreen?style=flat-square" /></a>
   <a href="#ipv4-and-ipv6"><img alt="dual stack" src="https://img.shields.io/badge/network-IPv4%20%2B%20IPv6-informational?style=flat-square" /></a>
   <a href="docs/compatibility/0.24.0.en.md"><img alt="compatibility" src="https://img.shields.io/badge/docs-compatibility-informational?style=flat-square" /></a>
 </p>
@@ -24,21 +24,26 @@
   <a href="README.ru.md">Русский</a>
 </p>
 
-XIO is a self-hosted VPN system in three parts: **XIO Client** connects to servers that already exist,
-**Full XIO** deploys and maintains your own server over SSH, and the **server payload** serves five
-transports at once. One portable `xio://` profile carries every transport the server offers; the
-client picks the one that works on the current network and switches without a new profile.
+XIO is a self-hosted VPN system in three parts. **XIO Client** connects to servers that already
+exist. **Full XIO** deploys and maintains your own server over SSH. The **server payload** serves
+five transports at once. One portable `xio://` profile carries every transport the server offers;
+the client picks the one that works on the current network and switches without a new profile.
 
-[Overview](#overview) &middot; [Features](#features) &middot; [Screenshots](#screenshots) &middot; [Protocols](#protocols) &middot;
-[IPv4 and IPv6](#ipv4-and-ipv6) &middot; [Install](#install) &middot; [Quick start](#quick-start) &middot;
-[Server](#server-management) &middot; [Security](#security-model) &middot; [Limitations](#limitations) &middot;
-[Русский](README.ru.md)
+No subscription, no account on someone else's backend, no built-in server catalogue. You bring a
+VPS, XIO brings the rest.
 
-## Overview
+[What this is](#what-this-is) &middot; [Features](#features) &middot; [Transports](#five-transports) &middot;
+[IPv4 and IPv6](#ipv4-and-ipv6) &middot; [Cascade](#cascade-two-servers-ipv4--ipv6) &middot; [Install a server](#install-a-server) &middot;
+[Clients](#clients-by-platform) &middot; [Split tunnelling](#split-tunnelling) &middot; [Security](#security) &middot;
+[FAQ](#faq) &middot; [Limitations](#limitations-what-is-not-verified) &middot; [Русский](README.ru.md)
+
+---
+
+## What this is
 
 | Part | What it does | Runs on |
 |---|---|---|
-| **XIO Client** | Imports `xio://`, chooses a transport, brings up the tunnel, verifies traffic. No SSH, no server keys. | Android 8+, Windows 11 x64; Ubuntu 22.04+ through the full application; iOS from source |
+| **XIO Client** | Imports `xio://`, chooses a transport, brings up the tunnel, verifies traffic. No SSH, no server keys. | Android 8+, Windows 11 x64, Ubuntu 22.04+ |
 | **Full XIO** | SSH preflight, install, update and removal of the server; users, quotas, revocation, traffic. | Android, Windows, Ubuntu |
 | **Server payload** | AmneziaWG, RIVET, Xray, Cloak, OpenVPN, counters, firewall, dual-stack routing. | Linux x86_64 VPS with systemd and `/dev/net/tun` |
 
@@ -46,49 +51,109 @@ client picks the one that works on the current network and switches without a ne
 
 Five steps from a profile to traffic:
 
-1. **Import.** The administrator issues an `xio://` file: a base64 container with the user, the server
-   and per-transport configurations. It is stored encrypted: Android Keystore (excluded from backups),
-   Windows DPAPI, Ubuntu AES-GCM with file permissions, iOS Keychain.
-2. **Choose.** The profile lists the transports that really exist for that server. If the platform has
-   no engine for one of them, the client says so instead of silently substituting another.
+1. **Import.** The administrator issues an `xio://` file: a base64 container with the user, the
+   server and per-transport configurations. It is stored encrypted: Android Keystore (excluded
+   from backups), Windows DPAPI, Ubuntu AES-GCM with file permissions, iOS Keychain.
+2. **Choose.** The profile lists the transports that really exist for that server. If the platform
+   has no engine for one of them, the client says so instead of silently substituting another.
 3. **Connect.** The client creates a TUN interface, takes an address inside the tunnel and routes
-   traffic through the chosen transport. Android uses the system `VpnService`; Windows and Ubuntu use a
-   separate privileged helper that changes routes only after consent.
-4. **Verify.** The tunnel is confirmed by a fresh exchange, growing counters and a DNS lookup through
-   the tunnel. The HTTPS site probe is optional and off by default.
+   traffic through the chosen transport. Android uses the system `VpnService`; Windows and Ubuntu
+   use a separate privileged helper that changes routes only after consent.
+4. **Verify.** The tunnel is confirmed by a fresh exchange, growing counters and a DNS lookup
+   through the tunnel. The HTTPS site probe is optional and off by default.
 5. **Run.** The server accepts the traffic, assigns an internal address and NATs it to the internet.
+
+```mermaid
+flowchart LR
+  subgraph DEV["Device · Android / Windows 11 / Ubuntu"]
+    direction TB
+    UI["Flutter UI<br/>dark and light themes"]
+    PROF["xio:// profile<br/>Keystore · DPAPI · AES-GCM"]
+    ENG["TUN + engine<br/>transport priority and fallback"]
+  end
+
+  subgraph FULL["Full XIO · your own server"]
+    direction TB
+    SSH["SSH + host key pin"]
+    USERS["users, quotas, revocation"]
+    UPD["update and rollback"]
+  end
+
+  subgraph VPS["VPS Linux x86_64 · systemd"]
+    direction TB
+    BOOT["bootstrap.sh<br/>SHA-256 before unpacking"]
+    UNITS["systemd units xio-*<br/>start / stop / restart"]
+    RIVET["RIVET entry + gateway<br/>8443/tcp + 8443/udp"]
+    AWG["AmneziaWG<br/>51821/udp"]
+    XRAY["Xray REALITY<br/>4443/tcp"]
+    CLOAK["Cloak<br/>9443/tcp"]
+    FW["firewall with receipts<br/>NAT44 / NAT66"]
+  end
+
+  NET(("Internet"))
+  CASCADE["Cascade<br/>bridge IPv4 → exit IPv6"]
+  WEB["Web panel<br/>TLS + Bearer token"]
+
+  UI --> PROF
+  PROF --> ENG
+  ENG -->|"RIVET S1 / H3"| RIVET
+  ENG -->|"AmneziaWG"| AWG
+  ENG -->|"Xray REALITY"| XRAY
+  ENG -->|"OpenVPN in Cloak"| CLOAK
+
+  SSH -->|"bootstrap + archive"| BOOT
+  BOOT --> UNITS
+  UNITS --> RIVET
+  UNITS --> AWG
+  UNITS --> XRAY
+  UNITS --> CLOAK
+  USERS -->|"xio:// profiles"| PROF
+  UPD --> BOOT
+
+  RIVET --> FW
+  AWG --> FW
+  XRAY --> FW
+  CLOAK --> FW
+  FW --> NET
+
+  ENG -.->|"with a subscription"| CASCADE
+  CASCADE -.->|"IPv6 only"| NET
+  WEB -->|"systemctl + admin.py"| UNITS
+```
+
+The diagram also exists as a standalone file: [docs/landing/architecture.mmd](docs/landing/architecture.mmd).
 
 ## Features
 
 ### XIO Client
 
 - **Portable profile.** One `xio://` file for every transport of one server; import from a file or
-  paste the key. Imports accept client material only: no listeners, API servers, executable commands,
-  filesystem paths or direct/freedom outbounds.
+  paste the key. Imports accept client material only: no listeners, API servers, executable
+  commands, filesystem paths or direct/freedom outbounds.
 - **Transport priority and fallback.** The selected profile goes first, then variants of the same
-  endpoint with another protocol, then other profiles. A blocked protocol is replaced before the entry
-  point changes, so the VPS address is not lost. The default first choice is Xray/REALITY, on iOS
-  RIVET/S1; the order is configurable and unavailable engines are skipped.
+  endpoint with another protocol, then other profiles. A blocked protocol is replaced before the
+  entry point changes, so the VPS address is not lost. The default first choice is Xray/REALITY, on
+  iOS RIVET/S1; the order is configurable and unavailable engines are skipped.
 - **Live link watchdog.** While you want the tunnel, the link is checked every 15 seconds. After two
   consecutive misses the client reconnects, retrying after 5 seconds (the first three attempts) and
   15 seconds afterwards until the server returns.
-- **Honest verification.** "Interface active" alone is not a success: traffic counters and DNS through
-  the tunnel must move. The site probe is an extra you can enable; with it off, the tunnel is confirmed
-  by the handshake, counters and DNS.
+- **Honest verification.** "Interface active" alone is not a success: traffic counters and DNS
+  through the tunnel must move. The site probe is an extra you can enable; with it off, the tunnel
+  is confirmed by the handshake, counters and DNS.
 - **Split tunnelling.** Include or exclude selected applications, and add IP/CIDR rules in either
-  direction. Domain rules are not supported. Excluded traffic goes directly unless Android lockdown
-  blocks it.
-- **Subclients.** An explicitly granted account token can check quota and create or revoke only its own
-  children through the server HTTPS API with a pinned certificate. A child export contains only that
-  child's VPN keys and never the parent capability or SSH/root keys.
-- **VPN sharing.** Android: requires root, IPv4 goes into the tunnel, DNS is redirected to `9.9.9.9`,
-  IPv6 sharing is blocked. Windows: ICS-based, experimental and not verified on a live Windows host.
-  Ubuntu and iOS: not available.
+  direction. Domain rules are not supported.
+- **Subclients.** An explicitly granted account token can check quota and create or revoke only its
+  own children through the server HTTPS API with a pinned certificate. A child export contains only
+  that child's VPN keys and never the parent capability or SSH/root keys.
+- **VPN sharing.** Android: requires root, IPv4 goes into the tunnel, DNS is redirected to
+  `9.9.9.9`, IPv6 sharing is blocked. Windows: ICS-based, experimental and not verified on a live
+  Windows host. Ubuntu and iOS: not available.
 - **13 UI languages** with offline catalogues, dark and light themes.
-- **Updates.** One check per week with a random offset; a release can be skipped. Metadata signature and
-  package hash are verified before installation; Android installs through the system installer.
-- **Privacy by default.** No advertising or analytics SDK, no automatic crash reporting, no built-in
-  server catalogue, no endpoint geolocation. Android screens are protected with `FLAG_SECURE`.
+- **Updates.** One check per week with a random offset; a release can be skipped. Metadata signature
+  and package hash are verified before installation; Android installs through the system installer.
+- **Privacy by default.** No advertising or analytics SDK, no automatic crash reporting, no
+  built-in server catalogue, no endpoint geolocation. Android screens are protected with
+  `FLAG_SECURE`.
 
 ### Full XIO
 
@@ -98,12 +163,12 @@ Five steps from a profile to traffic:
   truncated or substituted stream is refused instead of being unpacked as root.
 - **Users and quotas.** Issue and revoke users, limit the number of active records for delegated
   admins, export profiles in batch, and keep child ownership scoped to the creator.
-- **Traffic accounting.** Per-user monthly bytes and online state from server counters sampled every
-  30 seconds; RIVET, AWG and OpenVPN are counted separately.
+- **Traffic accounting.** Per-user monthly bytes and online state from server counters sampled
+  every 30 seconds; RIVET, AWG and OpenVPN are counted separately.
 - **Service state and secret-free logs.** Which units are active, which failed and what the server
   advertises — without keys or passwords in the output.
-- **Update and rollback.** The server is updated only while the VPN is off, with saved SSH credentials
-  and a matching host key; users and keys survive, and a failed update rolls back.
+- **Update and rollback.** The server is updated only while the VPN is off, with saved SSH
+  credentials and a matching host key; users and keys survive, and a failed update rolls back.
 - **Removal that cleans up after itself.** Only XIO-owned units, rules and keys are removed; IP
   forwarding is restored and shared packages are kept.
 
@@ -119,25 +184,15 @@ Five steps from a profile to traffic:
 - Restricted mode for IPv6-only VPS: no kernel WireGuard, no IPv4 default route, only the ports that
   can actually work.
 
-## Screenshots
+More detail, examples and diagrams: [docs/features.md](docs/features.md).
 
-XIO Client, dark and light themes:
+## Five transports
 
-<p><img src="docs/images/client-0.22.4-dark.png" width="240" alt="XIO Client, dark theme"> <img src="docs/images/client-0.22.4-light.png" width="240" alt="XIO Client, light theme"></p>
+![Five transports](docs/landing/protocols.en.svg)
 
-Full XIO and XIO Client for Windows (2026-10-26):
-
-<p><img src="docs/images/2026-10-26-full-home.png" width="240" alt="Full XIO home"> <img src="docs/images/2026-10-26-full-settings.png" width="240" alt="Full XIO settings"> <img src="docs/images/2026-10-26-win-windows-home.png" width="240" alt="XIO Client for Windows"></p>
-
-Android screens are not published: the app sets `FLAG_SECURE`, so the system returns a black image. That
-is protection, not a bug.
-
-## Protocols
-
-![Five transports](docs/images/xio-protocols-en.svg)
-
-XIO does not reinvent cryptography: each transport builds on a proven implementation, and RIVET is our
-own. The transports solve different problems: speed, camouflage, and networks where UDP is closed.
+XIO does not reinvent cryptography: each transport builds on a proven implementation, and RIVET is
+our own. The transports solve different problems: speed, camouflage, and networks where UDP is
+closed.
 
 | Transport | Basis | Outer transport | Port | Use when | Android | Windows | Ubuntu | iOS |
 |---|---|---|---|---|---|---|---|---|
@@ -151,18 +206,21 @@ own. The transports solve different problems: speed, camouflage, and networks wh
 native run on this platform; `source` — engine in source, no Apple build; `-` — not available.
 Android has five transports, Windows and Ubuntu four, iOS two.
 
+The order is arranged so the protocol changes before the entry point: selected profile → same
+endpoint with another transport → other profiles.
+
 ### AmneziaWG
 
-AmneziaWG is WireGuard with an obfuscated handshake: the fixed message headers are replaced, junk
-packets are inserted and the handshake sizes are randomised (`Jc`, `Jmin`, `Jmax`, `S1`, `S2`,
-`H1`–`H4`). It stays a UDP tunnel: blocking all UDP also blocks AWG. The server runs the userspace
-`xio-amneziawg-go` for the `xioawg0` interface; plain WireGuard (`xio0`) uses the kernel module and
-exists only in non-restricted installs.
+WireGuard with an obfuscated handshake: fixed message headers are replaced, junk packets are
+inserted and handshake sizes are randomised (`Jc`, `Jmin`, `Jmax`, `S1`, `S2`, `H1`–`H4`). It is
+still a UDP tunnel: blocking all UDP also blocks AWG. The server runs the userspace
+`xio-amneziawg-go` for `xioawg0`; plain WireGuard (`xio0`) uses the kernel module and exists only in
+non-restricted installs.
 
 ### RIVET
 
-RIVET is our own development: two independent entrances to the same server, so blocking one does not
-kill access.
+Our own development: two independent entrances to the same server, so blocking one does not kill
+access.
 
 ```mermaid
 flowchart LR
@@ -172,8 +230,8 @@ flowchart LR
   G --> NET["Internet"]
 ```
 
-- Two transports (**H3** and **S1**) share one authentication, so the client switches without changing
-  the profile.
+- Two transports (**H3** and **S1**) share one authentication, so the client switches without
+  changing the profile.
 - The gateway certificate is pinned (`pin`); every server has its own `gatewayId` and outer CA.
 - A user gets a `secret` and an `entryToken`; the parent token is never passed to a subclient.
 - Internal addressing is `10.79.0.N` with per-user traffic accounting, plus `fd79:1::/64` when the
@@ -181,20 +239,20 @@ flowchart LR
 
 ### Xray / REALITY
 
-VLESS with REALITY: the server presents a real TLS site's parameters, and the client verifies the
-expected certificate/SNI pair. It looks like ordinary HTTPS on the wire. On the tested pair "client
-0.23.x + gateway Xray 26.7.28" REALITY does not connect; see [Limitations](#limitations).
+VLESS with REALITY: the server presents a real TLS site's parameters and the client verifies the
+expected certificate/SNI pair. On the wire it looks like ordinary HTTPS. On the tested pair
+"client 0.23.x + gateway Xray 26.7.28" REALITY does not connect; see
+[Limitations](#limitations-what-is-not-verified).
 
 ### OpenVPN / Cloak
 
-OpenVPN wrapped in Cloak's TLS obfuscation. It exists for networks where only TCP/443-like traffic is
-allowed and is the client's last resort. Only Android declares the Cloak engine.
+OpenVPN wrapped in Cloak's TLS obfuscation. It exists for networks where only TCP/443-like traffic
+is allowed and is the client's last resort. Only Android declares the Cloak engine.
 
 ### Server-side transports
 
-WireGuard, Shadowsocks and IKEv2 are installed on the server but not offered by the XIO client. They
-exist for compatibility with other clients and for restricted deployments; they are not part of the
-five-transport client matrix.
+WireGuard, Shadowsocks and IKEv2 are installed on the server but not offered by the XIO client.
+They exist for compatibility with other clients and for restricted deployments.
 
 | Port | Protocol | Service | Notes |
 |---|---|---|---|
@@ -209,6 +267,9 @@ five-transport client matrix.
 | 500/udp, 4500/udp | UDP | IKEv2 / IPsec | server-side only |
 | 9444/tcp | TCP | Account API | only when an account token is granted |
 
+Deep dives: [protocol notes](docs/en/protocols.md) · [RIVET library](docs/protocols/README.md) ·
+[RIVET implementation 0.2 (RU)](RIVET-IMPLEMENTATION-0.2.ru.md).
+
 ## IPv4 and IPv6
 
 ![IPv4 and IPv6](docs/images/xio-dualstack-en.svg)
@@ -218,10 +279,10 @@ The outer transport and the inner address are independent:
 - An endpoint may be an IPv4 address, an IPv6 address, or a domain with A and/or AAAA records.
 - Xray and Cloak try both address families. RIVET tries them sequentially, because concurrent
   authorisation of one identity can replace a peer.
-- RIVET/S1, RIVET/H3, AmneziaWG and OpenVPN carry IPv4 and IPv6 inside the tunnel. IPv6 addresses are
-  issued only by a server that explicitly advertises support.
-- Managed addressing, forwarding and NAT66 require real provider routing. Only owned changes are made,
-  each with a receipt and a precise rollback.
+- RIVET/S1, RIVET/H3, AmneziaWG and OpenVPN carry IPv4 and IPv6 inside the tunnel. IPv6 addresses
+  are issued only by a server that explicitly advertises support.
+- Managed addressing, forwarding and NAT66 require real provider routing. Only owned changes are
+  made, each with a receipt and a precise rollback.
 - DNS comes from the profile and goes through the tunnel.
 - **XIO does not provide DNS64, NAT64 or CLAT.** IPv4 literals and IPv4 packets are not translated
   inside an IPv6-only network; such a host needs an IPv4 egress or provider-side NAT64.
@@ -243,133 +304,120 @@ The outer transport and the inner address are independent:
 - no kernel WireGuard and no `xio0`; AmneziaWG runs in userspace;
 - only transports that can work are installed: AWG, RIVET, Xray, Cloak, OpenVPN TCP;
 - the firewall opens `4443/tcp`, `9443/tcp`, `8443`, `51821/udp` — not the IPv4-only set;
-- the preflight records `outboundByFamily: {ipv6: eth0}` and reports `ipv4DefaultRoute: false` instead
-  of pretending the host is dual-stack.
+- the preflight records `outboundByFamily: {ipv6: eth0}` and reports `ipv4DefaultRoute: false`
+  instead of pretending the host is dual-stack.
 
 Verified on a VPS with global IPv6 `2a0c:b641:1a0:800::2a2`: the client receives `fd79:1::fe/128`,
 `ping6` and `wget -6` pass through the tunnel, and the answer comes from the VPS global address
 (NAT66). The outer IPv6 entry `[2a0c:b641:1a0:800::2a2]:18443` connected in 129–159 ms.
 
-## Install
+## Cascade: two servers, IPv4 → IPv6
 
-> **0.24.0 is the current release.** Install over 0.23.1: package names did not change, so Android updates
-> the app and keeps profiles and settings. Read [Limitations](#limitations) before installing.
+A paid feature (subscription stub for now): the device reaches **bridge** over IPv4, the bridge
+keeps a protected **IPv6-only** tunnel to an **exit** server, and traffic leaves from an IPv6-only
+network.
 
-One naming rule: `XIO-<App>-<version>-<OS>-<arch>.<ext>`. `App` is `Client` or `Full`, `OS` is
-`android`, `windows` or `ubuntu`, architecture is `arm64-v8a`, `armeabi-v7a`, `x86_64`, `universal`,
-`amd64` or `x64`.
-
-### XIO Client — connect to existing servers
-
-| System | File | What it is |
-|---|---|---|
-| Android 8+ · ARM64 | [XIO-Client-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-arm64-v8a.apk) | the usual choice for modern phones |
-| Android 8+ · ARM32 | [XIO-Client-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-armeabi-v7a.apk) | older 32-bit devices |
-| Android 8+ · x86-64 | [XIO-Client-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-x86_64.apk) | emulators and x86 tablets |
-| Android 8+ · universal | [XIO-Client-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Client-0.24.0-android-universal.apk) | one build for all architectures |
-| iOS | - | no IPA: needs a Mac, Xcode and Apple signing |
-
-### Full XIO — your own server
-
-| System | File | What it is |
-|---|---|---|
-| Android 8+ · ARM64 | [XIO-Full-0.24.0-android-arm64-v8a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-arm64-v8a.apk) | full application with administration |
-| Android 8+ · ARM32 | [XIO-Full-0.24.0-android-armeabi-v7a.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-armeabi-v7a.apk) | older 32-bit devices |
-| Android 8+ · x86-64 | [XIO-Full-0.24.0-android-x86_64.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-x86_64.apk) | emulators |
-| Android 8+ · universal | [XIO-Full-0.24.0-android-universal.apk](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-android-universal.apk) | one build for all architectures |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-amd64.deb](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-amd64.deb) | 49.0 MiB, installs with `apt` |
-| Ubuntu 22.04+ x64 | [XIO-Full-0.24.0-ubuntu-x64.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-ubuntu-x64.tar.gz) | 57.9 MiB, portable archive |
-| Server package | [xio-server-0.24.0.tar.gz](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/xio-server-0.24.0.tar.gz) | 21.3 MiB, server payload for a Linux host |
-| Windows 11 x64 | [XIO-Full-0.24.0-windows-x64.zip](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/XIO-Full-0.24.0-windows-x64.zip) | ZIP: app, helper, Wintun |
-
-> **The 0.23.1 server payload defect is fixed here.** The payload published with 0.23.1 failed during
-> install on the firewall step (`iptables: Can't use -i with POSTROUTING`) and, on IPv6-only hosts, its
-> `status` and statistics timer failed with `Command failed: wg`. 0.24.0 ships the fixed payload,
-> verified by a live install on Debian 13. Client-only use of RIVET and AWG was never affected.
-
-Everything lives in [Releases](https://github.com/rukazax/xio_vpn/releases/tag/v0.24.0): builds,
-[SHA256SUMS](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/SHA256SUMS-0.24.0.txt),
-[verification report](https://github.com/rukazax/xio_vpn/releases/download/v0.24.0/verification-0.24.0.json).
-Verify with `sha256sum -c SHA256SUMS-0.24.0.txt` or
-`Get-FileHash <file> -Algorithm SHA256`.
-
-### Android
-
-Open the APK; Android 8+ asks for permission to install from this source. The update installs over the
-previous version and keeps profiles. The VPN permission is requested separately on the first connect.
-
-### Windows
-
-Fully unpack the ZIP and run `XIO.exe`. The helper `libexec\xio-tunnel.exe` starts elevated: it needs
-that to create the network interface. The build is not signed with a publisher certificate, so
-SmartScreen warns. Wintun is included with its licence.
-
-### Ubuntu
-
-```sh
-```
-
-or unpack the `.tar.gz`. The GUI runs as your user; the network helper asks for system authorisation
-through polkit. `systemd-resolved` is required: without it the connect is rejected with
-`systemd-resolved could not configure VPN DNS`.
-
-### iOS
-
-There is no IPA. The source supports RIVET/H3 and S1 and needs a Mac, Xcode, an Apple Developer team
-and NetworkExtension entitlements. See [Build from source](#build-from-source).
-
-## Quick start
-
-### Connect to an existing server
-
-1. Get an `xio://` profile from the server administrator.
-2. Install **XIO Client**, not the full application: the full one is for running servers.
-3. Open the app → "Add profile" → paste the key or pick the file.
-4. Press "Connect". Android asks for VPN permission once; Windows asks for administrator rights for
-   the helper.
-5. Make sure the counters grow and DNS resolves through the tunnel. "Tunnel active" without traffic is
-   not a success. The optional site probe is in Settings.
-
-### Deploy your own server
-
-1. Prepare a clean VPS: x86_64, Debian 12/13, Ubuntu 22.04/24.04/26.04, or RHEL/Alma/Rocky 9/10,
-   systemd, `/dev/net/tun`, no other VPN.
-2. Open **Full XIO** → "+" → server setup, enter the address and SSH credentials.
-3. The preflight checks the OS, architecture, systemd, TUN, ports and subnets.
-4. Install. The application uploads its bundle, verifies the digest, installs the services and reports
-   the unit state.
-5. Create users and export their `xio://` profiles.
-6. Connect from the client and verify traffic.
+![Cascade route](docs/landing/cascade-route.en.svg)
 
 ```mermaid
 flowchart LR
-  A["Full XIO"] -->|"1. SSH preflight"| V["VPS"]
-  A -->|"2. bundle + SHA-256"| S["Server services"]
-  A -->|"3. users, quotas, revoke"| S
-  S -->|"4. xio:// profiles"| C["XIO Client"]
-  S --> N["Internet"]
+  A[Phone / PC<br/>IPv4] -->|XIO TLS / QUIC| B[Bridge<br/>IPv4]
+  B -->|protected tunnel<br/>IPv6 only| C[Exit<br/>IPv6-only]
+  C --> D((Internet))
 ```
 
-### Users, quotas and revocation
+**What the app shows.** One screen, no scrolling, entirely inside the phone screen
+(`app/lib/cascade_ui.dart`):
 
-"Settings → Users" or "+ → User" creates an access record. One user profile contains all supported
-protocols of that user. "Share" transfers the access secret, so send it only to the recipient.
-"Revoke" disables access on the server and releases the quota slot. An admin flag allows creating
-users within the limit of simultaneously active records; revocation frees a slot. The card shows the
-role, online state, monthly traffic and available actions.
+- three stations — device → bridge → exit — with country flags from the ISO code;
+- state lines: grey idle, yellow connecting or degraded, green active, red failed;
+- ping, update time, a "Reconnect" button;
+- a "Paid feature. Subscription required" plate and an "Activate" button.
 
-### Update and remove
+**One command on the server:**
 
-- **Client:** Settings → App. One check per week, a release can be skipped; the package hash and
-  metadata signature are verified before installation.
-- **Server:** the server is updated while the VPN is off, with saved SSH credentials and a matching
-  host key. Users and keys survive; a failed update rolls back.
-- **Removal:** "Remove" deletes only the client record; "Clean up" removes the XIO-owned components on
-  the VPS, revokes all users of that server and keeps shared system packages.
+```bash
+curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh \
+  | sudo bash -s -- --role bridge --exit-host <ipv6-exit>
+```
 
-## Server management
+The script downloads the installer over HTTPS, verifies sha256 **before** running it, requires root
+and logs to `/var/log/xio-cascade-install.log` (mode 600). Roles: `bridge`, `exit`, `both`. From the
+app the cascade is enabled by the "Enable cascade (subscription)" checkbox in the server setup form;
+it passes `--enable-cascade` and the usual SSH flow takes over.
 
-Where things live:
+| What | Where |
+|---|---|
+| Installer (bridge/exit/both, container) | `deploy/cascade/` |
+| Terminal install | `deploy/cascade/terminal-install.sh` |
+| Health check | `deploy/cascade/cascade-healthcheck.sh` → `/var/lib/xio-cascade/health.json` |
+| Whitelists on the bridge | `deploy/cascade/whitelist-update.sh`, weekly timer |
+| Server web UI (TLS + token) | `server/webui/` |
+| Full description and diagram | [docs/cascade/README.md](docs/cascade/README.md) |
+
+> **What is not verified:** real traffic through two servers. The test bridge (81.177.142.37) has no
+> global IPv6, so the bridge → exit tunnel (2a0c:b641:1a0:800::2a2) cannot physically be raised. The
+> scripts were checked for bash syntax and branching logic, never on a live server pair. The
+> subscription is a stub: `CascadeFeatureGate.enabled == false`.
+
+## Install a server
+
+![Three ways to install a server](docs/landing/install-flow.en.svg)
+
+**A clean VPS is required:** x86_64, Debian 12/13, Ubuntu 22.04/24.04/26.04, or RHEL/Alma/Rocky
+9/10, systemd, `/dev/net/tun`, no other VPN on the host.
+
+### 1. From the app (recommended)
+
+1. Open **Full XIO** → "+" → server setup.
+2. Enter the address and SSH credentials (key or password).
+3. The preflight checks OS, architecture, systemd, TUN, ports and subnets.
+4. Install: the app uploads its own bundle, verifies the digest, installs the services and reports
+   the unit state.
+5. Create users and export their `xio://` profiles.
+
+### 2. One command in a terminal
+
+The bootstrap reads the archive from stdin. Take both names from the
+[Releases](https://github.com/rukazax/xio_vpn/releases) page — a release candidate carries a `-rcN`
+suffix in the tag while its asset keeps the plain version number, so they are separate variables:
+
+```bash
+TAG=0.24.1-rc13                  # tag on the release page, without the leading "v"
+FILE=xio-server-0.24.1.tar.gz    # asset name on that release
+curl -fsSLo xio-server.tar.gz \
+  "https://github.com/rukazax/xio_vpn/releases/download/v${TAG}/${FILE}"
+curl -fsSLo xio-bootstrap.sh \
+  https://raw.githubusercontent.com/rukazax/xio_vpn/main/server/managed/bootstrap.sh
+sudo XIO_EXPECTED_ARCHIVE_SHA256="<sha256 from SHA256SUMS>" \
+  bash xio-bootstrap.sh < xio-server.tar.gz
+```
+
+If `v0.24.1` is already published, use it as `TAG` — the stable tag has no `-rc` suffix.
+
+Without `XIO_EXPECTED_ARCHIVE_SHA256` the bootstrap still refuses a broken archive, but the digest
+pin is what makes a substituted stream stop before it is unpacked as root. Take the hash from
+`SHA256SUMS-<version>.txt` on the release page.
+
+> **Server package versions matter.** 0.23.1 shipped a payload that failed the firewall step
+> (`iptables: Can't use -i with POSTROUTING`) and broke `status` on IPv6-only hosts. 0.24.0 fixed
+> that but its packager left `readiness.py` and `xio-ready.service` out of the tarball, so an
+> install on a clean host ended with exit code 1 on the last step. Both are fixed in 0.24.1
+> (`RECIPE` 26). For a new server take **0.24.1 or newer**.
+
+### 3. The web panel
+
+```bash
+sudo ./install-webui.sh                 # https://127.0.0.1:10443
+sudo ./install-webui.sh 0.0.0.0:10443   # all interfaces, behind a reverse proxy only
+```
+
+The script prints the URL with a token, the token itself and the certificate SHA-256 fingerprint.
+Services, users and the cascade are managed from one page; the panel speaks TLS only, uses a
+Bearer token plus a `SameSite=Strict` cookie and requires a CSRF header for POST. Details:
+[server/webui/README.md](server/webui/README.md).
+
+### What ends up on the server
 
 | Path | Contents |
 |---|---|
@@ -379,7 +427,11 @@ Where things live:
 | `/usr/local/lib/xio-rivet` | RIVET binary and setup script |
 | `/var/lib/xio-stack` | stack counters and runtime state |
 
-The administration interface is JSON on stdin:
+Units: `xio-managed-awg`, `xio-managed-stats.timer`, `xio-rivet-entry`, `xio-rivet-gateway`,
+`xio-stack`, `xio-cloak`, `xio-openvpn-udp`, `xio-openvpn-tcp`, `xio-ikev2`, `xio-client-api`,
+`xio-ready`.
+
+Administration is JSON on stdin:
 
 ```sh
 printf '%s\n' '{"action":"status","serverId":"<id>"}' \
@@ -396,22 +448,94 @@ printf '%s\n' '{"action":"status","serverId":"<id>"}' \
 | `remove` | remove only XIO-owned units, rules, keys and packages |
 | `client-grant` | issue a scoped account token for subclients |
 
-All actions except `init` require `serverId`; a mismatch returns `Server identity changed; reopen
-setup`. Delegated admins connect through SSH with a restricted command
-(`admin.py --delegate <id>`) and cannot run anything else.
+## Clients by platform
 
-| Unit | Role |
-|---|---|
-| `xio-managed-awg` | AmneziaWG userspace interface `xioawg0` |
-| `xio-managed-stats.timer` | counters every 30 seconds |
-| `xio-rivet-entry` / `xio-rivet-gateway` | RIVET H3/S1 entry and gateway |
-| `xio-stack` | Xray gateway and stack state |
-| `xio-cloak` | Cloak TLS obfuscation |
-| `xio-openvpn-udp` / `xio-openvpn-tcp` | OpenVPN transports |
-| `xio-ikev2` | IKEv2/IPsec, non-restricted installs |
-| `xio-client-api` | scoped account API on 9444, only when granted |
+`XIO-<App>-<version>-<OS>-<arch>.<ext>`. `App` is `Client` or `Full`, `OS` is `android`, `windows`
+or `ubuntu`, architecture is `arm64-v8a`, `armeabi-v7a`, `x86_64`, `universal`, `amd64` or `x64`.
 
-## Security model
+Everything is on the [Releases](https://github.com/rukazax/xio_vpn/releases) page, including
+`SHA256SUMS` files. Verify with `sha256sum -c SHA256SUMS-<version>.txt` or
+`Get-FileHash <file> -Algorithm SHA256`.
+
+### Android — Full or Client?
+
+| | **XIO Full** (`app.xio.xio`) | **XIO Client** (`app.xio.client`) |
+|---|---|---|
+| Connect to an existing server | yes | yes |
+| Own server over SSH | yes | no |
+| Users, quotas, revocation | yes | no (subclients only, if granted) |
+| VPN sharing | yes | no |
+| Five transports | yes | yes |
+| Package size | ~58 MB | ~57 MB |
+
+Android 8+; ARM64 is the usual choice, ARM32 for old devices, x86_64 for emulators, `universal` if
+you do not want to think about it. Open the APK, allow installation from this source, and the
+update installs over the previous version keeping profiles.
+
+On MIUI/HyperOS `adb install` may answer `INSTALL_FAILED_USER_RESTRICTED`. The working path:
+
+```bash
+APK=XIO-Full-<version>-android-arm64-v8a.apk
+adb push "$APK" /data/local/tmp/xio.apk
+adb shell pm install -r -g /data/local/tmp/xio.apk
+```
+
+Android 0.24.1 is `0.24.1+5018`, signed with `CN=x1o Development` (SHA-256 `e4e81b12…c9671`), so it
+updates over 0.23.x/0.24.x without uninstalling. The newest APKs on the Releases page are 0.24.0 —
+the 0.24.1 Android set is being prepared, and its notes are in
+[docs/release-notes-0.24.1-mobile.md](docs/release-notes-0.24.1-mobile.md).
+
+### Windows 11 x64
+
+Fully unpack the ZIP and run `XIO.exe`. The helper `libexec\xio-tunnel.exe` starts elevated: it
+needs that to create the network interface. Wintun is included with its licence. Four transports
+(no Cloak). The build is not signed with a publisher certificate, so SmartScreen warns — that is
+expected.
+
+- Full XIO for Windows: in the 0.24.0 release.
+- XIO Client for Windows: published in 0.23.1; 0.24.0 did not include it.
+
+### Ubuntu 22.04+
+
+```bash
+sudo apt install ./XIO-*-ubuntu-amd64.deb
+```
+
+The package name drifted between releases (`XIO-Full-…-ubuntu-amd64.deb` in 0.24.0,
+`XIO-…-ubuntu-amd64.deb` in 0.24.1), hence the wildcard — or unpack the `.tar.gz`.
+
+The GUI runs as your user; the network helper asks for system authorisation through polkit.
+`systemd-resolved` is required: without it the connect is rejected with
+`systemd-resolved could not configure VPN DNS`. Four transports.
+
+> The 0.24.0 packages are built, but the GUI was not re-verified live (in 0.23.0 the window never
+> appeared: the process lived, the Impeller/EGL surface did not come up). The tunnel works through
+> `libexec/xio-tunnel`.
+
+### iOS
+
+There is no IPA. The source supports RIVET/H3 and S1 and needs a Mac, Xcode, an Apple Developer team
+and NetworkExtension entitlements. See [build from source](docs/en/build.md).
+
+### Screenshots
+
+<p><img src="docs/images/2026-10-26-full-home.png" width="220" alt="Full XIO home"> <img src="docs/images/2026-10-26-win-windows-home.png" width="220" alt="XIO Client for Windows"> <img src="docs/images/client-0.22.4-dark.png" width="220" alt="XIO Client, dark theme"></p>
+
+Android screens on the phone stay black in a system screenshot: the app sets `FLAG_SECURE`. That is
+protection, not a bug — the Android images in the docs come from Flutter widget tests. The list of
+frames we still need, with exact `adb` commands and a status table, is in
+[docs/screenshots/README.md](docs/screenshots/README.md).
+
+## Split tunnelling
+
+Include or exclude selected applications, and add IP/CIDR rules in either direction. Domain rules
+are not supported: routing by name needs its own resolver, and XIO does not have one yet.
+
+Excluded traffic goes directly — unless Android lockdown forbids it, in which case the system rule
+wins over the setting. In a cascade the rules live on the bridge (`xio_whitelist4` nft set), are
+refreshed weekly and replaced atomically.
+
+## Security
 
 - **Profile secrets are encrypted at rest.** Android Keystore with backups disabled, Windows DPAPI,
   Ubuntu AES-GCM with a local key and file permissions, iOS Keychain.
@@ -424,12 +548,13 @@ setup`. Delegated admins connect through SSH with a restricted command
 - **Secrets are compared in constant time** in `rivet user add` and token checks.
 - **Unit files use a credentials directory**, not `%d`, so secrets are not expanded into the command
   line.
-- **Sandbox is explicit.** `ProtectSystem=strict` is used where a read-only bind mount works; otherwise
-  XIO records `sandboxMode: compat` and drops only that directive, keeping `PrivateTmp`,
+- **Sandbox is explicit.** `ProtectSystem=strict` is used where a read-only bind mount works;
+  otherwise XIO records `sandboxMode: compat` and drops only that directive, keeping `PrivateTmp`,
   `NoNewPrivileges` and capability bounding.
 - **Imports are sanitised.** A profile cannot add listeners, API servers, commands, filesystem paths
   or direct/freedom outbounds.
-- **No telemetry.** No advertising or analytics SDK, no automatic crash reporting, no server catalogue.
+- **No telemetry.** No advertising or analytics SDK, no automatic crash reporting, no server
+  catalogue.
 
 ## How we test
 
@@ -448,100 +573,81 @@ flowchart LR
 | Level | What is checked | What it is not |
 |---|---|---|
 | Static | `flutter analyze`, unit/widget tests, Go tests, transport parity gate | does not prove networking |
-| Artifacts | APK signature, `package`/`versionCode`, ABI and 16 KB alignment of the native payload | does not prove a connection |
+| Artifacts | APK signature, `package`/`versionCode`, ABI and 16 KB alignment | does not prove a connection |
 | Stand | the server is installed from the shipped bundle and a client connects over a real network | does not prove phone behaviour |
 | Device | install on a physical Android device / run on Windows | does not prove the route |
 | Independent check | HTTPS inside the tunnel, `ping` to the tunnel gateway, server counters and `endpoint` | - |
 
-`FAIL`, `BLOCKED` and `NOT_EXECUTED` are written as such and never replaced with "works". Every run
-stores version, commit, device, commands and results separately from previous runs. Details:
-[compatibility 0.24.0](docs/compatibility/0.24.0.en.md).
+`FAIL`, `BLOCKED` and `NOT_EXECUTED` are written as such and never replaced with "works". Details:
+[compatibility 0.24.0](docs/compatibility/0.24.0.en.md) ·
+[physical Android run](docs/verification/android-physical-2026-10-21.en.md).
 
-## Limitations
+## FAQ
 
-- **0.24.0 server payload fails during install** on the `POSTROUTING` firewall rule and, on IPv6-only
-  hosts, in the stats timer (`Command failed: wg`). Fixed in `19d55dc`, next build. See
-  [Install](#install).
-- **Xray/REALITY does not connect** on the 0.23.x client with the Xray 26.7.28 gateway: the REALITY
+**Is XIO a subscription VPN?** No. It is software you run on your own VPS. The only paid piece is
+the cascade, and its subscription is still a stub.
+
+**Do I need root?** Not for the VPN itself. Root is needed for VPN sharing on Android.
+
+**Which transport will it pick?** Xray/REALITY first by default, then the alternatives of the same
+server, then other profiles. You can reorder them; a blocked protocol is replaced before the entry
+point changes.
+
+**It says "tunnel active" but nothing loads.** Check counters and DNS on the connection screen —
+they are the real proof. If they do not move, the server side is the usual suspect: NAT, firewall,
+or DNS. "Interface active" without traffic is not a success by design.
+
+**Can I run it next to another VPN?** No. The `/1` routes conflict; disable the other tunnel.
+
+**Where do I get iOS?** Nowhere yet: there is source, not an IPA. It needs a Mac, Xcode and Apple
+signing.
+
+**The server install failed at the last step.** That is the known 0.24.0 packager defect
+(`readiness.py` and `xio-ready.service` missing). Take 0.24.1 or newer.
+
+**Does it guarantee bypassing blocks?** No. There are no field measurements with Russian carriers
+and no independent audit of RIVET. Reaching the entry point and camouflaging the transport are two
+different jobs.
+
+## Limitations (what is not verified)
+
+- **Xray/REALITY does not connect** on "client 0.23.x + Xray 26.7.28 gateway": the REALITY
   implementation in the client core is incompatible. AWG and RIVET work.
+- **AWG on Android in this branch (`main`):** `tun.CreateUnmonitoredTUNFromFD` can hand the TUN
+  descriptor to a Go finalizer, which later closes a number that already belongs to something else;
+  an AWG activation that failed earlier can then kill an unrelated socket (`i/o timeout`,
+  `accept4: bad file descriptor`). The fix — duplicating the descriptor first — is in the
+  `release-0.24.0` branch (`c2b3338`), `main` does not have it yet.
 - **Windows 0.24.0:** the helper is rebuilt with the WFP firewall fix (rules by user SID and App ID
-  instead of `netsh`), and analyze, tests and packaging pass. A live GUI connection on 0.24.0 was not
+  instead of `netsh`), analyze, tests and packaging pass. A live GUI connection on 0.24.0 was not
   re-run; the last live run was the 0.22.5 helper with the 0.23.0 application.
-- **The site probe is optional** since 0.24.0 and off by default. If you enable it, the probe site must
-  be reachable through the tunnel.
-- **Ubuntu GUI:** 0.23.0 did not create a window (the process lived, the Impeller/EGL surface never
-  came up). 0.24.0 packages are built, but the GUI was not re-verified live. The tunnel works through
-  `libexec/xio-tunnel` and needs `systemd-resolved`.
+- **Ubuntu GUI:** 0.24.0 packages are built, the GUI was not re-verified live. The tunnel works
+  through `libexec/xio-tunnel` and needs `systemd-resolved`.
 - **A full tunnel on Linux cuts off the local network:** while the tunnel is up the machine stops
   answering SSH from the LAN, because all unmarked IPv4 goes into the tunnel.
+- **Cascade:** no real traffic through two servers; the subscription and server pooling are stubs.
+- **The web panel and the terminal bootstrap** never ran on a live server with systemd and
+  `admin.py` — only `py_compile`, certificate generation and response codes were checked locally.
+- **Windows ICS sharing** was not validated on a live host.
 - **IPv6 must be routed by the provider.** XIO configures addressing, forwarding and NAT66 on its own
   interfaces, but cannot make an upstream announce or route a prefix. DNS64/NAT64 are not provided.
 - **iOS** is not built: no Mac/Xcode/iPhone, no IPA.
-- **Full protocol parity is not achieved:** Android has 5 transports, Windows/Ubuntu 4, iOS 2.
+- **Full protocol parity is not achieved:** Android 5 transports, Windows/Ubuntu 4, iOS 2.
 - **Alongside another VPN** XIO does not work: the `/1` routes conflict.
 - The Windows application is not signed with a publisher certificate, so SmartScreen warns.
 
-## Build from source
-
-Current toolchain: Flutter 3.47.7, Dart 3.13.5, Go 1.27.2/1.27.3 for the native engines and Python 3.12;
-Android also needs JDK 17, SDK 36, NDK 30.0.16248370 and CMake/Ninja.
-
-```sh
-cd app
-flutter pub get
-flutter analyze
-flutter test
-```
-
-Native engines: `tools/restore-go-sources.py`, `tools/build-rivet.py`, `tools/build-amneziawg.py`,
-`tools/build-openvpn.py`, then `python3 tools/package-server.py`. Desktop: `tools/build-windows.ps1`,
-`tools/build-linux.sh`. iOS: `tooling/cross-platform/build-ios.sh` on a Mac with signing configured.
-
-Full instructions: [Build from source](docs/en/build.md) &middot; [source provenance](legal/SOURCE-BUILD.ru.md).
-
 ## Documentation
 
+- [Features in detail](docs/features.md) · [Возможности (RU)](docs/features.ru.md)
 - [Compatibility and status 0.24.0](docs/compatibility/0.24.0.en.md)
-- [Download details](docs/en/downloads.md) &middot; [Build](docs/en/build.md) &middot; [FAQ](docs/en/faq.md) &middot; [Guide](docs/en/guide.md)
-- [Protocols](docs/en/protocols.md) &middot; [Dual-stack notes](docs/dualstack/0.22.3.en.md) &middot; [RIVET implementation](RIVET-IMPLEMENTATION-0.2.ru.md)
-- [Release notes 0.24.0](docs/release-notes-0.24.0.md) &middot; [Changelog](CHANGELOG.md)
-- [Client and subclients](client/README.en.md) &middot; [Third-party notices](THIRD-PARTY-NOTICES.md)
+- [Guide](docs/en/guide.md) · [Downloads](docs/en/downloads.md) · [FAQ](docs/en/faq.md) · [Build](docs/en/build.md)
+- [Protocols](docs/en/protocols.md) · [RIVET library](docs/protocols/README.md) · [Dual-stack notes](docs/dualstack/0.22.3.en.md)
+- [Cascade](docs/cascade/README.md) · [Web panel](server/webui/README.md) · [Client and subclients](client/README.en.md)
+- [Release notes 0.24.0](docs/release-notes-0.24.0.md) · [0.24.1 mobile](docs/release-notes-0.24.1-mobile.md) · [Changelog](CHANGELOG.md)
+- [Screenshots to take](docs/screenshots/README.md) · [Diagrams](docs/landing/architecture.mmd) · [Third-party notices](THIRD-PARTY-NOTICES.md)
 
 ## License
 
 Original code is GPL-3.0-only. Third-party components keep their own licences:
-[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
-
-## Cascade: two servers, IPv4 → IPv6
-
-A paid feature (subscription stub for now): the device reaches **bridge** over IPv4,
-the bridge keeps a protected **IPv6-only** tunnel to an **exit** server, and traffic
-leaves from an IPv6-only network.
-
-```mermaid
-flowchart LR
-  A[Phone / PC<br/>IPv4] -->|XIO TLS / QUIC| B[Bridge<br/>IPv4]
-  B -->|protected tunnel<br/>IPv6 only| C[Exit<br/>IPv6-only]
-  C --> D((Internet))
-```
-
-| What | Where |
-|---|---|
-| Route screen with country flags and state | `app/lib/cascade_ui.dart` |
-| Cascade state model | `app/lib/cascade_model.dart` |
-| Installer (bridge/exit/both, container) | `deploy/cascade/` |
-| Terminal install | `deploy/cascade/terminal-install.sh` |
-| Server web UI (TLS + token) | `server/webui/` |
-| Full description and diagram | [docs/cascade/README.md](docs/cascade/README.md) |
-
-**One command on the server:**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh | bash -s -- --role bridge --exit-host <ipv6-exit>
-```
-
-The app installs the cascade over SSH with the usual flow (the "Enable cascade"
-checkbox in the full build), while every installer lives in this repository. Both
-server roles run in a dedicated container; split-tunnel whitelists live on the bridge
-and refresh weekly. Service and user management is available through the secured web
-UI (`server/webui`, TLS + bearer token).
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Security reports:
+[SECURITY.md](SECURITY.md). Contributing: [CONTRIBUTING.md](CONTRIBUTING.md).
