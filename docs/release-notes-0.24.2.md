@@ -1,4 +1,4 @@
-# XIO 0.24.2+5019+5019 — каскад, тише батарея и −7 МиБ APK
+# XIO 0.24.2+5019 — каскад, тише батарея и −7 МиБ APK
 
 > Двуязычные заметки: русский блок идёт первым, английский — во второй половине файла.
 > Матрица платформ и ограничения: [0.24.2.ru.md](compatibility/0.24.2.ru.md) · [0.24.2.en.md](compatibility/0.24.2.en.md)
@@ -231,24 +231,21 @@ Ready-ответчик слушает **только** адреса шлюза �
 
 ### 📦 Состав выпуска
 
-| Файл | Что это | Изменение к 0.24.1 |
-| --- | --- | --- |
-| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | −7,1 МиБ шрифта |
-| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | то же |
-| `XIO-Full-0.24.2-android-x86_64.apk` | Full, x86_64 | то же; на живом устройстве не запускался |
-| `XIO-Full-0.24.2-android-universal.apk` | Full, arm + arm64 | ≈96 МиБ |
-| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | ≈22,9 МиБ вместо 57,4 |
-| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | то же |
-| `XIO-Client-0.24.2-android-x86_64.apk` | Client, x86_64 | то же |
-| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | без серверного архива и CJK |
-| `XIO-Full-0.24.2-windows-x64.zip` | Windows 11 x64 | может быть собран от rc13 |
-| `XIO-0.24.2-ubuntu-amd64.deb` | Ubuntu 22.04+ x64 | сборка на Debian 13 |
-| `XIO-0.24.2-ubuntu-x64.tar.gz` | Ubuntu, переносимый | — |
-| `xio-server-0.24.2.tar.gz` | сервер, recipe 26 | +`readiness.py`, +`xio-ready.service`, LF |
-| `SHA256SUMS-0.24.2.txt` | контрольные суммы | — |
+| Файл | Что это | Размер | Изменение к предыдущей сборке 0.24.2 |
+| --- | --- | --- | --- |
+| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | 53 365 651 Б (50,9 МиБ) | пересобран из `main` (1a9fa38), подпись та же |
+| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | 53 332 893 Б (50,9 МиБ) | то же |
+| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | 24 502 229 Б (23,4 МиБ) | собран `client/build.py`, `verify.py` — ok |
+| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | 24 453 087 Б (23,3 МиБ) | то же |
+| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | 71 615 148 Б (68,3 МиБ) | без серверного архива и CJK |
+| `XIO-Full-0.24.1-windows-x64.zip` | Windows 11 x64 | 54 535 239 Б | не пересобирался в этом обновлении |
+| `XIO-0.24.2-ubuntu-amd64.deb` | Ubuntu 22.04+ x64 | 43 981 120 Б | не пересобирался в этом обновлении |
+| `XIO-0.24.2-ubuntu-x64.tar.gz` | Ubuntu, переносимый | 51 124 840 Б | не пересобирался в этом обновлении |
+| `xio-server-0.24.2.tar.gz` | сервер, recipe 26 | 22 355 224 Б | +`readiness.py`, +`xio-ready.service`, LF |
+| `SHA256SUMS-0.24.2.txt` | контрольные суммы девяти файлов | 908 Б | пересчитан, LF |
 
-Размеры и SHA-256 точных файлов — в `SHA256SUMS-0.24.2.txt` рядом с релизом; числа «после» в таблице
-размеров посчитаны из измеренных компонентов (сборка APK на этой машине заблокирована WDAC, см. ниже).
+Размеры и SHA-256 точных файлов — в `SHA256SUMS-0.24.2.txt` рядом с релизом. Числа в таблице
+измерены на самих файлах (APK собраны на Debian 13, см. «Проверено»), а не посчитаны по компонентам.
 
 ### ✅ Проверено
 
@@ -257,9 +254,14 @@ Ready-ответчик слушает **только** адреса шлюза �
   детерминирован (проверено на сборке 0.24.1; 0.24.2 идёт тем же конвейером);
 * APK: package `app.xio.xio`, `minSdk 26`, `targetSdk 36`, подпись `e4e81b12…c9671` (та же, что у
   0.24.0), `apksigner verify` и `zipalign -c -P 16 4` — OK;
-* установка и запуск на POCO X6 5G (Android 16, arm64; сборка 0.24.1 из этой же линии кода): экран
-  лицензии и согласия, главный экран, «Настройки», «О XIO»; `ANR`/`FATAL EXCEPTION` в logcat нет,
-  процесс жив;
+* установка и запуск на POCO X6 5G (Android 16, arm64) именно этой сборки: `adb install -r -g` →
+  `versionName 0.24.2`, `versionCode 5019`, приложение доходит до главного экрана (не висит на
+  сплэше), `ANR`/`FATAL EXCEPTION` в logcat нет, процесс жив; `uiautomator dump` показывает вкладку
+  «Настройка соединений», пункты «Каскад VPN на своих VPS» и «Каскад: IPv4-IPv6», а в «Настройке
+  соединения» — «Раздельное туннелирование» и «DNS-резолвер»; на «Маршрутизации» доступны режимы
+  «Только выбранные IP/сайты через VPN» / «Выбранные IP/сайты в обход VPN» и поле доменов. Прежняя
+  сборка на телефоне была `0.24.2-p2` (`versionCode 5040`), поэтому установка шла после удаления:
+  `-d` не помогает — Android разрешает понижение `versionCode` только для debuggable-пакетов;
 * `flutter analyze` — 0 замечаний; `flutter test` на Debian — 315 passed / 10 skipped / 0 failed;
 * Go: `build`/`vet`/`test ./...` в обоих режимах тегов, кросс-сборки windows/android/darwin;
 * Xray: эквивалентность 40/40 профилей, живой смоук `Parse`+`Start` на 10 профилях, локальные TLS- и
@@ -272,8 +274,12 @@ Ready-ответчик слушает **только** адреса шлюза �
 
 ### ⚠️ Не проверено
 
-* **живое подключение именно 0.24.2** на телефоне: в 0.24.1 приложение ставили чисто и к серверу не
-  подключались, последний живой прогон RIVET/S1 — 0.24.0 (31.10.2026, `192.168.88.17:18443`);
+* **живое подключение именно 0.24.2** на телефоне: сборка установлена и запущена, но к серверу не
+  подключались — последний живой прогон RIVET/S1 остаётся 0.24.0 (31.10.2026,
+  `192.168.88.17:18443`);
+* **автоматическая MTProto-ссылка по SSH** на живом сервере: логика покрыта тестами, но реальный
+  `mtproto`-ответ сервера в этом прогоне не запрашивался, кадр `settings-mtproto.png` показывает
+  ссылку, уже сохранённую в профиле;
 * **живой трафик через каскад**: у тестового bridge (81.177.142.37) нет глобального IPv6, поэтому
   туннель bridge → exit (2a0c:b641:1a0:800::2a2) физически не поднять;
 * **локальная сборка и тесты на Windows** заблокированы WDAC/Smart App Control: `dartaotruntime.exe`,
@@ -552,25 +558,22 @@ AppStore, a dead-import guard for `lib/` and `test/`, and `ClientVersionPinTests
 
 ### 📦 Release payload
 
-| File | What it is | Change vs 0.24.1 |
-| --- | --- | --- |
-| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | −7.1 MiB of font |
-| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | same |
-| `XIO-Full-0.24.2-android-x86_64.apk` | Full, x86_64 | same; not launched on a physical device |
-| `XIO-Full-0.24.2-android-universal.apk` | Full, arm + arm64 | ≈96 MiB |
-| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | ≈22.9 MiB instead of 57.4 |
-| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | same |
-| `XIO-Client-0.24.2-android-x86_64.apk` | Client, x86_64 | same |
-| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | no server archive, no CJK font |
-| `XIO-Full-0.24.2-windows-x64.zip` | Windows 11 x64 | may be built from rc13 |
-| `XIO-0.24.2-ubuntu-amd64.deb` | Ubuntu 22.04+ x64 | built on Debian 13 |
-| `XIO-0.24.2-ubuntu-x64.tar.gz` | Ubuntu, portable | — |
-| `xio-server-0.24.2.tar.gz` | server, recipe 26 | +`readiness.py`, +`xio-ready.service`, LF |
-| `SHA256SUMS-0.24.2.txt` | checksums | — |
+| File | What it is | Size | Change vs the previous 0.24.2 build |
+| --- | --- | --- | --- |
+| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | 53 365 651 B (50.9 MiB) | rebuilt from `main` (1a9fa38), same signer |
+| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | 53 332 893 B (50.9 MiB) | same |
+| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | 24 502 229 B (23.4 MiB) | built by `client/build.py`, `verify.py` ok |
+| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | 24 453 087 B (23.3 MiB) | same |
+| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | 71 615 148 B (68.3 MiB) | no server archive, no CJK font |
+| `XIO-Full-0.24.1-windows-x64.zip` | Windows 11 x64 | 54 535 239 B | not rebuilt in this update |
+| `XIO-0.24.2-ubuntu-amd64.deb` | Ubuntu 22.04+ x64 | 43 981 120 B | not rebuilt in this update |
+| `XIO-0.24.2-ubuntu-x64.tar.gz` | Ubuntu, portable | 51 124 840 B | not rebuilt in this update |
+| `xio-server-0.24.2.tar.gz` | server, recipe 26 | 22 355 224 B | +`readiness.py`, +`xio-ready.service`, LF |
+| `SHA256SUMS-0.24.2.txt` | checksums of the nine files | 908 B | recomputed, LF |
 
-Exact sizes and SHA-256 live in `SHA256SUMS-0.24.2.txt` next to the release; the "after" numbers in the
-size table are computed from measured components (an APK build is blocked on this machine by WDAC, see
-below).
+Exact sizes and SHA-256 live in `SHA256SUMS-0.24.2.txt` next to the release. The numbers in the table
+are measured on the files themselves (the APKs are built on Debian 13, see "Verified"), not computed
+from components.
 
 ### ✅ Verified
 
@@ -579,9 +582,15 @@ below).
   deterministic (verified on the 0.24.1 build; 0.24.2 goes through the same pipeline);
 * the APK: package `app.xio.xio`, `minSdk 26`, `targetSdk 36`, signature `e4e81b12…c9671` (same as
   0.24.0), `apksigner verify` and `zipalign -c -P 16 4` — OK;
-* install and launch on a POCO X6 5G (Android 16, arm64; the 0.24.1 build from this same code line):
-  licence and consent screens, main screen, Settings, About; no `ANR` or `FATAL EXCEPTION` in logcat,
-  the process stays alive;
+* install and launch of this very build on a POCO X6 5G (Android 16, arm64): `adb install -r -g` →
+  `versionName 0.24.2`, `versionCode 5019`, the app reaches the main screen (no splash hang), no `ANR`
+  or `FATAL EXCEPTION` in logcat, the process stays alive; `uiautomator dump` shows the "Connection
+  settings" tab, the "Cascade VPN on your own VPS" and "Cascade: IPv4-IPv6" entries, and inside
+  "Connection settings" the "Split tunnelling" and "DNS resolver" rows; on "Routing" the "Only the
+  selected IPs/sites through the VPN" / "Selected IPs/sites around the VPN" modes and the domains
+  field are available. The previous build on the phone was `0.24.2-p2` (`versionCode 5040`), so the
+  install followed an uninstall: `-d` does not help, because Android only allows a `versionCode`
+  downgrade for debuggable packages;
 * `flutter analyze` — 0 issues; `flutter test` on Debian — 315 passed / 10 skipped / 0 failed;
 * Go: `build`/`vet`/`test ./...` under both tag sets, cross-builds for windows/android/darwin;
 * Xray: 40/40 profile equivalence, a live `Parse`+`Start` smoke on 10 profiles, local TLS and XHTTP
@@ -595,8 +604,12 @@ below).
 
 ### ⚠️ Not verified
 
-* **a live connection on the 0.24.2 build itself**: on 0.24.1 the app was installed clean and never
-  connected, and the last live RIVET/S1 run was 0.24.0 (2026-10-31, `192.168.88.17:18443`);
+* **a live connection on the 0.24.2 build itself**: the build is installed and launched on the phone,
+  but nothing connected to a server — the last live RIVET/S1 run is still 0.24.0 (2026-10-31,
+  `192.168.88.17:18443`);
+* **the automatic MTProto link over SSH** against a live server: the logic is covered by tests, but the
+  real `mtproto` server answer was not requested in this run — `settings-mtproto.png` shows a link
+  already stored in the profile;
 * **live traffic through the cascade**: the test bridge (81.177.142.37) has no global IPv6, so the
   bridge → exit tunnel (2a0c:b641:1a0:800::2a2) cannot physically come up;
 * **local Windows builds and tests** are blocked by WDAC/Smart App Control: `dartaotruntime.exe`,
