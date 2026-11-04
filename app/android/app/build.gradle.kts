@@ -109,6 +109,47 @@ tasks.withType<JavaCompile>().configureEach {
     }
 }
 
+// A client-only build must never carry the managed-server payload. The client
+// entrypoint (lib/client_main.dart) cannot reach managed_service.dart, the only
+// code that loads those files, so the 21 MB archive and its helper scripts are
+// pure ballast. client/build.py registers this by staging a pubspec without
+// them; this block makes an ad-hoc `flutter build apk
+// --dart-define=XIO_CLIENT_ONLY=true` equally lean, so the ballast cannot come
+// back through the manual path. The keep-list is the contract client/verify.py
+// enforces on the produced APK.
+if (clientOnly) {
+    val keepAssetTops = setOf("help", "licenses", "l10n", "security", "fonts")
+    val mergedAssetsRoot = layout.buildDirectory
+    tasks.matching {
+        it.name.startsWith("merge") && it.name.endsWith("Assets") &&
+            !it.name.contains("UnitTest") && !it.name.contains("AndroidTest")
+    }.configureEach {
+        val assetsRoot = mergedAssetsRoot.dir("intermediates/assets")
+        doLast {
+            val variant = name.removePrefix("merge").removeSuffix("Assets")
+            val flutterAssets = assetsRoot.get().asFile.resolve(variant)
+            if (!flutterAssets.isDirectory) return@doLast
+            val payload = flutterAssets.walkTopDown().firstOrNull { it.isDirectory && it.name == "assets" }
+                ?: return@doLast
+            var removedBytes = 0L
+            var removedFiles = 0
+            payload.walkTopDown().toList()
+                .filter { it.isFile }
+                .forEach { file ->
+                    val top = file.relativeTo(payload).invariantSeparatorsPath.substringBefore('/')
+                    if (top !in keepAssetTops) {
+                        removedBytes += file.length()
+                        if (file.delete()) removedFiles++
+                    }
+                }
+            logger.lifecycle(
+                "XIO client-only: dropped $removedFiles server payload files " +
+                    "(${removedBytes / 1048576} MiB) from the $variant asset merge"
+            )
+        }
+    }
+}
+
 // A release without MAIN/LAUNCHER installs successfully but has no app icon.
 // Validate the native declarations even when icons were not regenerated.
 val verifyLauncherAliases by tasks.registering {
