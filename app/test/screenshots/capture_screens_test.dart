@@ -25,11 +25,13 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xio/app_settings.dart';
 import 'package:xio/app_theme.dart';
 import 'package:xio/cascade_model.dart';
 import 'package:xio/cascade_ui.dart';
 import 'package:xio/core.dart';
 import 'package:xio/l10n.dart';
+import 'package:xio/mtproto_ui.dart';
 import 'package:xio/workspace_ui.dart';
 
 import '../support/screenshots.dart';
@@ -127,6 +129,18 @@ Widget _app(AppStore store) => MaterialApp(
   home: WorkspaceShell(store: store),
 );
 
+/// Wraps a single screen the way `XioApp` wraps the shell, for the frames that
+/// are pages of their own (they still need the ru locale and the app theme).
+Widget _page(Widget home) => MaterialApp(
+  locale: const Locale('ru'),
+  supportedLocales: AppLanguages.locales,
+  localizationsDelegates: GlobalMaterialLocalizations.delegates,
+  localeListResolutionCallback: (_, _) => const Locale('ru'),
+  debugShowCheckedModeBanner: false,
+  theme: _theme(Brightness.dark),
+  home: home,
+);
+
 /// Store in the state the screenshots document: a configured server, the
 /// tunnel is off (`TunnelStatus()` → «Отключено»), cascade addresses are saved.
 class _ScreenshotStore extends AppStore {
@@ -151,6 +165,14 @@ class _ScreenshotStore extends AppStore {
     endpointCountries['185.14.30.7:51820'] = 'NL';
     cascadeBridge = '81.177.142.37';
     cascadeExit = '2a0c:b641:1a0:800::2a2';
+    // 0.24.2 settings: a third-party resolver, a saved MTProto link and the
+    // three behaviour switches (autostart / auto-connect / screenshots).
+    dnsServers = const <String>['1.1.1.1', '2606:4700:4700::1111'];
+    mtprotoLink =
+        'tg://proxy?server=proxy.xio.fr&port=443'
+        '&secret=ee0f1e2d3c4b5a69788796a5b4c3d2e1f0';
+    autoConnectOnStart = true;
+    allowScreenshots = true;
   }
 }
 
@@ -388,6 +410,136 @@ void main() {
       tester,
       key,
       'cascade-servers-dialog.png',
+      pixelRatio: _phoneDpr,
+    );
+  });
+
+  testWidgets('dns resolver: presets, the saved pair and the custom fields', (
+    tester,
+  ) async {
+    tester.view.physicalSize = _phonePhysical;
+    tester.view.devicePixelRatio = _phoneDpr;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+    final store = _ScreenshotStore();
+    addTearDown(store.dispose);
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      RepaintBoundary(key: key, child: _page(DnsSettingsPage(store: store))),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('DNS-резолвер'), findsOneWidget);
+    for (final item in const <String>[
+      'AdGuard DNS (IPv6)',
+      'Quad9',
+      'Cloudflare',
+      'Google Public DNS',
+      'Свои',
+    ]) {
+      expect(find.text(item).hitTestable(), findsOneWidget, reason: item);
+    }
+    // The saved pair is preselected, so its addresses are on the screen.
+    expect(find.text('1.1.1.1, 2606:4700:4700::1111'), findsOneWidget);
+    expect(find.text('Сохранить').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await _shoot(tester, key, 'settings-dns.png', pixelRatio: _phoneDpr);
+  });
+
+  testWidgets('mtproto proxy: instruction, saved link and status', (
+    tester,
+  ) async {
+    tester.view.physicalSize = _phonePhysical;
+    tester.view.devicePixelRatio = _phoneDpr;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+    final store = _ScreenshotStore();
+    addTearDown(store.dispose);
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: key,
+        child: _page(
+          Scaffold(
+            appBar: AppBar(title: const LText('Telegram-прокси (MTProto)')),
+            body: SafeArea(
+              // The screen has no Scaffold of its own: the settings page
+              // supplies the title and the scroll view.
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: MtprotoProxyScreen(store: store),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Как включить прокси в Telegram'), findsOneWidget);
+    expect(find.textContaining('Данные и память'), findsOneWidget);
+    expect(find.text('Прокси настроен'), findsOneWidget);
+    expect(find.text('Сохранить').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await _shoot(tester, key, 'settings-mtproto.png', pixelRatio: _phoneDpr);
+  });
+
+  testWidgets('application settings: autostart, auto-connect, screenshots', (
+    tester,
+  ) async {
+    tester.view.physicalSize = _phonePhysical;
+    tester.view.devicePixelRatio = _phoneDpr;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+    final store = _ScreenshotStore();
+    addTearDown(store.dispose);
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: key,
+        child: _page(
+          Scaffold(
+            appBar: AppBar(title: const LText('Приложение')),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: AppBehaviorSettings(store: store),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    for (final item in const <String>[
+      'Автозапуск при загрузке устройства',
+      'Автоподключение после запуска',
+      'Разрешить скриншоты',
+    ]) {
+      expect(find.text(item).hitTestable(), findsOneWidget, reason: item);
+    }
+    // The test host is Linux, so `Platform.isAndroid` is false and the
+    // autostart row renders its non-Android fallback text: the frame is an
+    // honest render of the widget, not a photograph of a phone.
+    expect(find.textContaining('Доступно в сборке для Android'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await _shoot(
+      tester,
+      key,
+      'settings-behaviour.png',
       pixelRatio: _phoneDpr,
     );
   });

@@ -2,7 +2,7 @@
 
 [Главная](../../README.ru.md) · [Возможности](../features.ru.md) · [Схемы](../landing/architecture.mmd) · [Home (EN)](../../README.md)
 
-Шесть кадров Android-интерфейса уже сняты и лежат рядом с этим файлом — их рисует сам
+Девять кадров Android-интерфейса уже сняты и лежат рядом с этим файлом — их рисует сам
 Flutter в widget-тесте (раздел 1). Остальные кадры (Windows, Ubuntu, телефон, веб-панель,
 терминал) ещё нужно снять: для них ниже точные инструкции и таблица статусов, а не выдумка.
 
@@ -16,7 +16,7 @@ Flutter в widget-тесте (раздел 1). Остальные кадры (Wi
 
 ## 1. Снятые кадры (golden-рендер, PNG)
 
-Все шесть кадров получены `flutter test` на Debian 13, `Flutter 3.47.7`, тема тёмная, язык
+Все девять кадров получены `flutter test` на Debian 13, `Flutter 3.47.7`, тема тёмная, язык
 `ru`. Кадр рисует Flutter, а не система, поэтому `FLAG_SECURE` ему не мешает. Файлы —
 настоящие PNG, не SVG и не макеты.
 
@@ -27,7 +27,10 @@ Flutter в widget-тесте (раздел 1). Остальные кадры (Wi
 | `cascade-configured.png` | Экран «Каскад» с настроенными адресами: Устройство → Bridge `81.177.142.37` → Exit `2a0c:b641:1a0:800::2a2`, «Готов к подключению», пинг «—», плашка подписки «XIO Cascade» | 1080×2400 | тест `cascade screen: configured bridge and IPv6 exit` |
 | `cascade-servers-dialog.png` | Диалог «Серверы каскада»: два поля (Bridge IPv4/домен, Exit только IPv6) с заполненными адресами и готовая команда установки `--role bridge --exit-host 2a0c:b641:1a0:800::2a2` | 1080×2400 | тест `cascade servers dialog: two fields and the install command` |
 | `settings.png` | Настройки: Серверы, Соединение, Приложение, Пользователи, Поддержать XIO, О XIO | 824×1830 (412×915 @2×) | тест `settings: list, then the application/locale screen` |
-| `settings-locales.png` | «Приложение»: язык «Русский · ru», «Проверить обновления», «Оформление» | 824×1830 (412×915 @2×) | тот же тест, второй кадр |
+| `settings-locales.png` | «Приложение» целиком: язык «Русский · ru», «Проверить обновления», три переключателя, «Оформление» | 824×1830 (412×915 @2×) | тот же тест, второй кадр |
+| `settings-dns.png` | «DNS-резолвер»: пояснение, четыре готовых набора (AdGuard DNS (IPv6), Quad9, Cloudflare, Google Public DNS) с отмеченным Cloudflare, пункт «Свои» и кнопка «Сохранить» | 1080×2400 | тест `dns resolver: presets, the saved pair and the custom fields` |
+| `settings-mtproto.png` | «Telegram-прокси (MTProto)»: четыре шага включения прокси в Telegram, поле «Ссылка прокси» с `tg://proxy?…`, подпись «Сервер: proxy.xio.fr:443», кнопки «Сохранить / Скопировать / Открыть в Telegram / Вставить / Очистить» и строка «Прокси настроен» | 1080×2400 | тест `mtproto proxy: instruction, saved link and status` |
+| `settings-behaviour.png` | Три переключателя экрана «Приложение»: «Автозапуск при загрузке устройства», «Автоподключение после запуска» (вкл.), «Разрешить скриншоты» (вкл.) с подписями-пояснениями | 1080×2400 | тест `application settings: autostart, auto-connect, screenshots` |
 
 Команда прогона (из каталога `app/`):
 
@@ -58,7 +61,12 @@ XIO_CAPTURE_IMAGES=1 flutter test test/screenshots
   моноширинном начертании берутся из системных `NotoColorEmoji` и `monospace` — на хосте без
   них на месте этих глифов будут пустые прямоугольники, а геометрия кадра не изменится;
 - тест сам проверяет результат: PNG-сигнатуру, ожидаемый размер в пикселях и число разных
-  цветов (чтобы «чёрный кадр» не мог пройти молча).
+  цветов (чтобы «чёрный кадр» не мог пройти молча);
+- `settings-behaviour.png` снят на Linux-хосте теста, а поведение «Автозапуска» в коде зависит от
+  `Platform.isAndroid`. Поэтому в кадре переключатель «Автозапуск при загрузке устройства»
+  неактивен, а его подпись — не-андроидная ветка («Доступно в сборке для Android…»). На телефоне
+  переключатель активен; остальные две строки («Автоподключение», «Разрешить скриншоты») рисуются
+  одинаково на любой платформе. Это ограничение хоста, а не состояние приложения.
 
 Примеры самих тестов — `app/test/screenshots/capture_screens_test.dart`, общий помощник
 захвата — `app/test/support/screenshots.dart`.
@@ -334,6 +342,9 @@ sudo ./install-webui.sh 0.0.0.0:10443        # скрипт печатает URL
 | A3 (экран «Каскад», настроенные адреса) | `cascade-configured.png` | подписка показана активной (заглушка `enabled == false`) |
 | A5 (форма установки) | `cascade-servers-dialog.png` | это диалог адресов, а не галочка «Включить каскад» |
 | A7 (настройки → «Приложение») | `settings.png`, `settings-locales.png` | «Оформление» без выбора темы: приложение следует системной |
+| A7 (Соединение → «DNS-резолвер») | `settings-dns.png` | выбор набора без системной строки состояния |
+| A7 (Настройки → «Telegram-прокси (MTProto)») | `settings-mtproto.png` | экран настроек без системной строки состояния |
+| A7 (Приложение → автозапуск/автоподключение/скриншоты) | `settings-behaviour.png` | на Linux-хосте «Автозапуск» неактивен и с не-андроидной подписью |
 
 ---
 
@@ -349,6 +360,9 @@ sudo ./install-webui.sh 0.0.0.0:10443        # скрипт печатает URL
 | `docs/screenshots/cascade-configured.png` | Android Full, «Каскад» с настроенными адресами (golden) |
 | `docs/screenshots/cascade-servers-dialog.png` | Диалог «Серверы каскада» и команда установки (golden) |
 | `docs/screenshots/settings.png`, `settings-locales.png` | Android Full, настройки и «Приложение» (golden) |
+| `docs/screenshots/settings-dns.png` | Android Full, «DNS-резолвер»: наборы и «Свои» (golden) |
+| `docs/screenshots/settings-mtproto.png` | Android Full, «Telegram-прокси (MTProto)» с сохранённой ссылкой (golden) |
+| `docs/screenshots/settings-behaviour.png` | Android Full, три переключателя «Приложения» (golden) |
 | `docs/images/2026-10-26-full-home.png` | Full XIO, главная |
 | `docs/images/2026-10-26-full-settings.png` | Full XIO, настройки |
 | `docs/images/2026-10-26-win-windows-home.png` | XIO Client для Windows |

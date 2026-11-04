@@ -563,6 +563,10 @@ entitlements NetworkExtension. См. [сборка из исходников](do
 |---|---|
 | ![Главная: отключено, выбран сервер](docs/screenshots/main-idle.png) | ![Соединение: ключ, свой сервер, каскад, пользователь](docs/screenshots/connection-tab.png) |
 
+| «DNS-резолвер»: наборы и свои адреса | «Telegram-прокси (MTProto)»: шаги и сохранённая ссылка |
+|---|---|
+| ![DNS-резолвер: AdGuard, Quad9, Cloudflare, Google Public DNS и пункт «Свои»](docs/screenshots/settings-dns.png) | ![Telegram-прокси (MTProto): инструкция, ссылка tg://proxy и статус «Прокси настроен»](docs/screenshots/settings-mtproto.png) |
+
 Экраны Android остаются чёрными на системном скриншоте: приложение ставит `FLAG_SECURE`. Это
 защита, а не ошибка — Android-кадры в документации получены из widget-тестов Flutter. Список
 кадров, которые ещё нужны, с точными командами `adb` и таблицей статусов —

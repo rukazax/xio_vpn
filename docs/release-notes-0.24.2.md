@@ -13,6 +13,49 @@
 
 ### 🚀 Что нового
 
+#### Что нового в 0.24.2 (обновление от 04.11)
+
+Обновление того же выпуска: к первому комплекту 0.24.2 добавились выбор стороннего DNS, экран
+MTProto-прокси, настройки поведения (автозапуск, автоподключение, скриншоты) и IPv4-exit в мастере
+установки. Номера версии и `versionCode` не менялись (0.24.2+5019) — APK пересобраны, подпись та же
+(`e4e81b12…c9671`), поэтому обновление ставится поверх.
+
+- **🌐 Выбор стороннего DNS.** Настройки → «Соединение» → **«DNS-резолвер»**: готовые наборы
+  (AdGuard DNS, Quad9, Cloudflare, Google Public DNS) или два своих адреса — IPv4, IPv6 или домен.
+  Выбор записывается в новые AWG-профили и виден в мастере установки; сервер как DNS при этом не
+  используется. Если выбрать только IPv6-адреса, экран честно предупреждает: без IPv6-выхода у
+  сервера имена не разрешатся. Кадр — [`docs/screenshots/settings-dns.png`](screenshots/settings-dns.png).
+- **✈️ MTProto-прокси для Telegram.** Настройки → **«Telegram-прокси (MTProto)»**: приложение хранит
+  ссылку `tg://proxy?…`, проверяет её формат, копирует и отдаёт в Telegram. Прокси работает только
+  для Telegram и не видит остальной трафик; ссылка даёт доступ к прокси, но не к аккаунту, и её не
+  стоит публиковать. Шаблон ссылки:
+
+  ```
+  tg://proxy?server=<адрес>&port=<443>&secret=ee<32 hex-символа>
+  ```
+
+  Порядок включения на телефоне: скопировать ссылку → Telegram → «Настройки» → «Данные и память» →
+  «Прокси» → «Добавить прокси» → **MTProto** → вставить ссылку → включить «Использовать прокси».
+  Кадр — [`docs/screenshots/settings-mtproto.png`](screenshots/settings-mtproto.png).
+- **⚙️ Автозапуск, автоподключение и разрешение скриншотов.** Настройки → «Приложение»:
+  «Автозапуск при загрузке устройства» (приложение поднимается само после перезагрузки; без
+  разрешения на уведомления подключение не поднимается), «Автоподключение после запуска» (выбранный
+  профиль поднимается при открытии приложения, если туннель ещё не активен) и «Разрешить скриншоты»
+  (по умолчанию **выключено**: экраны с ключами, профилями и SSH-доступом защищены `FLAG_SECURE`).
+  Кадр — [`docs/screenshots/settings-behaviour.png`](screenshots/settings-behaviour.png).
+- **🧭 Каскад с IPv4-exit.** В мастере установки сервера поле «Exit-сервер» теперь принимает
+  **IPv4-адрес** наравне с IPv6 (`81.177.142.37` или `2a0c:b641:1a0:800::2a2`): IPv6 — каскад
+  только для IPv6-трафика, IPv4 — весь трафик через зарубежный exit. Второе поле — диалог «Серверы
+  каскада» — по-прежнему IPv6-адрес: транспорт `ssh -w 0:0` поднимается по IPv6. Кадры —
+  [`cascade-configured.png`](screenshots/cascade-configured.png) и
+  [`cascade-servers-dialog.png`](screenshots/cascade-servers-dialog.png).
+
+**🩹 Старт больше не зависит от нативного слоя.** `AppStore.load()` вызывается через `unawaited`,
+и любой `PlatformException` из нативных методов (`setAutostart`, `setAutoConnectOnStart`,
+`setConsent`, `secureScreen`) оставлял приложение на сплэше навсегда: `ready` не наступал. Теперь
+эти вызовы терпимы к ошибке, а `ready = true` и `notifyListeners()` стоят в `finally`. Найдено на
+свежей установке APK, собранного со старым `android/` — там нативного `setAutostart` ещё не было.
+
 **🔐 Дескриптор, из-за которого мобильный пакет падал случайно.** `tun.CreateUnmonitoredTUNFromFD`
 заворачивает fd в `*os.File` **до** проверки `TUNGETIFF`; на неподходящем дескрипторе конструктор
 возвращал ошибку, не закрыв объект, а `AwgTurnOn` на ошибочном пути закрывал тот же номер вторым
@@ -232,6 +275,49 @@ two-server cascade. Main-side work adds the second half of the cascade, the CJK 
 client build pipeline, battery savings and a hermetic test suite. All of it lands as one release.
 
 ### 🚀 What's new
+
+#### What's new in 0.24.2 (04.11 update)
+
+A refresh of the same release: the first 0.24.2 payload gains a third-party DNS choice, an MTProto
+proxy screen, behaviour settings (autostart, auto-connect, screenshots) and an IPv4 exit in the setup
+wizard. Version and `versionCode` are unchanged (0.24.2+5019) — the APKs were rebuilt under the same
+certificate (`e4e81b12…c9671`), so the update installs over the previous build.
+
+- **🌐 Third-party DNS choice.** Settings → "Connection" → **"DNS resolver"**: ready-made sets
+  (AdGuard DNS, Quad9, Cloudflare, Google Public DNS) or two addresses of your own — IPv4, IPv6 or a
+  domain. The choice is written into new AWG profiles and shown in the install wizard; the server is
+  never used as DNS. Choosing IPv6-only addresses warns honestly: without an IPv6 egress on the
+  server the names will not resolve. Frame — [`docs/screenshots/settings-dns.png`](screenshots/settings-dns.png).
+- **✈️ MTProto proxy for Telegram.** Settings → **"Telegram proxy (MTProto)"**: the app stores a
+  `tg://proxy?…` link, validates the format, copies it and hands it to Telegram. The proxy serves
+  Telegram only and never sees the rest of the traffic; the link grants proxy access, not account
+  access, and should not be published. Link template:
+
+  ```
+  tg://proxy?server=<address>&port=<443>&secret=ee<32 hex chars>
+  ```
+
+  On the phone: copy the link → Telegram → "Settings" → "Data and Storage" → "Proxy" → "Add proxy"
+  → **MTProto** → paste the link → enable "Use proxy". Frame —
+  [`docs/screenshots/settings-mtproto.png`](screenshots/settings-mtproto.png).
+- **⚙️ Autostart, auto-connect and screenshot permission.** Settings → "Application": "Autostart on
+  device boot" (the app starts itself after a reboot; without the notification permission the tunnel
+  stays down), "Auto-connect after launch" (the selected profile is raised when the app opens and the
+  tunnel is not active yet) and "Allow screenshots" (**off** by default: screens with keys, profiles
+  and SSH access are `FLAG_SECURE`). Frame —
+  [`docs/screenshots/settings-behaviour.png`](screenshots/settings-behaviour.png).
+- **🧭 Cascade with an IPv4 exit.** In the server setup wizard the "Exit server" field now takes an
+  **IPv4 address** as well as IPv6 (`81.177.142.37` or `2a0c:b641:1a0:800::2a2`): IPv6 means a
+  cascade for IPv6 traffic only, IPv4 routes all traffic through a foreign exit. The second field —
+  the "Cascade servers" dialog — still expects an IPv6 address: the `ssh -w 0:0` transport comes up
+  over IPv6. Frames — [`cascade-configured.png`](screenshots/cascade-configured.png) and
+  [`cascade-servers-dialog.png`](screenshots/cascade-servers-dialog.png).
+
+**🩹 Startup no longer depends on the native layer.** `AppStore.load()` runs through `unawaited`, so
+any `PlatformException` from a native method (`setAutostart`, `setAutoConnectOnStart`, `setConsent`,
+`secureScreen`) left the app on the splash screen forever: `ready` never became true. Those calls now
+tolerate the error and `ready = true` / `notifyListeners()` sit in `finally`. Found on a fresh install
+of an APK built against a stale `android/` that had no native `setAutostart` yet.
 
 **🔐 The descriptor that made the mobile package fail at random.** `tun.CreateUnmonitoredTUNFromFD`
 wraps the fd in an `*os.File` **before** it validates `TUNGETIFF`; on a descriptor that is not a TUN it

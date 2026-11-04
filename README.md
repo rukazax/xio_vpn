@@ -556,6 +556,10 @@ Fresh Android frames produced by the golden render
 |---|---|
 | ![Home: disconnected, server chosen](docs/screenshots/main-idle.png) | ![Connection: key, own server, cascade, user](docs/screenshots/connection-tab.png) |
 
+| "DNS resolver": presets and custom addresses | "Telegram proxy (MTProto)": steps and the saved link |
+|---|---|
+| ![DNS resolver: AdGuard, Quad9, Cloudflare, Google Public DNS and "Custom"](docs/screenshots/settings-dns.png) | ![MTProto proxy: instruction, tg://proxy link and the "Proxy configured" status](docs/screenshots/settings-mtproto.png) |
+
 Android screens on the phone stay black in a system screenshot: the app sets `FLAG_SECURE`. That is
 protection, not a bug — the Android images in the docs come from Flutter widget tests. The list of
 frames we still need, with exact `adb` commands and a status table, is in
