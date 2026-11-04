@@ -261,7 +261,7 @@ void main() {
     for (final item in const <String>[
       'Вставить ключ или конфигурацию',
       'VPN на своём сервере',
-      'Каскад: два сервера',
+      'Каскад: IPv4-IPv6',
       'Добавить пользователя',
     ]) {
       expect(find.text(item).hitTestable(), findsOneWidget, reason: item);
