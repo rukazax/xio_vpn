@@ -671,6 +671,10 @@ class AppStore extends ChangeNotifier {
   /// Пустые строки означают «каскад не настроен».
   String cascadeBridge = '';
   String cascadeExit = '';
+  /// Каскад разблокирован. Биллинга пока нет, поэтому «Активировать» включает
+  /// функцию бесплатно и запоминает это в профиле.
+  bool cascadeUnlocked = false;
+
 
   TunnelStatus status = const TunnelStatus();
   bool busy = false, ready = false;
@@ -768,6 +772,7 @@ class AppStore extends ChangeNotifier {
         siteCheckEnabled = j['siteCheckEnabled'] == true;
         cascadeBridge = validateCascadeBridge(j['cascadeBridge'] as String? ?? '') ?? '';
         cascadeExit = validateCascadeExit(j['cascadeExit'] as String? ?? '') ?? '';
+        cascadeUnlocked = j['cascadeUnlocked'] == true;
         autoReconnect = j['autoReconnect'] != false;
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
             .toInt()
@@ -816,6 +821,14 @@ class AppStore extends ChangeNotifier {
     }
   }
 
+  /// Включает каскад бесплатно (биллинг ещё не подключён) и запоминает выбор.
+  Future<void> setCascadeUnlocked(bool value) async {
+    if (cascadeUnlocked == value) return;
+    cascadeUnlocked = value;
+    await save();
+    notifyListeners();
+  }
+
   /// Сохраняет адреса каскада. Пустая строка допустима и означает «не настроено».
   Future<bool> setCascadeServers({String? bridge, String? exit}) async {
     final nextBridge = bridge == null ? cascadeBridge : (validateCascadeBridge(bridge) ?? '');
@@ -844,6 +857,7 @@ class AppStore extends ChangeNotifier {
       'servers': servers.map((s) => s.toJson()).toList(),
       'users': users.map((u) => u.toJson()).toList(),
       'cascadeBridge': cascadeBridge,
+      'cascadeUnlocked': cascadeUnlocked,
       'cascadeExit': cascadeExit,
       'checkSite': checkSite,
       'siteCheckEnabled': siteCheckEnabled,

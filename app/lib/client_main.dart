@@ -525,11 +525,13 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                               exitAddress: store.cascadeExit,
                               onSaveServers: (bridge, exit) => store
                                   .setCascadeServers(bridge: bridge, exit: exit),
+                              unlocked: store.cascadeUnlocked,
+                              onUnlock: () => store.setCascadeUnlocked(true),
                             ),
                           ),
                         ),
                   icon: const Icon(Icons.alt_route),
-                  label: const LText('Каскад: два сервера'),
+                  label: const LText('Каскад: IPv4-IPv6'),
                 ),
                 TextButton.icon(
                   onPressed: locked || store.status.active

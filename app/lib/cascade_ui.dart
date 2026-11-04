@@ -66,6 +66,8 @@ class CascadeScreen extends StatefulWidget {
     this.bridgeAddress = '',
     this.exitAddress = '',
     this.onSaveServers,
+    this.unlocked = false,
+    this.onUnlock,
   });
 
   /// Имя маршрута для `Navigator.pushNamed`.
@@ -90,6 +92,13 @@ class CascadeScreen extends StatefulWidget {
   /// ввод отклонён (тогда диалог показывает ошибку).
   final Future<bool> Function(String bridge, String exit)? onSaveServers;
 
+  /// Разблокирован ли каскад. Биллинга пока нет: «Активировать» включает
+  /// функцию бесплатно и сохраняет это в профиле приложения.
+  final bool unlocked;
+
+  /// Включение каскада по кнопке «Активировать».
+  final Future<void> Function()? onUnlock;
+
   @override
   State<CascadeScreen> createState() => _CascadeScreenState();
 }
@@ -99,20 +108,29 @@ class _CascadeScreenState extends State<CascadeScreen>
   static const CascadeSubscription _stubSubscription = CascadeSubscription();
 
   late CascadeRoute _route;
+  late bool _unlocked;
   late String _bridgeAddress;
   late String _exitAddress;
   late final AnimationController _dots;
   Timer? _stepTimer;
   bool _visible = true;
 
-  CascadeSubscription get _subscription =>
-      widget.subscription ?? _stubSubscription;
+  CascadeSubscription get _subscription {
+    final base = widget.subscription ?? _stubSubscription;
+    if (_unlocked && !base.entitled) {
+      return const CascadeSubscription(
+        entitled: true,
+        planLabel: 'Включено · оплата пока не требуется',
+      );
+    }
+    return base;
+  }
 
-  CascadeFeatureGate get _gate => widget.featureGate ?? const CascadeFeatureGate();
 
   @override
   void initState() {
     super.initState();
+    _unlocked = widget.unlocked;
     _bridgeAddress = widget.bridgeAddress;
     _exitAddress = widget.exitAddress;
     final configured =
@@ -233,18 +251,26 @@ class _CascadeScreenState extends State<CascadeScreen>
   }
 
   Future<void> _activate() async {
-    final granted = await _gate.requestActivation();
-    if (!mounted) return;
-    if (granted) {
-      // Появится вместе с реальной подпиской.
-      setState(() {});
+    if (_unlocked) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Каскад уже включён'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       return;
     }
+    // Биллинга пока нет: кнопка включает функцию бесплатно.
+    await widget.onUnlock?.call();
+    if (!mounted) return;
+    setState(() => _unlocked = true);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         const SnackBar(
-          content: Text(CascadeFeatureGate.notConnectedMessage),
+          content: Text('Каскад включён — оплата пока не требуется'),
           behavior: SnackBarBehavior.floating,
         ),
       );

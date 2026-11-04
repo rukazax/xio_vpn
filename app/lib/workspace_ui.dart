@@ -459,7 +459,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
       const Divider(),
       ListTile(
         leading: const Icon(Icons.alt_route),
-        title: const LText('Каскад: два сервера'),
+        title: const LText('Каскад: IPv4-IPv6'),
         subtitle: const LText('IPv4 → bridge → IPv6 exit · по подписке'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(
@@ -469,6 +469,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
               exitAddress: store.cascadeExit,
               onSaveServers: (bridge, exit) =>
                   store.setCascadeServers(bridge: bridge, exit: exit),
+              unlocked: store.cascadeUnlocked,
+              onUnlock: () => store.setCascadeUnlocked(true),
             ),
           ),
         ),
