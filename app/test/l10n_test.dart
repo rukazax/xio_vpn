@@ -36,6 +36,47 @@ void main() {
   tearDown(() => AppLanguages.set(null));
 
   test(
+    'every Russian literal in lib is a key in all 13 catalogues',
+    () {
+      // Files whose Russian text is deliberately paired with an English one
+      // (legal disclosures), plus the language autonyms in l10n.dart.
+      const skipped = {'client_policy.dart', 'help_legal_ui.dart', 'l10n.dart'};
+      // Native language names are not translated: the picker shows them as-is.
+      const allowed = {'Русский'};
+      final cyrillic = RegExp(r'[\u0400-\u04FF]');
+      final templates = <String>{};
+      for (final file in Directory('lib').listSync().whereType<File>()) {
+        if (!file.path.endsWith('.dart')) continue;
+        final name = file.uri.pathSegments.last;
+        if (skipped.contains(name)) continue;
+        for (final literal in _stringLiterals(file.readAsStringSync())) {
+          if (!cyrillic.hasMatch(literal.body)) continue;
+          // Composed from already translated pieces (`${tr(context, …)}`).
+          if (literal.body.contains('tr(') ||
+              literal.body.contains('AppLanguages.text')) {
+            continue;
+          }
+          final text = _collapse(literal.body);
+          // The cascade probe embeds a shell script; it is code, not UI.
+          if (text.length > 1000) continue;
+          if (allowed.contains(text)) continue;
+          templates.add(_template(text));
+        }
+      }
+      expect(templates.length, greaterThan(250));
+      for (final code in AppLanguages.names.keys) {
+        final catalogue = AppLanguages.catalogs[code]!;
+        for (final key in templates) {
+          expect(
+            catalogue.containsKey(key),
+            isTrue,
+            reason: '$code has no entry for «$key»',
+          );
+        }
+      }
+    },
+  );
+  test(
     'all 13 catalogues are complete and preserve placeholder identities',
     () {
       final source = AppLanguages.catalogs['ru']!;
@@ -294,3 +335,179 @@ void main() {
     },
   );
 }
+
+/// One Dart string literal with its nesting level inside `${…}`.
+class _Literal {
+  _Literal(this.body, this.start, this.end, this.level);
+
+  String body;
+  final int start;
+  int end;
+  final int level;
+}
+
+int _scanLiterals(
+  String src,
+  int i,
+  int level,
+  bool stopAtBrace,
+  List<_Literal> out,
+) {
+  final n = src.length;
+  var depth = 0;
+  while (i < n) {
+    final c = src[i];
+    if (c == '/' && i + 1 < n && src[i + 1] == '/') {
+      final j = src.indexOf('\n', i);
+      i = j < 0 ? n : j;
+      continue;
+    }
+    if (c == '/' && i + 1 < n && src[i + 1] == '*') {
+      final j = src.indexOf('*/', i + 2);
+      i = j < 0 ? n : j + 2;
+      continue;
+    }
+    if (stopAtBrace && c == '}' && depth == 0) return i;
+    if (c == '{') {
+      depth++;
+      i++;
+      continue;
+    }
+    if (c == '}') {
+      depth--;
+      i++;
+      continue;
+    }
+    final raw =
+        c == 'r' && i + 1 < n && (src[i + 1] == "'" || src[i + 1] == '"');
+    if (c == "'" || c == '"' || raw) {
+      final start = i;
+      if (raw) i++;
+      final quote = src[i];
+      i++;
+      final triple = i + 1 < n && src[i] == quote && src[i + 1] == quote;
+      final buffer = StringBuffer();
+      if (triple) {
+        i += 2;
+        while (i < n) {
+          if (src.startsWith(quote * 3, i)) {
+            i += 3;
+            break;
+          }
+          if (src[i] == '\\' && !raw && i + 1 < n) {
+            buffer.write(src.substring(i, i + 2));
+            i += 2;
+            continue;
+          }
+          if (src.startsWith(r'${', i)) {
+            final j = _scanLiterals(src, i + 2, level + 1, true, out);
+            buffer.write(src.substring(i, j + 1));
+            i = j + 1;
+            continue;
+          }
+          buffer.write(src[i]);
+          i++;
+        }
+      } else {
+        while (i < n) {
+          if (src[i] == '\\' && !raw && i + 1 < n) {
+            buffer.write(src.substring(i, i + 2));
+            i += 2;
+            continue;
+          }
+          if (src[i] == quote) {
+            i++;
+            break;
+          }
+          if (src[i] == '\n') break;
+          if (src.startsWith(r'${', i)) {
+            final j = _scanLiterals(src, i + 2, level + 1, true, out);
+            buffer.write(src.substring(i, j + 1));
+            i = j + 1;
+            continue;
+          }
+          buffer.write(src[i]);
+          i++;
+        }
+      }
+      out.add(_Literal(buffer.toString(), start, i, level));
+      continue;
+    }
+    i++;
+  }
+  return i;
+}
+
+/// Literals of one file, with adjacent literals of the same level joined:
+/// Dart concatenates `'a' 'b'` into a single runtime string.
+List<_Literal> _stringLiterals(String src) {
+  final all = <_Literal>[];
+  _scanLiterals(src, 0, 0, false, all);
+  all.sort((a, b) {
+    final byStart = a.start.compareTo(b.start);
+    return byStart != 0 ? byStart : a.level.compareTo(b.level);
+  });
+  final top = <_Literal>[];
+  for (final literal in all.where((l) => l.level == 0)) {
+    if (top.isNotEmpty) {
+      final previous = top.last;
+      final gap = src.substring(previous.end, literal.start);
+      final code = gap.replaceAll(RegExp(r'//[^\n]*|/\*[\s\S]*?\*/'), '');
+      if (code.trim().isEmpty) {
+        previous.body += literal.body;
+        previous.end = literal.end;
+        continue;
+      }
+    }
+    top.add(literal);
+  }
+  return [...top, ...all.where((l) => l.level > 0)];
+}
+
+/// Runtime string with every substitution replaced by a positional marker.
+String _template(String s) {
+  final out = StringBuffer();
+  var index = 0;
+  var i = 0;
+  final identifier = RegExp(r'[A-Za-z0-9_]');
+  while (i < s.length) {
+    if (s.startsWith(r'${', i)) {
+      var depth = 0;
+      var j = i;
+      while (j < s.length) {
+        if (s[j] == '{') depth++;
+        if (s[j] == '}') {
+          depth--;
+          if (depth == 0) break;
+        }
+        j++;
+      }
+      out.write('{$index}');
+      index++;
+      i = j + 1;
+      continue;
+    }
+    if (s[i] == r'$' &&
+        i + 1 < s.length &&
+        RegExp(r'[A-Za-z_]').hasMatch(s[i + 1])) {
+      var j = i + 1;
+      while (j < s.length && identifier.hasMatch(s[j])) {
+        j++;
+      }
+      out.write('{$index}');
+      index++;
+      i = j;
+      continue;
+    }
+    out.write(s[i]);
+    i++;
+  }
+  return out.toString();
+}
+
+String _collapse(String s) => s
+    .replaceAll('\\n', ' ')
+    .replaceAll("\\'", "'")
+    .replaceAll('\\"', '"')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim();
