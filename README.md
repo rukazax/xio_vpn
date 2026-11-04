@@ -334,6 +334,15 @@ flowchart LR
 - ping, update time, a "Reconnect" button;
 - a "Paid feature. Subscription required" plate and an "Activate" button.
 
+| Cascade screen with configured addresses | "Cascade servers" dialog |
+|---|---|
+| ![Cascade: device, bridge 81.177.142.37, exit 2a0c:b641:1a0:800::2a2](docs/screenshots/cascade-configured.png) | ![Cascade servers dialog: two fields and the install command](docs/screenshots/cascade-servers-dialog.png) |
+
+These are real renders of the screen produced by a widget test
+([docs/screenshots/README.md](docs/screenshots/README.md), section 1), not mockups. The frame
+shows the subscription plate in its active state even though the subscription itself is still a
+stub (`CascadeFeatureGate.enabled == false`).
+
 **One command on the server:**
 
 ```bash
@@ -520,6 +529,14 @@ and NetworkExtension entitlements. See [build from source](docs/en/build.md).
 ### Screenshots
 
 <p><img src="docs/images/2026-10-26-full-home.png" width="220" alt="Full XIO home"> <img src="docs/images/2026-10-26-win-windows-home.png" width="220" alt="XIO Client for Windows"> <img src="docs/images/client-0.22.4-dark.png" width="220" alt="XIO Client, dark theme"></p>
+
+Fresh Android frames produced by the golden render
+(`app/test/screenshots/capture_screens_test.dart`, command in
+[docs/screenshots/README.md](docs/screenshots/README.md)):
+
+| Home, disconnected | Connection tab |
+|---|---|
+| ![Home: disconnected, server chosen](docs/screenshots/main-idle.png) | ![Connection: key, own server, cascade, user](docs/screenshots/connection-tab.png) |
 
 Android screens on the phone stay black in a system screenshot: the app sets `FLAG_SECURE`. That is
 protection, not a bug — the Android images in the docs come from Flutter widget tests. The list of
