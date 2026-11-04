@@ -18,8 +18,8 @@ def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True)
  if p.returncode: raise RuntimeError('Command failed: '+args[0])
  return p.stdout.strip()
-def write(p,text):
- p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);tmp=Path(str(p)+'.tmp');tmp.write_text(text);tmp.chmod(0o600);os.replace(tmp,p)
+def write(p,text,mode=0o600):
+ p=Path(p);p.parent.mkdir(parents=True,exist_ok=True);tmp=Path(str(p)+'.tmp');tmp.write_text(text);tmp.chmod(mode);os.replace(tmp,p)
 def load():
  d=json.loads((ROOT/'deployment.json').read_text());assert d['owner']==OWNER;return d
 def save(d):write(ROOT/'deployment.json',json.dumps(d))
@@ -107,9 +107,11 @@ def sandbox_prepare(d):
    target.unlink(missing_ok=True)
    if dropin.is_dir() and not any(dropin.iterdir()):dropin.rmdir()
   else:
-   # Keep PrivateTmp/NoNewPrivileges/CapabilityBoundingSet: only the
-   # read-only remount is impossible here, so only ProtectSystem is dropped.
-   dropin.mkdir(parents=True,exist_ok=True);write(target,'[Service]\nProtectSystem=no\n')
+   # Only the live remount probe fails on these containers; a unit started from
+   # a clean cgroup still gets a read-only /etc and /usr, so the drop-in keeps
+   # ProtectSystem=full and names the two directories the services really write.
+   dropin.mkdir(parents=True,exist_ok=True)
+   write(target,'[Service]\nProtectSystem=full\nReadWritePaths=/etc/xio-managed /etc/xio-stack\n',0o644)
  save(d)
  return d['sandboxMode']
 def firewall_prepare(d):
