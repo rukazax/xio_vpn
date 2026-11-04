@@ -727,6 +727,19 @@ class AppStore extends ChangeNotifier {
   Profile? get activeProfile =>
       profiles.where((p) => p.id == _activeId).firstOrNull;
 
+  /// Нативный вызов, без которого приложение обязано всё равно запуститься.
+  ///
+  /// Старый нативный слой может не знать метод и ответить
+  /// `PlatformException(ENGINE, …)`. Это не повод оставлять пользователя на
+  /// сплэше: настройка просто не применится до следующего включения.
+  Future<void> _tolerateNative(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (_) {
+      // Нативная сторона не поддерживает вызов — старт важнее настройки.
+    }
+  }
+
   Future<void> load() async {
     if (nativeTunnel) {
       try {
@@ -834,23 +847,37 @@ class AppStore extends ChangeNotifier {
       _storageHealthy = false;
       error = 'Не удалось прочитать состояние приложения. Сохранённые данные не перезаписаны.';
     }
-    if ((Platform.isAndroid || Platform.isIOS) && _storageHealthy) {
-      await native.invokeMethod<void>('setConsent', {
-        'revision': consentReady ? legalRevision : '',
-      });
-      await saveNativePlan();
+    try {
+      if ((Platform.isAndroid || Platform.isIOS) && _storageHealthy) {
+        await _tolerateNative(
+          () => native.invokeMethod<void>('setConsent', {
+            'revision': consentReady ? legalRevision : '',
+          }),
+        );
+        await _tolerateNative(saveNativePlan);
+      }
+      if (Platform.isAndroid && _storageHealthy) {
+        // Kotlin keeps its own copy: the boot receiver and the notification
+        // permission check run before Flutter is started.
+        await _tolerateNative(
+          () => native.invokeMethod<void>('setAutostart', {
+            'enabled': autostart,
+          }),
+        );
+        await _tolerateNative(
+          () => native.invokeMethod<void>('setAutoConnectOnStart', {
+            'enabled': autoConnectOnStart,
+          }),
+        );
+      }
+      if (_storageHealthy) await applyScreenSecurity();
+    } finally {
+      // `load()` вызывается через `unawaited`. Если исключение выйдет наружу,
+      // `ready` не наступит и приложение навсегда останется на сплэше — именно
+      // это случилось на сборке, где native ещё не знал `setAutostart`.
+      ready = true;
+      notifyListeners();
     }
-    if (Platform.isAndroid && _storageHealthy) {
-      // Kotlin keeps its own copy: the boot receiver and the notification
-      // permission check run before Flutter is started.
-      await native.invokeMethod<void>('setAutostart', {'enabled': autostart});
-      await native.invokeMethod<void>('setAutoConnectOnStart', {
-        'enabled': autoConnectOnStart,
-      });
-    }
-    if (_storageHealthy) await applyScreenSecurity();
-    ready = true;
-    notifyListeners();
     // A load that finished while the window was already hidden must not revive
     // the three-second UI poll.
     if (_foreground) {
