@@ -349,12 +349,19 @@ flowchart LR
 
 - three stations — device → bridge → exit — with country flags from the ISO code;
 - state lines: grey idle, yellow connecting or degraded, green active, red failed;
-- ping, update time, a "Reconnect" button;
+- a status block — "Latency", "Egress IPv6", "Updated" — and a "Check cascade" button that
+  really probes the bridge over SSH (up to 15 s) and reports whether the tunnel is alive, the
+  measured response time, the real egress IPv6 and the failure reason;
 - a "Paid feature. Subscription required" plate and an "Activate" button.
 
 | Cascade screen with configured addresses | "Cascade servers" dialog |
 |---|---|
 | ![Cascade: device, bridge 81.177.142.37, exit 2a0c:b641:1a0:800::2a2](docs/screenshots/cascade-configured.png) | ![Cascade servers dialog: two fields and the install command](docs/screenshots/cascade-servers-dialog.png) |
+
+After "Check cascade" the same screen shows the result of the check: latency, the egress IPv6
+and the time the server answered.
+
+![Cascade screen after "Check cascade": green stations and lines, 214 ms latency, egress IPv6 2a0c:b641:1a0:800::2a2, "IPv6-only protected tunnel · verified"](docs/screenshots/cascade-health.png)
 
 These are real renders of the screen produced by a widget test
 ([docs/screenshots/README.md](docs/screenshots/README.md), section 1), not mockups. The frame

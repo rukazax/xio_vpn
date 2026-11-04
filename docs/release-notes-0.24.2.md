@@ -49,6 +49,13 @@ MTProto-прокси, настройки поведения (автозапус�
   каскада» — по-прежнему IPv6-адрес: транспорт `ssh -w 0:0` поднимается по IPv6. Кадры —
   [`cascade-configured.png`](screenshots/cascade-configured.png) и
   [`cascade-servers-dialog.png`](screenshots/cascade-servers-dialog.png).
+- **🩺 «Проверить каскад» проверяет каскад, а не рисует его.** Демо-таймеры и подставной пинг
+  `38 мс` убраны: кнопка `Проверить каскад` открывает SSH к сохранённому bridge-серверу и
+  запускает `deploy/cascade/cascade-healthcheck.sh` (если он установлен) либо встроенную
+  read-only пробу systemd-каскада. Экран показывает живой туннель или отказ, реальное время
+  ответа, реальный выходной IPv6 и причину отказа; кнопка заблокирована на время запроса и
+  сдаётся через 15 с. Кадр —
+  [`cascade-health.png`](screenshots/cascade-health.png).
 
 **🩹 Старт больше не зависит от нативного слоя.** `AppStore.load()` вызывается через `unawaited`,
 и любой `PlatformException` из нативных методов (`setAutostart`, `setAutoConnectOnStart`,
@@ -312,6 +319,12 @@ certificate (`e4e81b12…c9671`), so the update installs over the previous build
   the "Cascade servers" dialog — still expects an IPv6 address: the `ssh -w 0:0` transport comes up
   over IPv6. Frames — [`cascade-configured.png`](screenshots/cascade-configured.png) and
   [`cascade-servers-dialog.png`](screenshots/cascade-servers-dialog.png).
+- **🩺 "Check cascade" checks the cascade instead of drawing it.** The demo timers and the fake
+  `38 ms` ping are gone: the button opens SSH to the saved bridge server and runs
+  `deploy/cascade/cascade-healthcheck.sh` (when installed) or a built-in read-only systemd probe.
+  The screen reports a live tunnel or a failure, the real response time, the real egress IPv6 and
+  the failure reason; the button is locked while the request runs and gives up after 15 s. Frame —
+  [`cascade-health.png`](screenshots/cascade-health.png).
 
 **🩹 Startup no longer depends on the native layer.** `AppStore.load()` runs through `unawaited`, so
 any `PlatformException` from a native method (`setAutostart`, `setAutoConnectOnStart`, `setConsent`,
