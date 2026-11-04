@@ -63,6 +63,25 @@ listeners_on_port() {
 
 need_root() { [ "$(id -u)" = 0 ] || die "нужен root (sudo)"; }
 
+# Адрес и порт, которые попадут в ссылку tg://proxy. Их читает admin.py XIO
+# (action=mtproto), поэтому приложение подставляет ссылку само. Пишем только
+# при изменении значения: повторный запуск не трогает неизменившиеся файлы.
+write_link_facts() {
+  local name value path
+  for name in port domain; do
+    if [ "$name" = port ]; then value=$MTG_PORT; else value=$MTG_PUBLIC_IP; fi
+    path=$MTG_ETC/$name
+    if [ -f "$path" ] && [ "$(cat "$path")" = "$value" ]; then
+      log "файл $path без изменений"
+      continue
+    fi
+    printf '%s\n' "$value" > "$path"
+    chown root:"$MTG_USER" "$path"
+    chmod 0640 "$path"
+    log "файл $path обновлён"
+  done
+}
+
 detect_public_ip() {
   local ip
   for url in https://ifconfig.co https://api.ipify.org https://icanhazip.com; do
@@ -193,6 +212,10 @@ main() {
   if [ -z "$MTG_PUBLIC_IP" ]; then
     MTG_PUBLIC_IP=$(detect_public_ip) || die "укажите MTG_PUBLIC_IP: сервер не отдал свой внешний IPv4"
   fi
+
+  # 5b. Порт и адрес ссылки для приложения XIO (их читает admin.py, action=mtproto).
+  #     Адрес — тот же, что печатает --print-link: публичный IPv4 из конфига.
+  write_link_facts
 
   # Семейство IP для выхода к Telegram. На российском бридже IPv4 к DC
   # Telegram режется провайдером (SYN без ответа), а IPv6 идёт через туннель

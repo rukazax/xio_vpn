@@ -669,7 +669,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
         subtitle: LText(
           store.mtprotoLink.isEmpty
               ? 'Ссылка не настроена'
-              : 'Прокси для Telegram',
+              : 'Прокси для Telegram · '
+                    '${parseMtprotoLink(store.mtprotoLink)?.address ?? ''}',
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => push(
@@ -1528,6 +1529,9 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     setState(() => authenticated = true);
     if (server != null && !server!.delegated && widget.action != 'uninstall') {
       await service.ensureUpdated(widget.store, server!);
+      // Ссылка MTProto принадлежит серверу: обновляем её и при открытии
+      // управления, иначе сервер, настроенный раньше, остался бы без неё.
+      await service.refreshMtprotoLink(widget.store);
     }
     if (server == null) {
       try {

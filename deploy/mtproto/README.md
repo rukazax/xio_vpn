@@ -54,8 +54,16 @@ ssh root@81.177.142.37 'MTG_PORT=8444 MTG_DOMAIN=79e.ru bash /root/xio-mtproto-s
 | бинарь | `/usr/local/lib/xio-mtproto/mtg` |
 | конфиг | `/etc/xio-mtproto/config.toml` (0640 root:mtg) |
 | секрет | `/etc/xio-mtproto/secret` (0640 root:mtg) |
+| порт для ссылки | `/etc/xio-mtproto/port` (0640 root:mtg) |
+| адрес для ссылки | `/etc/xio-mtproto/domain` (0640 root:mtg) |
 | состояние | `/etc/xio-mtproto/state` (0600) |
 | юнит | `/etc/systemd/system/xio-mtproto.service` |
+
+`port` и `domain` скрипт обновляет идемпотентно (пишет только при изменении
+значения): по ним сервер и приложение собирают ссылку `tg://proxy` без ручного
+ввода. `domain` — адрес, который попадёт в ссылку (публичный IPv4 из
+`public-ipv4`, то же значение печатает `--print-link`); домен маскировки
+FakeTLS остаётся в `MTG_DOMAIN` и в строке `domain=` файла секрета.
 
 Секрет **не хранится в репозитории**: он генерируется на сервере
 (`mtg generate-secret --hex 79e.ru`) и переиспользуется при повторных запусках.

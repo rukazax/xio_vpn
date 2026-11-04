@@ -26,9 +26,13 @@ MTProto-прокси, настройки поведения (автозапус�
   используется. Если выбрать только IPv6-адреса, экран честно предупреждает: без IPv6-выхода у
   сервера имена не разрешатся. Кадр — [`docs/screenshots/settings-dns.png`](screenshots/settings-dns.png).
 - **✈️ MTProto-прокси для Telegram.** Настройки → **«Telegram-прокси (MTProto)»**: приложение хранит
-  ссылку `tg://proxy?…`, проверяет её формат, копирует и отдаёт в Telegram. Прокси работает только
-  для Telegram и не видит остальной трафик; ссылка даёт доступ к прокси, но не к аккаунту, и её не
-  стоит публиковать. Шаблон ссылки:
+  ссылку `tg://proxy?…`, проверяет её формат, копирует и отдаёт в Telegram. Если сервер XIO уже
+  сохранён, вводить ссылку не нужно: экран сам спрашивает её у сервера по SSH (действие `mtproto`),
+  сохраняет в профиль и показывает — при открытии экрана, после установки сервера и после
+  добавления пользователя. Прокси нет на сервере — рядом кнопка «Установить MTProto на сервер»,
+  которая запускает `deploy/mtproto/xio-mtproto-setup.sh` по SSH и повторяет запрос. Прокси работает
+  только для Telegram и не видит остальной трафик; ссылка даёт доступ к прокси, но не к аккаунту, и
+  её не стоит публиковать. Шаблон ссылки:
 
   ```
   tg://proxy?server=<адрес>&port=<443>&secret=ee<32 hex-символа>
@@ -296,9 +300,13 @@ certificate (`e4e81b12…c9671`), so the update installs over the previous build
   never used as DNS. Choosing IPv6-only addresses warns honestly: without an IPv6 egress on the
   server the names will not resolve. Frame — [`docs/screenshots/settings-dns.png`](screenshots/settings-dns.png).
 - **✈️ MTProto proxy for Telegram.** Settings → **"Telegram proxy (MTProto)"**: the app stores a
-  `tg://proxy?…` link, validates the format, copies it and hands it to Telegram. The proxy serves
-  Telegram only and never sees the rest of the traffic; the link grants proxy access, not account
-  access, and should not be published. Link template:
+  `tg://proxy?…` link, validates the format, copies it and hands it to Telegram. When an XIO server is
+  already saved, no link needs to be typed: the screen asks the server for it over SSH (the `mtproto`
+  action), stores it in the profile and shows it — when the screen opens, after a server install and
+  after a user is added. If the proxy is missing on the server, a "Install MTProto on the server"
+  button runs `deploy/mtproto/xio-mtproto-setup.sh` over SSH and asks again. The proxy serves Telegram
+  only and never sees the rest of the traffic; the link grants proxy access, not account access, and
+  should not be published. Link template:
 
   ```
   tg://proxy?server=<address>&port=<443>&secret=ee<32 hex chars>
