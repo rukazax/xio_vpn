@@ -564,6 +564,45 @@ def catalog_state():
   'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
+MTPROTO_ETC=Path('/etc/xio-mtproto')
+MTPROTO_PORT=8444
+
+def mtproto_state(d):
+ """Read-only state of the Telegram MTProto proxy (mtg) on this server.
+
+ install-mtproto writes /etc/xio-mtproto/{secret,port,domain}; the secret file
+ holds `secret=<hex>` (older copies are a bare `ee…`/`dd…` line). This is the
+ same value the installer prints with --print-link, so the app can show the
+ link without asking the operator for it.
+
+ Nothing is written here: the proxy is inspected, never started or changed.
+ The secret goes back to the caller in the JSON answer only; it is never
+ written to a file and never logged.
+ """
+ def text(name):
+  try:return (MTPROTO_ETC/name).read_text(errors='replace').strip()
+  except OSError:return ''
+ def number(name,default):
+  value=text(name)
+  return int(value) if re.fullmatch(r'\d{1,5}',value) and 0<int(value)<=65535 else default
+ secret=''
+ for line in text('secret').splitlines():
+  line=line.strip()
+  if not line:continue
+  key,sep,value=line.partition('=')
+  if sep:
+   if key.strip()=='secret':secret=value.strip()
+  elif re.fullmatch('(?:dd|ee)[0-9a-fA-F]+',line):secret=line
+ host=text('domain') or str(d['host'])
+ port=number('port',MTPROTO_PORT)
+ # A bare secret is not a working FakeTLS secret: report "not installed"
+ # instead of handing the app a link Telegram would refuse.
+ if not re.fullmatch('(?:dd|ee)[0-9a-fA-F]{32,}',secret) or len(secret)%2:
+  return {'installed':False,'host':host,'port':port,'secret':None,'link':None}
+ server='[%s]'%host if ':' in host and not host.startswith('[') else host
+ return {'installed':True,'host':host,'port':port,'secret':secret,
+         'link':'tg://proxy?server=%s&port=%d&secret=%s'%(server,port,secret)}
+
 def awg_client_config(d,user,cascade=None,ipv6_only=False):
  """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
@@ -600,6 +639,10 @@ def dispatch(req,actor=None):
  d=load()
  authority(d,actor,action,req)
  if action=='inspect':return {'server':public(d),'phase':d['phase']}
+ # Local, read-only host fact: no deployment identity is involved, so the app may
+ # ask right after `init` even before it has stored an id. Owner-only: a delegated
+ # admin must not receive the server-wide proxy secret.
+ if action=='mtproto':return mtproto_state(d)
  assert req.get('serverId')==d['id'],'Server identity changed; reopen setup'
  if action=='catalog':return catalog_state()
  if action=='status':

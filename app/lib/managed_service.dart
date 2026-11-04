@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/services.dart';
 
 import 'core.dart';
+import 'mtproto_remote.dart';
 
 /// The server bundle described by `assets/xio-server-release.json`.
 /// Installation must never upload an archive that does not match this manifest.
@@ -200,6 +201,24 @@ class ManagedService {
   Future<Map<String, dynamic>> catalog(String serverId) =>
       command({'action': 'catalog', 'serverId': serverId});
 
+  /// Ссылка MTProto-прокси подставляется сама: прокси принадлежит серверу, а
+  /// не пользователю, поэтому её обновляют после установки и после добавления
+  /// пользователя. Это удобство, а не часть операции: любая ошибка (прокси не
+  /// установлен, старый сервер без action=mtproto) не отменяет уже сделанное,
+  /// поэтому исключение здесь не поднимается.
+  Future<void> refreshMtprotoLink(AppStore store) async {
+    try {
+      final result = await command({
+        'action': 'mtproto',
+      }, timeout: const Duration(seconds: 10));
+      final state = MtprotoServerState.parse(result);
+      final link = state.link;
+      if (link != null) await store.setMtprotoLink(link.link);
+    } catch (_) {
+      // Тихий путь: ссылку всегда можно получить на экране «Telegram-прокси».
+    }
+  }
+
   Future<Map<String, dynamic>> command(
     Map<String, dynamic> request, {
     Duration timeout = const Duration(minutes: 6),
@@ -345,7 +364,7 @@ class ManagedService {
     // archive just because the user opened setup again.
     final ready = await _inspectReady();
     if (ready != null) {
-      return _registerInstalled(
+      final registered = await _registerInstalled(
         store,
         target,
         remote: ready,
@@ -354,6 +373,8 @@ class ManagedService {
         existing: true,
         fingerprint: fingerprint,
       );
+      await refreshMtprotoLink(store);
+      return registered;
     }
     final release = await ServerRelease.load(assets);
     final archive = await assets.load('assets/xio-server.tar.gz');
@@ -396,7 +417,7 @@ class ManagedService {
     if (remote is! Map) {
       throw StateError('Сервер не подтвердил установку VPN');
     }
-    return _registerInstalled(
+    final registered = await _registerInstalled(
       store,
       target,
       remote: Map<String, dynamic>.from(remote),
@@ -405,6 +426,10 @@ class ManagedService {
       existing: result['existing'] == true,
       fingerprint: fingerprint,
     );
+    // Сервер только что настроен: ссылка на прокси подставляется сразу, чтобы
+    // экран «Telegram-прокси» не показывал «Ссылка не настроена».
+    await refreshMtprotoLink(store);
+    return registered;
   }
 
   Future<ManagedUser> createUser(
@@ -502,6 +527,7 @@ class ManagedService {
         configs[e.key] = parsed.encoded;
       }
     }
+    late final ManagedUser user;
     try {
       // The server response is authenticated transport input, not a trusted
       // config: validate every generated profile before storing or exporting it.
@@ -514,7 +540,7 @@ class ManagedService {
           ExtendedProfile.parse(configs[p]!);
         }
       }
-      final user = await store.importBundle(
+      user = await store.importBundle(
         UserBundle(name.trim(), uid, server.id, configs),
       );
       user.admin = admin;
@@ -531,11 +557,14 @@ class ManagedService {
         );
       }
       await store.save();
-      return user;
     } catch (_) {
       await command({'action': 'revoke', 'id': uid, 'serverId': server.id});
       rethrow;
     }
+    // Пользователь добавлен — сервер настроен заведомо: подставляем ссылку
+    // MTProto и здесь, чтобы её не пришлось вводить руками.
+    await refreshMtprotoLink(store);
+    return user;
   }
 
   Future<void> issueClientAccess(

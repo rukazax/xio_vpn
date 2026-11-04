@@ -5,9 +5,16 @@
 /// ссылка живёт в `AppStore` и переживает перезапуск; формат проверяется
 /// в [parseMtprotoLink], чтобы в настройки не попал мусор.
 ///
+/// Владельцу сервера ссылку вводить не нужно: если сервер сохранён, экран сам
+/// спрашивает её по SSH ([MtprotoRemote]) и показывает. Если прокси ещё не
+/// установлен, здесь же есть кнопка установки — установщик лежит в репозитории
+/// и запускается по SSH.
+///
 /// Экран открывается из «Настроек» (`WorkspaceScreen.push`), поэтому у него
 /// нет своего [Scaffold] и [AppBar] — заголовок и прокрутку даёт вызывающий.
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,11 +22,15 @@ import 'package:flutter/services.dart';
 import 'core.dart';
 import 'external_links.dart';
 import 'l10n.dart';
+import 'mtproto_remote.dart';
 
 class MtprotoProxyScreen extends StatefulWidget {
-  const MtprotoProxyScreen({super.key, required this.store});
+  const MtprotoProxyScreen({super.key, required this.store, this.remote});
 
   final AppStore store;
+
+  /// Источник ссылки. `null` — настоящий SSH к сохранённому серверу.
+  final MtprotoRemote? remote;
 
   @override
   State<MtprotoProxyScreen> createState() => _MtprotoProxyScreenState();
@@ -27,15 +38,37 @@ class MtprotoProxyScreen extends StatefulWidget {
 
 class _MtprotoProxyScreenState extends State<MtprotoProxyScreen> {
   late final TextEditingController _link;
+  late final MtprotoRemote _remote;
   String? _error;
   bool _busy = false;
 
+  /// Запрос ссылки с сервера идёт: индикатор заменяет кнопки.
+  bool _loading = false;
+
+  /// Установка прокси по SSH: она длиннее запроса, поэтому отдельный флаг.
+  bool _installing = false;
+
+  /// Есть ли на сервере прокси. `null` — сервер ещё не ответил.
+  bool? _serverInstalled;
+
+  /// Отдельная строка про автоподстановку: ошибка запроса не мешает ручному
+  /// вводу, поэтому она живёт рядом с кнопками, а не в поле «Ссылка прокси».
+  String? _remoteError;
+  String? _remoteNote;
+
   AppStore get store => widget.store;
+
+  bool get _hasServer => store.servers.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _link = TextEditingController(text: store.mtprotoLink);
+    _remote = widget.remote ?? SshMtprotoRemote(store: store);
+    if (_hasServer) {
+      // Первый кадр должен показать экран, а не ждать SSH.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _fetchLink());
+    }
   }
 
   @override
@@ -53,6 +86,96 @@ class _MtprotoProxyScreenState extends State<MtprotoProxyScreen> {
       );
   }
 
+  /// Спрашивает ссылку у сервера и сохраняет её в профиль.
+  ///
+  /// Это удобство, а не часть подключения: любая ошибка оставляет ручной ввод
+  /// рабочим и показывается отдельной строкой.
+  Future<void> _fetchLink() async {
+    if (!_hasServer) return;
+    setState(() {
+      _loading = true;
+      _remoteError = null;
+      _remoteNote = null;
+    });
+    try {
+      final state = await _remote.fetch();
+      if (!mounted) return;
+      final link = state.link;
+      if (link == null) {
+        setState(() {
+          _serverInstalled = false;
+          _remoteError =
+              'На сервере не установлен MTProto-прокси — установите кнопкой';
+        });
+        return;
+      }
+      final saved = await store.setMtprotoLink(link.link);
+      if (!mounted) return;
+      if (!saved) {
+        setState(
+          () => _remoteError = 'Сервер вернул ссылку, которую нельзя сохранить',
+        );
+        return;
+      }
+      _link.text = store.mtprotoLink;
+      setState(() {
+        _serverInstalled = true;
+        _remoteNote = 'Ссылка получена с сервера автоматически';
+        _error = null;
+      });
+    } on TimeoutException {
+      _failFetch('Сервер не ответил за 10 с');
+    } on StateError catch (error) {
+      _failFetch(error.message);
+    } on FormatException catch (error) {
+      _failFetch(error.message);
+    } catch (_) {
+      _failFetch('Не удалось получить ссылку с сервера');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _failFetch(String text) {
+    if (!mounted) return;
+    setState(() => _remoteError = text);
+  }
+
+  /// Ставит прокси установщиком из репозитория и повторяет запрос ссылки.
+  Future<void> _install() async {
+    setState(() {
+      _installing = true;
+      _remoteError = null;
+      _remoteNote = null;
+    });
+    try {
+      await _remote.install();
+    } on TimeoutException {
+      return _failInstall(
+        'Установка не завершилась за 10 мин. Проверьте сервер и повторите',
+      );
+    } on StateError catch (error) {
+      return _failInstall(error.message);
+    } on FormatException catch (error) {
+      return _failInstall(error.message);
+    } catch (_) {
+      return _failInstall('Не удалось установить MTProto-прокси');
+    } finally {
+      if (mounted) setState(() => _installing = false);
+    }
+    if (!mounted) return;
+    _message('Установщик завершил работу — проверяю ссылку');
+    await _fetchLink();
+  }
+
+  void _failInstall(String text) {
+    if (!mounted) return;
+    setState(() {
+      _installing = false;
+      _remoteError = text;
+    });
+  }
+
   Future<void> _save() async {
     final text = _link.text;
     setState(() => _busy = true);
@@ -64,7 +187,11 @@ class _MtprotoProxyScreenState extends State<MtprotoProxyScreen> {
         _message(_error ?? 'Ссылка не сохранена');
         return;
       }
-      setState(() => _error = null);
+      setState(() {
+        _error = null;
+        // Ручное сохранение — тоже повод не показывать «получена с сервера».
+        _remoteNote = null;
+      });
       // Показываем то, что реально легло в профиль: t.me-ссылка станет tg://.
       _link.text = store.mtprotoLink;
       _message(
@@ -129,6 +256,81 @@ class _MtprotoProxyScreenState extends State<MtprotoProxyScreen> {
     }
   }
 
+  /// Индикатор и всё, что относится к автоматическому получению ссылки.
+  List<Widget> _serverRows() {
+    if (!_hasServer) return const [];
+    return [
+      if (_loading || _installing)
+        Padding(
+          key: const ValueKey('mtproto-progress'),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: LText(
+                  _installing
+                      ? 'Устанавливаю MTProto-прокси на сервер…'
+                      : 'Запрашиваю ссылку с сервера…',
+                ),
+              ),
+            ],
+          ),
+        ),
+      if (_remoteError != null)
+        Padding(
+          key: const ValueKey('mtproto-auto-error'),
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.error_outline, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: LText(_remoteError!)),
+            ],
+          ),
+        ),
+      if (_remoteNote != null)
+        Padding(
+          key: const ValueKey('mtproto-auto-note'),
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(
+            children: [
+              const Icon(Icons.cloud_done_outlined, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: LText(_remoteNote!)),
+            ],
+          ),
+        ),
+      const SizedBox(height: 8),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          if (_serverInstalled == false)
+            FilledButton.tonalIcon(
+              key: const ValueKey('mtproto-install'),
+              onPressed: _busy || _loading || _installing ? null : _install,
+              icon: const Icon(Icons.download_outlined),
+              label: const LText('Установить MTProto на сервер'),
+            ),
+          if (_serverInstalled != false)
+            TextButton.icon(
+              key: const ValueKey('mtproto-refresh'),
+              onPressed: _busy || _loading || _installing ? null : _fetchLink,
+              icon: const Icon(Icons.refresh),
+              label: const LText('Обновить с сервера'),
+            ),
+        ],
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final saved = store.mtprotoLink;
@@ -162,6 +364,7 @@ class _MtprotoProxyScreenState extends State<MtprotoProxyScreen> {
             ),
           ),
         ),
+        ..._serverRows(),
         TextField(
           key: const ValueKey('mtproto-link-field'),
           controller: _link,

@@ -87,6 +87,18 @@ class _InstallService extends ManagedService {
       if (result == null) throw StateError('no owned installation');
       return result;
     }
+    // `mtproto` спрашивается после установки как удобство (ссылка на прокси) и
+    // к протоколу установки не относится: в фикстуре прокси не установлен.
+    if (request['action'] == 'mtproto') {
+      return const {
+        'ok': true,
+        'installed': false,
+        'host': 'fixture-server',
+        'port': 8444,
+        'secret': null,
+        'link': null,
+      };
+    }
     requests.add(request);
     if (request['action'] == 'init') {
       return {
