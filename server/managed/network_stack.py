@@ -83,7 +83,8 @@ def firewall(d,remove=False):
   apply_rules(firewall_rules(subnet,iface,d['outbound']),remove)
 def openvpn_configs():
  # One IPv6-readiness sample for both transports (was: two loads, two `ip -6 route`).
- v6=dualstack().ipv6_ready()
+ # Same definition as admin.py: a default route plus a live probe, cached.
+ v6=bool(dualstack().cascade_status().get('alive'))
  for transport,proto,subnet,device in [('udp','udp','10.80.0.0','xioovpn0'),('tcp','tcp-server','10.81.0.0','xioovpn1')]:
   if transport=='udp' and v6:proto='udp6'
   v6push='push \"redirect-gateway ipv6\"\npush \"dhcp-option DNS6 2620:fe::fe\"' if v6 else ''
@@ -138,7 +139,7 @@ def reconcile_ipv6_hooks():
 def dualstack_up(interface):
  if interface not in ['xioovpn0','xioovpn1']:raise RuntimeError('Invalid owned OpenVPN interface')
  network=dualstack()
- if not network.ipv6_ready():return
+ if not network.cascade_status().get('alive'):return
  expected=next(address.split('/')[0] for name,_,address in network.SUBNETS if name==interface)
  # Type=simple starts before OpenVPN configures TUN. Wait for its IPv6 address,
  # not process spawn/link existence, then reconcile our narrowly owned rules.
