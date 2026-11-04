@@ -286,9 +286,6 @@ def cmd_generate(args: argparse.Namespace) -> int:
         die(f'payload is {len(payload_bytes)} bytes, the client limit is {MAX_PAYLOAD}')
     validate_release(payload)
 
-    key_path = args.key or os.environ.get('XIO_UPDATE_KEY')
-    if not key_path:
-        die('--key PATH (or XIO_UPDATE_KEY) is required to sign; use --check to verify an existing manifest')
     key = load_private_key(Path(key_path).expanduser(), public_key_file)
 
     document = envelope(payload_bytes, key)
