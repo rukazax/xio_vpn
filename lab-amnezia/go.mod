@@ -1,4 +1,4 @@
-module app.x1o/lab-amnezia
+module app.xio/lab-amnezia
 
 go 1.27.2
 

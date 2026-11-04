@@ -1,4 +1,4 @@
-module app.x1o/vps-check
+module app.xio/vps-check
 
 go 1.27.2
 

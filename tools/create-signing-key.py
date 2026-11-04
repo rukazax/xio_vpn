@@ -20,9 +20,12 @@ password = secrets.token_urlsafe(36)
 password_file = directory / 'key-password'
 password_file.write_text(password)
 password_file.chmod(0o600)
-subprocess.run([keytool, '-genkeypair', '-alias', 'x1oDevelopment', '-keyalg', 'RSA', '-keysize', '3072', '-validity', '3650', '-storetype', 'PKCS12', '-keystore', str(store), '-storepass:file', str(password_file), '-keypass:file', str(password_file), '-dname', 'CN=xio Development, O=xio'], check=True)
+# Алиас исторической подписи хранится в существующем keystore; этот скрипт
+# создаёт новую идентичность, поэтому имя алиаса здесь нейтральное.
+alias = 'xio-release'
+subprocess.run([keytool, '-genkeypair', '-alias', alias, '-keyalg', 'RSA', '-keysize', '3072', '-validity', '3650', '-storetype', 'PKCS12', '-keystore', str(store), '-storepass:file', str(password_file), '-keypass:file', str(password_file), '-dname', 'CN=xio Development, O=xio'], check=True)
 store.chmod(0o600)
 properties = directory / 'signing.properties'
-properties.write_text(f'storeFile={store.as_posix()}\nstorePassword={password}\nkeyPassword={password}\nkeyAlias=x1oDevelopment\n')
+properties.write_text(f'storeFile={store.as_posix()}\nstorePassword={password}\nkeyPassword={password}\nkeyAlias={alias}\n')
 properties.chmod(0o600)
 print('Development signing key created. Back up .signing privately; never publish it.')

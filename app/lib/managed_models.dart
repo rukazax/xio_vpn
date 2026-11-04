@@ -286,8 +286,7 @@ class UserBundle {
           ? 1
           : 2, 'name': name, 'userId': userId, 'serverId': serverId, 'configs': configs, if (adminAccess != null) 'adminAccess': adminAccess, if (clientAccess != null) 'clientAccess': clientAccess})))}';
   static UserBundle decode(String raw) {
-    if (raw.length > 200000 ||
-        !(raw.startsWith('xio://') || raw.startsWith('x1o://'))) {
+    if (raw.length > 200000 || !raw.startsWith('xio://')) {
       throw const FormatException('Некорректный профиль XIO');
     }
     try {

@@ -39,27 +39,32 @@ void main() {
       }
     },
   );
-  test('new XIO exports retain legacy import and detect protocol mismatch', () {
-    final b = UserBundle('Name', 'a' * 32, 'external', {
-      'awg': profile(extra: 'Jc = 4'),
-    });
-    expect(b.encode(), startsWith('xio://'));
-    expect(ClientImport.parse(b.encode()).bundle!.name, 'Name');
-    expect(
-      ClientImport.parse(b.encode().replaceFirst('xio://', 'x1o://'))
-          .bundle!
-          .configs,
-      b.configs,
-    );
-    expect(
-      () => ClientImport.parse(
-        UserBundle('Name', 'b' * 32, 'external', {
-          'wireguard': profile(extra: 'Jc = 0'),
-        }).encode(),
-      ),
-      throwsFormatException,
-    );
-  });
+  test(
+    'XIO exports import, unknown scheme and protocol mismatch are rejected',
+    () {
+      final b = UserBundle('Name', 'a' * 32, 'external', {
+        'awg': profile(extra: 'Jc = 4'),
+      });
+      expect(b.encode(), startsWith('xio://'));
+      expect(ClientImport.parse(b.encode()).bundle!.name, 'Name');
+      expect(
+        () => ClientImport.parse(b.encode().replaceFirst('xio://', 'xio2://')),
+        throwsFormatException,
+      );
+      expect(
+        () => UserBundle.decode(b.encode().replaceFirst('xio://', 'xio2://')),
+        throwsFormatException,
+      );
+      expect(
+        () => ClientImport.parse(
+          UserBundle('Name', 'b' * 32, 'external', {
+            'wireguard': profile(extra: 'Jc = 0'),
+          }).encode(),
+        ),
+        throwsFormatException,
+      );
+    },
+  );
   Map<String, Object> export(String conf) => {
     'description': 'Foreign server',
     'containers': [

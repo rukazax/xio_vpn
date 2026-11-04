@@ -19,7 +19,7 @@ public class Receiver extends Activity {
   if((getIntent().getFlags()&Intent.FLAG_GRANT_READ_URI_PERMISSION)==0)throw new Exception();
   ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[4096];
   try(InputStream input=getContentResolver().openInputStream(uri)){int n;while((n=input.read(buffer))!=-1){out.write(buffer,0,n);if(out.size()>200000)throw new Exception();}}
-  String raw=new String(out.toByteArray(),"UTF-8");if(!(raw.startsWith("x1o://")||raw.startsWith("xio://")))throw new Exception();
+  String raw=new String(out.toByteArray(),"UTF-8");if(!raw.startsWith("xio://"))throw new Exception();
   JSONObject j=new JSONObject(new String(Base64.decode(raw.substring(6),Base64.URL_SAFE),"UTF-8"));
   HashSet<String> keys=new HashSet<>();java.util.Iterator<String> it=j.keys();while(it.hasNext())keys.add(it.next());
   if(!keys.equals(new HashSet<>(Arrays.asList("schema","name","userId","serverId","configs"))))throw new Exception();

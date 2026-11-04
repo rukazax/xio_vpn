@@ -22,7 +22,8 @@
     Путь к .p12/.jks. По умолчанию $env:XIO_KEYSTORE.
 
 .PARAMETER KeyAlias
-    Alias ключа. По умолчанию $env:XIO_KEY_ALIAS, иначе x1oDevelopment.
+    Alias ключа. По умолчанию $env:XIO_KEY_ALIAS, иначе keyAlias из -SigningProperties.
+    Алиас исторической подписи хранится в keystore; в скрипте он не задан.
 
 .PARAMETER StorePassword
     Пароль хранилища. По умолчанию $env:XIO_STORE_PASSWORD.
@@ -49,7 +50,7 @@
     Показать план и ничего не менять.
 
 .EXAMPLE
-    $env:XIO_KEYSTORE = 'C:\keys\x1o-development.p12'
+    $env:XIO_KEYSTORE = 'C:\keys\release-signing.p12'
     pwsh -NoProfile -File tools/release/sign-apk.ps1 -Apk "release/XIO-Full-0.24.1-android-arm64-v8a.apk"
 
 .EXAMPLE
@@ -172,9 +173,9 @@ function Resolve-SigningSettings {
         if (Test-Path -LiteralPath $env:XIO_SIGNING_PROPERTIES) { $props = Read-SigningProperties -Path $env:XIO_SIGNING_PROPERTIES }
     }
 
-    $settings = [pscustomobject]@{ Keystore = $null; KeyAlias = 'x1oDevelopment'; StorePassword = $null; KeyPassword = $null }
+    $settings = [pscustomobject]@{ Keystore = $null; KeyAlias = $null; StorePassword = $null; KeyPassword = $null }
     $settings.Keystore = if ($Keystore) { $Keystore } elseif ($env:XIO_KEYSTORE) { $env:XIO_KEYSTORE } elseif ($props) { $props.Keystore } else { $null }
-    $settings.KeyAlias = if ($KeyAlias) { $KeyAlias } elseif ($env:XIO_KEY_ALIAS) { $env:XIO_KEY_ALIAS } elseif ($props -and $props.KeyAlias) { $props.KeyAlias } else { 'x1oDevelopment' }
+    $settings.KeyAlias = if ($KeyAlias) { $KeyAlias } elseif ($env:XIO_KEY_ALIAS) { $env:XIO_KEY_ALIAS } elseif ($props -and $props.KeyAlias) { $props.KeyAlias } else { $null }
     $settings.StorePassword = if ($StorePassword) { $StorePassword } elseif ($env:XIO_STORE_PASSWORD) { $env:XIO_STORE_PASSWORD } elseif ($props) { $props.StorePassword } else { $null }
     $settings.KeyPassword = if ($KeyPassword) { $KeyPassword } elseif ($env:XIO_KEY_PASSWORD) { $env:XIO_KEY_PASSWORD } elseif ($props -and $props.KeyPassword) { $props.KeyPassword } else { $settings.StorePassword }
 

@@ -1,4 +1,4 @@
-module app.x1o/lab
+module app.xio/lab
 
 go 1.27.2
 

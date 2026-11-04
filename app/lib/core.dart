@@ -469,7 +469,7 @@ class ClientImport {
         rethrow;
       }
     }
-    if (raw.startsWith('xio://') || raw.startsWith('x1o://')) {
+    if (raw.startsWith('xio://')) {
       final bundle = UserBundle.decode(raw);
       for (final entry in bundle.configs.entries) {
         if (detect(entry.value) != entry.key) {
@@ -2632,7 +2632,7 @@ printf 'KERNEL: '; uname -r
 printf '\nDISK\n'; df -h / | tail -n 1
 printf '\nLISTENERS\n'; ss -lntu | head -n 25
 printf '\nROUTES\n'; ip -4 route show
-printf '\nX1O\n'; if test -e /etc/wireguard/xio0.conf; then printf 'existing installation\n'; else printf 'not installed\n'; fi
+printf '\nXIO\n'; if test -e /etc/wireguard/xio0.conf; then printf 'existing installation\n'; else printf 'not installed\n'; fi
 ''')
         .timeout(const Duration(seconds: 20));
     if (result.exitCode != 0) {

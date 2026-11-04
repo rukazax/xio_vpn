@@ -33,7 +33,7 @@ for p in [folder/'defines.json' for folder in private_roots if (folder/'defines.
 for folder in private_roots:
  for p in [*folder.rglob('*.xio'), *folder.rglob('*.xio')]:
   raw=p.read_bytes();secrets.append(raw)
-  if raw.startswith((b'x1o://', b'xio://')):
+  if raw.startswith(b'xio://'):
    payload=raw[6:];payload+=b'='*((-len(payload))%4)
    bundle=json.loads(base64.urlsafe_b64decode(payload))
    access=bundle.get('adminAccess',{})
@@ -68,7 +68,7 @@ for folder in private_roots:
   except (ValueError,UnicodeError):pass
  for p in folder.rglob('*.xio'):
   raw=p.read_bytes()
-  if raw.startswith((b'xio://',b'x1o://')):
+  if raw.startswith(b'xio://'):
    try:
     data=json.loads(base64.urlsafe_b64decode(raw[6:]+b'='*((-len(raw[6:]))%4)))
     for proto,config in data.get('configs',{}).items():
@@ -100,7 +100,7 @@ for folder in private_roots:
   except (ValueError,UnicodeError):pass
  for p in folder.rglob('*.xio'):
   raw=p.read_bytes()
-  if raw.startswith((b'xio://',b'x1o://')):
+  if raw.startswith(b'xio://'):
    engine_credentials(json.loads(base64.urlsafe_b64decode(raw[6:]+b'='*((-len(raw[6:]))%4))))
 report=[]
 for p in sorted((r/'releases').glob('*')):

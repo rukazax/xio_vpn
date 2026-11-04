@@ -51,7 +51,9 @@ android {
     val signingFile = rootProject.file("../../.signing/signing.properties")
     if (signingFile.exists()) {
         val signing = Properties().apply { signingFile.inputStream().use { load(it) } }
-        signingConfigs.create("x1oDevelopment") {
+        // Имя конфигурации произвольно: подпись определяют storeFile/keyAlias из
+        // signing.properties, а сам алиас исторической подписи хранится в keystore.
+        signingConfigs.create("xioRelease") {
             storeFile = file(signing.getProperty("storeFile"))
             storePassword = signing.getProperty("storePassword")
             keyAlias = signing.getProperty("keyAlias")
@@ -66,7 +68,7 @@ android {
             isShrinkResources = true
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.findByName("x1oDevelopment")
+            signingConfig = signingConfigs.findByName("xioRelease")
         }
     }
 }

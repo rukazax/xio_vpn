@@ -90,10 +90,10 @@ Future<void> _loadFonts() async {
     final file = File(path);
     if (!file.existsSync()) continue;
     final bytes = await file.readAsBytes();
-    await (FontLoader('X1oEmoji')
+    await (FontLoader('XioEmoji')
           ..addFont(Future<ByteData>.value(ByteData.view(bytes.buffer))))
         .load();
-    _emojiFamily = 'X1oEmoji';
+    _emojiFamily = 'XioEmoji';
     break;
   }
   for (final path in _monoFontCandidates) {
