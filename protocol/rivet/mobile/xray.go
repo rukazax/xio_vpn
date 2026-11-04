@@ -39,6 +39,9 @@ func XrayStop() {
 	xrayMobile.Unlock()
 	if s != nil {
 		s.Close()
+		// Xray's instance and its routing/DNS state are gone; return the pages
+		// (see reclaim.go) so repeated Start/Stop does not accumulate.
+		reclaimAfterTeardown()
 	}
 }
 func XrayStatus() string {
