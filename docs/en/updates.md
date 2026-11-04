@@ -40,6 +40,16 @@ Ubuntu and Windows check while the app is running and handle an overdue check af
 
 Finish your VPN session before updating. Profiles and credentials remain in the separate application data directory. Cancelling a download or failing its checksum deletes partial files. Cancelling the OS installer may retain a verified package for retry; successful installation removes it.
 
+## Retiring the former name
+
+The former product name is no longer supported anywhere in the client or the server package:
+
+- `x1o://` links are not accepted: import understands only `xio://` and `xio-server://`, everything else is rejected as an unknown scheme;
+- data from old installations is not read: the app and the server package use only the current paths and never migrate the former directories automatically;
+- the APK signature is unchanged: updates are verified by the certificate SHA-256 `e4e81b12…c9671`, not by the name inside the certificate.
+
+Profiles already stored in the app keep working. A link in the former format has to be exported again from the profile source: the current version rejects it.
+
 ## Authenticity and publishing
 
 The pinned Ed25519 public key is `app/assets/security/update-ed25519.pub`. Its signature covers the exact bytes of the version, build, package URLs, sizes and SHA-256 values. Only HTTPS is accepted. Initial package URLs must belong to this repository's release assets; redirects are restricted to GitHub asset hosts. Equal or older versions are rejected. The separate signing key reduces the impact of a GitHub account/file compromise, but cannot protect a compromised signing key or endpoint.
