@@ -76,6 +76,10 @@ class InstallerTests(unittest.TestCase):
   self.assertEqual(len(calls.call_args_list),2)
 
 class RestrictedPolicyTests(unittest.TestCase):
+ def setUp(self):
+  # public() now consults the live cascade probe; keep this unit test off the network.
+  patcher=patch.object(m,'cascade_status',return_value={'alive':False,'reason':'no-ipv6-default-route','probe':'route'})
+  self.addCleanup(patcher.stop);patcher.start()
  def test_public_profiles_advertise_only_restricted_candidates(self):
   d={'id':'s','host':'vpn.example','publicKeys':{},'awg':{},'protocols':['wireguard','awg'],'restrictedNetwork':True,'rivet':{'serverName':'vpn.example'},'stack':{'protocols':['xray','cloak']}}
   self.assertEqual(set(m.public(d)['protocols']),{'awg','xray','cloak','rivet-h3','rivet-s1'})
@@ -229,6 +233,10 @@ class CatalogTests(unittest.TestCase):
     m.catalog_state()
 
 class StaticAwgTests(unittest.TestCase):
+ def setUp(self):
+  # The profile's DNS line depends on the live cascade probe; pin it off the network.
+  patcher=patch.object(m,'cascade_status',return_value={'alive':False,'reason':'no-ipv6-default-route','probe':'route'})
+  self.addCleanup(patcher.stop);patcher.start()
  def deployment(self):
   return {'owner':m.OWNER,'id':'srv','host':'203.0.113.9','phase':'ready','protocols':['wireguard','awg'],
           'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
@@ -256,6 +264,9 @@ class StaticAwgTests(unittest.TestCase):
 class StaticAwgGuardTests(unittest.TestCase):
  KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='
  ZERO='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+ def setUp(self):
+  patcher=patch.object(m,'cascade_status',return_value={'alive':False,'reason':'no-ipv6-default-route','probe':'route'})
+  self.addCleanup(patcher.stop);patcher.start()
  def deployment(self):
   return {'owner':m.OWNER,'id':'srv','host':'2001:db8::1','phase':'ready','protocols':['wireguard','awg'],
           'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
@@ -362,6 +373,9 @@ class IsolationRulesTests(unittest.TestCase):
 
 
 class DispatchScopeTests(unittest.TestCase):
+ def setUp(self):
+  patcher=patch.object(m,'cascade_status',return_value={'alive':False,'reason':'no-ipv6-default-route','probe':'route'})
+  self.addCleanup(patcher.stop);patcher.start()
  def test_inspect_is_not_shadowed_by_a_local_named_public(self):
   # dispatch() used `public` as the decoded add-awg key, which made `public` a local
   # for the whole function: `inspect` (and a successful `add`) raised UnboundLocalError
@@ -422,6 +436,163 @@ class ShadowsocksConfigTests(unittest.TestCase):
     m.stack.config(self.fake(protocols))
    inbound=[i['protocol'] for i in json.loads(written['json'])['inbounds']]
    self.assertNotIn('shadowsocks',inbound,protocols)
+
+
+class CascadeProbeTests(unittest.TestCase):
+ """The shared helper behind `ipv6=true` and the IPv6 resolver in a static profile.
+
+ A default IPv6 route is not connectivity: the cascade's route survives its dead ssh
+ for the ServerAlive window, and a client handed a v6 resolver in that window hangs.
+ """
+ def setUp(self):
+  self.dualstack=m.stack.network.dualstack()
+  patcher=patch.object(self.dualstack,'routes',return_value=[{'dev':'tun0'}])
+  self.addCleanup(patcher.stop);patcher.start()
+ def status(self,ping,tcp):
+  with tempfile.TemporaryDirectory() as directory,patch.object(self.dualstack,'CASCADE_CACHE',Path(directory)/'probe.json'),\
+       patch.object(self.dualstack,'_probe_ping',**ping),patch.object(self.dualstack,'_probe_tcp',**tcp):
+   return self.dualstack.cascade_status(),self.dualstack.cascade_status()
+ def test_successful_probe_marks_ipv6_alive_and_is_cached(self):
+  with tempfile.TemporaryDirectory() as directory,patch.object(self.dualstack,'CASCADE_CACHE',Path(directory)/'probe.json'),\
+       patch.object(self.dualstack,'_probe_ping',return_value=True) as ping,patch.object(self.dualstack,'_probe_tcp',return_value=False):
+   first=self.dualstack.cascade_status();second=self.dualstack.cascade_status()
+  self.assertEqual((first['alive'],first['reason'],first['probe']),(True,'ok','ping'))
+  self.assertEqual(second,first)
+  ping.assert_called_once()  # the second answer came from the cache, not the network
+ def test_route_without_traffic_is_cascade_down(self):
+  (first,second)=self.status(ping={'return_value':False},tcp={'return_value':False})
+  self.assertEqual((first['alive'],first['reason']),(False,'cascade-down'))
+  self.assertEqual(second,first)
+ def test_tcp_probe_is_the_fallback_when_ping_fails(self):
+  (first,_)=self.status(ping={'return_value':False},tcp={'return_value':True})
+  self.assertEqual((first['alive'],first['probe']),(True,'tcp'))
+ def test_tcp_probe_tries_the_next_port_when_one_is_closed(self):
+  # 443 is closed on the exit while 8443 is the RIVET entry; a refused port must not
+  # discard a working cascade.
+  attempts=[]
+  class Connected:
+   def __enter__(self):return self
+   def __exit__(self,*args):return False
+  def connect(address,timeout=None):
+   attempts.append(address)
+   if len(attempts)==1:raise ConnectionRefusedError(111,'Connection refused')
+   return Connected()
+  with patch.object(self.dualstack.socket,'create_connection',side_effect=connect):
+   self.assertTrue(self.dualstack._probe_tcp())
+  self.assertEqual([port for _,port in attempts],[443,8443])
+ def test_no_default_route_never_probes(self):
+  with tempfile.TemporaryDirectory() as directory,patch.object(self.dualstack,'CASCADE_CACHE',Path(directory)/'probe.json'),\
+       patch.object(self.dualstack,'routes',return_value=[]),\
+       patch.object(self.dualstack,'_probe_ping',side_effect=AssertionError('probe must not run')),\
+       patch.object(self.dualstack,'_probe_tcp',side_effect=AssertionError('probe must not run')):
+   status=self.dualstack.cascade_status()
+  self.assertEqual((status['alive'],status['reason']),(False,'no-ipv6-default-route'))
+ def test_probe_that_raises_is_reported_not_raised(self):
+  (first,_)=self.status(ping={'side_effect':RuntimeError('ping exploded')},tcp={'side_effect':OSError('socket exploded')})
+  self.assertEqual((first['alive'],first['reason']),(False,'probe-error'))
+
+
+class StaticAwgDnsTests(unittest.TestCase):
+ """The profile and the reason field that the UI shows for a static AWG device."""
+ KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='
+ def deployment(self):
+  return {'owner':m.OWNER,'id':'srv','host':'203.0.113.9','phase':'ready','protocols':['wireguard','awg'],
+          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40}}
+ def request(self):
+  return {'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':self.KEY}
+ def answer(self,cascade):
+  d=self.deployment();writes=[]
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x:writes.append(x)),\
+       patch.object(m,'apply',return_value=None),patch.object(m,'cascade_status',return_value=cascade):
+   answer=m.dispatch(self.request())
+  return answer,writes,d
+ def test_live_cascade_puts_both_resolvers_in_the_profile(self):
+  answer,writes,d=self.answer({'alive':True,'reason':'ok','probe':'ping'})
+  self.assertIn('DNS = 9.9.9.9, 2620:fe::fe\n',answer['config'])
+  self.assertTrue(answer['ipv6']);self.assertEqual(answer['ipv6Reason'],'ok')
+  self.assertEqual(d['users']['a'*32]['transports'],['awg'])
+  self.assertTrue(writes)
+ def test_dead_cascade_puts_only_the_ipv4_resolver(self):
+  answer,_,_=self.answer({'alive':False,'reason':'cascade-down','probe':'ping+tcp'})
+  self.assertIn('DNS = 9.9.9.9\n',answer['config'])
+  self.assertNotIn('2620:fe::fe',answer['config'])
+  self.assertFalse(answer['ipv6']);self.assertEqual(answer['ipv6Reason'],'cascade-down')
+ def test_probe_exception_degrades_to_ipv4_only_instead_of_failing(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save'),patch.object(m,'apply',return_value=None),\
+       patch.object(m.stack.network,'dualstack',side_effect=RuntimeError('probe exploded')):
+   answer=m.dispatch(self.request())
+  self.assertIn('DNS = 9.9.9.9\n',answer['config'])
+  self.assertFalse(answer['ipv6']);self.assertEqual(answer['ipv6Reason'],'probe-error')
+
+
+class PublicIpv6ReasonTests(unittest.TestCase):
+ """`rivet.ipv6` (the flag clients read) follows the probe, not the route table."""
+ def deployment(self):
+  return {'id':'srv','host':'vpn.example','publicKeys':{'awg':'SERVERPUBKEY'},'awg':{},'protocols':['wireguard','awg'],
+          'restrictedNetwork':True,'rivet':{'serverName':'vpn.example','pin':'p'}}
+ def capabilities(self):
+  return {'outboundByFamily':{'ipv4':'eth0','ipv6':'tun0'},'ipv4DefaultRoute':True,'ipv6DefaultRoute':True,
+          'dns64':'notProbed','nat64':'notProbed','endToEnd':'notProbed','ipv4LiteralEgress':'notProbed','note':'routes are observations'}
+ def public(self,cascade):
+  with patch.object(m.stack.network,'dualstack',return_value=SimpleNamespace(capabilities=self.capabilities)),\
+       patch.object(m,'cascade_status',return_value=cascade):
+   return m.public(self.deployment())
+ def test_dead_cascade_turns_the_client_flag_off_and_names_the_reason(self):
+  server=self.public({'alive':False,'reason':'cascade-down','probe':'ping+tcp'})
+  self.assertFalse(server['rivet']['ipv6'])
+  self.assertEqual(server['rivet']['ipv6Reason'],'cascade-down')
+  self.assertFalse(server['ipv6Working'])
+  self.assertEqual(server['ipv6Reason'],'cascade-down')
+  # The route itself is still reported honestly; it is just not used as the flag.
+  self.assertTrue(server['networkCapabilities']['ipv6DefaultRoute'])
+ def test_live_cascade_turns_the_client_flag_on(self):
+  server=self.public({'alive':True,'reason':'ok','probe':'ping'})
+  self.assertTrue(server['rivet']['ipv6']);self.assertTrue(server['ipv6Working'])
+  self.assertEqual(server['rivet']['ipv6Reason'],'ok')
+
+
+class ProvisioningOrderTests(unittest.TestCase):
+ """Validation runs before deployment.json is written; a failure leaves no user."""
+ KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='
+ WG='AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI='
+ def deployment(self,rivet=False):
+  d={'owner':m.OWNER,'id':'srv','host':'203.0.113.9','phase':'ready','protocols':['wireguard','awg'],
+     'users':{},'publicKeys':{'wireguard':'WGSERVER','awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40}}
+  if rivet:d['rivet']={'serverName':'vpn.example'}
+  return d
+ def request(self,**extra):
+  request={'action':'add','serverId':'srv','name':'phone','id':'b'*32,
+           'publicKeys':{'wireguard':self.WG,'awg':self.KEY},'rivet':{'secret':'s','entryToken':'t'}}
+  request.update(extra)
+  return request
+ def test_malformed_rivet_credentials_are_rejected_before_any_write(self):
+  d=self.deployment(rivet=True);writes=[]
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x:writes.append(x)),patch.object(m,'apply') as applied:
+   with self.assertRaises(AssertionError):
+    m.dispatch(self.request(rivet={'secret':'only-half'}))
+  self.assertEqual(d['users'],{})
+  self.assertEqual(writes,[])
+  applied.assert_not_called()
+ def test_failed_server_block_rolls_the_user_back(self):
+  d=self.deployment();writes=[]
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x:writes.append(x)),\
+       patch.object(m,'apply',return_value=None),patch.object(m,'public',side_effect=RuntimeError('cannot render')):
+   with self.assertRaises(RuntimeError):
+    m.dispatch(self.request())
+  self.assertNotIn('b'*32,d['users'])
+  self.assertTrue(writes)
+  self.assertNotIn('b'*32,writes[-1]['users'])
+ def test_profile_failure_never_writes_a_static_peer(self):
+  d=self.deployment();writes=[]
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x:writes.append(x)),\
+       patch.object(m,'apply') as applied,\
+       patch.object(m,'cascade_status',return_value={'alive':False,'reason':'no-ipv6-default-route','probe':'route'}),\
+       patch.object(m,'awg_client_config',side_effect=RuntimeError('bad profile')):
+   with self.assertRaises(RuntimeError):
+    m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':self.KEY})
+  self.assertEqual(d['users'],{});self.assertEqual(writes,[])
+  applied.assert_not_called()
 
 
 if __name__=='__main__':unittest.main()

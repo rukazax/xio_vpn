@@ -463,12 +463,23 @@ def stats(d):
   result['statisticsNote']+=' Per-service counters from '+', '.join(sorted({item['source'] for item in unavailable}))+' are unreadable without CAP_DAC_READ_SEARCH; the counters this manager owns are still exact.'
   print('xio-managed: statistics unavailable: '+'; '.join(item['source']+' '+item['path']+' ('+item['reason']+')' for item in unavailable),file=sys.stderr)
  save(d);return result
+def cascade_status():
+ """One shared answer to "is the IPv6 cascade usable right now" for every response.
+
+ The probe itself lives in dualstack.py together with the 45 s cache; a missing or
+ broken dualstack module must degrade to IPv4-only instead of failing the request.
+ """
+ try:return stack.network.dualstack().cascade_status()
+ except Exception:return {'alive':False,'reason':'probe-error','probe':'exception','checkedAt':int(time.time())}
 def public(d):
- # One route sample feeds both fields (capabilities.ipv6DefaultRoute == ipv6_ready()).
+ # One route sample feeds the capability fields; one cached live probe decides the
+ # v6 flag. `ipv6DefaultRoute` stays what it always was, an observation of `ip -6
+ # route`, because a route can outlive the cascade that owns it (ServerAlive window).
  capabilities=stack.network.dualstack().capabilities()
+ cascade=cascade_status()
  protocols=d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else [])
  if d.get('restrictedNetwork'):protocols=[p for p in protocols if p in ['xray','rivet-s1','cloak','awg','rivet-h3']]
- return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':capabilities,'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=capabilities['ipv6DefaultRoute'])} if d.get('rivet') else {})}
+ return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':capabilities,'ipv6Working':cascade['alive'],'ipv6Reason':cascade['reason'],'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=cascade['alive'],ipv6Reason=cascade['reason'])} if d.get('rivet') else {})}
 
 def valid_host(host):
  if not isinstance(host,str) or not host or host!=host.strip() or len(host)>253:return False
@@ -585,12 +596,18 @@ def catalog_state():
   'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
-def awg_client_config(d,user):
- """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
+def awg_client_config(d,user,cascade=None):
+ """Ready-to-import AmneziaWG profile for a device that has no XIO client.
+
+ The IPv6 resolver is advertised only when the cascade just passed its live probe:
+ an IPv6 DNS address with no working v6 egress stalls Android's resolver on AWG.
+ """
  awg=d['awg'];slot=user['slot'];host=d['host']
+ cascade=cascade if cascade is not None else cascade_status()
  host='[%s]'%host if ':' in host else host
  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
- lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9, 2620:fe::fe']
+ dns='9.9.9.9, 2620:fe::fe' if cascade['alive'] else '9.9.9.9'
+ lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = '+dns]
  # AmneziaWG 3.x adds S3/S4 and signature packets I1..I5; the profile must carry
  # every parameter the server actually applies, otherwise the two sides disagree.
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
@@ -634,14 +651,18 @@ def dispatch(req,actor=None):
   seen={base64.b64decode(v,validate=True) for u in d['users'].values() for v in u.get('keys',{}).values() if isinstance(v,str) and len(v)%4==0}
   assert raw not in seen,'Duplicate key'
   used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
-  d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public_key},'revoked':False,
-                   'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
+  user={'name':name.strip(),'slot':slot,'keys':{'awg':public_key},'revoked':False,
+        'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
+  # Build the profile before deployment.json is written, for the same reason `add`
+  # validates first: a failure here must not leave a half-created user on disk.
+  cascade=cascade_status()
+  config=awg_client_config(d,user,cascade)
   try:
-   save(d);apply(d)
+   d['users'][uid]=user;save(d);apply(d)
   except Exception:
    d['users'].pop(uid,None);save(d);raise
-  return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
-          'config':awg_client_config(d,d['users'][uid])}
+  return {'user':{'id':uid,'name':user['name'],'slot':slot,'transports':['awg']},
+          'config':config,'ipv6':cascade['alive'],'ipv6Reason':cascade['reason']}
  if action=='add':
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
@@ -653,15 +674,23 @@ def dispatch(req,actor=None):
   admin=req.get('admin',False);limit=req.get('userLimit',0)
   assert isinstance(admin,bool) and type(limit) is int and 0<=limit<=250,'Invalid admin limit'
   assert len(d['users'])<10000,'History limit reached'
+  # RIVET credentials are request data, so they are validated before the user is
+  # written. The old order saved the user first and only then rejected a malformed
+  # `rivet` object, which rolled back through the exception handler instead of
+  # never writing anything.
+  credentials=req.get('rivet')
+  if credentials is not None:assert isinstance(credentials,dict) and set(credentials)=={'secret','entryToken'},'Invalid rivet credentials'
   if admin:delegation_key(uid,req.get('adminPublicKey',''))
   d['users'][uid]={'name':name.strip(),'slot':slot,'keys':keys,'revoked':False,'createdAt':int(time.time()),'role':'admin' if admin else 'user','userLimit':limit if admin else 0,'createdBy':actor,'monthly':{}}
   try:
    save(d);apply(d)
-   if d.get('rivet') and req.get('rivet'):
-    credentials=req['rivet'];assert set(credentials)=={'secret','entryToken'}
+   if d.get('rivet') and credentials:
     rivet_command(dict(credentials,action='add',id=uid,slot=slot));d['users'][uid]['rivet']=True;save(d)
    configs={}
    if d.get('stack'):configs=stack.create(d,uid);save(d)
+   # Rendered inside the transaction: if the server block cannot be produced the
+   # caller gets an error and no user, instead of a committed user and an error.
+   answer={'user':dict(id=uid,**{k:v for k,v in d['users'][uid].items() if k!='stack'}),'server':public(d),'configs':configs}
   except Exception:
    if d.get('rivet'):subprocess.run(['/usr/local/lib/xio-rivet/rivet','user'],input=json.dumps({'action':'revoke','id':uid}),text=True,capture_output=True)
    if d.get('stack'):
@@ -673,7 +702,7 @@ def dispatch(req,actor=None):
    if d.get('stack'):stack.apply(d)
    if admin:delegation_key(uid)
    apply(d);raise
-  return {'user':dict(id=uid,**{k:v for k,v in d['users'][uid].items() if k!='stack'}),'server':public(d),'configs':configs}
+  return answer
  if action=='revoke':
   stats(d);uid=req['id'];assert uid in d['users'],'Unknown user'
   targets=[uid]+[k for k,u in d['users'].items() if u.get('createdBy')==uid]
