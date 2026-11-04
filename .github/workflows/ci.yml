@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: 'true'
+  FLUTTER_SUPPRESS_ANALYTICS: 'true'
+  # TZ=UTC обязателен: `tools/test_whitelist_catalog.py` сравнивает дату в имени
+  # файла каталога с локальной датой, а сам каталог пишет имя по UTC. В окне
+  # 00:00–03:00 MSK локальная и UTC-даты расходятся и тест падает ложно.
+  TZ: 'UTC'
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  flutter:
+    name: Flutter analyze + test (Debian 13)
+    # self-hosted раннер на 192.168.88.17 (Debian 13). Метка по умолчанию —
+    # `debian17`; у фактического раннера она другая (`x1o-debian`), поэтому
+    # её можно переопределить переменной репозитория CI_RUNNER в формате JSON:
+    #   CI_RUNNER = ["self-hosted","x1o-debian"]
+    # Подробности и шаги включения — docs/release-process.ru.md, § «CI».
+    runs-on: ${{ fromJSON(vars.CI_RUNNER || '["self-hosted","debian17"]') }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Toolchain
+        run: |
+          export PATH="${FLUTTER_ROOT:-/opt/flutter}/bin:$PATH"
+          mkdir -p "$GITHUB_WORKSPACE/.github-ci"
+          flutter --version | head -4
+          dart --version
+          python3 --version
+
+      - name: Dependencies
+        # Осознанно без --enforce-lockfile: на раннере Flutter 3.47.7 (в iOS-CI
+        # 3.47.8), и строгий режим там ещё не проверялся. Как только версии
+        # сойдутся, флаг можно включить (так же делает ios-compile.yml).
+        run: |
+          export PATH="${FLUTTER_ROOT:-/opt/flutter}/bin:$PATH"
+          flutter pub get
+
+      - name: Static analysis
+        run: |
+          export PATH="${FLUTTER_ROOT:-/opt/flutter}/bin:$PATH"
+          set -o pipefail
+          flutter analyze 2>&1 | tee "$GITHUB_WORKSPACE/.github-ci/flutter-analyze.log"
+
+      - name: Unit tests
+        run: |
+          export PATH="${FLUTTER_ROOT:-/opt/flutter}/bin:$PATH"
+          set -o pipefail
+          flutter test --reporter compact 2>&1 | tee "$GITHUB_WORKSPACE/.github-ci/flutter-test.log"
+
+      - name: Upload Flutter report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ci-flutter-${{ github.sha }}
+          path: .github-ci/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 9
+
+  server:
+    name: Python tests + shell syntax (Debian 13)
+    runs-on: ${{ fromJSON(vars.CI_RUNNER || '["self-hosted","debian17"]') }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Toolchain
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/.github-ci"
+          python3 --version
+          python3 -c 'import pytest, yaml; print("pytest", pytest.__version__, "| pyyaml", yaml.__version__)'
+          # Часть тестов server/managed работает с /etc/xio-stack и требует root.
+          sudo -n true || {
+            echo "::error::раннер должен давать passwordless sudo (см. docs/release-process.ru.md, § CI)";
+            exit 1;
+          }
+
+      - name: Shell syntax of deploy scripts
+        run: |
+          set -o pipefail
+          {
+            rc=0
+            n=0
+            while IFS= read -r f; do
+              n=$((n + 1))
+              if bash -n "$f"; then echo "ok   $f"; else echo "FAIL $f"; rc=1; fi
+            done < <(find deploy -type f -name '*.sh' | sort)
+            echo "проверено скриптов: $n"
+            test "$n" -gt 0 || { echo "не найдено ни одного deploy/**/*.sh"; exit 1; }
+            exit "$rc"
+          } 2>&1 | tee "$GITHUB_WORKSPACE/.github-ci/shellcheck.log"
+
+      - name: Python tests (baseline)
+        run: |
+          set -o pipefail
+          # Список известных падений baseline — tools/ci/pytest-baseline.txt.
+          # Он не скрывает новые поломки: любая другая ошибка роняет job.
+          mapfile -t DESELECT < <(
+            grep -vE '^[[:space:]]*(#|$)' tools/ci/pytest-baseline.txt | sed 's/^/--deselect=/'
+          )
+          echo "baseline: ${#DESELECT[@]} известных падений"
+          sudo -n env TZ=UTC PYTHONDONTWRITEBYTECODE=1 \
+            python3 -m pytest -q -p no:cacheprovider "${DESELECT[@]}" \
+            server/managed server/catalog tools 2>&1 \
+            | tee "$GITHUB_WORKSPACE/.github-ci/pytest.log"
+
+      - name: Upload Python report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ci-server-${{ github.sha }}
+          path: .github-ci/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 9
+
+      - name: Baseline boundaries
+        if: always()
+        run: |
+          {
+            echo '## CI boundaries'
+            echo '- Python job runs as root (server/managed tests touch /etc/xio-stack).'
+            echo "- Known baseline failures are deselected from tools/ci/pytest-baseline.txt; see docs/release-process.ru.md for the reasons."
+            echo '- flutter analyze/test covers the Dart layer only: no APK build, no signing, no device test.'
+            echo '- This workflow does not build or publish release artifacts (see tools/release/release.py).'
+          } >> "$GITHUB_STEP_SUMMARY"
