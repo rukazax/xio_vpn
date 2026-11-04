@@ -15,6 +15,9 @@ import java.io.File
 import java.io.ByteArrayInputStream
 import java.util.concurrent.Executors
 
+/** Устаревшее имя ранних сборок: схема ссылок, сохранена для совместимости. */
+private const val LEGACY_URI_SCHEME = "x1o://"
+
 /** One owner across activity recreation. */
 object Engine {
     lateinit var backend: GoBackend
@@ -217,12 +220,12 @@ class MainActivity : FlutterActivity() {
                         val raw = call.argument<String>("bundle") ?: ""
                         require(raw.length <= 200000)
                         if (BuildConfig.CLIENT_ONLY) {
-                            require(call.method == "shareClientBundle" && (raw.startsWith("xio://") || raw.startsWith("x1o://")))
+                            require(call.method == "shareClientBundle" && (raw.startsWith("xio://") || raw.startsWith(LEGACY_URI_SCHEME)))
                             val obj = org.json.JSONObject(String(android.util.Base64.decode(raw.substring(6), android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP)))
                             require(obj.getInt("schema") == 1 && !obj.has("adminAccess") && !obj.has("clientAccess"))
                             require(obj.keys().asSequence().toSet() == setOf("schema","name","userId","serverId","configs"))
                         }
-                        require((raw.startsWith("xio://") || raw.startsWith("x1o://") || raw.startsWith("xio-server://")) && raw.length <= 200000)
+                        require((raw.startsWith("xio://") || raw.startsWith(LEGACY_URI_SCHEME) || raw.startsWith("xio-server://")) && raw.length <= 200000)
                         if (call.argument<Boolean>("asText") == true) {
                             startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, raw) }, "XIO"))
                             result.success(null); return@setMethodCallHandler

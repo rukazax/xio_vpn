@@ -28,10 +28,9 @@ jobs:
   flutter:
     name: Flutter analyze + test (Debian 13)
     # self-hosted раннер на 192.168.88.17 (Debian 13). Метка по умолчанию —
-    # `debian17`; у фактического раннера она другая (`x1o-debian`), поэтому
-    # её можно переопределить переменной репозитория CI_RUNNER в формате JSON:
-    #   CI_RUNNER = ["self-hosted","x1o-debian"]
-    # Подробности и шаги включения — docs/release-process.ru.md, § «CI».
+    # `debian17`; у раннера, который сейчас работает на хосте, метка другая
+    # (устаревшее имя ранних сборок), поэтому её можно переопределить переменной
+    # репозитория CI_RUNNER в формате JSON — см. docs/release-process.ru.md, § «CI».
     runs-on: ${{ fromJSON(vars.CI_RUNNER || '["self-hosted","debian17"]') }}
     timeout-minutes: 45
     defaults:

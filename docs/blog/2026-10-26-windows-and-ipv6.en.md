@@ -55,8 +55,9 @@ The test network has no public IPv6 (the router advertises no prefix), so a loca
 internet path is unchanged. Confirmed: the client connects to `[fd88:17::1]`, receives
 `fd78:1::N/128` inside the tunnel and `ping6` to the tunnel gateway succeeds.
 
-IPv6 egress is still blocked by the server itself (`ip6tables FORWARD -i x1oawg0 -j DROP`, no
-NAT66). That is deliberate behaviour rather than a defect, but it is not public dual-stack.
+IPv6 egress is still blocked by the server itself (`ip6tables FORWARD -i x1oawg0 -j DROP` — an
+interface name from early builds; there is no NAT66). That is deliberate behaviour rather than a
+defect, but it is not public dual-stack.
 
 ## Screenshots
 

@@ -522,7 +522,8 @@ adb push "$APK" /data/local/tmp/xio.apk
 adb shell pm install -r -g /data/local/tmp/xio.apk
 ```
 
-Android 0.24.1 — это `0.24.1+5018`, подпись `CN=x1o Development` (SHA-256 `e4e81b12…c9671`),
+Android 0.24.1 — это `0.24.1+5018`, подпись сертификатом выпуска `CN=x1o Development` (устаревшее
+имя ранних сборок; менять нельзя — иначе обновление не установится поверх; SHA-256 `e4e81b12…c9671`),
 поэтому обновление ставится поверх 0.23.x/0.24.x без удаления. Самые свежие APK на странице
 Releases — 0.24.0; набор 0.24.1 для Android готовится, его заметки —
 [docs/release-notes-0.24.1-mobile.md](docs/release-notes-0.24.1-mobile.md).
