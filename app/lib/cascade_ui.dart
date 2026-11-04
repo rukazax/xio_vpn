@@ -19,18 +19,23 @@
 /// );
 /// ```
 ///
+/// ## Что делает экран
+///
+/// Кнопка «Проверить каскад» действительно опрашивает bridge по SSH и
+/// показывает результат healthcheck-а: живой туннель, время ответа, реальный
+/// выходной IPv6 и причину отказа. Никаких демо-таймеров и подставного пинга:
+/// стадии схемы выставляются только по ответу сервера.
+///
 /// ## Что осталось (заглушки)
 ///
 /// 1. **Реальная подписка** — `CascadeFeatureGate`: `enabled` всегда false,
 ///    `requestActivation()` всегда false. Нужны проверка чека/подписочного
 ///    сервера, состояние `CascadeSubscription.entitled` и снятие замка.
-/// 2. **Реальные пинги** — сейчас `pingMs` подставляется демо-значением при
-///    «Переподключить»; нужен замер до bridge и до exit (два независимых
-///    значения) и обновление `updatedAt` по таймеру/потоку статусов.
-/// 3. **Выбор серверов** — станции bridge/exit захардкожены в
-///    `CascadeRoute.idle()` / `_demoRoute()`; нужен список стран, выбор
-///    exit-сервера только с IPv6 и сохранение выбора в состоянии приложения.
-/// 4. Подключить подписи станций к локализации (`l10n.dart`) и связать
+/// 2. **Выбор серверов** — станции bridge/exit захардкожены в
+///    `CascadeRoute.idle()` / `cascadeRouteFromAddresses()`; нужен список
+///    стран, выбор exit-сервера только с IPv6 и сохранение выбора в
+///    состоянии приложения.
+/// 3. Подключить подписи станций к локализации (`l10n.dart`) и связать
 ///    стадию каскада с реальным состоянием туннеля из `core.dart`.
 library;
 
@@ -39,6 +44,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'cascade_health.dart';
 import 'cascade_model.dart';
 
 /// Подпись под схемой для каждой стадии.
@@ -68,12 +74,13 @@ class CascadeScreen extends StatefulWidget {
     this.onSaveServers,
     this.unlocked = false,
     this.onUnlock,
+    this.healthProbe,
   });
 
   /// Имя маршрута для `Navigator.pushNamed`.
   static const String routeName = '/cascade';
 
-  /// Начальное состояние схемы (по умолчанию демо-маршрут с активным туннелем).
+  /// Начальное состояние схемы (по умолчанию — маршрут из адресов настроек).
   final CascadeRoute? initialRoute;
 
   /// Подписка; по умолчанию заглушка без подписки.
@@ -99,6 +106,10 @@ class CascadeScreen extends StatefulWidget {
   /// Включение каскада по кнопке «Активировать».
   final Future<void> Function()? onUnlock;
 
+  /// Реальная проверка каскада по SSH. `null` — в этой сборке проверка
+  /// недоступна, и экран честно сообщит об этом вместо анимации.
+  final CascadeHealthProbe? healthProbe;
+
   @override
   State<CascadeScreen> createState() => _CascadeScreenState();
 }
@@ -107,12 +118,21 @@ class _CascadeScreenState extends State<CascadeScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const CascadeSubscription _stubSubscription = CascadeSubscription();
 
+  /// Сколько ждём ответ проверки, прежде чем показать ошибку.
+  static const Duration _healthDeadline = Duration(seconds: 15);
+
   late CascadeRoute _route;
   late bool _unlocked;
   late String _bridgeAddress;
   late String _exitAddress;
   late final AnimationController _dots;
-  Timer? _stepTimer;
+
+  /// Идёт реальный SSH-опрос: кнопка заблокирована, точки бегут.
+  bool _busy = false;
+
+  /// Последний реальный результат проверки; `null` — ещё не проверяли.
+  CascadeHealth? _health;
+  Timer? _deadline;
   bool _visible = true;
 
   CascadeSubscription get _subscription {
@@ -126,6 +146,10 @@ class _CascadeScreenState extends State<CascadeScreen>
     return base;
   }
 
+  /// Каскад настроен, только если заданы оба адреса.
+  bool get _configured =>
+      validateCascadeBridge(_bridgeAddress) != null &&
+      validateCascadeExit(_exitAddress) != null;
 
   @override
   void initState() {
@@ -133,17 +157,15 @@ class _CascadeScreenState extends State<CascadeScreen>
     _unlocked = widget.unlocked;
     _bridgeAddress = widget.bridgeAddress;
     _exitAddress = widget.exitAddress;
-    final configured =
-        _bridgeAddress.trim().isNotEmpty && _exitAddress.trim().isNotEmpty;
     _route =
         widget.initialRoute ??
-        (configured
+        (_configured
             ? cascadeRouteFromAddresses(
                 bridge: _bridgeAddress,
                 exit: _exitAddress,
                 updatedAt: DateTime.now(),
               )
-            : _demoRoute());
+            : cascadeRouteFromAddresses(bridge: '', exit: ''));
     _dots = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -155,7 +177,7 @@ class _CascadeScreenState extends State<CascadeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _stepTimer?.cancel();
+    _deadline?.cancel();
     _dots.dispose();
     super.dispose();
   }
@@ -168,86 +190,119 @@ class _CascadeScreenState extends State<CascadeScreen>
     if (visible == _visible) return;
     _visible = visible;
     if (!visible) {
-      _stepTimer?.cancel();
-      _stepTimer = null;
       _dots.stop();
     } else {
       _syncAnimation();
     }
   }
 
-  /// Демо-маршрут: bridge в Нидерландах (IPv4), exit в Швеции (IPv6).
-  static CascadeRoute _demoRoute() => CascadeRoute(
-    device: const CascadeHop(
-      countryCode: '',
-      label: 'Устройство',
-      address: '192.168.1.10 · IPv4',
-      state: CascadeHopState.connected,
-    ),
-    bridge: const CascadeHop(
-      countryCode: 'NL',
-      label: 'Bridge',
-      address: '185.14.30.7 · IPv4',
-      state: CascadeHopState.connected,
-    ),
-    exit: const CascadeHop(
-      countryCode: 'SE',
-      label: 'Exit',
-      address: '2001:db8::7 · IPv6',
-      state: CascadeHopState.connected,
-    ),
-    stage: CascadeStage.active,
-    pingMs: 38,
-    updatedAt: DateTime.now(),
-  );
-
   void _syncAnimation() {
-    if (_visible && _route.isAnimating) {
+    final running = _visible && _busy;
+    if (running) {
       if (!_dots.isAnimating) _dots.repeat();
     } else if (_dots.isAnimating) {
       _dots.stop();
     }
   }
 
-  /// «Переподключить»: устройство → bridge, затем bridge → exit, затем активно.
-  void _reconnect() {
-    _stepTimer?.cancel();
+  /// Подпись под схемой: только факты, без демонстрационных стадий.
+  String get _caption {
+    if (_busy) return 'Проверка bridge и exit по SSH…';
+    if (!_configured) return 'Каскад не настроен · укажите серверы';
+    return _health?.caption() ?? cascadeStatusCaption(_route.stage);
+  }
+
+  /// «Проверить каскад»: реальный опрос сервера и честный статус.
+  Future<void> _checkCascade() async {
+    if (_busy) return;
+    if (!_configured) {
+      setState(() {
+        _health = null;
+        _route = cascadeRouteFromAddresses(bridge: '', exit: '');
+      });
+      _syncAnimation();
+      return;
+    }
+    final probe = widget.healthProbe;
+    if (probe == null) {
+      setState(() {
+        _health = CascadeHealth.failure(
+          'Проверка недоступна: в этой сборке нет SSH-доступа к серверу',
+        );
+        _route = _routeFromHealth(_health!);
+      });
+      _syncAnimation();
+      return;
+    }
     setState(() {
+      _busy = true;
       _route = _route.copyWith(
         stage: CascadeStage.deviceToBridge,
         clearPing: true,
         updatedAt: DateTime.now(),
-        device: _route.device.copyWith(state: CascadeHopState.connecting),
+        device: _route.device.copyWith(state: CascadeHopState.connected),
         bridge: _route.bridge.copyWith(state: CascadeHopState.connecting),
         exit: _route.exit.copyWith(state: CascadeHopState.idle),
       );
     });
     _syncAnimation();
-    _stepTimer = Timer(const Duration(milliseconds: 1800), () {
-      if (!mounted) return;
-      setState(() {
-        _route = _route.copyWith(
-          stage: CascadeStage.bridgeToExit,
-          updatedAt: DateTime.now(),
-          device: _route.device.copyWith(state: CascadeHopState.connected),
-          bridge: _route.bridge.copyWith(state: CascadeHopState.connected),
-          exit: _route.exit.copyWith(state: CascadeHopState.connecting),
-        );
-      });
-      _syncAnimation();
-      _stepTimer = Timer(const Duration(milliseconds: 1600), () {
-        if (!mounted) return;
-        setState(() {
-          _route = _route.copyWith(
-            stage: CascadeStage.active,
-            pingMs: 38,
-            updatedAt: DateTime.now(),
-            exit: _route.exit.copyWith(state: CascadeHopState.connected),
-          );
-        });
-        _syncAnimation();
-      });
+    _deadline?.cancel();
+    _deadline = Timer(_healthDeadline, () {
+      if (!mounted || !_busy) return;
+      _finish(
+        CascadeHealth.failure(
+          'Проверка не уложилась в ${_healthDeadline.inSeconds} с',
+        ),
+      );
     });
+    CascadeHealth health;
+    try {
+      health = await probe(_bridgeAddress);
+    } catch (_) {
+      // Экран не показывает текст исключения: в нём бывают адреса и ключи.
+      health = CascadeHealth.failure('Не удалось проверить каскад по SSH');
+    } finally {
+      _deadline?.cancel();
+      _deadline = null;
+    }
+    if (!mounted || !_busy) return;
+    _finish(health);
+  }
+
+  void _finish(CascadeHealth health) {
+    _deadline?.cancel();
+    _deadline = null;
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _health = health;
+      _route = _routeFromHealth(health);
+    });
+    _syncAnimation();
+  }
+
+  /// Переносит вердикт healthcheck-а в схему и блок статуса.
+  CascadeRoute _routeFromHealth(CascadeHealth health) {
+    return _route.copyWith(
+      stage: health.stage,
+      pingMs: health.latencyMs,
+      clearPing: health.latencyMs == null,
+      updatedAt: health.checkedAt,
+      device: _route.device.copyWith(
+        address: 'IPv4',
+        state: health.verdict == CascadeHealthVerdict.unconfigured
+            ? CascadeHopState.idle
+            : CascadeHopState.connected,
+      ),
+      bridge: _route.bridge.copyWith(
+        address: _configured ? _bridgeAddress : 'не настроен',
+        state: health.bridgeState,
+      ),
+      exit: _route.exit.copyWith(
+        address: _configured ? _exitAddress : 'не настроен',
+        state: health.exitState,
+      ),
+    );
   }
 
   Future<void> _activate() async {
@@ -275,7 +330,6 @@ class _CascadeScreenState extends State<CascadeScreen>
         ),
       );
   }
-
 
   /// Диалог «Серверы каскада»: свой bridge (IPv4/домен) и exit (только IPv6).
   Future<void> _editServers() async {
@@ -355,9 +409,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                     await widget.onSaveServers?.call(bridgeText, exitText) ??
                     false;
                 if (!ok) {
-                  setLocal(
-                    () => bridgeError = 'Не удалось сохранить адреса',
-                  );
+                  setLocal(() => bridgeError = 'Не удалось сохранить адреса');
                   return;
                 }
                 if (dialogContext.mounted) {
@@ -374,6 +426,9 @@ class _CascadeScreenState extends State<CascadeScreen>
       setState(() {
         _bridgeAddress = bridge.text.trim();
         _exitAddress = exit.text.trim();
+        // Новые адреса — новый предмет проверки: старый вердикт больше не
+        // относится к этой паре серверов.
+        _health = null;
         _route = cascadeRouteFromAddresses(
           bridge: _bridgeAddress,
           exit: _exitAddress,
@@ -383,7 +438,6 @@ class _CascadeScreenState extends State<CascadeScreen>
       _syncAnimation();
     }
   }
-
 
   /// Команда установки каскада на bridge с уже подставленным адресом exit.
   Widget _installCommandBlock(String exit) {
@@ -468,7 +522,10 @@ class _CascadeScreenState extends State<CascadeScreen>
               const SizedBox(height: 10),
               Expanded(flex: 4, child: _buildStatus(context)),
               const SizedBox(height: 10),
-              Expanded(flex: 4, child: _buildSubscription(context, subscription)),
+              Expanded(
+                flex: 4,
+                child: _buildSubscription(context, subscription),
+              ),
             ],
           ),
         ),
@@ -481,6 +538,9 @@ class _CascadeScreenState extends State<CascadeScreen>
   Widget _buildScheme(BuildContext context, CascadeSubscription subscription) {
     final theme = Theme.of(context);
     final stage = _route.stage;
+    final failed =
+        stage == CascadeStage.failed ||
+        _health?.verdict == CascadeHealthVerdict.failed;
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
@@ -511,6 +571,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                                   stage: stage,
                                   t: _dots.value,
                                   surfaceColor: theme.colorScheme.surface,
+                                  running: _busy,
                                 ),
                                 child: child,
                               ),
@@ -566,12 +627,12 @@ class _CascadeScreenState extends State<CascadeScreen>
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.center,
                 child: Text(
-                  cascadeStatusCaption(stage),
+                  _caption,
                   maxLines: 1,
                   softWrap: false,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: stage == CascadeStage.failed
+                    color: failed
                         ? const Color(0xFFE53935)
                         : theme.colorScheme.onSurfaceVariant,
                   ),
@@ -683,7 +744,10 @@ class _CascadeScreenState extends State<CascadeScreen>
   // --------------------------------------------------------------- статус ---
 
   Widget _buildStatus(BuildContext context) {
-    final ping = _route.pingMs == null ? '—' : '${_route.pingMs} мс';
+    final health = _health;
+    final latency = _route.pingMs;
+    final reason = health?.reason;
+    final egress = health?.egressIpv6;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -695,9 +759,9 @@ class _CascadeScreenState extends State<CascadeScreen>
               child: _statusLine(
                 context,
                 Icons.speed,
-                'Пинг',
-                ping,
-                valueColor: _route.pingMs == null
+                'Отклик',
+                latency == null ? '—' : '$latency мс',
+                valueColor: latency == null
                     ? null
                     : _hopColor(context, CascadeHopState.connected),
               ),
@@ -706,19 +770,49 @@ class _CascadeScreenState extends State<CascadeScreen>
             Flexible(
               child: _statusLine(
                 context,
-                Icons.update,
-                'Обновлено',
-                _formatTime(_route.updatedAt),
+                Icons.public,
+                'Выходной IPv6',
+                egress ?? '—',
+                valueColor: egress == null
+                    ? null
+                    : _hopColor(context, CascadeHopState.connected),
               ),
+            ),
+            const SizedBox(height: 6),
+            Flexible(
+              child: reason != null
+                  ? _statusLine(
+                      context,
+                      Icons.error_outline,
+                      'Причина',
+                      _shortReason(reason),
+                      valueColor: const Color(0xFFE53935),
+                    )
+                  : _statusLine(
+                      context,
+                      Icons.update,
+                      'Обновлено',
+                      _formatTime(_route.updatedAt),
+                    ),
             ),
             const SizedBox(height: 8),
             Expanded(
               child: FilledButton.tonalIcon(
-                onPressed: _reconnect,
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const FittedBox(
+                onPressed: _busy ? null : _checkCascade,
+                icon: _busy
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.fact_check_outlined, size: 18),
+                label: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text('Переподключить', maxLines: 1, softWrap: false),
+                  child: Text(
+                    _busy ? 'Проверка…' : 'Проверить каскад',
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                 ),
               ),
             ),
@@ -726,6 +820,13 @@ class _CascadeScreenState extends State<CascadeScreen>
         ),
       ),
     );
+  }
+
+  /// Причина в одну строку: подробности остаются в JSON healthcheck-а.
+  static String _shortReason(String reason, [int max = 64]) {
+    final text = reason.trim();
+    if (text.length <= max) return text;
+    return '${text.substring(0, max - 1)}…';
   }
 
   Widget _statusLine(
@@ -883,11 +984,16 @@ class _CascadeSchemePainter extends CustomPainter {
     required this.stage,
     required this.t,
     required this.surfaceColor,
+    this.running = false,
   });
 
   final CascadeStage stage;
   final double t;
   final Color surfaceColor;
+
+  /// Точки бегут только пока действительно идёт SSH-опрос: никакой анимации
+  /// «для красоты» на статичном результате.
+  final bool running;
 
   static const double _y = 32;
   static const double _firstFrom = 70;
@@ -909,9 +1015,7 @@ class _CascadeSchemePainter extends CustomPainter {
     CascadeStage.failed => _red,
   };
 
-  bool _animating({required bool first}) =>
-      (first && stage == CascadeStage.deviceToBridge) ||
-      (!first && stage == CascadeStage.bridgeToExit);
+  bool _animating({required bool first}) => running && first;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -957,5 +1061,6 @@ class _CascadeSchemePainter extends CustomPainter {
   bool shouldRepaint(covariant _CascadeSchemePainter oldDelegate) =>
       oldDelegate.t != t ||
       oldDelegate.stage != stage ||
+      oldDelegate.running != running ||
       oldDelegate.surfaceColor != surfaceColor;
 }

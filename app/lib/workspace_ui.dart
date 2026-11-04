@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'cascade_model.dart';
+import 'cascade_probe.dart';
 import 'core.dart';
 import 'mtproto_ui.dart';
 import 'cascade_ui.dart';
@@ -474,6 +475,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                   store.setCascadeServers(bridge: bridge, exit: exit),
               unlocked: store.cascadeUnlocked,
               onUnlock: () => store.setCascadeUnlocked(true),
+              healthProbe: (bridge) =>
+                  CascadeSshProbe(store: store).check(bridge),
             ),
           ),
         ),

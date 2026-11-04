@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'cascade_probe.dart';
 import 'cascade_ui.dart';
 import 'app_settings.dart';
 import 'client_policy.dart';
@@ -72,7 +73,9 @@ class ClientApp extends StatelessWidget {
       theme: xioTheme(Brightness.light, client: true),
       darkTheme: xioTheme(Brightness.dark, client: true),
       routes: <String, WidgetBuilder>{
-        CascadeScreen.routeName: (_) => const CascadeScreen(),
+        CascadeScreen.routeName: (_) => CascadeScreen(
+          healthProbe: (bridge) => CascadeSshProbe(store: store).check(bridge),
+        ),
       },
       home: FirstRunGate(
         store: store,
@@ -549,6 +552,8 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                                   .setCascadeServers(bridge: bridge, exit: exit),
                               unlocked: store.cascadeUnlocked,
                               onUnlock: () => store.setCascadeUnlocked(true),
+                              healthProbe: (bridge) =>
+                                  CascadeSshProbe(store: store).check(bridge),
                             ),
                           ),
                         ),
