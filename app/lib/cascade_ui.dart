@@ -94,12 +94,13 @@ class CascadeScreen extends StatefulWidget {
 }
 
 class _CascadeScreenState extends State<CascadeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const CascadeSubscription _stubSubscription = CascadeSubscription();
 
   late CascadeRoute _route;
   late final AnimationController _dots;
   Timer? _stepTimer;
+  bool _visible = true;
 
   CascadeSubscription get _subscription =>
       widget.subscription ?? _stubSubscription;
@@ -114,14 +115,32 @@ class _CascadeScreenState extends State<CascadeScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
+    WidgetsBinding.instance.addObserver(this);
     _syncAnimation();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _stepTimer?.cancel();
     _dots.dispose();
     super.dispose();
+  }
+
+  /// A backgrounded screen must not keep the "running dots" ticker scheduled:
+  /// the animation is only decorative and stops while the app is not visible.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final visible = state == AppLifecycleState.resumed;
+    if (visible == _visible) return;
+    _visible = visible;
+    if (!visible) {
+      _stepTimer?.cancel();
+      _stepTimer = null;
+      _dots.stop();
+    } else {
+      _syncAnimation();
+    }
   }
 
   /// Демо-маршрут: bridge в Нидерландах (IPv4), exit в Швеции (IPv6).
@@ -150,7 +169,7 @@ class _CascadeScreenState extends State<CascadeScreen>
   );
 
   void _syncAnimation() {
-    if (_route.isAnimating) {
+    if (_visible && _route.isAnimating) {
       if (!_dots.isAnimating) _dots.repeat();
     } else if (_dots.isAnimating) {
       _dots.stop();
@@ -271,18 +290,24 @@ class _CascadeScreenState extends State<CascadeScreen>
                     child: Center(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: AnimatedBuilder(
-                          animation: _dots,
-                          builder: (context, _) => SizedBox(
+                        child: RepaintBoundary(
+                          child: SizedBox(
                             width: 300,
                             height: 96,
-                            child: CustomPaint(
-                              painter: _CascadeSchemePainter(
-                                stage: stage,
-                                t: _dots.value,
-                                surfaceColor: theme.colorScheme.surface,
-                              ),
+                            // The stations are passed as `child` so a running
+                            // "dots" animation repaints only the painter instead
+                            // of rebuilding the three station widgets at 60 fps.
+                            child: AnimatedBuilder(
+                              animation: _dots,
                               child: _buildStations(context),
+                              builder: (context, child) => CustomPaint(
+                                painter: _CascadeSchemePainter(
+                                  stage: stage,
+                                  t: _dots.value,
+                                  surfaceColor: theme.colorScheme.surface,
+                                ),
+                                child: child,
+                              ),
                             ),
                           ),
                         ),

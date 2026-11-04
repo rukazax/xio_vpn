@@ -22,19 +22,31 @@ object Engine {
     @Volatile var backgroundBusy = false
     var kind = "awg"
     var lastConnectMillis=0L
+    /** Protocol the active rivet id was last reconciled against, so the vault
+     *  is not decrypted on every status poll. */
+    @Volatile var reconciledProtocol: String? = null
     fun isUp()=OpenVpnBackend.established || XrayBackend.established || RivetBackend.established || backend.getState(tunnel)==Tunnel.State.UP
-    fun handshake():Long {
-        if(kind=="cloak"){val v=OpenVpnBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
-        if(kind=="xray"){val v=XrayBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
-        if(kind.startsWith("rivet-")){val v=RivetBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
+    /** [known] reuses a status JSON already read by the caller: the rivet
+     *  backend would otherwise be asked twice per poll. */
+    fun handshake(known: org.json.JSONObject? = null):Long {
+        if(kind=="cloak"){val v=known?:OpenVpnBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
+        if(kind=="xray"){val v=known?:XrayBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
+        if(kind.startsWith("rivet-")){val v=known?:RivetBackend.status();return if(v.optBoolean("secure"))v.optLong("handshake") else 0L}
         val stats=backend.getStatistics(tunnel);return stats.peers().mapNotNull{stats.peer(it)?.latestHandshakeEpochMillis()}.maxOrNull()?:0L
+    }
+    /** Clears the active id only when it is really stored: an unconditional
+     *  `remove().commit()` rewrote the preferences file on every poll. */
+    fun clearActiveId(prefs:android.content.SharedPreferences) {
+        if(prefs.contains("activeId"))prefs.edit().remove("activeId").commit()
     }
     fun status():Map<String,Any?> {
         val prefs=app.getSharedPreferences("xio",0);val up=isUp()
-        if(kind=="xray"||kind=="cloak"){val v=if(kind=="cloak")OpenVpnBackend.status() else XrayBackend.status();if(!up)prefs.edit().remove("activeId").commit();return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to v.optLong("rx"),"tx" to v.optLong("tx"),"handshake" to handshake(),"protocol" to kind)}
+        if(kind=="xray"||kind=="cloak"){val v=if(kind=="cloak")OpenVpnBackend.status() else XrayBackend.status();if(!up)clearActiveId(prefs);return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to v.optLong("rx"),"tx" to v.optLong("tx"),"handshake" to handshake(v),"protocol" to kind)}
         if(kind.startsWith("rivet-")){
             val value=RivetBackend.status();val actual=value.optString("protocol",kind);kind=actual
-            if(up){
+            if(up&&actual!=reconciledProtocol){
+                // One decrypt per negotiated protocol, not one per poll.
+                reconciledProtocol=actual
                 val oldId=prefs.getString("activeId",null)
                 if(oldId!=null){try{
                     val old=org.json.JSONObject(ConfigVault(app).readSecret(oldId))
@@ -48,10 +60,10 @@ object Engine {
                     }
                 }catch(_:Exception){}}
             }
-            if(!up)prefs.edit().remove("activeId").commit()
-            return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to value.optLong("rx"),"tx" to value.optLong("tx"),"handshake" to handshake(),"protocol" to actual,"phase" to value.optString("phase"))
+            if(!up){reconciledProtocol=null;clearActiveId(prefs)}
+            return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to value.optLong("rx"),"tx" to value.optLong("tx"),"handshake" to handshake(value),"protocol" to actual,"phase" to value.optString("phase"))
         }
-        if(!up)prefs.edit().remove("activeId").commit()
+        if(!up)clearActiveId(prefs)
         val stats=if(up)backend.getStatistics(tunnel) else null
         return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to stats?.totalRx(),"tx" to stats?.totalTx(),"handshake" to if(up)handshake() else null,"protocol" to kind)
     }
@@ -59,7 +71,7 @@ object Engine {
     val tunnel = object : Tunnel {
         override fun getName() = "xio0"
         override fun onStateChange(state: Tunnel.State) {
-            if (state == Tunnel.State.DOWN) app.getSharedPreferences("xio", 0).edit().remove("activeId").commit()
+            if (state == Tunnel.State.DOWN) { reconciledProtocol=null; clearActiveId(app.getSharedPreferences("xio", 0)) }
             XioVpnService.stateChanged(state == Tunnel.State.UP)
             VpnTileService.refresh(app)
         }
@@ -71,6 +83,7 @@ object Engine {
     }
     fun disconnect() {
         app.getSharedPreferences("xio",0).edit().putBoolean("vpnWanted",false).commit()
+        reconciledProtocol=null
         OpenVpnBackend.stop()
         XrayBackend.stop()
         if(kind.startsWith("rivet-") || RivetBackend.established) RivetBackend.stop()
@@ -78,7 +91,7 @@ object Engine {
         if (!BuildConfig.CLIENT_ONLY) VpnSharing.schedule(app,true)
         app.stopService(Intent(app,XioVpnService::class.java))
         XioVpnService.awaitStopped()
-        app.getSharedPreferences("xio", 0).edit().remove("activeId").commit()
+        clearActiveId(app.getSharedPreferences("xio", 0))
     }
     private fun vpnNetworks(): Set<android.net.Network> {
         val cm=app.getSystemService(android.net.ConnectivityManager::class.java)
@@ -103,6 +116,7 @@ object Engine {
     fun connect(id: String, allowExistingService: Boolean = false) {
         check(app.getSharedPreferences("xio",0).getString("consentRevision",null)=="2026-10-18") { "Open XIO and review VPN disclosure" }
         check(!isUp())
+        reconciledProtocol=null
         val started=android.os.SystemClock.elapsedRealtime()
         val previousNetworks=vpnNetworks()
         if(!allowExistingService) XioVpnService.awaitStopped()
