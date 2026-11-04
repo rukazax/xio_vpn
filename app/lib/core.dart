@@ -274,6 +274,19 @@ class TunnelStatus {
     this.tx,
     this.handshake,
   });
+
+  /// Value equality: an unchanged status must not cause a repaint.
+  @override
+  bool operator ==(Object other) =>
+      other is TunnelStatus &&
+      other.active == active &&
+      other.state == state &&
+      other.path == path &&
+      other.rx == rx &&
+      other.tx == tx &&
+      other.handshake == handshake;
+  @override
+  int get hashCode => Object.hash(active, state, path, rx, tx, handshake);
 }
 
 /// Imports only client data; never SSH credentials, commands or subscription URLs.
@@ -577,12 +590,16 @@ class AppStore extends ChangeNotifier {
   bool get consentReady =>
       legalRecord?.current == true && vpnDisclosure == vpnDisclosureRevision;
   void setForeground(bool active) {
+    final changed = _foreground != active;
+    _foreground = active;
     _timer?.cancel();
     _timer = null;
     if (active && ready) {
       unawaited(refresh());
       _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
     }
+    // A visible window may probe at once; a hidden one waits for its budget.
+    if (changed && active) _lastProbeAt = 0;
   }
 
   Future<void> acknowledgeLegal(String text, String language) async {
@@ -656,6 +673,15 @@ class AppStore extends ChangeNotifier {
   bool _desired = false;
   bool reconnecting = false;
   bool autoReconnect = true;
+  // Battery budget for the link check. A DNS lookup through the tunnel wakes the
+  // radio, so the watchdog first looks for free evidence (fresh handshake or a
+  // moving receive counter) and only then spends a probe — never more often than
+  // [_backgroundProbeMillis] while the window is hidden.
+  bool _foreground = true;
+  static const int _handshakeFreshMillis = 150000;
+  static const int _backgroundProbeMillis = 90000;
+  int _lastProbeAt = 0;
+  int? _lastRx;
   final _statusPoll = StatusPoll();
   bool _storageHealthy = true;
   Future<void> _saveQueue = Future.value();
@@ -759,7 +785,11 @@ class AppStore extends ChangeNotifier {
     }
     ready = true;
     notifyListeners();
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    // A load that finished while the window was already hidden must not revive
+    // the three-second UI poll.
+    if (_foreground) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    }
     if (Platform.isAndroid &&
         (!enforceConsent || consentReady) &&
         await native.invokeMethod<bool>('consumeConnectRequest') == true) {
@@ -1780,6 +1810,7 @@ class AppStore extends ChangeNotifier {
       _statusPoll.run(_readStatus, fresh: fresh);
 
   Future<void> _readStatus() async {
+    final before = status;
     try {
       final p = activeProfile ?? selected;
       if (nativeProtocols.contains(p?.protocol) && nativeTunnel) {
@@ -1813,7 +1844,9 @@ class AppStore extends ChangeNotifier {
       );
     } finally {
       _syncWatchdog();
-      notifyListeners();
+      // A poll that learned nothing new must not rebuild the shell: the idle
+      // screen used to be redrawn every three seconds.
+      if (before != status) notifyListeners();
     }
   }
 
@@ -1835,11 +1868,31 @@ class AppStore extends ChangeNotifier {
 
   Future<void> _watchdogTick() async {
     if (reconnecting || busy || !_desired) return;
-    // The engine may have dropped the tunnel on its own: restore it.
+    // The engine may have dropped the tunnel on its own: restore it. The read
+    // is a method-channel call, not a socket, so it costs no radio time.
+    await refresh();
+    if (!_desired || reconnecting) return;
     if (!status.active) {
       await _reconnect();
       return;
     }
+    // Free liveness evidence first: a fresh handshake or moving counters prove
+    // that payload still crosses the tunnel, so no DNS query is spent.
+    if (_tunnelLooksAlive()) {
+      _watchdogMisses = 0;
+      return;
+    }
+    // A DNS answer is the fallback probe. While the window is hidden it is
+    // budgeted: a lookup on a sleeping radio wakes the whole modem. A probe
+    // that already missed is confirmed on the next tick, so detection of a real
+    // outage keeps the original two-miss latency.
+    final now = DateTime.now().millisecondsSinceEpoch;
+    if (!_foreground &&
+        _watchdogMisses == 0 &&
+        now - _lastProbeAt < _backgroundProbeMillis) {
+      return;
+    }
+    _lastProbeAt = now;
     var alive = false;
     try {
       final addrs = await InternetAddress.lookup('example.com')
@@ -1856,6 +1909,23 @@ class AppStore extends ChangeNotifier {
     if (++_watchdogMisses < 2) return;
     _watchdogMisses = 0;
     await _reconnect();
+  }
+
+  /// True when the engine itself reports recent traffic: a handshake younger
+  /// than [_handshakeFreshMillis] or a receive counter that moved since the last
+  /// tick. Both are cheaper and stronger than a DNS round trip.
+  ///
+  /// Only the *receive* counter counts: `tx` advances even when the packets are
+  /// sent into a black hole (UDP/TCP sockets on a dead link still accept writes),
+  /// so trusting it would let a broken tunnel look alive and suppress the very
+  /// reconnects this watchdog exists for.
+  bool _tunnelLooksAlive() {
+    final handshake = status.handshake ?? 0;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final rx = status.rx;
+    final moved = rx != null && rx > (_lastRx ?? 0);
+    _lastRx = rx;
+    return moved || (handshake > 0 && now - handshake < _handshakeFreshMillis);
   }
 
   Future<void> _reconnect() async {
