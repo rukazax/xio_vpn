@@ -12,7 +12,7 @@ else:
   def remove(self,d):assert not Path('/etc/xio-stack/receipt.json').exists(),'Stack removal module missing; update installer'
  stack=LegacyStack()
 ROOT=Path('/etc/xio-managed'); LIB=Path('/usr/local/lib/xio-managed'); OWNER='xio-managed-v1'
-RECIPE=27
+RECIPE=28
 
 def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True)
