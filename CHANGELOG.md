@@ -47,6 +47,17 @@ mount-namespace не применяется из-за `NoNewPrivileges=yes` — 
 Проверки: `go build/vet/test ./...` в обоих режимах тегов — зелёные, кросс-сборки
 windows/android/darwin — зелёные; размер helper'а после фикса не изменился.
 
+## Проверки — 2026-11-04
+
+Локальный `flutter test` на этой машине больше не запускается: Smart App Control блокирует
+`dartaotruntime.exe`, и resident compiler не стартует (отсюда «0 passed» и зависания). Прогон
+перенесён на Debian (`work/flutter-test-debian.ps1`): **188 passed / 10 skip / 0 failed**. Прежние
+«4 известных падения» оказались артефактом отсутствующих каталогов — golden-тесты пишут PNG в
+`verification/` и `docs/images/`.
+
+`work/verify-all.ps1` теперь: flutter-тесты на Debian, helper сверяется с кросс-сборкой на Debian
+(локальный Go-тулчейн тоже блокируется SAC). Последний прогон — **OK 15 / WARN 1 / FAIL 0**.
+
 ## Хосты и hardening — 2026-11-04, проход 4
 
 | Что | Было | Стало |

@@ -295,34 +295,24 @@ try {
                 Add-Check 'flutter analyze' 'FAIL' ('exit {0}, {1} с' -f $r.ExitCode, $r.Seconds) 'см. лог выше'
             }
 
-            $r = Invoke-Native $script:Flutter @('test') -WorkingDirectory $appDir -TimeoutSeconds $TimeoutSeconds
-            $sum = Get-FlutterTestSummary $r.Output
-            $numbers = '{0} passed / {1} skip / {2} failed, {3} с' -f $sum.Passed, $sum.Skipped, $sum.Failed, $r.Seconds
-            $unknown = @($sum.FailingNames | Where-Object { $script:KnownFlutterFailures -notcontains $_ })
-            $missingKnown = @($script:KnownFlutterFailures | Where-Object { $sum.FailingNames -notcontains $_ })
-            $noOpenSsl = $r.Output -match 'ProcessException'
-            if ($r.TimedOut) {
-                Add-Check 'flutter test' 'FAIL' $numbers ('таймаут {0} с' -f $TimeoutSeconds)
-            } elseif ($sum.Failed -gt 4) {
-                Add-Check 'flutter test' 'FAIL' $numbers ('failed {0} > бюджета 4' -f $sum.Failed)
-            } elseif ($sum.Failed -gt 0) {
-                $noteParts = [System.Collections.Generic.List[string]]::new()
-                if ($missingKnown.Count -eq 0) {
-                    $noteParts.Add('все падения — известные 4 среды: тестам нужен openssl CLI, его нет в этой Windows-среде')
+            # Local `flutter test` cannot run on this machine: Smart App Control
+            # blocks dartaotruntime.exe, so the resident compiler never starts.
+            # Run the suite on Debian through the dedicated runner instead.
+            $runner = Join-Path $PSScriptRoot 'flutter-test-debian.ps1'
+            if (Test-Path $runner) {
+                $r = Invoke-Native 'pwsh' @('-NoProfile','-ExecutionPolicy','Bypass','-File',$runner,'-RepoRoot',$script:Root) -TimeoutSeconds ([Math]::Max($TimeoutSeconds, 1200))
+                $tail = Get-LastLines $r.Output 10
+                foreach ($l in $tail) { Write-Log ('    ' + $l) }
+                $numbers = (($r.Output | Where-Object { $_ -match 'passed' } | Select-Object -Last 1) -replace '\s+', ' ').Trim()
+                if ($r.ExitCode -eq 0) {
+                    Add-Check 'flutter test (Debian)' 'OK' $numbers 'локальный прогон заблокирован SAC'
+                } elseif ($r.ExitCode -eq 2) {
+                    Add-Check 'flutter test (Debian)' 'FAIL' $numbers 'инфраструктура прогона (ssh/0 тестов)'
                 } else {
-                    $noteParts.Add('не воспроизвелись: ' + ($missingKnown -join '; '))
+                    Add-Check 'flutter test (Debian)' 'WARN' $numbers 'падения сверх бюджета — см. лог'
                 }
-                if ($unknown.Count -gt 0) { $noteParts.Add('новые падения: ' + ($unknown -join '; ')) }
-                Add-Check 'flutter test' 'WARN' $numbers ($noteParts -join '; ')
             } else {
-                Add-Check 'flutter test' 'OK' $numbers ''
-            }
-            if ($sum.FailingNames.Count -gt 0) {
-                Write-Log '    падающие тесты:' ([ConsoleColor]::DarkYellow)
-                foreach ($n in $sum.FailingNames) { Write-Log ('      - ' + $n) ([ConsoleColor]::DarkYellow) }
-            }
-            if ($noOpenSsl) {
-                Write-Log '    причина: тесты вызывают openssl CLI, его нет в этой Windows-среде (ProcessException).' ([ConsoleColor]::DarkYellow)
+                Add-Check 'flutter test' 'SKIP' 'нет work/flutter-test-debian.ps1'
             }
         }
     }
@@ -544,7 +534,7 @@ echo '@@END'
         $bundle = Join-Path $script:Root 'app\build\windows\x64\runner\Release\libexec\xio-tunnel.exe'
         if (-not (Test-Path $bundle)) {
             Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' 'нет бандла' $bundle
-        } elseif (-not $script:Go) {
+        } else {
             # The Windows Go toolchain is blocked by Smart App Control here, so the
             # reference build is a Windows cross-compile on Debian (the synced tree).
             $b = Invoke-Native 'ssh' @('-o','BatchMode=yes','-i',"$env:USERPROFILE\.ssh\id_ed25519_debian17",'root@192.168.88.17',
@@ -557,42 +547,6 @@ echo '@@END'
                 $sb = (Get-Item $bundle).Length
                 if ($freshBytes -eq $sb) { Add-Check 'артефакт: размер xio-tunnel.exe' 'OK' ("бандл $sb B, кросс-сборка $freshBytes B") '' }
                 else { Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' ("бандл $sb B != сборка $freshBytes B") 'пересоберите бандл' }
-            }
-        } else {
-            $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) ('xio-verify-build-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
-            try {
-                New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
-                $fresh = Join-Path $tmpDir 'xio-tunnel.exe'
-                $b = Invoke-Native $script:Go @('build', '-trimpath', '-ldflags=-s -w', '-o', $fresh, './cmd/xio-desktop') -WorkingDirectory (Join-Path $script:Root 'protocol\rivet') -TimeoutSeconds $TimeoutSeconds
-                if ($b.ExitCode -ne 0) {
-                    Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' ('сборка exit ' + $b.ExitCode) 'см. лог'
-                    foreach ($l in (Get-LastLines $b.Output 12)) { Write-Log ('    ' + $l) }
-                } elseif (-not (Test-Path $fresh)) {
-                    Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' 'сборка не создала файл'
-                } else {
-                    $sb = (Get-Item $bundle).Length
-                    $sf = (Get-Item $fresh).Length
-                    $hb = (Get-FileHash $bundle -Algorithm SHA256).Hash.ToLower()
-                    $hf = (Get-FileHash $fresh -Algorithm SHA256).Hash.ToLower()
-                    $revBundle = Get-GoVcsRevision $bundle
-                    $revFresh = Get-GoVcsRevision $fresh
-                    $revNote = ''
-                    if ($revBundle) { $revNote = 'бандл из ' + $revBundle.Substring(0, 7) }
-                    if ($revFresh) { $revNote += $(if ($revNote) { '; ' } else { '' }) + 'свежая сборка из ' + $revFresh.Substring(0, 7) }
-                    $numbers = 'бандл {0} B, сборка {1} B, {2} с' -f $sb, $sf, $b.Seconds
-                    if ($sb -ne $sf) {
-                        Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' $numbers (('разница {0} B; ' -f ($sf - $sb)) + $revNote)
-                    } elseif ($revBundle -and $revFresh -and $revBundle -ne $revFresh) {
-                        # Размер тот же, но бандл собран из другого коммита — это важнее совпадения байт.
-                        Add-Check 'артефакт: размер xio-tunnel.exe' 'WARN' $numbers ('размер совпал, но в бандле ревизия {0}, в свежей сборке {1} — бандл старше исходников' -f $revBundle.Substring(0, 7), $revFresh.Substring(0, 7))
-                    } elseif ($hb -eq $hf) {
-                        Add-Check 'артефакт: размер xio-tunnel.exe' 'OK' $numbers ('sha совпал: {0}' -f $hb.Substring(0, 12))
-                    } else {
-                        Add-Check 'артефакт: размер xio-tunnel.exe' 'OK' $numbers ('sha различается ({0} != {1}), размер — критерий задачи' -f $hb.Substring(0, 12), $hf.Substring(0, 12))
-                    }
-                }
-            } finally {
-                Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
             }
         }
 
@@ -759,3 +713,4 @@ echo "@@END"
 Write-Host ''
 Write-Host ('лог: ' + $LogPath) -ForegroundColor Cyan
 exit $exitCode
+

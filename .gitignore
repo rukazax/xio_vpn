@@ -62,3 +62,6 @@ work/opt-runtime-*/
 
 # The full CJK master font is only needed to rebuild the subset (see app/fonts-src/README.md).
 app/fonts-src/*.otf
+
+# Test evidence and logs are regenerated, not versioned.
+work/evidence/
