@@ -399,3 +399,22 @@ class SandboxPolicyTests(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+class ShadowsocksConfigTests(unittest.TestCase):
+ def fake(self,protocols):
+  return {'restrictedNetwork':False,'outbound':'eth0','protocols':['awg','xray'],
+          'stack':{'protocols':protocols,'publicKey':'k','shortId':'s','serverName':'n'},
+          'users':{}}
+ def test_restricted_or_undeclared_profiles_never_emit_shadowsocks(self):
+  import json
+  for protocols in (['xray','cloak'], ['xray','openvpn'], []):
+   written={}
+   with patch.object(m.stack,'receipt',return_value={'target':'t','serverName':'n','privateKey':'k','shortId':'s','ssKey':'x','inactiveKey':'y'}), \
+        patch.object(m.stack,'write',side_effect=lambda path,text,mode=0o600: written.update({'json':text})), \
+        patch.object(m.stack.network,'dualstack',return_value=type('D',(),{'listener':lambda self:'127.0.0.1'})()):
+    m.stack.config(self.fake(protocols))
+   inbound=[i['protocol'] for i in json.loads(written['json'])['inbounds']]
+   self.assertNotIn('shadowsocks',inbound,protocols)
+
+
+if __name__=='__main__':unittest.main()

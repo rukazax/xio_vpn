@@ -66,7 +66,12 @@ def config(d):
  if not ssclients:ssclients=[{'password':r['inactiveKey'],'email':'inactive@xio'}]
  listen=network.dualstack().listener()
  j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':listen,'port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':listen,'port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
- if d.get('restrictedNetwork'):j['inbounds']=[inbound for inbound in j['inbounds'] if inbound['protocol']!='shadowsocks']
+ # This xray fork dropped shadowsocks from the JSON loader, so a config that
+ # mentions it cannot be loaded at all ("unknown config id: shadowsocks"). Emit the
+ # inbound only when the stack profile of this deployment really contains it.
+ wanted='shadowsocks' in (d.get('stack') or {}).get('protocols', [])
+ if d.get('restrictedNetwork') or not wanted:
+  j['inbounds']=[inbound for inbound in j['inbounds'] if inbound['protocol']!='shadowsocks']
  write(ROOT/'config.json',json.dumps(j))
 def apply(d):
  config(d)
