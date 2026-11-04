@@ -1,4 +1,5 @@
 import 'build_identity.dart';
+import 'version.dart';
 import 'cascade_model.dart';
 import 'protocol_compatibility.dart';
 import 'account_access.dart';
@@ -2008,7 +2009,7 @@ class AppStore extends ChangeNotifier {
 
   Map<String, dynamic> diagnosticReport(List<Map<String, dynamic>> checks) => {
     'application': 'XIO',
-    'version': '0.22.3',
+    'version': xioVersion,
     'createdAt': DateTime.now().toUtc().toIso8601String(),
     'platform': Platform.operatingSystem,
     'tunnelState': status.state,

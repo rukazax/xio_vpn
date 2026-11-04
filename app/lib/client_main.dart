@@ -13,6 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'cascade_ui.dart';
 import 'client_policy.dart';
 import 'core.dart';
+import 'version.dart';
 import 'help_legal_ui.dart';
 import 'l10n.dart';
 import 'split_routing.dart';
@@ -325,7 +326,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
   Future<void> information() => showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const LText('XIO Client · 0.22.3'),
+      title: LText('XIO Client · $xioVersion'),
       content: SingleChildScrollView(child: SelectableText(clientDisclosure)),
       actions: [
         TextButton(
@@ -338,7 +339,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
           onPressed: () => showLicensePage(
             context: context,
             applicationName: 'XIO Client',
-            applicationVersion: '0.22.3',
+            applicationVersion: xioVersion,
           ),
           child: const LText('Лицензии'),
         ),

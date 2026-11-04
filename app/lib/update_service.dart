@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import 'dart:async';
+import 'version.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -12,8 +13,7 @@ import 'core.dart';
 
 bool automaticUpdatesEnabled = false;
 void Function()? onUpdateRequest;
-const xioVersion = '0.24.2';
-const xioBuild = 5019;
+// Версия живёт в version.dart — единый источник, чтобы не было дрейфа.
 const githubUrl = 'https://github.com/rukazax/xio_vpn';
 const releasesUrl = '$githubUrl/releases';
 const playDistribution = bool.fromEnvironment('XIO_PLAY_BUILD');

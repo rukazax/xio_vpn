@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
+import 'version.dart';
 import 'update_service.dart';
 
 const supportUrl = 'https://xio.org/pay';
@@ -23,12 +24,12 @@ Future<void> openExternalLink(String url) async {
 }
 
 Future<void> shareApplication() async {
-  const url = '$releasesUrl/tag/v$xioVersion';
+  final url = '$releasesUrl/tag/v$xioVersion';
   if (Platform.isAndroid || Platform.isIOS) {
     await native.invokeMethod<void>('shareApplication', {
       'text': 'XIO VPN\n$url',
     });
   } else {
-    await Clipboard.setData(const ClipboardData(text: 'XIO VPN\n$url'));
+    await Clipboard.setData(ClipboardData(text: 'XIO VPN\n$url'));
   }
 }

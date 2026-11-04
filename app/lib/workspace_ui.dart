@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
+import 'version.dart';
 import 'cascade_ui.dart';
 import 'managed_service.dart';
 import 'server_address.dart';
@@ -717,7 +718,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const LText('XIO · X in 1 out\nВерсия 0.22.3'),
+              LText('XIO · X in 1 out\nВерсия $xioVersion'),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.code),
