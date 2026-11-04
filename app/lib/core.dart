@@ -469,7 +469,7 @@ class ClientImport {
         rethrow;
       }
     }
-    if (raw.startsWith('xio://') || raw.startsWith(legacyX1oUriScheme)) {
+    if (raw.startsWith('xio://')) {
       final bundle = UserBundle.decode(raw);
       for (final entry in bundle.configs.entries) {
         if (detect(entry.value) != entry.key) {

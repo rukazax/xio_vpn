@@ -46,7 +46,7 @@ void main() {
         'serverId',
         'configs',
       });
-      for (final raw in ['x1o://!', 'vpn://abc', 'x1o://${'a' * 200000}']) {
+      for (final raw in ['xio2://!', 'vpn://abc', 'xio2://${'a' * 200000}']) {
         expect(() => UserBundle.decode(raw), throwsFormatException);
       }
       for (final data in [
@@ -74,7 +74,7 @@ void main() {
       ]) {
         expect(
           () => UserBundle.decode(
-            'x1o://${base64Url.encode(utf8.encode(jsonEncode(data)))}',
+            'xio://${base64Url.encode(utf8.encode(jsonEncode(data)))}',
           ),
           throwsFormatException,
         );

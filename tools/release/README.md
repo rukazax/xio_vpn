@@ -30,10 +30,8 @@ pwsh -NoProfile -File tools/release/build-all.ps1 -Version 0.24.1 -DryRun
 pwsh -NoProfile -File tools/release/build-all.ps1 -Version 0.24.1 -Skip linux
 
 # 3) подпись APK (если нужно переподписать; gradle уже подписывает своим ключом)
-# Имя keystore и алиас — устаревшие имена ранних сборок; менять нельзя: подпись
-# должна совпасть с уже выпущенными APK, иначе обновление не установится поверх.
-$env:XIO_KEYSTORE = 'C:\keys\x1o-development.p12'
-$env:XIO_KEY_ALIAS = 'x1oDevelopment'
+$env:XIO_KEYSTORE = 'C:\keys\release-signing.p12'
+$env:XIO_KEY_ALIAS = '<алиас из вашего keystore>'
 $env:XIO_STORE_PASSWORD = '<пароль>'
 $env:XIO_KEY_PASSWORD = '<пароль>'
 pwsh -NoProfile -File tools/release/sign-apk.ps1 -Apk "releases/0.24.1/*.apk"
@@ -121,7 +119,7 @@ Keystore не захардкожен: `-Keystore` → `$env:XIO_KEYSTORE` → `-
 |---|---|
 | `-Apk` | обязателен, можно `a.apk,b.apk` |
 | `-Keystore` | `$env:XIO_KEYSTORE` |
-| `-KeyAlias` | `$env:XIO_KEY_ALIAS`, иначе `x1oDevelopment` |
+| `-KeyAlias` | `$env:XIO_KEY_ALIAS`, иначе `keyAlias` из `-SigningProperties` |
 | `-StorePassword` | `$env:XIO_STORE_PASSWORD` |
 | `-KeyPassword` | `$env:XIO_KEY_PASSWORD`, иначе равен паролю хранилища |
 | `-OutDir` | — (подпись на месте; с параметром — копии) |

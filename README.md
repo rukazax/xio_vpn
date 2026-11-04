@@ -514,10 +514,9 @@ adb push "$APK" /data/local/tmp/xio.apk
 adb shell pm install -r -g /data/local/tmp/xio.apk
 ```
 
-Android 0.24.1 is `0.24.1+5018`, signed with the release certificate `CN=x1o Development` (legacy
-name of early builds; it must not change, or updates stop installing over the old APKs; SHA-256
-`e4e81b12…c9671`), so it
-updates over 0.23.x/0.24.x without uninstalling. The newest APKs on the Releases page are 0.24.0 —
+Android 0.24.1 is `0.24.1+5018`, signed with the same certificate (SHA-256 `e4e81b12…c9671`; the
+alias of the historical signature is kept in the keystore), so it updates over 0.23.x/0.24.x
+without uninstalling. The newest APKs on the Releases page are 0.24.0 —
 the 0.24.1 Android set is being prepared, and its notes are in
 [docs/release-notes-0.24.1-mobile.md](docs/release-notes-0.24.1-mobile.md).
 
