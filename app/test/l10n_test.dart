@@ -4,10 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xio/cascade_ui.dart';
 import 'package:xio/core.dart';
 import 'package:xio/l10n.dart';
 import 'package:xio/main.dart';
+import 'package:xio/mtproto_ui.dart';
 import 'support/screenshots.dart';
 
 class _MemoryStore extends AppStore {
@@ -332,6 +335,87 @@ void main() {
         '../verification/l10n-layouts-0.16.json',
         const JsonEncoder.withIndent('  ').convert(evidence),
       );
+    },
+  );
+  testWidgets(
+    'cascade screen fits 360×640 in every language, RTL included',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      for (final code in AppLanguages.names.keys) {
+        AppLanguages.set(code);
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: Locale(code),
+            supportedLocales: AppLanguages.locales,
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            theme: ThemeData(colorSchemeSeed: const Color(0xFF2ECC71)),
+            home: const CascadeScreen(
+              bridgeAddress: '81.177.142.37',
+              exitAddress: '2a0c:b641:1a0:800::2a2',
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: code);
+        expect(
+          Directionality.of(tester.element(find.byType(Scaffold))),
+          code == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+          reason: code,
+        );
+        expect(
+          find.text(AppLanguages.text('Каскад')),
+          findsOneWidget,
+          reason: code,
+        );
+        await tester.pumpWidget(const SizedBox());
+      }
+    },
+  );
+  testWidgets(
+    'MTProto screen fits 360×640 in every language, RTL included',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final store = _MemoryStore();
+      addTearDown(store.dispose);
+      for (final code in AppLanguages.names.keys) {
+        AppLanguages.set(code);
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: Locale(code),
+            supportedLocales: AppLanguages.locales,
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            theme: ThemeData(colorSchemeSeed: const Color(0xFF2ECC71)),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: MtprotoProxyScreen(store: store),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull, reason: code);
+        expect(
+          find.text(AppLanguages.text('Установить MTProto на сервер')),
+          findsNothing,
+          reason: 'no server is saved in this test: $code',
+        );
+        expect(
+          find.text(AppLanguages.text('Сохранить')),
+          findsOneWidget,
+          reason: code,
+        );
+        await tester.pumpWidget(const SizedBox());
+      }
     },
   );
 }
