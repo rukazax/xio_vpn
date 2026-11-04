@@ -321,7 +321,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
   Future<void> information() => showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const LText('XIO Client · 0.22.3'),
+      title: const LText('XIO Client · $xioVersion'),
       content: SingleChildScrollView(child: SelectableText(clientDisclosure)),
       actions: [
         TextButton(
@@ -334,7 +334,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
           onPressed: () => showLicensePage(
             context: context,
             applicationName: 'XIO Client',
-            applicationVersion: '0.22.3',
+            applicationVersion: xioVersion,
           ),
           child: const LText('Лицензии'),
         ),

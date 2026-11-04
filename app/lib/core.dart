@@ -592,6 +592,10 @@ Duration watchdogIntervalFor(int healthyChecks) => healthyChecks >= 6
     ? const Duration(seconds: 20)
     : const Duration(seconds: 15);
 
+/// User-visible version. Keep in sync with `version:` in pubspec.yaml; the
+/// About screen and the client title used to hardcode 0.22.3.
+const String xioVersion = '0.24.1';
+
 class AppStore extends ChangeNotifier {
   LegalRecord? legalRecord;
   String? vpnDisclosure;
@@ -1974,7 +1978,7 @@ class AppStore extends ChangeNotifier {
 
   Map<String, dynamic> diagnosticReport(List<Map<String, dynamic>> checks) => {
     'application': 'XIO',
-    'version': '0.22.3',
+    'version': xioVersion,
     'createdAt': DateTime.now().toUtc().toIso8601String(),
     'platform': Platform.operatingSystem,
     'tunnelState': status.state,
