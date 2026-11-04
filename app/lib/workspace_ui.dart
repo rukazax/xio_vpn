@@ -166,7 +166,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
 
   final pager = PageController();
   int page = 0;
-  static const titles = ['Главная', 'Настройки', 'Соединение'];
+  static const titles = ['Главная', 'Настройки', 'Настройка соединений'];
   static const icons = [
     Icons.home_outlined,
     Icons.settings_outlined,
@@ -462,6 +462,16 @@ class _WorkspaceShellState extends State<WorkspaceShell>
       ),
       const Divider(),
       ListTile(
+        leading: const Icon(Icons.hub_outlined),
+        title: const LText('Каскад VPN на своих VPS'),
+        subtitle: const LText(
+          'Вход на IPv4-VPS, выход на втором сервере',
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => openAdmin(context, store),
+      ),
+      const Divider(),
+      ListTile(
         leading: const Icon(Icons.alt_route),
         title: const LText('Каскад: IPv4-IPv6'),
         subtitle: const LText('IPv4 → bridge → IPv6 exit · по подписке'),
@@ -636,7 +646,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
       const Divider(),
       ListTile(
         leading: const Icon(Icons.wifi_tethering),
-        title: const LText('Соединение'),
+        title: const LText('Настройка соединений'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => push(
           'Настройки соединения',
@@ -1075,7 +1085,7 @@ class _SharingPageState extends State<SharingPage> {
               label: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  tr(context, 'Соединение'),
+                  tr(context, 'Настройка соединений'),
                   maxLines: 1,
                   softWrap: false,
                 ),
