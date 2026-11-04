@@ -297,16 +297,16 @@ String? validateCascadeBridge(String value) {
   }
   if (text.startsWith('[') || text.contains(':')) return null; // bridge — IPv4/домен
   final parts = text.split('.');
-  if (parts.length == 4 && parts.every((p) => p.isNotEmpty)) {
-    var ok = true;
+  final allNumeric = parts.every((p) => p.isNotEmpty && int.tryParse(p) != null);
+  if (allNumeric) {
+    // Похоже на IPv4: принимаем только четыре октета 0..255. «999.1.1.1»
+    // не должно проскочить как домен.
+    if (parts.length != 4) return null;
     for (final part in parts) {
-      final n = int.tryParse(part);
-      if (n == null || n < 0 || n > 255) {
-        ok = false;
-        break;
-      }
+      final n = int.tryParse(part)!;
+      if (n < 0 || n > 255) return null;
     }
-    if (ok) return text;
+    return text;
   }
   final label = RegExp(r'^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$');
   if (text.length <= 253 && parts.length >= 2 && parts.every(label.hasMatch)) {
