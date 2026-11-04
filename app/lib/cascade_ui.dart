@@ -46,6 +46,7 @@ import 'package:flutter/services.dart';
 
 import 'cascade_health.dart';
 import 'cascade_model.dart';
+import 'l10n.dart';
 
 /// Подпись под схемой для каждой стадии.
 String cascadeStatusCaption(CascadeStage stage) => switch (stage) {
@@ -311,7 +312,7 @@ class _CascadeScreenState extends State<CascadeScreen>
         ..hideCurrentSnackBar()
         ..showSnackBar(
           const SnackBar(
-            content: Text('Каскад уже включён'),
+            content: LText('Каскад уже включён'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -325,7 +326,7 @@ class _CascadeScreenState extends State<CascadeScreen>
       ..hideCurrentSnackBar()
       ..showSnackBar(
         const SnackBar(
-          content: Text('Каскад включён — оплата пока не требуется'),
+          content: LText('Каскад включён — оплата пока не требуется'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -341,7 +342,7 @@ class _CascadeScreenState extends State<CascadeScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogContext, setLocal) => AlertDialog(
-          title: const Text('Серверы каскада'),
+          title: const LText('Серверы каскада'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -369,7 +370,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
+                const LText(
                   'Устройство → bridge → exit. Туннель bridge → exit идёт только '
                   'по IPv6, поэтому bridge должен иметь IPv6-аплинк.',
                   style: TextStyle(fontSize: 12),
@@ -386,7 +387,7 @@ class _CascadeScreenState extends State<CascadeScreen>
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Отмена'),
+              child: const LText('Отмена'),
             ),
             FilledButton(
               onPressed: () async {
@@ -416,7 +417,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                   Navigator.of(dialogContext).pop(true);
                 }
               },
-              child: const Text('Сохранить'),
+              child: const LText('Сохранить'),
             ),
           ],
         ),
@@ -449,7 +450,7 @@ class _CascadeScreenState extends State<CascadeScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Text(
+        const LText(
           'Установка на bridge (нужны docker/podman и IPv6):',
           style: TextStyle(fontSize: 12),
         ),
@@ -476,14 +477,14 @@ class _CascadeScreenState extends State<CascadeScreen>
                   ..hideCurrentSnackBar()
                   ..showSnackBar(
                     const SnackBar(
-                      content: Text('Команда скопирована'),
+                      content: LText('Команда скопирована'),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
               }
             },
             icon: const Icon(Icons.copy, size: 16),
-            label: const Text('Скопировать команду'),
+            label: const LText('Скопировать команду'),
           ),
         ),
       ],
@@ -495,7 +496,7 @@ class _CascadeScreenState extends State<CascadeScreen>
     final subscription = _subscription;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Каскад'),
+        title: const LText('Каскад'),
         centerTitle: false,
         actions: <Widget>[
           IconButton(
@@ -604,7 +605,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
+                                  LText(
                                     'Платная функция',
                                     maxLines: 1,
                                     style: theme.textTheme.labelLarge?.copyWith(
@@ -845,7 +846,7 @@ class _CascadeScreenState extends State<CascadeScreen>
         children: <Widget>[
           Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
           const SizedBox(width: 8),
-          Text(
+          LText(
             label,
             maxLines: 1,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -853,7 +854,7 @@ class _CascadeScreenState extends State<CascadeScreen>
             ),
           ),
           const SizedBox(width: 12),
-          Text(
+          LText(
             value,
             maxLines: 1,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -941,7 +942,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                               Icon(Icons.verified, size: 18),
                               SizedBox(width: 6),
                               Flexible(
-                                child: Text(
+                                child: LText(
                                   'Включено',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -953,7 +954,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                             onPressed: _activate,
                             child: const FittedBox(
                               fit: BoxFit.scaleDown,
-                              child: Text(
+                              child: LText(
                                 'Активировать',
                                 maxLines: 1,
                                 softWrap: false,

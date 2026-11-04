@@ -84,7 +84,7 @@ class Protocol {
 }
 
 const protocols = [
-  Protocol('xray', 'Xray / VLESS', 'TLS В· REALITY В· XHTTP', 'Xray'),
+  Protocol('xray', 'Xray / VLESS', 'TLS · REALITY · XHTTP', 'Xray'),
   Protocol(
     'rivet-s1',
     'RIVET / S1',
@@ -289,7 +289,7 @@ class TunnelStatus {
   const TunnelStatus({
     this.active = false,
     this.state = 'Отключено',
-    this.path = 'вЂ”',
+    this.path = '—',
     this.rx,
     this.tx,
     this.handshake,
@@ -1669,8 +1669,10 @@ class AppStore extends ChangeNotifier {
           status.active &&
           (status.handshake ?? 0) > 0 &&
           (dns || (status.tx ?? 0) > 0);
+      // Two whole strings instead of an interpolation: both are catalogue keys,
+      // so the suffix is translated with the rest of the sentence.
       connectionCheck = ok
-          ? 'Туннель активен${dns ? ' · DNS через туннель' : ''}'
+          ? (dns ? 'Туннель активен · DNS через туннель' : 'Туннель активен')
           : 'Туннель не подтверждён';
       return ok;
     } finally {
@@ -1864,7 +1866,7 @@ class AppStore extends ChangeNotifier {
           await addRivet(bundle.name, e.value);
         } else {
           await addWireGuard(
-            '${bundle.name} В· ${e.key == 'awg' ? 'AmneziaWG' : 'WireGuard'}',
+            '${bundle.name} · ${e.key == 'awg' ? 'AmneziaWG' : 'WireGuard'}',
             e.value,
             amnezia: e.key == 'awg',
           );
@@ -2120,9 +2122,12 @@ class AppStore extends ChangeNotifier {
             continue;
           }
           await save();
+          // Whole sentences keep the tail translatable: a dynamic tail inside
+          // the template would stay Russian in every other locale.
           log(
-            'Автоматически выбран ${p.protocol}; '
-            '${siteCheckEnabled ? 'сайт доступен' : 'туннель подтверждён'}',
+            siteCheckEnabled
+                ? 'Автоматически выбран ${p.protocol}; сайт доступен'
+                : 'Автоматически выбран ${p.protocol}; туннель подтверждён',
           );
           return;
         } catch (e) {
@@ -2202,7 +2207,7 @@ class AppStore extends ChangeNotifier {
                     ? 'Повторное подключение…'
                     : 'Интерфейс активен')
               : 'Отключено',
-          path: up ? '${j['protocol'] ?? p!.protocol}' : 'вЂ”',
+          path: up ? '${j['protocol'] ?? p!.protocol}' : '—',
           rx: j['rx'],
           tx: j['tx'],
           handshake: j['handshake'],
@@ -2217,7 +2222,7 @@ class AppStore extends ChangeNotifier {
       status = TunnelStatus(
         active: _activeId != null,
         state: 'Состояние неизвестно · проверьте службу',
-        path: 'вЂ”',
+        path: '—',
       );
     } finally {
       _syncWatchdog();
@@ -2811,10 +2816,10 @@ class NetworkChecks {
       'ms': samples.isEmpty
           ? null
           : samples.reduce((a, b) => a + b) ~/ samples.length,
-      'detail':
-          '${samples.length}/3 TCP-соединений'
-          '${families.isEmpty ? '' : ' · ${families.join(', ')}'}.'
-          ' Это не ICMP RTT и не тест пропускной способности.',
+      'detail': families.isEmpty
+          ? '${samples.length}/3 TCP-соединений. Это не ICMP RTT и не тест пропускной способности.'
+          : '${samples.length}/3 TCP-соединений · ${families.join(', ')}. '
+                'Это не ICMP RTT и не тест пропускной способности.',
     });
     return result;
   }

@@ -376,7 +376,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
           title: const LText('XIO Client'),
           actions: [
             PopupMenuButton<String>(
-              tooltip: 'Language / Язык',
+              tooltip: tr(context, 'Language / Язык'),
               icon: const Icon(Icons.language),
               onSelected: store.setLanguage,
               itemBuilder: (_) => const [
