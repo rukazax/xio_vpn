@@ -12,7 +12,7 @@
    привязаны к `rukazax/x1o` и имеют метку `x1o-debian`, поэтому workflow не подхватится).
 3. Либо задать переменную репозитория `CI_RUNNER=["self-hosted","x1o-debian"]` — workflow
    возьмёт её через `vars.CI_RUNNER`.
-4. Проверить baseline: `tools/ci/pytest-baseline.txt` (5 известных падений, с `--deselect`).
+4. Проверить baseline: `tools/ci/pytest-baseline.txt` (сейчас список пуст — известных падений нет).
 
 ## Проверено
 

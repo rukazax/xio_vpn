@@ -62,7 +62,10 @@ class UpdateTests(unittest.TestCase):
                     raise RuntimeError('simulated start failure')
                 return type('Result', (), {'returncode': 0})()
             raw, digest = archive()
-            with patch.object(update, 'ipv6_transaction_module', return_value=NO_NETWORK), patch.object(update, 'NETWORK_CONFIGS', ()), patch.object(update, 'DUAL_RECEIPT', root/'dual-receipt.json'), patch.object(update, 'WG_CONFIG', root/'wg.conf'), patch.object(update, 'STACK_CONFIG', root/'xray.json'), patch.object(update, 'LEGACY_UNITS', ()), patch.object(update, 'LIB', lib), patch.object(update, 'STATE', state), patch.object(update, 'RUNTIMES', {'rivet': str(runtime)}), patch.object(update, 'command', command), patch.object(update.os, 'geteuid', return_value=0):
+            # RIVET_ROOT/RIVET_SETUP must point at the temp tree too: on a host that
+            # really runs a XIO stand (/etc/xio-rivet, /usr/local/lib/xio-rivet exist)
+            # rivet_metadata() rejects the deployment as an ownership mismatch.
+            with patch.object(update, 'ipv6_transaction_module', return_value=NO_NETWORK), patch.object(update, 'NETWORK_CONFIGS', ()), patch.object(update, 'DUAL_RECEIPT', root/'dual-receipt.json'), patch.object(update, 'WG_CONFIG', root/'wg.conf'), patch.object(update, 'STACK_CONFIG', root/'xray.json'), patch.object(update, 'LEGACY_UNITS', ()), patch.object(update, 'RIVET_ROOT', root/'xio-rivet'), patch.object(update, 'RIVET_SETUP', root/'xio-rivet-runtime'/'setup.py'), patch.object(update, 'LIB', lib), patch.object(update, 'STATE', state), patch.object(update, 'RUNTIMES', {'rivet': str(runtime)}), patch.object(update, 'command', command), patch.object(update.os, 'geteuid', return_value=0):
                 if failure:
                     with self.assertRaises(RuntimeError):
                         update.update(raw, digest, 'server')

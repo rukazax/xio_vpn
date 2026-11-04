@@ -1,24 +1,48 @@
-# Известные падения baseline: `pytest server/managed server/catalog tools` на Debian 13
-# (Python 3.13, root, TZ=UTC). CI исключает ровно эти тесты через `--deselect`,
-# любые другие падения роняют job.
+# Известные падения baseline: `pytest server/managed server/catalog tools`.
 #
-# Замер 2026-11-05 на fff525e: 160 passed, 5 failed (165 тестов всего) —
-# без тестов tools/test_release_script.py, которые добавлены позже (+29 → 189).
-# Когда тест починят, строку нужно удалить — иначе она будет скрывать регрессию.
+# CI исключает ровно эти тесты через `--deselect` (tools/ci/ci.yml.template,
+# шаг «Python tests (baseline)»), любые другие падения роняют job.
+# Сейчас список ПУСТ: набор зелёный, ни один тест не скрыт.
+# Строк без комментария ниже быть не должно, пока все тесты проходят.
 #
-# 1. InstallerTests.test_shared_dependencies_not_purged — реальный дефект:
-#    purge_packages() не возвращает packagesRemoved для 'wireguard-tools'
-#    (см. server/managed/admin.py, apt-симуляция purge).
-server/managed/test_admin.py::InstallerTests::test_shared_dependencies_not_purged
-# 2. StaticAwgTests.test_add_awg_returns_profile_and_marks_transport — реальный дефект:
-#    admin.py:611 вызывает dualstack.cascade_status(), которой в dualstack.py нет
-#    (AttributeError на каждом add-awg).
-server/managed/test_admin.py::StaticAwgTests::test_add_awg_returns_profile_and_marks_transport
-# 3-4. StaticAwgGuardTests.* — тот же отсутствующий cascade_status.
-server/managed/test_admin.py::StaticAwgGuardTests::test_ipv6_host_endpoint_is_bracketed
-server/managed/test_admin.py::StaticAwgGuardTests::test_static_peer_does_not_appear_in_wireguard_config
-# 5. UpdateTests.test_update_preserves_users_keys_and_is_idempotent — зависит от состояния
-#    хоста: на раннере стоит рабочий стенд XIO, /etc/xio-stack существует, а в фикстуре
-#    rivet-метаданных нет → «RIVET ownership does not match deployment». На чистой машине
-#    тест проходит.
-server/managed/test_update.py::UpdateTests::test_update_preserves_users_keys_and_is_idempotent
+# Замер 2026-11-05 на f70d05e (ветка agent/adminfix), Debian-подобное окружение,
+# Python 3.12, TZ=UTC: 194 passed, 171 subtests passed, 0 failed.
+# Прогон повторён на «грязном» хосте (есть /etc/wireguard/*.conf, /etc/xio-rivet,
+# /usr/local/lib/xio-rivet — как на стенде Debian) и на чистом: результат одинаков,
+# тесты больше не зависят от состояния машины.
+#
+# Закрыто этой правкой (было 160 passed / 5 failed на fff525e):
+#
+# 1. InstallerTests.test_shared_dependencies_not_purged — дефект был НЕ в возврате
+#    структуры: packagesRemoved/packagesRetained возвращались корректно. Тест
+#    скрыто зависел от хоста: purge_packages() защищает 'wireguard-tools', если на
+#    машине есть чужой конфиг /etc/wireguard/*.conf. На стенде Debian такой файл
+#    есть → пакет «общий» → packagesRemoved пуст, packagesRetained = ['shared-lib'].
+#    Проверка хоста вынесена в admin.foreign_wireguard_configs(); тест её
+#    подменяет. Фактическое поведение удаления не изменилось.
+#
+# 2-4. StaticAwgTests.test_add_awg_returns_profile_and_marks_transport и
+#    StaticAwgGuardTests.test_ipv6_host_endpoint_is_bracketed /
+#    test_static_peer_does_not_appear_in_wireguard_config — admin.awg_client_config()
+#    вызывает dualstack.cascade_status(). Функция существовала только на
+#    release-0.24.0: при мерже в merge/0.24.1 блок cascade_status() в dualstack.py
+#    потерялся, а вызов в admin.py остался → AttributeError на каждом add-awg.
+#    Блок восстановлен из release-0.24.0; dualstack.py побайтово совпадает с
+#    релизной версией (проверено `git diff release-0.24.0 -- server/managed/dualstack.py`).
+#
+# 5. UpdateTests.test_update_preserves_users_keys_and_is_idempotent — тест не
+#    подменял update.RIVET_ROOT / update.RIVET_SETUP, поэтому на машине, где
+#    реально стоит XIO (/etc/xio-rivet, /usr/local/lib/xio-rivet существуют),
+#    rivet_metadata() падал с «RIVET ownership does not match deployment».
+#    Теперь оба пути указывают в temp-дерево теста — тест герметичен.
+#    (В прежней записи причина была указана как /etc/xio-stack — на самом деле
+#    срабатывает проверка RIVET_ROOT/RIVET_SETUP.)
+#
+# Требование к окружению: TZ=UTC (CI уже задаёт его в шаге pytest).
+# tools/test_whitelist_catalog.py сравнивает имя файла каталога (дата из UTC)
+# с `catalog.time.strftime('%Y%m%d')` в локальной зоне: при TZ=MSK прогон около
+# полуночи падает на границе суток, хотя код исправен.
+#
+# Правило прежнее: починил тест — удали его строку отсюда, иначе она скрывает
+# регрессию. Новое известное падение добавляется строкой `путь::Класс::тест`
+# с комментарием-причиной выше.
