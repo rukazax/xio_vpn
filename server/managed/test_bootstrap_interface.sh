@@ -92,20 +92,28 @@ start=$(sed -n 's/^ExecStart=\/bin\/sh -c .//p' "$unit" | sed "s/'$//")
 if [ -z "$guard" ] || [ -z "$start" ]; then
   no 'cannot read ExecStartPre/ExecStart from the unit'
 else
-  XIO_CATALOG_INTERFACE=eth99 sh -c "$guard" >/dev/null 2>&1
-  [ $? -eq 78 ] && ok 'guard: missing device exits 78' || no "guard: missing device exit $?"
+  # The guard only checks that /sys/class/net/<dev> is a directory, so the case must
+  # use a device this host actually has. A fixed eth0 passes on a VM and fails on a
+  # laptop whose uplink is wlp2s0; the guard is right either way.
+  present=$(ls /sys/class/net 2>/dev/null | head -1)
+  if [ -z "$present" ]; then
+    no 'cannot find any device to test the present case'
+  else
+    XIO_CATALOG_INTERFACE="$present" sh -c "$guard" >/dev/null 2>&1
+    [ $? -eq 0 ] && ok "guard: present device ($present) passes" || no "guard: present device $present exit $?"
+  fi
 
-  XIO_CATALOG_INTERFACE=eth0 sh -c "$guard" >/dev/null 2>&1
-  [ $? -eq 0 ] && ok 'guard: present device passes' || no "guard: present device exit $?"
+  XIO_CATALOG_INTERFACE=xio-no-such-device sh -c "$guard" >/dev/null 2>&1
+  [ $? -eq 78 ] && ok 'guard: missing device exits 78' || no "guard: missing device exit $?"
 
   XIO_CATALOG_INTERFACE= sh -c "$guard" >/dev/null 2>&1
   [ $? -eq 0 ] && ok 'guard: empty means do not bind, not a failure' || no "guard: empty exit $?"
 
   stub=$(printf '%s' "$start" | sed 's|/usr/bin/python3|/bin/echo|')
-  args=$(XIO_CATALOG_INTERFACE=ens3 sh -c "$stub")
+  args=$(XIO_CATALOG_INTERFACE="$present" sh -c "$stub")
   case $args in
-    *'--interface ens3'*) ok 'start: binds to the configured device' ;;
-    *) no "start: expected --interface ens3, got [$args]" ;;
+    *"--interface $present"*) ok 'start: binds to the configured device' ;;
+    *) no "start: expected --interface $present, got [$args]" ;;
   esac
   args=$(XIO_CATALOG_INTERFACE= sh -c "$stub")
   case $args in

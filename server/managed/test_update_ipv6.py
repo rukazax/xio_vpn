@@ -64,7 +64,7 @@ class OwnedMetadataMigrationTests(unittest.TestCase):
             with self.subTest(host=host), deployment(host) as (root, data, events):
                 before = files(root)
                 raw, digest = archive()
-                self.assertEqual(update.update(raw, digest, 'server'), {'updated': True, 'recipeVersion': 26})
+                self.assertEqual(update.update(raw, digest, 'server'), {'updated': True, 'recipeVersion': 27})
                 installed = json.loads(update.STATE.read_bytes())
                 public = json.loads((update.RIVET_ROOT / 'public.json').read_bytes())
                 self.assertEqual(public, dict(data['rivet'], endpoint='[' + host + ']:8443'))
