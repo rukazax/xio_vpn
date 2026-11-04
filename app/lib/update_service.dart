@@ -1,3 +1,4 @@
+import 'version.dart';
 // SPDX-License-Identifier: GPL-3.0-only
 import 'dart:async';
 import 'dart:convert';
@@ -10,9 +11,13 @@ import 'package:flutter/services.dart';
 
 import 'core.dart';
 
+// Single source of truth lives in core.dart; re-export it so libraries that
+// import only update_service keep seeing the same declaration (two identical
+// constants would make every file that imports both ambiguous).
+export 'version.dart' show xioVersion;
+
 bool automaticUpdatesEnabled = false;
 void Function()? onUpdateRequest;
-const xioVersion = '0.24.1';
 const xioBuild = 5018;
 const githubUrl = 'https://github.com/rukazax/xio_vpn';
 const releasesUrl = '$githubUrl/releases';

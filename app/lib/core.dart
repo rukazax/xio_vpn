@@ -22,6 +22,7 @@ import 'dart:io';
 import 'managed_models.dart';
 export 'managed_models.dart';
 
+import 'version.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/foundation.dart';
@@ -591,10 +592,6 @@ class _LimitedBytes implements Sink<List<int>> {
 Duration watchdogIntervalFor(int healthyChecks) => healthyChecks >= 6
     ? const Duration(seconds: 20)
     : const Duration(seconds: 15);
-
-/// User-visible version. Keep in sync with `version:` in pubspec.yaml; the
-/// About screen and the client title used to hardcode 0.22.3.
-const String xioVersion = '0.24.1';
 
 class AppStore extends ChangeNotifier {
   LegalRecord? legalRecord;

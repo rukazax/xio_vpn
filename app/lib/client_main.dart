@@ -1,3 +1,4 @@
+import 'version.dart';
 import 'dart:io';
 
 import 'desktop_engine.dart';
