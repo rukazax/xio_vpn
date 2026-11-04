@@ -461,7 +461,16 @@ class _WorkspaceShellState extends State<WorkspaceShell>
         title: const LText('Каскад: два сервера'),
         subtitle: const LText('IPv4 → bridge → IPv6 exit · по подписке'),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.of(context).pushNamed(CascadeScreen.routeName),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => CascadeScreen(
+              bridgeAddress: store.cascadeBridge,
+              exitAddress: store.cascadeExit,
+              onSaveServers: (bridge, exit) =>
+                  store.setCascadeServers(bridge: bridge, exit: exit),
+            ),
+          ),
+        ),
       ),
       const Divider(),
       ListTile(

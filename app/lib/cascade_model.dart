@@ -283,3 +283,100 @@ CascadeHopState cascadeHopStateFromName(String? name) {
   }
   return CascadeHopState.idle;
 }
+
+
+/// Проверка адреса bridge: IPv4 или доменное имя (без схемы и порта).
+///
+/// Возвращает нормализованную строку или `null`, если ввод неверен. Пустая
+/// строка — допустимое значение «не настроено» и тоже даёт `null`.
+String? validateCascadeBridge(String value) {
+  final text = value.trim();
+  if (text.isEmpty) return null;
+  if (text.contains('://') || text.contains('/') || text.contains(' ')) {
+    return null;
+  }
+  if (text.startsWith('[') || text.contains(':')) return null; // bridge — IPv4/домен
+  final parts = text.split('.');
+  if (parts.length == 4 && parts.every((p) => p.isNotEmpty)) {
+    var ok = true;
+    for (final part in parts) {
+      final n = int.tryParse(part);
+      if (n == null || n < 0 || n > 255) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) return text;
+  }
+  final label = RegExp(r'^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$');
+  if (text.length <= 253 && parts.length >= 2 && parts.every(label.hasMatch)) {
+    return text.toLowerCase();
+  }
+  return null;
+}
+
+/// Проверка адреса exit: только IPv6 (можно в квадратных скобках).
+String? validateCascadeExit(String value) {
+  final text = value.trim();
+  if (text.isEmpty) return null;
+  var host = text;
+  if (host.startsWith('[') && host.endsWith(']')) {
+    host = host.substring(1, host.length - 1);
+  }
+  if (!host.contains(':')) return null;
+  if (host.contains('://') || host.contains('/') || host.contains(' ')) {
+    return null;
+  }
+  final groups = host.split(':');
+  if (groups.length < 3 || groups.length > 8) return null;
+  final hex = RegExp(r'^[0-9A-Fa-f]{1,4}$');
+  for (final g in groups) {
+    if (g.isEmpty) continue; // '::'
+    if (!hex.hasMatch(g)) return null;
+  }
+  return host.toLowerCase();
+}
+
+/// Строит маршрут каскада из адресов, введённых владельцем.
+///
+/// Пустой адрес оставляет станцию в [CascadeHopState.idle]; [stage] задаёт
+/// состояние туннеля, [pingMs]/[updatedAt] — блок статуса.
+CascadeRoute cascadeRouteFromAddresses({
+  required String bridge,
+  required String exit,
+  CascadeStage stage = CascadeStage.idle,
+  int? pingMs,
+  DateTime? updatedAt,
+}) {
+  final bridgeHost = validateCascadeBridge(bridge);
+  final exitHost = validateCascadeExit(exit);
+  final configured = bridgeHost != null && exitHost != null;
+  final hopState = configured
+      ? (stage == CascadeStage.active
+            ? CascadeHopState.connected
+            : CascadeHopState.idle)
+      : CascadeHopState.idle;
+  return CascadeRoute(
+    device: const CascadeHop(
+      countryCode: '',
+      label: 'Устройство',
+      address: 'IPv4',
+      state: CascadeHopState.connected,
+    ),
+    bridge: CascadeHop(
+      countryCode: '',
+      label: 'Bridge',
+      address: bridgeHost ?? 'не настроен',
+      state: hopState,
+    ),
+    exit: CascadeHop(
+      countryCode: '',
+      label: 'Exit',
+      address: exitHost ?? 'не настроен',
+      state: hopState,
+    ),
+    stage: configured ? stage : CascadeStage.idle,
+    pingMs: configured ? pingMs : null,
+    updatedAt: updatedAt,
+  );
+}

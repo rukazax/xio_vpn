@@ -517,8 +517,15 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                 TextButton.icon(
                   onPressed: locked
                       ? null
-                      : () => Navigator.of(context).pushNamed(
-                          CascadeScreen.routeName,
+                      : () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => CascadeScreen(
+                              bridgeAddress: store.cascadeBridge,
+                              exitAddress: store.cascadeExit,
+                              onSaveServers: (bridge, exit) => store
+                                  .setCascadeServers(bridge: bridge, exit: exit),
+                            ),
+                          ),
                         ),
                   icon: const Icon(Icons.alt_route),
                   label: const LText('Каскад: два сервера'),

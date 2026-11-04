@@ -62,6 +62,9 @@ class CascadeScreen extends StatefulWidget {
     this.initialRoute,
     this.subscription,
     this.featureGate,
+    this.bridgeAddress = '',
+    this.exitAddress = '',
+    this.onSaveServers,
   });
 
   /// Имя маршрута для `Navigator.pushNamed`.
@@ -76,6 +79,16 @@ class CascadeScreen extends StatefulWidget {
   /// Ворота платной функции; по умолчанию [CascadeFeatureGate].
   final CascadeFeatureGate? featureGate;
 
+  /// Свой bridge (IPv4 или домен). Пустая строка — каскад не настроен.
+  final String bridgeAddress;
+
+  /// Свой exit (только IPv6). Пустая строка — каскад не настроен.
+  final String exitAddress;
+
+  /// Сохранение адресов, введённых владельцем. Возвращает `false`, если
+  /// ввод отклонён (тогда диалог показывает ошибку).
+  final Future<bool> Function(String bridge, String exit)? onSaveServers;
+
   @override
   State<CascadeScreen> createState() => _CascadeScreenState();
 }
@@ -85,6 +98,8 @@ class _CascadeScreenState extends State<CascadeScreen>
   static const CascadeSubscription _stubSubscription = CascadeSubscription();
 
   late CascadeRoute _route;
+  late String _bridgeAddress;
+  late String _exitAddress;
   late final AnimationController _dots;
   Timer? _stepTimer;
   bool _visible = true;
@@ -97,7 +112,19 @@ class _CascadeScreenState extends State<CascadeScreen>
   @override
   void initState() {
     super.initState();
-    _route = widget.initialRoute ?? _demoRoute();
+    _bridgeAddress = widget.bridgeAddress;
+    _exitAddress = widget.exitAddress;
+    final configured =
+        _bridgeAddress.trim().isNotEmpty && _exitAddress.trim().isNotEmpty;
+    _route =
+        widget.initialRoute ??
+        (configured
+            ? cascadeRouteFromAddresses(
+                bridge: _bridgeAddress,
+                exit: _exitAddress,
+                updatedAt: DateTime.now(),
+              )
+            : _demoRoute());
     _dots = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -222,6 +249,108 @@ class _CascadeScreenState extends State<CascadeScreen>
       );
   }
 
+
+  /// Диалог «Серверы каскада»: свой bridge (IPv4/домен) и exit (только IPv6).
+  Future<void> _editServers() async {
+    final bridge = TextEditingController(text: _bridgeAddress);
+    final exit = TextEditingController(text: _exitAddress);
+    String? bridgeError;
+    String? exitError;
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setLocal) => AlertDialog(
+          title: const Text('Серверы каскада'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextField(
+                  controller: bridge,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText: 'Bridge (IPv4 или домен)',
+                    hintText: '81.177.142.37',
+                    errorText: bridgeError,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: exit,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText: 'Exit (только IPv6)',
+                    hintText: '2a0c:b641:1a0:800::2a2',
+                    errorText: exitError,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Устройство → bridge → exit. Туннель bridge → exit идёт только '
+                  'по IPv6, поэтому bridge должен иметь IPv6-аплинк.',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Отмена'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final bridgeText = bridge.text.trim();
+                final exitText = exit.text.trim();
+                setLocal(() {
+                  bridgeError = bridgeText.isEmpty
+                      ? null
+                      : (validateCascadeBridge(bridgeText) == null
+                            ? 'Нужен IPv4 или домен без схемы и порта'
+                            : null);
+                  exitError = exitText.isEmpty
+                      ? null
+                      : (validateCascadeExit(exitText) == null
+                            ? 'Нужен IPv6-адрес'
+                            : null);
+                });
+                if (bridgeError != null || exitError != null) return;
+                final ok =
+                    await widget.onSaveServers?.call(bridgeText, exitText) ??
+                    false;
+                if (!ok) {
+                  setLocal(
+                    () => bridgeError = 'Не удалось сохранить адреса',
+                  );
+                  return;
+                }
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop(true);
+                }
+              },
+              child: const Text('Сохранить'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (saved == true) {
+      setState(() {
+        _bridgeAddress = bridge.text.trim();
+        _exitAddress = exit.text.trim();
+        _route = cascadeRouteFromAddresses(
+          bridge: _bridgeAddress,
+          exit: _exitAddress,
+          updatedAt: DateTime.now(),
+        );
+      });
+      _syncAnimation();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final subscription = _subscription;
@@ -230,6 +359,11 @@ class _CascadeScreenState extends State<CascadeScreen>
         title: const Text('Каскад'),
         centerTitle: false,
         actions: <Widget>[
+          IconButton(
+            tooltip: 'Серверы каскада',
+            onPressed: _editServers,
+            icon: const Icon(Icons.dns_outlined),
+          ),
           IconButton(
             tooltip: CascadeFeatureGate.bannerText,
             onPressed: _activate,

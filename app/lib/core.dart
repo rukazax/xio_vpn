@@ -1,4 +1,5 @@
 import 'build_identity.dart';
+import 'cascade_model.dart';
 import 'protocol_compatibility.dart';
 import 'account_access.dart';
 import 'client_policy.dart';
@@ -665,6 +666,11 @@ class AppStore extends ChangeNotifier {
   int protocolTimeoutSeconds = 15;
   String? connectionCheck;
   String? selectedId;
+  /// Двухсерверная схема: адрес bridge (IPv4/домен) и exit (только IPv6).
+  /// Пустые строки означают «каскад не настроен».
+  String cascadeBridge = '';
+  String cascadeExit = '';
+
   TunnelStatus status = const TunnelStatus();
   bool busy = false, ready = false;
   bool serverMaintenance = false;
@@ -759,6 +765,8 @@ class AppStore extends ChangeNotifier {
         checkSite = validateCheckSite(j['checkSite'] ?? 'https://youtube.com')
             .toString();
         siteCheckEnabled = j['siteCheckEnabled'] == true;
+        cascadeBridge = validateCascadeBridge(j['cascadeBridge'] as String? ?? '') ?? '';
+        cascadeExit = validateCascadeExit(j['cascadeExit'] as String? ?? '') ?? '';
         autoReconnect = j['autoReconnect'] != false;
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
             .toInt()
@@ -807,6 +815,19 @@ class AppStore extends ChangeNotifier {
     }
   }
 
+  /// Сохраняет адреса каскада. Пустая строка допустима и означает «не настроено».
+  Future<bool> setCascadeServers({String? bridge, String? exit}) async {
+    final nextBridge = bridge == null ? cascadeBridge : (validateCascadeBridge(bridge) ?? '');
+    final nextExit = exit == null ? cascadeExit : (validateCascadeExit(exit) ?? '');
+    if (bridge != null && bridge.trim().isNotEmpty && nextBridge.isEmpty) return false;
+    if (exit != null && exit.trim().isNotEmpty && nextExit.isEmpty) return false;
+    cascadeBridge = nextBridge;
+    cascadeExit = nextExit;
+    await save();
+    notifyListeners();
+    return true;
+  }
+
   Future<void> save() async {
     if (!_storageHealthy) {
       throw StateError('Повреждённое хранилище защищено от перезаписи');
@@ -821,6 +842,8 @@ class AppStore extends ChangeNotifier {
       'language': AppLanguages.selected,
       'servers': servers.map((s) => s.toJson()).toList(),
       'users': users.map((u) => u.toJson()).toList(),
+      'cascadeBridge': cascadeBridge,
+      'cascadeExit': cascadeExit,
       'checkSite': checkSite,
       'siteCheckEnabled': siteCheckEnabled,
       'autoReconnect': autoReconnect,
