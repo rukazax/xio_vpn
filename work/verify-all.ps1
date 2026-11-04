@@ -13,7 +13,7 @@
          server/managed → python3 -m unittest test_admin, tools → python3 -m unittest test_package_server;
       4. сверка артефактов: app/assets/xio-server.tar.gz == releases/xio-server-0.24.1.tar.gz,
          размер xio-tunnel.exe в бандле == свежей сборке из protocol/rivet (сборка в temp,
-         бандл не перезаписывается), все 4 записи releases/SHA256SUMS-0.24.1.txt;
+         бандл не перезаписывается), все записи releases/SHA256SUMS-0.24.1.txt (включая APK);
       5. живая проверка на bridge (81.177.142.37): systemctl --failed пуст,
          xio-cascade active, ping -6 -c2 2606:4700:4700::1111 успешен.
 
@@ -562,15 +562,19 @@ echo '@@END'
                 $expect = $Matches[1].ToLower()
                 $name = $Matches[2].Trim()
                 $f = Join-Path (Split-Path $sums) $name
-                if (-not (Test-Path $f)) { $bad.Add($name + ': файла нет'); continue }
+                if (-not (Test-Path $f)) {
+                    # Android artifacts live in the workspace, not in releases/.
+                    $alt = Join-Path $script:Root ('..\apk-20261104\' + $name)
+                    if (Test-Path $alt) { $f = $alt } else { $bad.Add($name + ': файла нет'); continue }
+                }
                 $actual = (Get-FileHash $f -Algorithm SHA256).Hash.ToLower()
                 if ($actual -eq $expect) { $okCount++ } else { $bad.Add(('{0}: {1} != {2}' -f $name, $actual.Substring(0, 12), $expect.Substring(0, 12))) }
             }
             $numbers = '{0}/{1} записей совпало' -f $okCount, $entries.Count
-            if ($bad.Count -eq 0 -and $entries.Count -eq 4) {
-                Add-Check 'артефакт: releases/SHA256SUMS-0.24.1.txt' 'OK' $numbers 'все 4 файла'
+            if ($bad.Count -eq 0 -and $entries.Count -ge 4) {
+                Add-Check 'артефакт: releases/SHA256SUMS-0.24.1.txt' 'OK' $numbers ('все {0} файлов' -f $entries.Count)
             } else {
-                $note = if ($entries.Count -ne 4) { 'записей не 4' } else { 'расхождения' }
+                $note = if ($entries.Count -lt 4) { 'записей меньше 4' } else { 'расхождения' }
                 Add-Check 'артефакт: releases/SHA256SUMS-0.24.1.txt' 'FAIL' $numbers $note
                 foreach ($b in $bad) { Write-Log ('    ' + $b) ([ConsoleColor]::Red) }
             }
