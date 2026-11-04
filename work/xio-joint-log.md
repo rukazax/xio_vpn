@@ -406,3 +406,28 @@ helper'а: **OK 15 / WARN 1 / FAIL 0**.
 
 **rc13** (`86bf241` / артефакты `86bf241`): zip `1b115747…` (52,36 МБ), deb `01510223…`,
 tar.gz `5c7dfeee…`, сервер `1ea3112a…`.
+
+
+## 2026-11-04, день — rc14: registry, capability fix, установщик
+
+**Registry разделён** (`2680ec1`): helper регистрирует 16 компонентов (dispatcher, log, proxyman in/out,
+trojan/vless-out/vmess-out, grpc, headers/http+noop, httpupgrade, reality, splithttp, tcp, tls,
+websocket), серверный гейтвей — свой пакет `internal/xrayregistry/gateway` (helper-набор плюс
+dns/policy/router/stats/blackhole/freedom/vless-in/vmess-in/udp и `main/json`). Helper
+`31 450 112 → 30 460 928` Б (−989 184), 687 → 671 пакет; гейтвей побайтово тот же.
+Проверено: build/vet/test в обоих режимах тегов, `mobile` 12/12, android/darwin кросс-сборки, живой
+смоук helper↔гейтвей (VLESS+REALITY+vision, 32 КиБ в обе стороны, счётчики совпали).
+
+**CAP_DAC_READ_SEARCH больше не нужен** (`6835ed0`): `stats()` читал чужие `stats.json` (0600)
+и падал при отказе; теперь `snapshot()` даёт мягкую деградацию с `statisticsUnavailable`, а
+`rivet-setup.py` чинит umask-баг (`mkdir(mode=0750)` → `chmod`). `test_admin` 31/31.
+Хостовое сужение `CapabilityBoundingSet` на exit отложено: drop-in не перебивает значение из
+юнита (проверено, файлы убраны), нужен отдельный разбор приоритетов.
+
+**Находка вне задачи:** серверный конфиг `stack.py` умеет emits shadowsocks-inbound, а форк
+xray 0.22 убрал shadowsocks из JSON-загрузчика — при таком профиле гейтвей падает
+(`unknown config id: shadowsocks`) и в HEAD. Для наших профилей (awg/rivet/xray/cloak) не
+проявляется, но в бэклог записано.
+
+**rc14** (`2680ec1`): zip `ba7fe44f…` (52,01 МБ), deb `8ab8ebbe…`, tar.gz `8630f24c…`,
+сервер `1ea3112a…`. `verify-all` — OK 15 / WARN 1 / FAIL 0.
