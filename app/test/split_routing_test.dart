@@ -102,6 +102,7 @@ void main() {
             'mode': 'include',
             'packages': ['org.example.browser'],
             'networks': <String>[],
+            'domains': <String>[],
           });
           expect(tester.takeException(), isNull);
         },
@@ -119,6 +120,7 @@ void main() {
               'mode': 'ipExclude',
               'packages': <String>[],
               'networks': ['192.168.0.0/16', '2001:db8::/32'],
+              'domains': ['youtube.com'],
             };
           }
           if (call.method == 'routingApps') return <dynamic>[];
@@ -138,22 +140,25 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    final networks = find.byKey(const ValueKey('routing-networks'));
+    final domains = find.byKey(const ValueKey('routing-domains'));
     await tester.scrollUntilVisible(
-      find.byType(TextField),
+      networks,
       180,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(
-      tester.widget<TextField>(find.byType(TextField)).controller!.text,
-      '192.168.0.0/16\n2001:db8::/32',
-    );
-    await tester.enterText(find.byType(TextField), '10.0.0.0/8, ::1');
+    expect(tester.widget<TextField>(networks).controller!.text,
+        '192.168.0.0/16\n2001:db8::/32');
+    expect(tester.widget<TextField>(domains).controller!.text, 'youtube.com');
+    await tester.enterText(networks, '10.0.0.0/8, ::1');
+    await tester.enterText(domains, 'example.org\n*.example.com');
     await tester.tap(find.text('Сохранить правила'));
     await tester.pumpAndSettle();
     expect(saved, {
       'mode': 'ipExclude',
       'packages': <String>[],
       'networks': ['10.0.0.0/8', '::1'],
+      'domains': ['example.org', '*.example.com'],
     });
     expect(tester.takeException(), isNull);
   });

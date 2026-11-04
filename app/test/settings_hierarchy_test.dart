@@ -82,11 +82,13 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byType(BackButton).hitTestable());
       await tester.pumpAndSettle();
+      // Пункт настроек называется «Настройка соединений» (нижняя вкладка —
+      // «Настройка соединений», поэтому ищем именно внутри ListTile).
       await tester.tap(
         find
             .descendant(
               of: find.byType(ListTile),
-              matching: find.text(t('Соединение')),
+              matching: find.text(t('Настройка соединений')),
             )
             .hitTestable(),
       );
