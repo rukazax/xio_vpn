@@ -295,7 +295,11 @@ class _CascadeScreenState extends State<CascadeScreen>
                   style: TextStyle(fontSize: 12),
                 ),
                 const SizedBox(height: 12),
-                _installCommandBlock(exit.text.trim()),
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: exit,
+                  builder: (context, value, _) =>
+                      _installCommandBlock(value.text.trim()),
+                ),
               ],
             ),
           ),
@@ -623,7 +627,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                 fit: BoxFit.scaleDown,
                 child: Text(
                   hop.countryCode.isEmpty
-                      ? 'IPv4'
+                      ? (hop.address.isEmpty ? 'IPv4' : hop.address)
                       : '${hop.countryCode} · ${hop.address.split(' ').first}',
                   maxLines: 1,
                   softWrap: false,
