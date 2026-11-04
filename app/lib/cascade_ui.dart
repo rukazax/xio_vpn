@@ -37,6 +37,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'cascade_model.dart';
 
@@ -293,6 +294,8 @@ class _CascadeScreenState extends State<CascadeScreen>
                   'по IPv6, поэтому bridge должен иметь IPv6-аплинк.',
                   style: TextStyle(fontSize: 12),
                 ),
+                const SizedBox(height: 12),
+                _installCommandBlock(exit.text.trim()),
               ],
             ),
           ),
@@ -349,6 +352,58 @@ class _CascadeScreenState extends State<CascadeScreen>
       });
       _syncAnimation();
     }
+  }
+
+
+  /// Команда установки каскада на bridge с уже подставленным адресом exit.
+  Widget _installCommandBlock(String exit) {
+    final address = exit.isEmpty ? '<ipv6-exit>' : exit;
+    final command =
+        'curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/'
+        'deploy/cascade/terminal-install.sh | bash -s -- '
+        '--role bridge --exit-host $address';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Text(
+          'Установка на bridge (нужны docker/podman и IPv6):',
+          style: TextStyle(fontSize: 12),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: SelectableText(
+            command,
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: command));
+              if (mounted) {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    const SnackBar(
+                      content: Text('Команда скопирована'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+              }
+            },
+            icon: const Icon(Icons.copy, size: 16),
+            label: const Text('Скопировать команду'),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
