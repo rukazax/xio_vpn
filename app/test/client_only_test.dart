@@ -53,7 +53,7 @@ class SwitchingStore extends AppStore {
   }
 
   @override
-  Future<void> connect({bool resuming = false}) async {
+  Future<void> connect({bool resuming = false, String? avoidProfileId}) async {
     calls.add('connect:$selectedId${resuming ? ':resume' : ''}');
   }
 }

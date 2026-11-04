@@ -23,6 +23,8 @@ import 'managed_models.dart';
 export 'managed_models.dart';
 
 import 'version.dart';
+
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:cryptography/cryptography.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/foundation.dart';
@@ -586,12 +588,245 @@ class _LimitedBytes implements Sink<List<int>> {
   void close() {}
 }
 
-/// The watchdog probes DNS every 15 s until a tunnel has answered six checks in a
-/// row, then every 20 s: a half of the radio wakeups for a link that is already
-/// proven stable. Any failure resets the counter, so detection stays at 15+20 s.
+/// Cadence of the periodic data-path check while the app is in the background
+/// (screen off), where every radio wakeup is charged to the battery: 15 s until
+/// a tunnel has answered six checks in a row, then 20 s. Values are unchanged
+/// from the DNS-era watchdog; a failed probe never waits for this interval.
 Duration watchdogIntervalFor(int healthyChecks) => healthyChecks >= 6
     ? const Duration(seconds: 20)
     : const Duration(seconds: 15);
+
+/// Cadence while the app is visible. The screen is on and the radio is already
+/// awake for the UI, so the failover budget (a working transport within 20 s)
+/// outweighs one extra wakeup every 5 s. One probe is a TCP handshake plus 48
+/// bytes through the tunnel.
+const watchdogVisibleInterval = Duration(seconds: 5);
+
+/// First check after a (re)connect: a transport that only *looks* connected is
+/// caught in 3–5 s, before the owner starts waiting for a page to load.
+const watchdogFirstProbeDelay = Duration(seconds: 4);
+
+/// Deadline of one data-path probe. A live gateway answers in milliseconds, so
+/// 2.5 s is already generous over a mobile network.
+const watchdogProbeTimeout = Duration(milliseconds: 2500);
+
+/// A failed probe is confirmed by one immediate retry instead of idling until
+/// the next 5/15/20 s slot.
+const watchdogProbeRetryDelay = Duration(seconds: 1);
+
+/// Cadence of the periodic check, as a pure function so the timing rules are
+/// provable without waiting minutes in a test.
+///
+/// * the first check after a (re)connect runs in 3–5 s ([watchdogFirstProbeDelay]);
+/// * while the app is visible the check runs every 5 s ([watchdogVisibleInterval]);
+/// * in the background the battery-driven 15/20 s backoff of
+///   [watchdogIntervalFor] applies.
+Duration watchdogDelayFor({
+  required bool primed,
+  required bool foreground,
+  required int healthyChecks,
+}) => !primed
+    ? watchdogFirstProbeDelay
+    : foreground
+    ? watchdogVisibleInterval
+    : watchdogIntervalFor(healthyChecks);
+
+/// Delay before the next reconnect attempt while the tunnel is down.
+///
+/// Six quick attempts cover the first half-minute — that is the airplane-mode
+/// budget: the radio comes back, the next attempt is at most 5 s away, and the
+/// connection itself takes 4–6 s, so the tunnel is restored well inside 30 s.
+/// After that the interval widens so a long outage does not burn battery.
+Duration reconnectRetryDelay(int attempt) => attempt <= 6
+    ? const Duration(seconds: 5)
+    : attempt <= 12
+    ? const Duration(seconds: 10)
+    : const Duration(seconds: 15);
+
+/// Port of the gateway readiness responder (`server/managed/readiness.py`).
+const tunnelReadinessPort = 7447;
+
+/// Gateway address of the transport ring a profile belongs to. Every ring
+/// terminates on the same host, so a ring that is not the active one can still
+/// answer; it is only used after the profile's own ring stayed silent.
+///
+/// Measured on the bridge: a live RIVET tunnel does **not** deliver a connection
+/// to its own ring address 10.79.0.1 (the gateway proxies egress but does not
+/// loop back to the host address), so rivet and cloak fall back to the AmneziaWG
+/// ring that every installation has.
+const tunnelReadinessGateways = <String, List<String>>{
+  'awg': ['10.78.0.1'],
+  'rivet-s1': ['10.79.0.1', '10.78.0.1'],
+  'rivet-h3': ['10.79.0.1', '10.78.0.1'],
+  'xray': ['10.77.0.1', '10.78.0.1'],
+  'cloak': ['10.78.0.1'],
+};
+
+/// Last resort for a transport this build does not know: the AmneziaWG ring is
+/// present in every managed installation.
+const tunnelReadinessFallbacks = ['10.78.0.1'];
+
+/// Outcome of one probe sent **through** the tunnel.
+enum TunnelProbeResult {
+  /// The gateway answered with SHA-256 of the nonce we sent: payload crossed the
+  /// tunnel and the far side really is the readiness responder.
+  confirmed,
+
+  /// The gateway answered at transport level (a reset from a closed port, or a
+  /// connection to some other service): packets crossed the tunnel and a peer
+  /// replied, but the answer carries no nonce proof. This is what an
+  /// installation without the responder looks like, and it is still proof that
+  /// *this* tunnel carries packets.
+  reachable,
+
+  /// Silence, or no route at all: the tunnel is not carrying payload.
+  dead;
+
+  bool get alive => this != TunnelProbeResult.dead;
+}
+
+typedef TunnelProbe = Future<TunnelProbeResult> Function(
+  Profile? profile,
+  Duration timeout,
+);
+
+/// Asks the gateway readiness responder through the tunnel.
+///
+/// The old watchdog resolved `example.com`, and Android's resolver answered from
+/// its cache while the transport was already dead: a cache hit says nothing
+/// about the data path. This probe cannot be answered from a cache — a random
+/// nonce has to reach the far side for the SHA-256 reply to come back — so a
+/// false "alive" is impossible by construction. It also costs less than a DNS
+/// lookup: one TCP handshake and 48 bytes.
+class TunnelReadinessProbe {
+  const TunnelReadinessProbe();
+
+  /// 16 random bytes out, `0x01` + `SHA-256(nonce)[:31]` back.
+  static const nonceBytes = 16, replyBytes = 32;
+
+  static const _econnrefused = 111, _wsaConnRefused = 10061;
+
+  static List<String> gatewaysFor(String? protocol) {
+    final ring = tunnelReadinessGateways[protocol];
+    if (ring != null) return ring;
+    return tunnelReadinessFallbacks;
+  }
+
+  Future<TunnelProbeResult> probe(Profile? profile, Duration timeout) =>
+      probeHosts(gatewaysFor(profile?.protocol), timeout);
+
+  /// Same probe against an explicit gateway list; tests point it at a local
+  /// responder instead of a real ring.
+  Future<TunnelProbeResult> probeHosts(
+    List<String> hosts,
+    Duration timeout, {
+    int port = tunnelReadinessPort,
+  }) async {
+    if (timeout <= Duration.zero) return TunnelProbeResult.dead;
+    final clock = Stopwatch()..start();
+    var result = TunnelProbeResult.dead;
+    for (var i = 0; i < hosts.length; i++) {
+      final left = timeout - clock.elapsed;
+      if (left <= Duration.zero) break;
+      // The profile's own ring gets the larger share of the budget; a fallback
+      // ring only exists to rescue a transport this build does not map.
+      final attempt = hosts.length == 1
+          ? left
+          : Duration(microseconds: left.inMicroseconds * 3 ~/ 5);
+      final answer = await _probeOne(hosts[i], attempt, port);
+      if (answer == TunnelProbeResult.confirmed) return answer;
+      if (answer.alive) return answer;
+      result = answer;
+    }
+    return result;
+  }
+
+  Future<TunnelProbeResult> _probeOne(
+    String host,
+    Duration timeout,
+    int port,
+  ) async {
+    try {
+      return await _probeOnce(
+        host,
+        timeout,
+        port,
+      ).timeout(timeout + const Duration(milliseconds: 500));
+    } catch (_) {
+      // A probe that throws proves nothing about the data path: report dead so
+      // the watchdog retries immediately.
+      return TunnelProbeResult.dead;
+    }
+  }
+
+  Future<TunnelProbeResult> _probeOnce(
+    String host,
+    Duration timeout,
+    int port,
+  ) async {
+    final clock = Stopwatch()..start();
+    Socket socket;
+    try {
+      socket = await Socket.connect(host, port, timeout: timeout);
+    } on SocketException catch (e) {
+      // A reset comes from the gateway host, so packets do cross the tunnel even
+      // though nothing listens on the readiness port (older installation).
+      return e.osError?.errorCode == _econnrefused ||
+              e.osError?.errorCode == _wsaConnRefused
+          ? TunnelProbeResult.reachable
+          : TunnelProbeResult.dead;
+    } catch (_) {
+      return TunnelProbeResult.dead;
+    }
+    try {
+      final nonce = SecretKeyData.random(length: nonceBytes).bytes;
+      socket.add(nonce);
+      await socket.flush();
+      final left = timeout - clock.elapsed;
+      if (left <= Duration.zero) return TunnelProbeResult.reachable;
+      final reply = await _readReply(socket, left);
+      return isReadinessReply(nonce, reply)
+          ? TunnelProbeResult.confirmed
+          : TunnelProbeResult.reachable;
+    } catch (_) {
+      // The connection itself succeeded, which already proves the data path.
+      return TunnelProbeResult.reachable;
+    } finally {
+      socket.destroy();
+    }
+  }
+
+  /// `0x01` followed by the first 31 bytes of SHA-256(nonce).
+  static bool isReadinessReply(List<int> nonce, List<int> reply) {
+    if (reply.length < replyBytes || reply[0] != 0x01) return false;
+    final digest = sha256.convert(nonce).bytes;
+    for (var i = 0; i < replyBytes - 1; i++) {
+      if (reply[i + 1] != digest[i]) return false;
+    }
+    return true;
+  }
+
+  Future<List<int>> _readReply(Socket socket, Duration timeout) {
+    final buffer = <int>[];
+    final done = Completer<List<int>>();
+    void finish() {
+      if (!done.isCompleted) done.complete(buffer);
+    }
+
+    final subscription = socket.listen(
+      (chunk) {
+        buffer.addAll(chunk);
+        if (buffer.length >= replyBytes) finish();
+      },
+      onError: (Object _) => finish(),
+      onDone: finish,
+      cancelOnError: true,
+    );
+    return done.future
+        .timeout(timeout, onTimeout: () => buffer)
+        .whenComplete(subscription.cancel);
+  }
+}
 
 class AppStore extends ChangeNotifier {
   LegalRecord? legalRecord;
@@ -600,12 +835,22 @@ class AppStore extends ChangeNotifier {
   bool get consentReady =>
       legalRecord?.current == true && vpnDisclosure == vpnDisclosureRevision;
   void setForeground(bool active) {
+    final changed = _foreground != active;
     _foreground = active;
     _timer?.cancel();
     _timer = null;
     if (active && ready) {
       unawaited(refresh());
       _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    }
+    // The watchdog cadence depends on the window state: re-arm it so leaving the
+    // app immediately falls back to the battery-friendly interval, and returning
+    // to it does not keep a 20 s gap.
+    if (changed && _desired && autoReconnect && !_watchdogBusy) {
+      _watchdog?.cancel();
+      _watchdog = null;
+      _watchdogScheduled = false;
+      _syncWatchdog();
     }
   }
 
@@ -648,7 +893,13 @@ class AppStore extends ChangeNotifier {
     this.siteProbe,
     this.probeSecurityContext,
     this.nativeTunnelOverride,
+    this.tunnelProbe,
   });
+
+  /// Data-path probe used by the watchdog and by connection verification.
+  /// Injected by tests; by default the gateway readiness responder is asked
+  /// through the tunnel ([TunnelReadinessProbe]).
+  final TunnelProbe? tunnelProbe;
   final bool? nativeTunnelOverride;
   bool get nativeTunnel => nativeTunnelOverride ?? platformTunnel;
   Set<String> get supportedProtocols => nativeTunnelOverride == true
@@ -662,8 +913,8 @@ class AppStore extends ChangeNotifier {
   final Map<String, String> endpointCountries = {};
   String checkSite = 'https://youtube.com';
   // Disabled by default: a connection is confirmed by the tunnel itself
-  // (fresh handshake, counters, DNS through the tunnel) unless the owner
-  // explicitly opts into the HTTPS-site probe in the settings.
+  // (fresh handshake, counters, a probe answered by the gateway through the
+  // tunnel) unless the owner explicitly opts into the HTTPS-site probe.
   bool siteCheckEnabled = false;
   String priorityProtocol = Platform.isIOS ? 'rivet-s1' : 'xray';
   int protocolTimeoutSeconds = 15;
@@ -678,7 +929,6 @@ class AppStore extends ChangeNotifier {
   // Live connection control: while the tunnel is up the app re-checks it and
   // reconnects (through the same protocol-fallback plan) when the link is lost.
   Timer? _watchdog;
-  int _watchdogMisses = 0;
   Timer? _retry;
   int _retryCount = 0;
   bool _desired = false;
@@ -1267,9 +1517,23 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// True when the tunnel carried a packet to the gateway and a peer answered.
+  ///
+  /// The answer cannot be produced by a resolver cache: the nonce is random and
+  /// the reply is its SHA-256 from the far side ([TunnelReadinessProbe]).
+  Future<bool> _probeAlive(Profile? profile, Duration timeout) async {
+    if (timeout <= Duration.zero) return false;
+    final probe = tunnelProbe ?? const TunnelReadinessProbe().probe;
+    try {
+      return (await probe(profile, timeout)).alive;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Confirms the tunnel without contacting a third-party website: a fresh
-  /// handshake, live counters and a DNS answer resolved through the tunnel are
-  /// enough to know that payload reaches the exit.
+  /// handshake, live counters and a probe answered by the gateway through the
+  /// tunnel are enough to know that payload reaches the exit.
   Future<bool> verifyTunnel({
     Duration timeout = const Duration(seconds: 15),
   }) async {
@@ -1277,31 +1541,31 @@ class AppStore extends ChangeNotifier {
     connectionCheck = 'Проверка туннеля…';
     notifyListeners();
     final clock = Stopwatch()..start();
-    var dns = false;
+    var probed = false;
+    var dataPath = false;
     try {
       while (clock.elapsed < timeout) {
         await refresh();
         if (!status.active) break;
-        if (!dns) {
-          try {
-            final addrs = await InternetAddress.lookup('example.com')
-                .timeout(const Duration(seconds: 4));
-            dns = addrs.isNotEmpty;
-          } catch (_) {
-            // Keep polling: DNS may answer only after the first payload.
-          }
+        if (!probed) {
+          final left = timeout - clock.elapsed;
+          dataPath = await _probeAlive(
+            activeProfile ?? selected,
+            left < watchdogProbeTimeout ? left : watchdogProbeTimeout,
+          );
+          probed = true;
         }
         final handshake = status.handshake ?? 0;
         final traffic = (status.tx ?? 0) > 0;
-        if (handshake > 0 && (dns || traffic)) break;
+        if (handshake > 0 && (dataPath || traffic)) break;
         await Future<void>.delayed(const Duration(milliseconds: 500));
       }
       final ok =
           status.active &&
           (status.handshake ?? 0) > 0 &&
-          (dns || (status.tx ?? 0) > 0);
+          (dataPath || (status.tx ?? 0) > 0);
       connectionCheck = ok
-          ? 'Туннель активен${dns ? ' · DNS через туннель' : ''}'
+          ? 'Туннель активен${dataPath ? ' · пакеты проходят через туннель' : ''}'
           : 'Туннель не подтверждён';
       return ok;
     } finally {
@@ -1678,7 +1942,10 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> connect({bool resuming = false}) async {
+  /// [avoidProfileId] is the transport whose data-path probe just failed: it is
+  /// moved to the end of the plan, because the point of a failover is another
+  /// transport, not another attempt at the dead one.
+  Future<void> connect({bool resuming = false, String? avoidProfileId}) async {
     if (enforceConsent && !consentReady) {
       throw StateError("Сначала ознакомьтесь с лицензией и уведомлением VPN");
     }
@@ -1697,16 +1964,47 @@ class AppStore extends ChangeNotifier {
       return;
     }
     final candidates = connectionCandidates(initial);
+    // The transport whose data-path probe just failed goes last — together with
+    // every profile that shares its endpoint, because a variant on the same dead
+    // endpoint costs a full 15 s attempt and would eat the failover budget. A
+    // different transport (another host, or another port) is what failover means.
+    final avoided = avoidProfileId == null
+        ? null
+        : candidates.where((p) => p.id == avoidProfileId).firstOrNull;
+    final List<Profile> plan;
+    if (avoided == null) {
+      plan = candidates;
+    } else {
+      final sameEndpoint = {
+        for (final p in candidates)
+          if (p.endpoint == avoided.endpoint) p.id,
+      };
+      plan = [
+        ...candidates.where((p) => !sameEndpoint.contains(p.id)),
+        ...candidates.where((p) => sameEndpoint.contains(p.id)),
+      ];
+    }
     _desired = true;
     _retry?.cancel();
     _retry = null;
-    if (!resuming) _retryCount = 0;
+    if (!resuming) {
+      _retryCount = 0;
+      _failoverFrom = null;
+    }
     busy = true;
     error = null;
     connectionCheck = null;
     notifyListeners();
     try {
-      for (final p in candidates) {
+      // The plan may already start with the alternative (failover), so the log
+      // is driven by "which transport are we leaving", not by the position in
+      // the list.
+      String? leaving = avoidProfileId;
+      for (final p in plan) {
+        if (leaving != null && leaving != p.id) {
+          log('Переключаюсь на ${p.protocol} (${p.name})');
+        }
+        leaving = p.id;
         selectedId = p.id;
         notifyListeners();
         try {
@@ -1748,6 +2046,11 @@ class AppStore extends ChangeNotifier {
             continue;
           }
           await save();
+          // The new transport is only trusted once a probe answered through it:
+          // the first watchdog check fires in 3-5 s instead of a full interval.
+          _failoverFrom = null;
+          _watchdogHealthy = 0;
+          _watchdogPrimed = false;
           log(
             'Автоматически выбран ${p.protocol}; '
             '${siteCheckEnabled ? 'сайт доступен' : 'туннель подтверждён'}',
@@ -1790,6 +2093,9 @@ class AppStore extends ChangeNotifier {
     _retry?.cancel();
     _retry = null;
     _retryCount = 0;
+    _failoverFrom = null;
+    _watchdogHealthy = 0;
+    _watchdogPrimed = false;
     busy = true;
     notifyListeners();
     try {
@@ -1854,6 +2160,7 @@ class AppStore extends ChangeNotifier {
   }
 
   int _unchangedTicks = 0;
+
   /// Safety net for state that is written without its own notification.
   static const _unchangedTickLimit = 20; // 60 s at the 3 s poll interval.
 
@@ -1871,13 +2178,38 @@ class AppStore extends ChangeNotifier {
   /// restores the connection when the engine dropped or the link died, on every
   /// platform and build.
   int _watchdogHealthy = 0;
-  /// A tunnel that has answered six checks in a row is stable enough to be
-  /// checked half as often: the DNS probe is the only periodic radio wakeup the
-  /// app makes, so 30 lookups per hour instead of 120 is real battery.
-  Duration get _watchdogInterval => watchdogIntervalFor(_watchdogHealthy);
+
+  /// Cleared on every (re)connect: the first check then happens in 3–5 s
+  /// ([watchdogFirstProbeDelay]) instead of a full interval.
+  bool _watchdogPrimed = false;
+
+  /// Transport whose data-path probe failed; the next plan starts after it.
+  String? _failoverFrom;
+
+  /// The periodic check is the only radio wakeup the app makes on its own, so
+  /// the cadence follows the window: 5 s while the owner is looking at the app,
+  /// the 15/20 s backoff from [watchdogIntervalFor] while it is in the
+  /// background.
+  Duration get _watchdogInterval => watchdogDelayFor(
+    primed: _watchdogPrimed,
+    foreground: _foreground,
+    healthyChecks: _watchdogHealthy,
+  );
   bool _disposed = false;
 
+  /// One watchdog tick, exposed so tests can drive the state machine
+  /// (probe → failover) without waiting for a real 4 s timer.
+  @visibleForTesting
+  Future<void> watchdogTickForTest() => _watchdogTick();
+
+  /// Cadence the watchdog would use right now; asserted by the timing tests.
+  @visibleForTesting
+  Duration get watchdogDelayForTest => _watchdogInterval;
+
   bool _watchdogScheduled = false;
+
+  /// A tick is running; its own re-arm happens when it completes.
+  bool _watchdogBusy = false;
 
   void _syncWatchdog() {
     // A tick in flight can outlive dispose(); re-arming there used to schedule a
@@ -1891,16 +2223,24 @@ class AppStore extends ChangeNotifier {
       _watchdog?.cancel();
       _watchdog = null;
       _watchdogScheduled = false;
-      _watchdogMisses = 0;
       _watchdogHealthy = 0;
+      _watchdogPrimed = false;
     }
   }
 
   void _watchdogRun() {
-    _watchdogScheduled = false;
-    unawaited(_watchdogTick().whenComplete(() {
-      if (!_disposed && _desired && autoReconnect) _syncWatchdog();
-    }));
+    // Stay "scheduled" for the duration of the tick: the 3 s status poll calls
+    // _syncWatchdog() too, and arming a second timer mid-probe used to leave the
+    // cadence computed from pre-tick state (so the 3-5 s first check after a
+    // failover was silently replaced by a full interval).
+    _watchdogBusy = true;
+    unawaited(
+      _watchdogTick().whenComplete(() {
+        _watchdogBusy = false;
+        _watchdogScheduled = false;
+        if (!_disposed && _desired && autoReconnect) _syncWatchdog();
+      }),
+    );
   }
 
   Future<void> _watchdogTick() async {
@@ -1910,31 +2250,37 @@ class AppStore extends ChangeNotifier {
       await _reconnect();
       return;
     }
-    var alive = false;
-    try {
-      final addrs = await InternetAddress.lookup('example.com')
-          .timeout(const Duration(seconds: 6));
-      alive = addrs.isNotEmpty;
-    } catch (_) {
-      alive = false;
+    final profile = activeProfile ?? selected;
+    // A stale resolver cache cannot answer this probe: the reply is SHA-256 of a
+    // random nonce and only comes back if the tunnel carries packets.
+    var alive = await _probeAlive(profile, watchdogProbeTimeout);
+    if (!alive) {
+      // One lost probe is not enough to rip down a working tunnel, but the
+      // confirmation is immediate instead of waiting for the next slot.
+      await Future<void>.delayed(watchdogProbeRetryDelay);
+      alive = await _probeAlive(profile, watchdogProbeTimeout);
     }
     if (alive) {
-      _watchdogMisses = 0;
+      _watchdogPrimed = true;
       if (_watchdogHealthy < 6) _watchdogHealthy++;
       return;
     }
     _watchdogHealthy = 0;
-    // Two consecutive misses rule out a single lost DNS answer.
-    if (++_watchdogMisses < 2) return;
-    _watchdogMisses = 0;
-    await _reconnect();
+    _watchdogPrimed = false;
+    log('Проба через туннель не прошла; переключаюсь на следующий профиль');
+    await _reconnect(failedProfileId: profile?.id);
   }
 
-  Future<void> _reconnect() async {
+  Future<void> _reconnect({String? failedProfileId}) async {
     if (reconnecting || busy) return;
     reconnecting = true;
+    if (failedProfileId != null) _failoverFrom = failedProfileId;
     connectionCheck = 'Связь потеряна · переподключение…';
-    log('Связь потеряна; переподключение');
+    log(
+      failedProfileId == null
+          ? 'Связь потеряна; переподключение'
+          : 'Связь потеряна по пробе через туннель; переподключение',
+    );
     notifyListeners();
     try {
       if (nativeTunnel) {
@@ -1943,10 +2289,23 @@ class AppStore extends ChangeNotifier {
         } catch (_) {
           // A dead engine may already be down; the new attempt still counts.
         }
+        // connect() bails out while the engine still reports a connection in
+        // flight; on the failover path that would silently leave the dead
+        // transport up.
+        for (var i = 0; i < 10; i++) {
+          try {
+            if (await native.invokeMethod<bool>('connectionBusy') != true) {
+              break;
+            }
+          } catch (_) {
+            break;
+          }
+          await Future<void>.delayed(const Duration(milliseconds: 200));
+        }
       }
       status = const TunnelStatus();
       _activeId = null;
-      await connect(resuming: true);
+      await connect(resuming: true, avoidProfileId: _failoverFrom);
       // connect() reports failures through `error` instead of throwing; the
       // attempt only counts as restored when the engine is really up again.
       if (!status.active) {
@@ -1955,17 +2314,16 @@ class AppStore extends ChangeNotifier {
       _retryCount = 0;
     } catch (e) {
       error = e is StateError ? e.message : 'Переподключение не удалось';
-      // Keep trying while the owner still wants the tunnel: 5 s for the first
-      // attempts, then every 15 s, up to a bounded number of rounds.
-      if (autoReconnect && _desired && _retryCount < 20) {
+      // Keep trying while the owner still wants the tunnel. The first attempts
+      // are quick — a radio that just came back from airplane mode has to be
+      // picked up within 30 s — then the interval widens so a long outage does
+      // not burn battery.
+      if (autoReconnect && _desired && _retryCount < 60) {
         _retryCount++;
+        final delay = reconnectRetryDelay(_retryCount);
         _retry?.cancel();
-        _retry = Timer(
-          Duration(seconds: _retryCount <= 3 ? 5 : 15),
-          () => unawaited(_reconnect()),
-        );
-        connectionCheck =
-            'Связь потеряна · повтор через ${_retryCount <= 3 ? 5 : 15} с';
+        _retry = Timer(delay, () => unawaited(_reconnect()));
+        connectionCheck = 'Связь потеряна · повтор через ${delay.inSeconds} с';
       }
     } finally {
       reconnecting = false;
