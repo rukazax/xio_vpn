@@ -4,7 +4,7 @@
 No provider addresses/routes are invented, no firewall is flushed, and no
 packages are installed. Existing IPv4 rules and server credentials are retained.
 """
-import json,os,re,socket,stat,subprocess,sys
+import json,os,re,socket,stat,subprocess,sys,time
 from pathlib import Path
 STATE=Path('/etc/xio-managed/deployment.json')
 RECEIPT=Path('/etc/xio-managed/dualstack-receipt.json')
@@ -41,6 +41,73 @@ def outbound():
   if family in values:return values[family]
  raise RuntimeError('No IPv4 or IPv6 default route')
 def ipv6_ready():return bool(routes('-6'))
+
+# A default IPv6 route is not connectivity: after the cascade's ssh dies the kernel
+# keeps `default via fd00:201::2 dev tun0` for up to ~50 s while every packet is
+# dropped. A client that is handed a v6 resolver in that window hangs on it, so the
+# answer needs a live probe. Every admin.py request is a new process, hence the file
+# cache: two requests inside CASCADE_PROBE_SECONDS share one probe.
+CASCADE_CACHE=Path('/run/xio-cascade-probe.json')
+CASCADE_PROBE_SECONDS=45
+CASCADE_PING_TARGET='2600::'
+# The exit is probed on the first port it actually serves: 443 is the conventional
+# guess, 8443 is the RIVET entry that this product runs on the exit. A port that is
+# merely closed must not turn a working cascade into "down" when ICMP is filtered.
+CASCADE_TCP_TARGETS=(('2a0c:b641:1a0:800::2a2',443),('2a0c:b641:1a0:800::2a2',8443))
+
+def _probe_ping(target=CASCADE_PING_TARGET,timeout=2):
+ try:p=subprocess.run(['ping','-6','-c','1','-W',str(timeout),target],capture_output=True,text=True,timeout=timeout+3)
+ except (OSError,subprocess.SubprocessError):return False
+ return p.returncode==0
+
+def _probe_tcp(targets=CASCADE_TCP_TARGETS,timeout=1.5):
+ for target in targets:
+  try:
+   with socket.create_connection(target,timeout=timeout):return True
+  except OSError:continue
+ return False
+
+def _cascade_probe():
+ """(probe name, None) when something answered, (None, reason) otherwise."""
+ failures=0
+ for name,probe in (('ping',_probe_ping),('tcp',_probe_tcp)):
+  try:
+   if probe():return name,None
+  except Exception:failures+=1
+ return None,('probe-error' if failures==2 else 'cascade-down')
+
+def _cascade_cached():
+ try:
+  value=json.loads(CASCADE_CACHE.read_text())
+  if not isinstance(value,dict) or not isinstance(value.get('alive'),bool) or not isinstance(value.get('reason'),str):return None
+  age=time.time()-float(value.get('checkedAt',0))
+  return value if 0<=age<CASCADE_PROBE_SECONDS else None
+ except (OSError,ValueError,TypeError):return None
+
+def _cascade_store(value):
+ try:
+  if not CASCADE_CACHE.parent.is_dir():return
+  temporary=CASCADE_CACHE.with_name(CASCADE_CACHE.name+'.new')
+  temporary.write_text(json.dumps(value,sort_keys=True));temporary.replace(CASCADE_CACHE)
+ except OSError:pass
+
+def cascade_status():
+ """Is the IPv6 cascade usable right now: a default route AND a live probe.
+
+ Probes are cached for CASCADE_PROBE_SECONDS, so a status request does not hit the
+ network every time. A probe that raises is a miss, never an exception for the caller.
+ """
+ cached=_cascade_cached()
+ if cached:return cached
+ if not ipv6_ready():
+  value={'alive':False,'reason':'no-ipv6-default-route','probe':'route'}
+ else:
+  probe,reason=_cascade_probe()
+  value={'alive':reason is None,'reason':'ok' if reason is None else reason,
+         'probe':probe or ('exception' if reason=='probe-error' else 'ping+tcp')}
+ value['checkedAt']=int(time.time())
+ _cascade_store(value)
+ return value
 
 def capabilities():
  values=outbounds()
