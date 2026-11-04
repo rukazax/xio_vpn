@@ -82,15 +82,15 @@ passwordless sudo на раннере нет.
 Workflow написан, но **на текущем раннере он не подхватится** — три факта,
 проверенные по SSH и через API GitHub:
 
-1. На Debian работают три службы раннера и все `active (running)`:
-   `actions.runner.rukazax-x1o.debian17-x1o{,2,3}.service`, каталоги
-   `/home/ii/x1o-runner{,2,3}`.
-2. Все три зарегистрированы на репозиторий **`rukazax/x1o`**, а не на
-   `rukazax/xio_vpn`: в `.runner` стоит `"gitHubUrl": "https://github.com/rukazax/x1o"`,
-   а `GET /repos/rukazax/xio_vpn/actions/runners` возвращает `total_count: 0`.
-3. Метки этих раннеров — `self-hosted, Linux, X64, x1o-debian`
-   (у первого ещё `ubuntu-24.04`). Метки **`debian17` не существует**,
-   поэтому `runs-on: [self-hosted, debian17]` не совпадёт ни с одним раннером.
+1. На Debian работают три службы раннера и все `active (running)`; имена служб и
+   рабочие каталоги раннеров — устаревшие имена ранних сборок.
+2. Все три зарегистрированы **на другой репозиторий**, а не на `rukazax/xio_vpn`:
+   `GET /repos/rukazax/xio_vpn/actions/runners` возвращает `total_count: 0`,
+   поэтому регистрацию не видит ни один workflow этого репозитория.
+3. Метки этих раннеров — `self-hosted`, `Linux`, `X64` и метка устаревшего имени
+   ранних сборок (см. `LEGACY_RUNNER_LABEL` ниже; у первого ещё `ubuntu-24.04`).
+   Метки **`debian17` не существует**, поэтому `runs-on: [self-hosted, debian17]`
+   не совпадёт ни с одним раннером.
 4. Дополнительно: в API все три дебиановских раннера показаны `offline`
    (в `_diag/Runner_*.log` — `TaskCanceledException` на `Location.GetConnectionData`,
    последняя запись 2026-11-04 22:50 UTC), хотя `systemctl` показывает
@@ -99,15 +99,19 @@ Workflow написан, но **на текущем раннере он не п�
 **Шаги включения** (любой из двух, затем проверить вкладку Actions):
 
 *Вариант А — привести метку к workflow.* Добавить существующему раннеру метку
-`debian17` (Settings → Actions → Runners → `debian17-x1o` → Labels; либо
-перерегистрировать с `./config.sh --labels self-hosted,debian17,x1o-debian`),
-затем перезапустить службу и убедиться, что он `Idle`, а не `Offline`.
+`debian17` (Settings → Actions → Runners → `debian17` → Labels; либо
+перерегистрировать с `./config.sh --labels self-hosted,debian17,<метка раннера>`
+— фактическую метку см. `LEGACY_RUNNER_LABEL` ниже), затем перезапустить службу
+и убедиться, что он `Idle`, а не `Offline`.
 
 *Вариант Б — привести workflow к метке.* Задать переменную репозитория
 `CI_RUNNER` (Settings → Secrets and variables → Actions → Variables):
 
 ```text
-CI_RUNNER = ["self-hosted","x1o-debian"]
+# Устаревшее имя ранних сборок: метка, с которой раннер зарегистрирован сейчас.
+# Менять её не обязательно — достаточно сослаться на неё в CI_RUNNER.
+LEGACY_RUNNER_LABEL = "x1o-debian"
+CI_RUNNER = ["self-hosted", LEGACY_RUNNER_LABEL]
 ```
 
 `runs-on: ${{ fromJSON(vars.CI_RUNNER || '["self-hosted","debian17"]') }}`
@@ -115,7 +119,7 @@ CI_RUNNER = ["self-hosted","x1o-debian"]
 
 *И главное:* раннер нужно зарегистрировать **на `rukazax/xio_vpn`** (Settings →
 Actions → Runners → New self-hosted runner → токен этого репозитория), потому
-что чужая регистрация на `rukazax/x1o` workflow этого репозитория не увидит.
+что регистрация на чужом репозитории workflow этого репозитория не увидит.
 
 Нужное на раннере уже есть и проверено: `/opt/flutter` (Flutter 3.47.7,
 Dart 3.13.5, владелец `ii`), Python 3.13.5, pytest 8.3.5, PyYAML 6.0.2,
@@ -382,7 +386,7 @@ python3 tools/release/release.py --tag v0.24.2 --ssh debian17 \
 Не проверено:
 
 * **реальный прогон CI на раннере** — раннеры зарегистрированы на другой
-  репозиторий (`rukazax/x1o`), метки `debian17` нет, API показывает `offline`;
+  репозиторий, метки `debian17` нет, API показывает `offline`;
   workflow на `rukazax/xio_vpn` не запускался ни разу;
 * `flutter test` на Debian не доведён до конца: после ~10 минут прогона хост
   перестал отвечать по SSH (порт 22 принимает TCP, но баннер SSH не отдаётся;
@@ -414,13 +418,14 @@ failure breaks the build. `TZ=UTC` fixes a date-boundary flake in
 `tools/test_whitelist_catalog.py`; root is required because some server tests
 touch `/etc/xio-stack`.
 
-Runner reality on 2026-11-05: the three `debian17-x1o*` services are running but
-registered to the **`rukazax/x1o`** repository, labelled
-`self-hosted,Linux,X64,x1o-debian`, and reported `offline` by the API. There is
-no `debian17` label, so the workflow as written cannot be picked up. To enable
-it: register a runner on `rukazax/xio_vpn` and add the `debian17` label, or set
-the repository variable `CI_RUNNER=["self-hosted","x1o-debian"]` (the workflow
-reads it via `fromJSON`, defaulting to `["self-hosted","debian17"]`).
+Runner reality on 2026-11-05: the three Debian runner services are running but
+registered to a **different repository**, labelled `self-hosted,Linux,X64` plus
+a legacy runner label (see `LEGACY_RUNNER_LABEL` above), and reported `offline`
+by the API. There is no `debian17` label, so the workflow as written cannot be
+picked up. To enable it: register a runner on `rukazax/xio_vpn` and add the
+`debian17` label, or set the repository variable `CI_RUNNER` to the runner's
+actual labels (the workflow reads it via `fromJSON`, defaulting to
+`["self-hosted","debian17"]`).
 
 **`tools/release/release.py`** is the single release path: collect artifacts
 (`--ssh debian17` builds the Ubuntu files on Debian, or take ready files from

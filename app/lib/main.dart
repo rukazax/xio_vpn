@@ -23,7 +23,7 @@ import 'cascade_ui.dart';
 import 'core.dart';
 import 'workspace_ui.dart';
 
-extension X1oColors on BuildContext {
+extension XioColors on BuildContext {
   Color get panel => Theme.of(this).colorScheme.surface;
   Color get lime => Theme.of(this).colorScheme.primary;
   Color get muted => Theme.of(this).colorScheme.onSurfaceVariant;

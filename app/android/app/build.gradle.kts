@@ -51,6 +51,8 @@ android {
     val signingFile = rootProject.file("../../.signing/signing.properties")
     if (signingFile.exists()) {
         val signing = Properties().apply { signingFile.inputStream().use { load(it) } }
+        // Имя конфигурации подписи — устаревшее имя ранних сборок; алиас ключа в
+        // .signing/signing.properties не меняется, иначе APK не установится поверх.
         signingConfigs.create("x1oDevelopment") {
             storeFile = file(signing.getProperty("storeFile"))
             storePassword = signing.getProperty("storePassword")

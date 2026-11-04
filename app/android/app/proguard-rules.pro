@@ -3,10 +3,9 @@
 -keep class org.amnezia.awg.** { *; }
 -keep class net.openvpn.** { *; }
 -keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }
--keep class app.x1o.x1o.OpenVpnBackend$* { *; }
--keep class app.x1o.x1o.OpenVpnNative { *; }
+-keep class app.xio.xio.OpenVpnBackend$* { *; }
+-keep class app.xio.xio.OpenVpnNative { *; }
 -keep class app.xio.openvpn.** { *; }
--keep class app.x1o.x1o.OpenVpnBackend$Client { *; }
 # Compile-time nullness annotations only, not runtime JNI classes.
 -dontwarn javax.annotation.Nonnull
 -dontwarn javax.annotation.meta.TypeQualifierDefault

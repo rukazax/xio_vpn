@@ -17,12 +17,15 @@ keytool = str(Path(java_home) / 'bin' / ('keytool.exe' if os.name == 'nt' else '
 if not keytool:
     raise SystemExit('Install a JDK and put keytool on PATH or set JAVA_HOME.')
 password = secrets.token_urlsafe(36)
+# Алиас ключа — устаревшее имя ранних сборок; он должен совпадать с keyAlias в
+# signing.properties, иначе подпись не совпадёт с уже выпущенными APK.
+LEGACY_KEY_ALIAS = 'x1oDevelopment'
 password_file = directory / 'key-password'
 password_file.write_text(password)
 password_file.chmod(0o600)
-subprocess.run([keytool, '-genkeypair', '-alias', 'x1oDevelopment', '-keyalg', 'RSA', '-keysize', '3072', '-validity', '3650', '-storetype', 'PKCS12', '-keystore', str(store), '-storepass:file', str(password_file), '-keypass:file', str(password_file), '-dname', 'CN=xio Development, O=xio'], check=True)
+subprocess.run([keytool, '-genkeypair', '-alias', LEGACY_KEY_ALIAS, '-keyalg', 'RSA', '-keysize', '3072', '-validity', '3650', '-storetype', 'PKCS12', '-keystore', str(store), '-storepass:file', str(password_file), '-keypass:file', str(password_file), '-dname', 'CN=xio Development, O=xio'], check=True)
 store.chmod(0o600)
 properties = directory / 'signing.properties'
-properties.write_text(f'storeFile={store.as_posix()}\nstorePassword={password}\nkeyPassword={password}\nkeyAlias=x1oDevelopment\n')
+properties.write_text(f'storeFile={store.as_posix()}\nstorePassword={password}\nkeyPassword={password}\nkeyAlias={LEGACY_KEY_ALIAS}\n')
 properties.chmod(0o600)
 print('Development signing key created. Back up .signing privately; never publish it.')

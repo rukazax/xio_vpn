@@ -5,6 +5,11 @@ import 'server_address.dart';
 import 'dart:convert';
 import 'dart:io';
 
+/// Схема ссылок ранних сборок (устаревшее имя проекта). Оставлена только для
+/// приёма профилей, выданных старыми версиями: новые ссылки всегда `xio://`,
+/// записи в старом формате не создаются.
+const String legacyX1oUriScheme = 'x1o://';
+
 /// A ready-made set of third-party DNS resolvers. The addresses are the public
 /// ones published by each provider; the app never probes them.
 class DnsPreset {
@@ -287,7 +292,7 @@ class UserBundle {
           : 2, 'name': name, 'userId': userId, 'serverId': serverId, 'configs': configs, if (adminAccess != null) 'adminAccess': adminAccess, if (clientAccess != null) 'clientAccess': clientAccess})))}';
   static UserBundle decode(String raw) {
     if (raw.length > 200000 ||
-        !(raw.startsWith('xio://') || raw.startsWith('x1o://'))) {
+        !(raw.startsWith('xio://') || raw.startsWith(legacyX1oUriScheme))) {
       throw const FormatException('Некорректный профиль XIO');
     }
     try {

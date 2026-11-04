@@ -22,7 +22,9 @@
     Путь к .p12/.jks. По умолчанию $env:XIO_KEYSTORE.
 
 .PARAMETER KeyAlias
-    Alias ключа. По умолчанию $env:XIO_KEY_ALIAS, иначе x1oDevelopment.
+    Alias ключа. По умолчанию $env:XIO_KEY_ALIAS, иначе x1oDevelopment
+    (устаревшее имя ранних сборок; менять нельзя — подпись должна совпасть
+    с уже выпущенными APK).
 
 .PARAMETER StorePassword
     Пароль хранилища. По умолчанию $env:XIO_STORE_PASSWORD.

@@ -8,10 +8,11 @@
 
 1. Скопировать `ci.yml.template` в `.github/workflows/ci.yml`.
 2. Зарегистрировать self-hosted раннер на репозитории `rukazax/xio_vpn` с метками
-   `self-hosted`, `Linux`, `X64`, `debian17` (сейчас существующие раннеры
-   привязаны к `rukazax/x1o` и имеют метку `x1o-debian`, поэтому workflow не подхватится).
-3. Либо задать переменную репозитория `CI_RUNNER=["self-hosted","x1o-debian"]` — workflow
-   возьмёт её через `vars.CI_RUNNER`.
+   `self-hosted`, `Linux`, `X64`, `debian17` (сейчас работающие на хосте раннеры
+   привязаны к другому репозиторию и носят метку устаревшего имени ранних сборок,
+   поэтому workflow не подхватится).
+3. Либо задать переменную репозитория `CI_RUNNER` с фактическими метками раннера —
+   workflow возьмёт её через `vars.CI_RUNNER`.
 4. Проверить baseline: `tools/ci/pytest-baseline.txt` (5 известных падений, с `--deselect`).
 
 ## Проверено

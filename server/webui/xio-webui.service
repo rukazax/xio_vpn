@@ -32,6 +32,9 @@ LockPersonality=yes
 # "ReadWritePaths=-path" (dash prefix) keeps the unit startable on hosts where a
 # managed install does not exist yet: systemd otherwise fails with 226/NAMESPACE
 # ("Failed to set up mount namespacing").
+# Пути с устаревшими именами ранних сборок (`/etc/x1o-managed`, `/var/lib/x1o-rivet`)
+# оставлены только ради чтения данных старых установок при миграции; сервис в них
+# не пишет и новых файлов там не создаёт.
 ReadWritePaths=/opt/xio-webui -/etc/xio-managed -/etc/x1o-managed -/var/lib/xio-rivet -/var/lib/x1o-rivet -/etc/xio-cascade -/var/lib/xio-cascade
 CapabilityBoundingSet=CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_SETUID CAP_SETGID CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_SYS_ADMIN
 # AmbientCapabilities не нужны: сервис работает от root и слушает непривилегированный порт.

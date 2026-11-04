@@ -1,6 +1,6 @@
 # TG211: домен в установщике XIO и security-проверки app-пути
 
-Дата: 31.10.2026, 01:53–04:00 MSK. Задача владельца TG211, XIO VPN only (не x1o).
+Дата: 31.10.2026, 01:53–04:00 MSK. Задача владельца TG211, только XIO VPN.
 Канонический dirty-репозиторий: `C:/Users/er-ka/Documents/deepseek-harness/xio_vpn/work/repo-edit`,
 HEAD `689ac18e9978bea20205763b85263181e0ef264e`. Существующая работа не перезаписывалась:
 сделаны backup, scoped diff и SHA256. Изменялись только `app/lib/**`, `app/test/**` и этот отчёт;
