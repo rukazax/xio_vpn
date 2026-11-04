@@ -396,13 +396,27 @@ def rivet_install(d):
   if shutil.which('restorecon'):run('restorecon','/usr/local/bin/xio-rivet')
   run('systemctl','restart','xio-rivet-gateway','xio-rivet-entry')
 
+# Per-service counters are written by services that run as their own identity: xio-stack is
+# a DynamicUser and writes its snapshot with an explicit 0600, xio-rivet runs as xio-rivet
+# with UMask=0077. Root therefore reads them only while it holds CAP_DAC_READ_SEARCH, and a
+# narrowed CapabilityBoundingSet turns those two reads into EACCES. That must not cost the
+# whole sample: the counters this manager owns (wg dump and the AWG UAPI socket) stay
+# readable, so an unreadable source is reported in the answer instead of raised.
+STATISTICS_FILES={'rivet':'/var/lib/xio-rivet/stats.json','stack':'/var/lib/xio-stack/stats.json',
+                  'network':'/etc/xio-stack/network-statistics.json','mesh':'/etc/xio-stack/statistics.json'}
 def stats(d):
- rivet_stats={}
- try:rivet_stats=json.loads(Path('/var/lib/xio-rivet/stats.json').read_text())
- except Exception:pass
- stack_stats=stack.stats() if d.get('stack') else {}
- network_stats=stack.network.stats(d) if d.get('stack') else {}
- mesh_stats=stack.mesh.stats(d) if d.get('mesh') else {}
+ unavailable=[]
+ def snapshot(source,reader):
+  """One service snapshot; absent means zero, unreadable is named but never fatal."""
+  try:return reader()
+  except FileNotFoundError:return {}
+  except (OSError,ValueError) as error:
+   unavailable.append({'source':source,'path':STATISTICS_FILES[source],'reason':type(error).__name__})
+   return {}
+ rivet_stats=snapshot('rivet',lambda:json.loads(Path(STATISTICS_FILES['rivet']).read_text()))
+ stack_stats=snapshot('stack',stack.stats) if d.get('stack') else {}
+ network_stats=snapshot('network',lambda:stack.network.stats(d)) if d.get('stack') else {}
+ mesh_stats=snapshot('mesh',lambda:stack.mesh.stats(d)) if d.get('mesh') else {}
  current=counters();boot=Path('/proc/sys/kernel/random/boot_id').read_text().strip()
  # Generation also changes on service restart even within the same boot.
  pairs=[('awg','xio-managed-awg')] if d.get('restrictedNetwork') else [('wireguard','wg-quick@xio0'),('awg','xio-managed-awg')]
@@ -441,7 +455,14 @@ def stats(d):
    if ms.get('month')==u['month']:u['monthBytes']+=ms.get('monthBytes',0)
    u['online']=not u.get('revoked') and (u['online'] or (ms.get('online') and 0<=now-ms.get('sampledAt',0)<=20))
   u.setdefault('trackingSince',now)
- save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':now,'statisticsNote':'Server counters; sampled every 60s. Unsampled traffic before a service crash may be lost.'}
+ result={'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':now,'statisticsNote':'Server counters; sampled every 60s. Unsampled traffic before a service crash may be lost.'}
+ if unavailable:
+  # Named, not swallowed: the panel/user totals for these transports stay at zero until the
+  # host lets this unit read the snapshots (SupplementaryGroups= or a group-readable file).
+  result['statisticsUnavailable']=unavailable
+  result['statisticsNote']+=' Per-service counters from '+', '.join(sorted({item['source'] for item in unavailable}))+' are unreadable without CAP_DAC_READ_SEARCH; the counters this manager owns are still exact.'
+  print('xio-managed: statistics unavailable: '+'; '.join(item['source']+' '+item['path']+' ('+item['reason']+')' for item in unavailable),file=sys.stderr)
+ save(d);return result
 def public(d):
  # One route sample feeds both fields (capabilities.ipv6DefaultRoute == ipv6_ready()).
  capabilities=stack.network.dualstack().capabilities()

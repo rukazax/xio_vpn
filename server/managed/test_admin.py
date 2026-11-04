@@ -1,5 +1,7 @@
-import importlib.util,json,tempfile,unittest
+import importlib.util,io,json,tempfile,time,unittest
+from contextlib import redirect_stderr
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('managed',Path(__file__).with_name('admin.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 _read_text=Path.read_text
@@ -110,6 +112,67 @@ class StatsTests(unittest.TestCase):
     m.stats(d)
    self.assertEqual(d['users']['u']['stats']['awg']['rx'],5)
    self.assertEqual(d['users']['u']['stats']['wireguard']['rx'],0)
+
+class CrossServiceStatisticsTests(unittest.TestCase):
+ """Snapshots written by other services must never take the sample down.
+
+ xio-stack is a DynamicUser and writes its snapshot with an explicit 0600; xio-rivet runs as
+ xio-rivet with UMask=0077. Reading either needs CAP_DAC_READ_SEARCH, which a narrowed
+ CapabilityBoundingSet removes, and the EACCES used to kill the stats timer and `status`.
+ The counters this manager owns (wg dump, AWG UAPI) are independent of those files.
+ """
+ boot='/proc/sys/kernel/random/boot_id'
+ def deployment(self):
+  return {'owner':m.OWNER,'id':'s','host':'example','restrictedNetwork':True,'protocols':['wireguard','awg'],
+          'publicKeys':{},'awg':{},'stack':{'protocols':['xray']},
+          'users':{'u':{'keys':{'awg':'a'},'stats':{},'monthly':{},'rivet':True,'stack':{'uuid':'x'}}}}
+ def sample(self,read_text,stack_snapshot):
+  """Run one sample with the given snapshot reader and stack module behaviour."""
+  stack=SimpleNamespace(stats=stack_snapshot,network=SimpleNamespace(stats=lambda d:{}),mesh=SimpleNamespace(stats=lambda d:{}))
+  d=self.deployment()
+  with tempfile.TemporaryDirectory() as directory,patch.object(m,'stack',stack),patch.object(Path,'read_text',read_text),\
+       patch.object(m,'ROOT',Path(directory)),patch.object(m,'save'),patch.object(m,'public',return_value={'id':'s'}),\
+       patch.object(m,'run',return_value='generation-1'),patch.object(m,'counters',return_value={('awg','a'):(5,7,1000)}),\
+       redirect_stderr(io.StringIO()) as logged:
+   return m.stats(d),d,logged.getvalue()
+ def readable(self,snapshots):
+  def read_text(path,*args,**kwargs):
+   key=path.as_posix()
+   if key==self.boot:return 'unit-fixture-boot'
+   if key in snapshots:return json.dumps(snapshots[key])
+   raise FileNotFoundError(2,'No such file or directory')
+  return read_text
+ def test_unreadable_snapshots_are_reported_and_the_sample_survives(self):
+  def denied(path,*args,**kwargs):
+   if path.as_posix()==self.boot:return 'unit-fixture-boot'
+   raise PermissionError(13,'Permission denied')
+  def unreadable():raise PermissionError(13,'Permission denied')
+  result,d,logged=self.sample(denied,unreadable)
+  named={item['source']:item for item in result['statisticsUnavailable']}
+  self.assertEqual(set(named),{'stack','rivet'})
+  self.assertEqual(named['stack']['path'],'/var/lib/xio-stack/stats.json')
+  self.assertEqual(named['rivet']['path'],'/var/lib/xio-rivet/stats.json')
+  self.assertEqual({item['reason'] for item in result['statisticsUnavailable']},{'PermissionError'})
+  self.assertIn('CAP_DAC_READ_SEARCH',result['statisticsNote'])
+  self.assertIn('statistics unavailable',logged)
+  # The sample is still a real sample: our own counter moved.
+  self.assertEqual(d['users']['u']['stats']['awg']['rx'],5)
+ def test_readable_snapshots_are_counted_without_a_warning(self):
+  month=time.strftime('%Y-%m',time.gmtime())
+  snapshots={m.STATISTICS_FILES['rivet']:{'u':{'rx':40,'tx':50,'month':month,'monthBytes':90,'online':True,'sampledAt':1000}}}
+  result,d,logged=self.sample(self.readable(snapshots),lambda:{'u':{'rx':1,'tx':2,'month':month,'monthBytes':3,'online':False,'sampledAt':1000}})
+  self.assertNotIn('statisticsUnavailable',result)
+  self.assertEqual(logged,'')
+  self.assertEqual(d['users']['u']['monthBytes'],5+7+90+3)
+  self.assertEqual(d['users']['u']['stats']['stack'],{'rx':1,'tx':2})
+ def test_absent_snapshot_is_zero_not_a_warning(self):
+  # A service that is not installed must stay silent: only EACCES/invalid JSON is named.
+  def absent():raise FileNotFoundError(2,'No such file or directory')
+  result,d,logged=self.sample(self.readable({}),absent)
+  self.assertNotIn('statisticsUnavailable',result)
+  self.assertNotIn('statistics unavailable',logged)
+  self.assertEqual(d['users']['u']['stats']['awg']['rx'],5)
+
 
 class CatalogTests(unittest.TestCase):
  def test_catalog_action_refuses_a_request_without_server_identity(self):

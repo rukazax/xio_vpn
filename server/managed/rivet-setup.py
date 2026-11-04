@@ -113,7 +113,10 @@ def main():
    run('chown','root:xio-rivet',str(ROOT/filename));(ROOT/filename).chmod(0o640)
   for filename in ['entry.json','tokens.json','outer.crt','outer.key']:
    run('chown','root:xio-entry',str(ROOT/filename));(ROOT/filename).chmod(0o640)
-  stats=Path('/var/lib/xio-rivet');stats.mkdir(mode=0o750);run('chown','xio-rivet:xio-rivet',str(stats))
+  stats=Path('/var/lib/xio-rivet');stats.mkdir(mode=0o750,exist_ok=True)
+ # mkdir(mode=) is masked by umask, and an installer usually runs with 077: the
+ # directory ended up 0700 and the statistics reader needed CAP_DAC_READ_SEARCH.
+ stats.chmod(0o750);run('chown','xio-rivet:xio-rivet',str(stats))
   write(LIB/'network-up',f'''#!/bin/sh
 set -eu
 if ! ip link show dev xiorivet >/dev/null 2>&1; then ip tuntap add dev xiorivet mode tun user xio-rivet; fi
