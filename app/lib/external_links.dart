@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
-import 'version.dart';
 import 'update_service.dart';
 
 const supportUrl = 'https://xio.org/pay';

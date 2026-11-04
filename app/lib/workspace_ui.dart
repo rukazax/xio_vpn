@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
-import 'version.dart';
 import 'cascade_ui.dart';
 import 'managed_service.dart';
 import 'server_address.dart';

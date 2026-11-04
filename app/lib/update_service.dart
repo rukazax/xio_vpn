@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import 'dart:async';
 import 'version.dart';
+
+// Тесты и внешние модули исторически брали версию из этого файла — сохраняем
+// прежний API через реэкспорт, чтобы не плодить второй источник истины.
+export 'version.dart' show xioVersion, xioBuild;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
