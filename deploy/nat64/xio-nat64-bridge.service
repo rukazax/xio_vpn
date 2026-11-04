@@ -1,0 +1,13 @@
+[Unit]
+Description=xio-nat64: route AWG client IPv4 into the cascade tunnel (bridge)
+After=network-online.target xio-cascade.service
+Wants=network-online.target
+Documentation=https://github.com/rukazax/xio_vpn/tree/agent/nat64/deploy/nat64
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/xio-nat64-bridge.sh
+
+[Install]
+WantedBy=multi-user.target
