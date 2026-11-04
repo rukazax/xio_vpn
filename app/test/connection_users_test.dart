@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +10,7 @@ import 'package:xio/main.dart';
 import 'package:xio/startup_statistics.dart';
 import 'package:xio/status_poll.dart';
 import 'package:xio/workspace_ui.dart';
+import 'support/screenshots.dart';
 
 class ProbeStore extends AppStore {
   ProbeStore({super.siteProbe}) : super(nativeTunnelOverride: true);
@@ -238,18 +236,13 @@ void main() {
         );
         expect(tester.takeException(), isNull, reason: '$code $brightness');
         if (['ru', 'en', 'ar'].contains(code)) {
-          await tester.runAsync(() async {
-            final boundary =
-                key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-            final image = await boundary.toImage();
-            final bytes = await image.toByteData(
-              format: ui.ImageByteFormat.png,
-            );
-            await File(
-              '../verification/user-cards-$code-${brightness.name}-0.16.png',
-            ).writeAsBytes(bytes!.buffer.asUint8List());
-            image.dispose();
-          });
+          // Evidence screenshots are opt-in (XIO_CAPTURE_IMAGES=1); assertions
+          // above always run, file output does not need ../verification.
+          await captureScreenshot(
+            tester,
+            key,
+            '../verification/user-cards-$code-${brightness.name}-0.16.png',
+          );
         }
         evidence.add(
           '$code ${brightness.name}: 360dp, text 1.3, no overflow; actions share row',
@@ -258,9 +251,9 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       store.dispose();
     }
-    await tester.runAsync(() async {
-      await File('../verification/user-cards-0.16.txt')
-          .writeAsString(evidence.join('\n'));
-    });
+    writeTextArtifact(
+      '../verification/user-cards-0.16.txt',
+      evidence.join('\n'),
+    );
   });
 }

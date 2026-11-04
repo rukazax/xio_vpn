@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/core.dart';
 import 'package:xio/l10n.dart';
 import 'package:xio/main.dart';
+import 'support/screenshots.dart';
 
 class _MemoryStore extends AppStore {
   @override
@@ -254,18 +254,13 @@ void main() {
             1,
             reason: 'Users must stay on one line: $code $size',
           );
-          await tester.runAsync(() async {
-            final boundary =
-                key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-            final image = await boundary.toImage(pixelRatio: 1);
-            final bytes = (await image.toByteData(
-              format: ui.ImageByteFormat.png,
-            ))!.buffer.asUint8List();
-            await File(
-              '../verification/users-$code-${size.width.toInt()}-0.16.png',
-            ).writeAsBytes(bytes);
-            image.dispose();
-          });
+          // Evidence screenshots are opt-in (XIO_CAPTURE_IMAGES=1); the layout
+          // assertions above always run and need no ../verification directory.
+          await captureScreenshot(
+            tester,
+            key,
+            '../verification/users-$code-${size.width.toInt()}-0.16.png',
+          );
           await tester.tap(find.byType(BackButton).first);
           await tester.pumpAndSettle();
           expect(
@@ -273,18 +268,11 @@ void main() {
             findsOneWidget,
           );
           expect(tester.takeException(), isNull, reason: '$code $size');
-          await tester.runAsync(() async {
-            final boundary =
-                key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-            final image = await boundary.toImage(pixelRatio: 1);
-            final bytes = (await image.toByteData(
-              format: ui.ImageByteFormat.png,
-            ))!.buffer.asUint8List();
-            await File(
-              '../verification/l10n-$code-${size.width.toInt()}-0.16.png',
-            ).writeAsBytes(bytes);
-            image.dispose();
-          });
+          await captureScreenshot(
+            tester,
+            key,
+            '../verification/l10n-$code-${size.width.toInt()}-0.16.png',
+          );
           evidence.add({
             'language': code,
             'width': size.width,
@@ -299,10 +287,9 @@ void main() {
           store.dispose();
         }
       }
-      await tester.runAsync(
-        () => File(
-          '../verification/l10n-layouts-0.16.json',
-        ).writeAsString(const JsonEncoder.withIndent('  ').convert(evidence)),
+      writeTextArtifact(
+        '../verification/l10n-layouts-0.16.json',
+        const JsonEncoder.withIndent('  ').convert(evidence),
       );
     },
   );

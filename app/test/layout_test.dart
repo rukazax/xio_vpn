@@ -1,12 +1,10 @@
-import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/main.dart';
 import 'package:xio/core.dart';
+import 'support/screenshots.dart';
 
 void main() {
   setUpAll(() async {
@@ -57,17 +55,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.runAsync(() async {
-        final image =
-            await (key.currentContext!.findRenderObject()
-                    as RenderRepaintBoundary)
-                .toImage(pixelRatio: 1);
-        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-        await Directory('../verification').create(recursive: true);
-        await File('../verification/${item.$1}-0.13.png')
-            .writeAsBytes(bytes!.buffer.asUint8List());
-        image.dispose();
-      });
+      // Evidence screenshots are opt-in (XIO_CAPTURE_IMAGES=1), so a plain run
+      // does not depend on ../verification existing in the checkout.
+      await captureScreenshot(tester, key, '../verification/${item.$1}-0.13.png');
       await tester.pumpWidget(const SizedBox());
       s.dispose();
     }
