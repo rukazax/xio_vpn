@@ -565,13 +565,7 @@ def catalog_state():
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
 def awg_client_config(d,user,cascade=None,ipv6_only=False):
- """Ready-to-import AmneziaWG profile for a device that has no XIO client.
-
- The IPv6 resolver is advertised only when the cascade just passed its live probe:
- an IPv6 DNS address with no working v6 egress stalls Android's resolver on AWG.
- IPv6-only profiles are issued only on an explicit operator request: the mobile
- AmneziaVPN clients need an IPv4 address inside the tunnel.
- """
+ """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
  cascade=cascade if cascade is not None else cascade_status()
  host='[%s]'%host if ':' in host else host
@@ -584,8 +578,6 @@ def awg_client_config(d,user,cascade=None,ipv6_only=False):
   allowed='0.0.0.0/0, ::/0'
   dns='9.9.9.9, 2620:fe::fe' if cascade['alive'] else '9.9.9.9'
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = '+dns]
- # AmneziaWG 3.x adds S3/S4 and signature packets I1..I5; the profile must carry
- # every parameter the server actually applies, otherwise the two sides disagree.
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
   if key in awg:
    lines.append('%s = %s'%(key,awg[key]))
@@ -634,7 +626,7 @@ def dispatch(req,actor=None):
   except Exception:
    d['users'].pop(uid,None);save(d);raise
   return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
-          'config':awg_client_config(d,d['users'][uid])}
+          'config':awg_client_config(d,d['users'][uid],ipv6_only=req.get('ipv6Only') is True)}
  if action=='add':
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
