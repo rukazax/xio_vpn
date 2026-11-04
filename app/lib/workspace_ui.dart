@@ -1343,16 +1343,18 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
               : ListView.separated(
                   itemCount: entries.length,
                   separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (_, index) {
+                  itemBuilder: (context, index) {
                     final entry = entries[index];
                     final rtt = entry['tlsRttMs'];
                     final notAfter = entry['certNotAfter'];
                     return ListTile(
                       dense: true,
                       title: Text('${entry['fqdn']}'),
+                      // The date and the round-trip time are data; only the two
+                      // phrases around them are catalogue entries.
                       subtitle: Text(
-                        '${notAfter ?? 'сертификат не проверен'}'
-                        '${rtt == null ? '' : ' · $rtt мс'}',
+                        '${notAfter ?? tr(context, 'сертификат не проверен')}'
+                        '${rtt == null ? '' : ' · ${tr(context, '$rtt мс')}'}',
                       ),
                       trailing: IconButton(
                         icon: const Icon(Icons.copy, size: 18),
