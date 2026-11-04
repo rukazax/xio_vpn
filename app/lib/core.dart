@@ -57,6 +57,13 @@ Future<Directory> applicationDirectory() async {
   return dir;
 }
 
+/// The watchdog probes DNS every 15 s until a tunnel has answered six checks in a
+/// row, then every 20 s: half the radio wakeups for a link already proven stable.
+/// Any failure resets the counter, so detection stays at 15+20 s.
+Duration watchdogIntervalFor(int healthyChecks) => healthyChecks >= 6
+    ? const Duration(seconds: 20)
+    : const Duration(seconds: 15);
+
 class Protocol {
   final String id, name, detail, family;
   const Protocol(this.id, this.name, this.detail, this.family);
@@ -668,6 +675,9 @@ class AppStore extends ChangeNotifier {
   // reconnects (through the same protocol-fallback plan) when the link is lost.
   Timer? _watchdog;
   int _watchdogMisses = 0;
+  int _watchdogHealthy = 0;
+  /// A tunnel that answered six checks in a row is checked half as often.
+  Duration get _watchdogInterval => watchdogIntervalFor(_watchdogHealthy);
   Timer? _retry;
   int _retryCount = 0;
   bool _desired = false;
@@ -1856,7 +1866,7 @@ class AppStore extends ChangeNotifier {
   void _syncWatchdog() {
     if (_desired && autoReconnect) {
       _watchdog ??= Timer.periodic(
-        const Duration(seconds: 15),
+        _watchdogInterval,
         (_) => unawaited(_watchdogTick()),
       );
     } else {
@@ -1880,6 +1890,7 @@ class AppStore extends ChangeNotifier {
     // that payload still crosses the tunnel, so no DNS query is spent.
     if (_tunnelLooksAlive()) {
       _watchdogMisses = 0;
+      if (_watchdogHealthy < 6) _watchdogHealthy++;
       return;
     }
     // A DNS answer is the fallback probe. While the window is hidden it is
@@ -1903,6 +1914,7 @@ class AppStore extends ChangeNotifier {
     }
     if (alive) {
       _watchdogMisses = 0;
+      if (_watchdogHealthy < 6) _watchdogHealthy++;
       return;
     }
     // Two consecutive misses rule out a single lost DNS answer.
