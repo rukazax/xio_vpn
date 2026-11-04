@@ -834,17 +834,31 @@ class _CascadeScreenState extends State<CascadeScreen>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: _activate,
-                      child: const FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          'Активировать',
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
-                      ),
-                    ),
+                    child: subscription.entitled
+                        ? const Row(
+                            children: <Widget>[
+                              Icon(Icons.verified, size: 18),
+                              SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  'Включено',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          )
+                        : OutlinedButton(
+                            onPressed: _activate,
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Активировать',
+                                maxLines: 1,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),
