@@ -315,3 +315,24 @@ class DispatchScopeTests(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+class SandboxPolicyTests(unittest.TestCase):
+ def test_compat_containers_keep_a_read_only_system(self):
+  d={}
+  written={}
+  with patch.object(m,'sandbox_supported',return_value=False), \
+       patch.object(m,'write',side_effect=lambda path,text,mode=0o600: written.update({'path':path,'text':text,'mode':mode})), \
+       patch.object(m,'save',return_value=None):
+   mode=m.sandbox_prepare(d)
+  self.assertEqual(mode,'compat')
+  self.assertIn('ProtectSystem=full',written['text'])
+  self.assertIn('ReadWritePaths=/etc/xio-managed /etc/xio-stack',written['text'])
+  self.assertNotIn('ProtectSystem=no',written['text'])
+  self.assertEqual(written['mode'],0o644,'unit drop-ins must stay readable by systemd')
+
+ def test_strict_hosts_drop_the_override(self):
+  with patch.object(m,'sandbox_supported',return_value=True), patch.object(m,'save',return_value=None):
+   self.assertEqual(m.sandbox_prepare({}),'strict')
+
+
+if __name__=='__main__':unittest.main()
