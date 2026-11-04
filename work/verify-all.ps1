@@ -545,7 +545,19 @@ echo '@@END'
         if (-not (Test-Path $bundle)) {
             Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' 'нет бандла' $bundle
         } elseif (-not $script:Go) {
-            Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' 'go не найден'
+            # The Windows Go toolchain is blocked by Smart App Control here, so the
+            # reference build is a Windows cross-compile on Debian (the synced tree).
+            $b = Invoke-Native 'ssh' @('-o','BatchMode=yes','-i',"$env:USERPROFILE\.ssh\id_ed25519_debian17",'root@192.168.88.17',
+                'set -e; export PATH=/opt/go1.27.3/bin:$PATH; cd /root/xio-linux/protocol/rivet; GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /tmp/xio-tunnel-verify.exe ./cmd/xio-desktop; stat -c %s /tmp/xio-tunnel-verify.exe') -TimeoutSeconds $TimeoutSeconds
+            if ($b.ExitCode -ne 0) {
+                Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' ('кросс-сборка exit ' + $b.ExitCode) 'см. лог'
+                foreach ($l in (Get-LastLines $b.Output 12)) { Write-Log ('    ' + $l) }
+            } else {
+                $freshBytes = [int64](($b.Output | Where-Object { $_ -match '^\d+$' } | Select-Object -Last 1))
+                $sb = (Get-Item $bundle).Length
+                if ($freshBytes -eq $sb) { Add-Check 'артефакт: размер xio-tunnel.exe' 'OK' ("бандл $sb B, кросс-сборка $freshBytes B") '' }
+                else { Add-Check 'артефакт: размер xio-tunnel.exe' 'FAIL' ("бандл $sb B != сборка $freshBytes B") 'пересоберите бандл' }
+            }
         } else {
             $tmpDir = Join-Path ([System.IO.Path]::GetTempPath()) ('xio-verify-build-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
             try {

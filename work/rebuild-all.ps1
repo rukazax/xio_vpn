@@ -45,12 +45,13 @@ if (-not $SkipDesktop) {
   $env:Path = "C:\dev\flutter\bin;$env:Path"
   Push-Location (Join-Path $repo 'app')
   try { & flutter build windows --release 2>&1 | Select-Object -Last 1 } finally { Pop-Location }
-  # The desktop helper embeds the Go engine: rebuild it from the same sources,
-  # otherwise the bundle keeps a stale xio-tunnel.exe (that happened in rc8).
-  $go = (Get-Command go -ErrorAction SilentlyContinue).Source
-  if (-not $go) { $go = 'C:\Users\er-ka\tools\go\bin\go.exe' }
-  Push-Location (Join-Path $repo 'protocol\rivet')
-  try { & $go build -trimpath -ldflags="-s -w" -o (Join-Path $repo 'app\build\windows\x64\runner\Release\libexec\xio-tunnel.exe') ./cmd/xio-desktop } finally { Pop-Location }
+  # The desktop helper embeds the Go engine. Cross-compile it on Debian: the local
+  # Windows toolchain is unusable here (Smart App Control blocks the Go toolchain
+  # binary itself once go.mod asks for a newer version).
+  & ssh -o BatchMode=yes -i $key $debian 'set -e; export PATH=/opt/go1.27.3/bin:$PATH; cd /root/xio-linux/protocol/rivet; GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /tmp/xio-tunnel.exe ./cmd/xio-desktop; stat -c "helper %s" /tmp/xio-tunnel.exe'
+  if ($LASTEXITCODE -ne 0) { throw 'helper cross-build failed' }
+  & scp -o BatchMode=yes -q -i $key "${debian}:/tmp/xio-tunnel.exe" (Join-Path $repo 'app\build\windows\x64\runner\Release\libexec\xio-tunnel.exe')
+  if ($LASTEXITCODE -ne 0) { throw 'helper copy failed' }
   $zip = Join-Path $releases 'XIO-Full-0.24.1-windows-x64.zip'
   if (Test-Path $zip) { Remove-Item $zip -Force }
   Compress-Archive -Path (Join-Path $repo 'app\build\windows\x64\runner\Release\*') -DestinationPath $zip -CompressionLevel Optimal
