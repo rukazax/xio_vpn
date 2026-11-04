@@ -405,6 +405,13 @@ class ShadowsocksConfigTests(unittest.TestCase):
   return {'restrictedNetwork':False,'outbound':'eth0','protocols':['awg','xray'],
           'stack':{'protocols':protocols,'publicKey':'k','shortId':'s','serverName':'n'},
           'users':{}}
+ def test_profiles_never_advertise_a_protocol_the_fork_cannot_load(self):
+  d=self.fake(['xray','shadowsocks','openvpn','cloak','ikev2'])
+  d['users']={'u1':{'stack':{'uuid':'00000000-0000-0000-0000-000000000000','ssKey':'c3M='},'revoked':False}}
+  d['host']='203.0.113.9'
+  with patch.object(m.stack,'receipt',return_value={'serverName':'n','publicKey':'k','shortId':'s','ssKey':'x'}):
+   emitted=set(m.stack.profiles(d,'u1'))
+  self.assertEqual(emitted,{'xray'})
  def test_restricted_or_undeclared_profiles_never_emit_shadowsocks(self):
   import json
   for protocols in (['xray','cloak'], ['xray','openvpn'], []):

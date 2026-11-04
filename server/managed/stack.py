@@ -126,7 +126,7 @@ WantedBy=multi-user.target
  run('systemctl','daemon-reload');subprocess.run(['systemctl','reset-failed','xio-stack'],capture_output=True);run('systemctl','enable','--now','xio-stack');run('systemctl','restart','xio-stack');run('systemctl','is-active','--quiet','xio-stack')
  network.install(d);network.cloak_install(d)
  if not d.get('restrictedNetwork'):network.ike_install(d);_mesh().install(d)
- d['stack']={'protocols':(['xray','cloak'] if d.get('restrictedNetwork') else ['xray','shadowsocks','openvpn','cloak','ikev2']),'publicKey':r['publicKey'],'shortId':r['shortId'],'serverName':r['serverName']}
+ d['stack']={'protocols':(['xray','cloak'] if d.get('restrictedNetwork') else ['xray','openvpn','cloak','ikev2']),'publicKey':r['publicKey'],'shortId':r['shortId'],'serverName':r['serverName']}
 def create(d,uid):
  u={'uuid':str(uuid.uuid4()),'ssKey':base64.b64encode(secrets.token_bytes(32)).decode()};d['users'][uid]['stack']=u;configs=network.create(d,uid)
  if not d.get('restrictedNetwork'):configs.update(network.ike_profile(d,uid))
@@ -138,7 +138,11 @@ def create(d,uid):
  return dict(profiles(d,uid),**configs)
 def profiles(d,uid):
  r=receipt();u=d['users'][uid]['stack'];host=d['host']
- return {p:json.dumps({'protocol':p,'outbound':out}) for p,out in {'xray':{'protocol':'vless','settings':{'vnext':[{'address':host,'port':4443,'users':[{'id':u['uuid'],'encryption':'none','flow':'xtls-rprx-vision'}]}]},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'serverName':r['serverName'],'fingerprint':'chrome','publicKey':r['publicKey'],'shortId':r['shortId']}}},'shadowsocks':{'protocol':'shadowsocks','settings':{'servers':[{'address':host,'port':8388,'method':'2022-blake3-aes-256-gcm','password':r['ssKey']+':'+u['ssKey']}]}}}.items() if not d.get('restrictedNetwork') or p!='shadowsocks'}
+ # This fork has no shadowsocks loader, so shipping a shadowsocks profile would hand
+ # the client a route the server cannot serve. Profiles are limited to the stack
+ # protocols that this build actually supports.
+ supported={'xray','cloak','openvpn','ikev2'}
+ return {p:json.dumps({'protocol':p,'outbound':out}) for p,out in {'xray':{'protocol':'vless','settings':{'vnext':[{'address':host,'port':4443,'users':[{'id':u['uuid'],'encryption':'none','flow':'xtls-rprx-vision'}]}]},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'serverName':r['serverName'],'fingerprint':'chrome','publicKey':r['publicKey'],'shortId':r['shortId']}}}}.items() if p in supported and (not d.get('restrictedNetwork') or p!='shadowsocks')}
 def stats():
  try:return json.loads((STATE/'stats.json').read_text())
  except FileNotFoundError:return {}
