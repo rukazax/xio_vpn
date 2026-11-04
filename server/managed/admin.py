@@ -567,7 +567,9 @@ def catalog_state():
 def awg_client_config(d,user,cascade=None,ipv6_only=False):
  """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
- cascade=cascade if cascade is not None else cascade_status()
+ if cascade is None:
+  import dualstack as _ds
+  cascade=_ds.cascade_status()
  host='[%s]'%host if ':' in host else host
  if ipv6_only:
   address='fd78:1::%x/64'%slot
