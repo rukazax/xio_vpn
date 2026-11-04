@@ -13,7 +13,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'cascade_ui.dart';
 import 'client_policy.dart';
 import 'core.dart';
-import 'cascade_ui.dart';
 import 'help_legal_ui.dart';
 import 'l10n.dart';
 import 'split_routing.dart';
