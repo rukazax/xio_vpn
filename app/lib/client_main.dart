@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'cascade_ui.dart';
+import 'app_settings.dart';
 import 'client_policy.dart';
 import 'core.dart';
 import 'mtproto_ui.dart';
@@ -23,10 +24,10 @@ import 'subclients_ui.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!clientOnlyBuild) throw StateError('Build with XIO_CLIENT_ONLY=true');
+  // The screen policy comes from the saved settings: AppStore.load() applies
+  // «Разрешить скриншоты» to the window once the flag is known.
   if (Platform.isLinux || Platform.isWindows) {
     await DesktopEngine.initialise();
-  } else {
-    await native.invokeMethod<void>('secureScreen', {'enabled': true});
   }
   await AppLanguages.load();
   for (final name in [
@@ -560,6 +561,23 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                       : () => perform(settings),
                   icon: const Icon(Icons.network_check),
                   label: const LText('Проверка соединения'),
+                ),
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => Scaffold(
+                        appBar: AppBar(title: const LText('Настройки')),
+                        body: SafeArea(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: AppBehaviorSettings(store: store),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  icon: const Icon(Icons.settings_outlined),
+                  label: const LText('Настройки приложения'),
                 ),
                 Text(
                   Platform.isAndroid

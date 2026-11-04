@@ -467,7 +467,7 @@ class ManagedService {
         p == 'awg' ? 51821 : 51820,
       );
       configs[p] =
-          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(remote)}\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $endpoint\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
+          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(remote, store.dnsServers)}\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $endpoint\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
     }
     if (remote['rivet'] is Map) {
       final meta = Map<String, dynamic>.from(remote['rivet']);

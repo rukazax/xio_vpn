@@ -177,6 +177,7 @@ class Subclients {
       request,
       Map<String, String>.from(pending['private']),
       user.serverId,
+      dns: store.dnsServers,
     );
     final existing = store.users
         .where((u) => u.id == bundle.userId && u.serverId == bundle.serverId)
@@ -208,8 +209,9 @@ UserBundle provisioningBundle(
   Map<String, dynamic> response,
   Map<String, dynamic> request,
   Map<String, String> private,
-  String serverId,
-) {
+  String serverId, {
+  List<String>? dns,
+}) {
   final server = Map<String, dynamic>.from(response['server']);
   final remoteUser = Map<String, dynamic>.from(response['user']);
   if (server['id'] != serverId ||
@@ -232,7 +234,7 @@ UserBundle provisioningBundle(
       .map((e) => '${e.key} = ${e.value}')
       .join('\n');
   configs['awg'] =
-      '[Interface]\nPrivateKey = ${private['awg']}\nAddress = 10.78.0.$slot/32, fd78:1::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(server)}\nMTU = 1280\n$extensions\n\n[Peer]\nPublicKey = ${server['publicKeys']['awg']}\nEndpoint = ${serverEndpoint(host, 51821)}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
+      '[Interface]\nPrivateKey = ${private['awg']}\nAddress = 10.78.0.$slot/32, fd78:1::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(server, dns)}\nMTU = 1280\n$extensions\n\n[Peer]\nPublicKey = ${server['publicKeys']['awg']}\nEndpoint = ${serverEndpoint(host, 51821)}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
   WireGuardProfile.parse(configs['awg']!, amnezia: true);
   if (server['rivet'] is Map) {
     final meta = Map<String, dynamic>.from(server['rivet']);

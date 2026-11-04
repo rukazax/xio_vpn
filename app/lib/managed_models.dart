@@ -3,14 +3,154 @@ import 'client_policy.dart';
 import 'server_address.dart';
 
 import 'dart:convert';
+import 'dart:io';
 
-/// Advertise IPv6 DNS only when the managed gateway confirms IPv6 egress.
-/// An IPv6 DNS black hole can otherwise stall Android's resolver on AWG.
-String managedDnsServers(Map<dynamic, dynamic> server) {
+/// A ready-made set of third-party DNS resolvers. The addresses are the public
+/// ones published by each provider; the app never probes them.
+class DnsPreset {
+  final String id, name;
+  final List<String> servers;
+  const DnsPreset(this.id, this.name, this.servers);
+}
+
+/// Hard-coded resolver list for the settings (and the install wizard).
+const List<DnsPreset> dnsPresets = [
+  DnsPreset('adguard', 'AdGuard DNS (IPv6)', [
+    '2a10:50c0::ad1:ff',
+    '2a10:50c0::ad2:ff',
+  ]),
+  DnsPreset('quad9', 'Quad9', ['9.9.9.9', '2620:fe::fe']),
+  DnsPreset('cloudflare', 'Cloudflare', ['1.1.1.1', '2606:4700:4700::1111']),
+  DnsPreset('google', 'Google Public DNS', ['8.8.8.8', '2001:4860:4860::8888']),
+];
+
+/// Identifier of the manual ("Свои") resolver set.
+const String customDnsPreset = 'custom';
+
+/// An Android resolver and an `AmneziaWG` `DNS = a, b` line both hold two
+/// addresses; more would be silently dropped by a client.
+const int maxDnsServers = 2;
+
+/// Quad9 was written into generated AWG profiles before the setting existed, so
+/// it stays the default and an upgrade keeps the same DNS.
+const List<String> defaultDnsServers = ['9.9.9.9', '2620:fe::fe'];
+
+final _dnsHostname = RegExp(
+  r'^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$',
+);
+
+bool _isIpLiteral(String value) {
+  if (!RegExp(r'^[0-9a-fA-F:.]+$').hasMatch(value)) return false;
+  try {
+    InternetAddress(value);
+    return true;
+  } on ArgumentError {
+    return false;
+  }
+}
+
+/// True for an IPv6 literal (a domain name is never one).
+bool isIpv6Literal(String value) =>
+    value.contains(':') && _isIpLiteral(value.trim());
+
+/// True for an IPv4 literal (a domain name with digits is never one).
+bool isIpv4Literal(String value) {
+  final trimmed = value.trim();
+  return !trimmed.contains(':') && _isIpLiteral(trimmed);
+}
+
+/// Validates one resolver address: IPv4, IPv6 or a domain name.
+///
+/// Ports, schemes, credentials and paths are rejected: a resolver address is
+/// written into a profile line, not into a URL.
+String validateDnsServer(String input) {
+  final raw = input.trim();
+  if (raw.isEmpty) {
+    throw const FormatException('Укажите адрес DNS-сервера');
+  }
+  if (raw.length > 253) {
+    throw const FormatException('Адрес DNS-сервера слишком длинный');
+  }
+  if (_isIpLiteral(raw)) return raw;
+  if (raw.contains(':') ||
+      raw.contains('/') ||
+      raw.contains('@') ||
+      raw.contains('?') ||
+      raw.contains('#')) {
+    throw const FormatException(
+      'DNS: IPv4, IPv6 или домен — без порта, схемы и пути',
+    );
+  }
+  if (!_dnsHostname.hasMatch(raw)) {
+    throw const FormatException('DNS: некорректный адрес');
+  }
+  return raw.toLowerCase();
+}
+
+/// Validates the selected set: at most two addresses, no duplicates.
+List<String> validateDnsServers(Iterable<String> input) {
+  final result = <String>[];
+  for (final value in input) {
+    if (value.trim().isEmpty) continue;
+    final normalized = validateDnsServer(value);
+    if (!result.contains(normalized)) result.add(normalized);
+  }
+  if (result.isEmpty) {
+    throw const FormatException('Укажите хотя бы один DNS-сервер');
+  }
+  if (result.length > maxDnsServers) {
+    throw const FormatException('Не больше двух DNS-серверов');
+  }
+  return result;
+}
+
+/// Preset that exactly matches [servers], or [customDnsPreset].
+String dnsPresetIdFor(List<String> servers) {
+  final wanted = servers.map((v) => v.trim().toLowerCase()).toSet();
+  for (final preset in dnsPresets) {
+    if (wanted.length == preset.servers.length &&
+        preset.servers.every(wanted.contains)) {
+      return preset.id;
+    }
+  }
+  return customDnsPreset;
+}
+
+/// Human-readable name of a resolver set for the settings and the wizard.
+String dnsServersLabel(List<String> servers) {
+  if (servers.isEmpty) return 'не заданы';
+  final id = dnsPresetIdFor(servers);
+  var name = 'Свои';
+  for (final preset in dnsPresets) {
+    if (preset.id == id) name = preset.name;
+  }
+  return '$name · ${servers.join(', ')}';
+}
+
+/// Writes the configured resolvers into an AWG profile.
+///
+/// Advertise IPv6 DNS only when the managed gateway confirms IPv6 egress: an
+/// IPv6 DNS black hole otherwise stalls Android's resolver on AWG. An explicit
+/// IPv6-only choice is kept as is — the owner asked for that resolver, and the
+/// settings screen warns about the missing IPv6 uplink.
+String managedDnsServers(
+  Map<dynamic, dynamic> server, [
+  Iterable<String>? selection,
+]) {
   final rivet = server['rivet'];
-  return rivet is Map && rivet['ipv6'] == true
-      ? '9.9.9.9, 2620:fe::fe'
-      : '9.9.9.9';
+  final ipv6 = rivet is Map && rivet['ipv6'] == true;
+  final chosen = <String>[
+    for (final value in selection ?? defaultDnsServers)
+      if (value.trim().isNotEmpty) value.trim(),
+  ];
+  final usable = ipv6
+      ? chosen
+      : [
+          for (final value in chosen)
+            if (!isIpv6Literal(value)) value,
+        ];
+  final list = usable.isEmpty ? chosen : usable;
+  return list.isEmpty ? defaultDnsServers.first : list.join(', ');
 }
 
 class ManagedServer {

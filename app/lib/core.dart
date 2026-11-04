@@ -667,6 +667,15 @@ class AppStore extends ChangeNotifier {
   bool siteCheckEnabled = false;
   String priorityProtocol = Platform.isIOS ? 'rivet-s1' : 'xray';
   int protocolTimeoutSeconds = 15;
+  /// Сторонние DNS-резолверы из настроек: до двух адресов (IPv4/IPv6/домен).
+  /// По умолчанию Quad9 — то же значение, что раньше писалось в AWG-профили.
+  List<String> dnsServers = [...defaultDnsServers];
+  /// Автозапуск при загрузке устройства (Android: BOOT_COMPLETED-ресивер).
+  bool autostart = false;
+  /// Автоподключение после запуска приложения.
+  bool autoConnectOnStart = false;
+  /// Скриншоты по умолчанию запрещены: экраны с ключами закрывает FLAG_SECURE.
+  bool allowScreenshots = false;
   String? connectionCheck;
   String? selectedId;
   /// Двухсерверная схема: адрес bridge (IPv4/домен) и exit (только IPv6).
@@ -776,6 +785,20 @@ class AppStore extends ChangeNotifier {
         checkSite = validateCheckSite(j['checkSite'] ?? 'https://youtube.com')
             .toString();
         siteCheckEnabled = j['siteCheckEnabled'] == true;
+        final storedDns = (j['dnsServers'] as List? ?? const [])
+            .whereType<String>()
+            .toList();
+        if (storedDns.isNotEmpty) {
+          try {
+            dnsServers = validateDnsServers(storedDns);
+          } catch (_) {
+            // A damaged resolver list must not stop the app from loading.
+            dnsServers = [...defaultDnsServers];
+          }
+        }
+        autostart = j['autostart'] == true;
+        autoConnectOnStart = j['autoConnectOnStart'] == true;
+        allowScreenshots = j['allowScreenshots'] == true;
         cascadeBridge = validateCascadeBridge(j['cascadeBridge'] as String? ?? '') ?? '';
         cascadeExit = validateCascadeExit(j['cascadeExit'] as String? ?? '') ?? '';
         cascadeUnlocked = j['cascadeUnlocked'] == true;
@@ -817,6 +840,15 @@ class AppStore extends ChangeNotifier {
       });
       await saveNativePlan();
     }
+    if (Platform.isAndroid && _storageHealthy) {
+      // Kotlin keeps its own copy: the boot receiver and the notification
+      // permission check run before Flutter is started.
+      await native.invokeMethod<void>('setAutostart', {'enabled': autostart});
+      await native.invokeMethod<void>('setAutoConnectOnStart', {
+        'enabled': autoConnectOnStart,
+      });
+    }
+    if (_storageHealthy) await applyScreenSecurity();
     ready = true;
     notifyListeners();
     // A load that finished while the window was already hidden must not revive
@@ -824,10 +856,13 @@ class AppStore extends ChangeNotifier {
     if (_foreground) {
       _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
     }
-    if (Platform.isAndroid &&
-        (!enforceConsent || consentReady) &&
-        await native.invokeMethod<bool>('consumeConnectRequest') == true) {
-      await connect();
+    if (Platform.isAndroid && (!enforceConsent || consentReady)) {
+      final requested =
+          await native.invokeMethod<bool>('consumeConnectRequest') == true;
+      // «Автоподключение после запуска»: the owner asked for the selected
+      // profile to be raised on app start, unless the tunnel is already up.
+      final automatic = autoConnectOnStart && !status.active && selected != null;
+      if (requested || automatic) await connect();
     }
   }
 
@@ -895,6 +930,10 @@ class AppStore extends ChangeNotifier {
       'mtprotoLink': mtprotoLink,
       'checkSite': checkSite,
       'siteCheckEnabled': siteCheckEnabled,
+      'dnsServers': dnsServers,
+      'autostart': autostart,
+      'autoConnectOnStart': autoConnectOnStart,
+      'allowScreenshots': allowScreenshots,
       'autoReconnect': autoReconnect,
       'priorityProtocol': priorityProtocol,
       'protocolTimeoutSeconds': protocolTimeoutSeconds,
@@ -1344,6 +1383,101 @@ class AppStore extends ChangeNotifier {
       rethrow;
     }
     notifyListeners();
+  }
+
+  /// Сохраняет выбранный набор сторонних DNS-резолверов.
+  ///
+  /// [servers] проверяется как IPv4/IPv6/домен, не больше двух адресов. Пустой
+  /// список недопустим: профиль без DNS отдаёт имена системному резолверу.
+  Future<void> setDnsServers(List<String> servers) async {
+    final normalized = validateDnsServers(servers);
+    final previous = dnsServers;
+    dnsServers = normalized;
+    try {
+      await save();
+    } catch (_) {
+      dnsServers = previous;
+      rethrow;
+    }
+    notifyListeners();
+  }
+
+  /// Автозапуск после загрузки устройства. На Android переключает
+  /// BOOT_COMPLETED-ресивер; сбой канала не отменяет сохранённый выбор — он
+  /// применится при следующем запуске.
+  Future<void> setAutostart(bool value) async {
+    if (autostart == value) return;
+    final previous = autostart;
+    autostart = value;
+    try {
+      await save();
+    } catch (_) {
+      autostart = previous;
+      rethrow;
+    }
+    if (Platform.isAndroid) {
+      try {
+        await native.invokeMethod<void>('setAutostart', {'enabled': value});
+      } catch (_) {
+        // Канал есть только в мобильной сборке; флаг уже сохранён.
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Автоподключение после запуска приложения.
+  Future<void> setAutoConnectOnStart(bool value) async {
+    if (autoConnectOnStart == value) return;
+    final previous = autoConnectOnStart;
+    autoConnectOnStart = value;
+    try {
+      await save();
+    } catch (_) {
+      autoConnectOnStart = previous;
+      rethrow;
+    }
+    if (Platform.isAndroid) {
+      try {
+        await native.invokeMethod<void>('setAutoConnectOnStart', {
+          'enabled': value,
+        });
+      } catch (_) {
+        // Канал есть только в мобильной сборке; флаг уже сохранён.
+      }
+    }
+    notifyListeners();
+  }
+
+  /// «Разрешить скриншоты». Флаг инвертируется в FLAG_SECURE: при выключенном
+  /// разрешении экран защищён от снятия скриншота и записи.
+  Future<void> setAllowScreenshots(bool value) async {
+    if (allowScreenshots == value) return;
+    final previous = allowScreenshots;
+    allowScreenshots = value;
+    try {
+      await save();
+    } catch (_) {
+      allowScreenshots = previous;
+      rethrow;
+    }
+    await applyScreenSecurity();
+    notifyListeners();
+  }
+
+  /// Применяет настройку «Разрешить скриншоты» к окну приложения.
+  ///
+  /// Экраны с ключами и профилями вызывают этот метод вместо безусловного
+  /// `secureScreen(true)`, поэтому выбранный флаг соблюдается и при старте, и
+  /// при открытии любого экрана.
+  Future<void> applyScreenSecurity() async {
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    try {
+      await native.invokeMethod<void>('secureScreen', {
+        'enabled': !allowScreenshots,
+      });
+    } catch (_) {
+      // Платформа без канала (тесты, десктоп) ничего не защищает.
+    }
   }
 
   /// Confirms the tunnel without contacting a third-party website: a fresh

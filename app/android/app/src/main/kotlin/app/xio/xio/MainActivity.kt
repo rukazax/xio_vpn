@@ -295,6 +295,24 @@ class MainActivity : FlutterActivity() {
                     else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     result.success(null)
                 }
+                // Автозапуск после загрузки: Kotlin хранит копию флага для
+                // BootReceiver и включает/выключает сам ресивер, потому что
+                // BOOT_COMPLETED нельзя поймать динамической регистрацией.
+                "setAutostart" -> {
+                    val enabled = call.argument<Boolean>("enabled") == true
+                    prefs.edit().putBoolean("autostart", enabled).apply()
+                    packageManager.setComponentEnabledSetting(
+                        android.content.ComponentName(this, BootReceiver::class.java),
+                        if (enabled) android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                        else android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        android.content.pm.PackageManager.DONT_KILL_APP
+                    )
+                    result.success(null)
+                }
+                "setAutoConnectOnStart" -> {
+                    prefs.edit().putBoolean("autoConnectOnStart", call.argument<Boolean>("enabled") == true).apply()
+                    result.success(null)
+                }
                 "connect" -> {
                     if (pending != null) { result.error("BUSY", "Ожидается разрешение VPN", null); return@setMethodCallHandler }
                     val id = call.argument<String>("id") ?: ""

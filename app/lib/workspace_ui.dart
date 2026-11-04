@@ -6,6 +6,7 @@ import 'update_ui.dart';
 import 'help_legal_ui.dart';
 import 'credentials.dart';
 import 'app_icons.dart';
+import 'app_settings.dart';
 import 'l10n.dart';
 
 import 'dart:io';
@@ -684,6 +685,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
             children: [
               LanguageSetting(store: store),
               const UpdateSettingsTile(),
+              AppBehaviorSettings(store: store),
               if (Platform.isAndroid) ...[
                 ListTile(
                   leading: const Icon(Icons.palette_outlined),
@@ -865,6 +867,7 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         onTap: widget.onProtocols,
       ),
       const VpnSharingControl(),
+      DnsServersTile(store: widget.store),
       const SizedBox(height: 8),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
@@ -1390,7 +1393,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       });
     }
     if (Platform.isAndroid) {
-      native.invokeMethod('secureScreen', {'enabled': true});
+      widget.store.applyScreenSecurity();
     }
   }
 
@@ -1412,7 +1415,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       c.dispose();
     }
     if (Platform.isAndroid) {
-      native.invokeMethod('secureScreen', {'enabled': false});
+      widget.store.applyScreenSecurity();
     }
     super.dispose();
   }
@@ -1728,6 +1731,8 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  DnsServersTile(store: widget.store),
+                  const SizedBox(height: 8),
                   SwitchListTile(
                     value: cascadeEnabled,
                     onChanged: busy

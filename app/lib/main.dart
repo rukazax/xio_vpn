@@ -211,18 +211,16 @@ class _ImportDialogState extends State<ImportDialog> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid) {
-      native.invokeMethod('secureScreen', {'enabled': true});
-    }
+    // The dialog shows profile secrets, so it follows the owner's screenshot
+    // permission instead of blanking the screen unconditionally.
+    widget.store.applyScreenSecurity();
   }
 
   @override
   void dispose() {
     name.dispose();
     config.dispose();
-    if (Platform.isAndroid) {
-      native.invokeMethod('secureScreen', {'enabled': false});
-    }
+    widget.store.applyScreenSecurity();
     super.dispose();
   }
 
