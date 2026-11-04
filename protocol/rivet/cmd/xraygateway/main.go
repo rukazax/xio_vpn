@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/stats"
+	// The gateway loads a JSON Xray config written by the server, so it needs
+	// the JSON loader directly: internal/xrayregistry no longer links it (the
+	// helper builds protobuf, see xrayregistry/registry.go).
+	_ "github.com/xtls/xray-core/main/json"
 	"os"
 	"os/signal"
 	"path/filepath"
