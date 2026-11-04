@@ -1,7 +1,4 @@
-import 'dart:io';
-import 'dart:ui' as ui;
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +6,7 @@ import 'package:xio/core.dart';
 import 'package:xio/desktop_engine.dart';
 import 'package:xio/main.dart';
 import 'package:xio/l10n.dart';
+import 'support/screenshots.dart';
 
 void main() {
   setUpAll(() async {
@@ -39,16 +37,14 @@ void main() {
       final store = AppStore();
       final boundaryKey = GlobalKey();
       Future<void> capture(String name) async {
-        await tester.runAsync(() async {
-          final boundary =
-              boundaryKey.currentContext!.findRenderObject()
-                  as RenderRepaintBoundary;
-          final image = await boundary.toImage(pixelRatio: 1.5);
-          final data = await image.toByteData(format: ui.ImageByteFormat.png);
-          File('../docs/images/$name-$language.png')
-              .writeAsBytesSync(data!.buffer.asUint8List());
-          image.dispose();
-        });
+        // Documentation screenshots are opt-in (XIO_CAPTURE_IMAGES=1) so a test
+        // run never writes tracked files and never needs ../docs to exist.
+        await captureScreenshot(
+          tester,
+          boundaryKey,
+          '../docs/images/$name-$language.png',
+          pixelRatio: 1.5,
+        );
       }
 
       await tester.pumpWidget(

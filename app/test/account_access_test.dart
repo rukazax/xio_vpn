@@ -9,6 +9,7 @@ import 'package:xio/core.dart';
 import 'package:xio/subclients.dart';
 
 import 'security_test.dart' show profile;
+import 'support/tls_fixtures.dart';
 
 class ImportStore extends AppStore {
   UserBundle? imported;
@@ -241,32 +242,11 @@ void main() {
           return;
         }
       }
-      final temp = await Directory.systemTemp.createTemp('xio-api-tls-');
-      addTearDown(() => temp.delete(recursive: true));
-      final cert = '${temp.path}/cert.pem', key = '${temp.path}/key.pem';
-      final result = await Process.run('openssl', [
-        'req',
-        '-x509',
-        '-newkey',
-        'rsa:2048',
-        '-nodes',
-        '-days',
-        '1',
-        '-subj',
-        '/CN=localhost',
-        '-keyout',
-        key,
-        '-out',
-        cert,
-      ]);
-      expect(result.exitCode, 0);
-      final pem = await File(cert).readAsString();
-      final der = base64Decode(
-        pem.replaceAll(RegExp(r'-----[^-]+-----|\s'), ''),
-      );
-      final context = SecurityContext()
-        ..useCertificateChain(cert)
-        ..usePrivateKey(key);
+      // Checked-in self-signed certificate instead of shelling out to `openssl`:
+      // the pin and redirect checks must run on a bare host (Windows, CI) with no
+      // external tool and no network.
+      final der = tlsFixtureDer();
+      final context = tlsServerContext();
       final server = await HttpServer.bindSecure(address, 0, context);
       addTearDown(() => server.close(force: true));
       var received = 0;

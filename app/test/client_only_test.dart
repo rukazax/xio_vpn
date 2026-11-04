@@ -1,7 +1,4 @@
-import 'dart:io';
-import 'dart:ui' as ui;
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:xio/app_theme.dart';
@@ -9,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/client_main.dart';
 import 'package:xio/client_policy.dart';
 import 'package:xio/core.dart';
+import 'support/screenshots.dart';
 
 class SwitchingStore extends AppStore {
   final calls = <String>[];
@@ -216,17 +214,14 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      await tester.runAsync(() async {
-        final boundary =
-            key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-        final image = await boundary.toImage(pixelRatio: 2);
-        final data = await image.toByteData(format: ui.ImageByteFormat.png);
-        final folder = Directory('../.build-support/client-preview')
-          ..createSync(recursive: true);
-        await File('${folder.path}/home-${brightness.name}.png')
-            .writeAsBytes(data!.buffer.asUint8List());
-        image.dispose();
-      });
+      // Preview PNGs are opt-in (XIO_CAPTURE_IMAGES=1); the layout assertions
+      // above run regardless.
+      await captureScreenshot(
+        tester,
+        key,
+        '../.build-support/client-preview/home-${brightness.name}.png',
+        pixelRatio: 2,
+      );
     }
   });
 }

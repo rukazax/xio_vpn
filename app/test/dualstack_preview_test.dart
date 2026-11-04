@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/client_main.dart';
@@ -11,6 +9,7 @@ import 'package:xio/core.dart';
 import 'package:xio/l10n.dart';
 import 'package:xio/legal_record.dart';
 import 'package:xio/main.dart';
+import 'support/screenshots.dart';
 
 class PreviewStore extends AppStore {
   PreviewStore() : super(nativeTunnelOverride: true) {
@@ -108,18 +107,14 @@ void main() {
             findsOneWidget,
           );
           expect(find.text('Test account'), findsAtLeastNWidgets(1));
-          await tester.runAsync(() async {
-            final boundary =
-                key.currentContext!.findRenderObject() as RenderRepaintBoundary;
-            final image = await boundary.toImage(pixelRatio: 2);
-            final data = await image.toByteData(format: ui.ImageByteFormat.png);
-            final folder = Directory(
-              '../.build-support/dualstack-20261023/previews',
-            )..createSync(recursive: true);
-            await File('${folder.path}/$kind-$language-${brightness.name}.png')
-                .writeAsBytes(data!.buffer.asUint8List());
-            image.dispose();
-          });
+          // Preview PNGs are opt-in (XIO_CAPTURE_IMAGES=1); the assertions above
+          // run regardless of whether the preview folder exists.
+          await captureScreenshot(
+            tester,
+            key,
+            '../.build-support/dualstack-20261023/previews/$kind-$language-${brightness.name}.png',
+            pixelRatio: 2,
+          );
           await tester.pumpWidget(const SizedBox());
           store.dispose();
         }

@@ -12,6 +12,10 @@ String canonical(String protocol, String raw) =>
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final path = Platform.environment['XIO_DESKTOP_PRIVATE_BUNDLE'];
+  // Desktop-only: the test needs a real PC profile directory
+  // (`applicationDirectory()`: LOCALAPPDATA on Windows, XDG on Linux) plus a
+  // private encrypted bundle, so it cannot run on a phone or a bare CI box.
+  final desktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
   test('desktop encrypted import/export keeps supported protocols', () async {
     DesktopEngine.enabled = true;
     DesktopEngine.supported = {'awg', 'rivet-h3', 'rivet-s1', 'xray'};
@@ -58,5 +62,10 @@ void main() {
       DesktopEngine.enabled = false;
       DesktopEngine.supported = {};
     }
-  }, skip: path == null ? 'Private isolated profile required' : false);
+  }, skip: !desktop
+      ? 'Desktop-only: needs a PC profile directory (Windows/Linux/macOS)'
+      : path == null
+      ? 'Set XIO_DESKTOP_PRIVATE_BUNDLE to a private encrypted bundle: the test '
+            'imports it and writes into the real application profile directory'
+      : false);
 }
