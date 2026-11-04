@@ -90,15 +90,21 @@ void main() {
     expect(find.byTooltip(CascadeFeatureGate.bannerText), findsOneWidget);
   });
 
-  testWidgets('activation request explains that no subscription is connected', (
+  testWidgets('activation enables the cascade for free until billing lands', (
     tester,
   ) async {
-    await tester.pumpWidget(_host(const CascadeScreen()));
+    var unlocked = 0;
+    await tester.pumpWidget(
+      _host(CascadeScreen(onUnlock: () async => unlocked++)),
+    );
     await tester.pump();
     await tester.tap(find.byTooltip(CascadeFeatureGate.bannerText));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text(CascadeFeatureGate.notConnectedMessage), findsOneWidget);
+    expect(unlocked, 1);
+    expect(find.text('Каскад включён — оплата пока не требуется'), findsOneWidget);
+    // The paid banner is replaced by the enabled state.
+    expect(find.text('Включено'), findsOneWidget);
     // Drain the SnackBar timeout so no timer outlives the test.
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
