@@ -1,4 +1,5 @@
 [Unit]
+StartLimitIntervalSec=0
 Description=XIO Cascade tunnel to the IPv6 exit
 After=network-online.target
 Wants=network-online.target
@@ -7,7 +8,7 @@ Wants=network-online.target
 Type=simple
 ExecStart=/usr/local/sbin/xio-cascade-tunnel.sh
 Restart=always
-RestartSec=5
+RestartSec=10
 SyslogIdentifier=xio-cascade
 
 [Install]
