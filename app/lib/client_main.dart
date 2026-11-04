@@ -13,6 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'cascade_ui.dart';
 import 'client_policy.dart';
 import 'core.dart';
+import 'cascade_ui.dart';
 import 'help_legal_ui.dart';
 import 'l10n.dart';
 import 'split_routing.dart';
@@ -514,6 +515,15 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                     icon: const Icon(Icons.group_add_outlined),
                     label: const LText('Субклиенты'),
                   ),
+                TextButton.icon(
+                  onPressed: locked
+                      ? null
+                      : () => Navigator.of(context).pushNamed(
+                          CascadeScreen.routeName,
+                        ),
+                  icon: const Icon(Icons.alt_route),
+                  label: const LText('Каскад: два сервера'),
+                ),
                 TextButton.icon(
                   onPressed: locked || store.status.active
                       ? null

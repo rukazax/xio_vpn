@@ -1,0 +1,18 @@
+[Unit]
+Description=XIO whitelist SNI catalog build
+Documentation=file:/usr/local/lib/xio-managed/catalog/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/var/lib/xio-catalog
+ExecStart=/usr/bin/python3 /usr/local/lib/xio-managed/catalog/catalog.py build --out-dir /var/lib/xio-catalog --pins /var/lib/xio-catalog/whitelist-pins.json --interface eth0 --node %H
+# Exit codes are part of the contract (2/3/4/5): report, do not mask, and never retry blindly.
+SuccessExitStatus=0
+TimeoutStartSec=16min
+Nice=10
+IOSchedulingClass=best-effort
+User=root
+StateDirectory=xio-catalog
+StateDirectoryMode=0755
