@@ -1,0 +1,13 @@
+[Unit]
+Description=xio-nat64: IPv4 from the cascade tunnel to vpn4 (exit)
+After=network-online.target vpn4.service
+Wants=network-online.target
+Documentation=https://github.com/rukazax/xio_vpn/tree/agent/nat64/deploy/nat64
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/xio-nat64-exit.sh
+
+[Install]
+WantedBy=multi-user.target

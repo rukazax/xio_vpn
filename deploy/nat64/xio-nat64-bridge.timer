@@ -1,0 +1,12 @@
+[Unit]
+Description=Re-apply xio-nat64 bridge routing after a cascade reconnect
+Documentation=https://github.com/rukazax/xio_vpn/tree/agent/nat64/deploy/nat64
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=10s
+Unit=xio-nat64-bridge.service
+
+[Install]
+WantedBy=timers.target
