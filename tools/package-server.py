@@ -13,7 +13,7 @@ import tempfile
 from native_fingerprint import fingerprint
 
 ROOT = Path(__file__).resolve().parent.parent
-RECIPE = 27
+RECIPE = 28
 AWG_SHA256 = 'fc1a1f9fae43cd8b8a4ac969b49bf80db9ed8d536d935166286cad53fcf34c9a'
 BINARY_MEMBERS = {'amneziawg-go', 'rivet', 'xraygateway', 'cloak'}
 MIRRORS = [('admin.py', 'xio-admin.py'), ('stack.py', 'xio-stack.py'),

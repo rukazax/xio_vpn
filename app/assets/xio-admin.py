@@ -12,7 +12,7 @@ else:
   def remove(self,d):assert not Path('/etc/xio-stack/receipt.json').exists(),'Stack removal module missing; update installer'
  stack=LegacyStack()
 ROOT=Path('/etc/xio-managed'); LIB=Path('/usr/local/lib/xio-managed'); OWNER='xio-managed-v1'
-RECIPE=27
+RECIPE=28
 
 def run(*args,input=None):
  p=subprocess.run(args,input=input,text=True,capture_output=True)
@@ -51,6 +51,12 @@ def packages_install(d):
    for cmd in commands:subprocess.run(cmd,env=env,stdout=log,stderr=log,check=True)
  finally:
   d['packagesAdded']=sorted(previous_added | (installed_packages(manager)-actual_before));save(d)
+def foreign_wireguard_configs():
+ # A WireGuard configuration we did not write makes wireguard-tools shared tooling:
+ # purging it would break an unrelated tunnel. Kept as a named host probe so callers
+ # and tests can see (and substitute) this single fact.
+ return list(Path('/etc/wireguard').glob('*.conf'))
+
 def purge_packages(d):
  manager=d.get('platform',{}).get('manager','apt')
  owned=set(d.get('packagesAdded', ['wireguard-tools'] if d.get('packageOwned') else []))
@@ -59,7 +65,7 @@ def purge_packages(d):
  assert all(re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9+_.:-]*',p) for p in owned),'Invalid package receipt'
  owned &= installed_packages(manager);removed=[]
  # Existing WireGuard configurations make the tooling shared, even without declared package dependencies.
- protected={'wireguard-tools'} if d.get('preserveWireGuardTools') or list(Path('/etc/wireguard').glob('*.conf')) else set()
+ protected={'wireguard-tools'} if d.get('preserveWireGuardTools') or foreign_wireguard_configs() else set()
  candidates=owned-protected
  if manager=='apt' and candidates:
   def plan(names):
@@ -564,19 +570,66 @@ def catalog_state():
   'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
-def awg_client_config(d,user):
+MTPROTO_ETC=Path('/etc/xio-mtproto')
+MTPROTO_PORT=8444
+
+def mtproto_state(d):
+ """Read-only state of the Telegram MTProto proxy (mtg) on this server.
+
+ install-mtproto writes /etc/xio-mtproto/{secret,port,domain}; the secret file
+ holds `secret=<hex>` (older copies are a bare `ee…`/`dd…` line). This is the
+ same value the installer prints with --print-link, so the app can show the
+ link without asking the operator for it.
+
+ Nothing is written here: the proxy is inspected, never started or changed.
+ The secret goes back to the caller in the JSON answer only; it is never
+ written to a file and never logged.
+ """
+ def text(name):
+  try:return (MTPROTO_ETC/name).read_text(errors='replace').strip()
+  except OSError:return ''
+ def number(name,default):
+  value=text(name)
+  return int(value) if re.fullmatch(r'\d{1,5}',value) and 0<int(value)<=65535 else default
+ secret=''
+ for line in text('secret').splitlines():
+  line=line.strip()
+  if not line:continue
+  key,sep,value=line.partition('=')
+  if sep:
+   if key.strip()=='secret':secret=value.strip()
+  elif re.fullmatch('(?:dd|ee)[0-9a-fA-F]+',line):secret=line
+ host=text('domain') or str(d['host'])
+ port=number('port',MTPROTO_PORT)
+ # A bare secret is not a working FakeTLS secret: report "not installed"
+ # instead of handing the app a link Telegram would refuse.
+ if not re.fullmatch('(?:dd|ee)[0-9a-fA-F]{32,}',secret) or len(secret)%2:
+  return {'installed':False,'host':host,'port':port,'secret':None,'link':None}
+ server='[%s]'%host if ':' in host and not host.startswith('[') else host
+ return {'installed':True,'host':host,'port':port,'secret':secret,
+         'link':'tg://proxy?server=%s&port=%d&secret=%s'%(server,port,secret)}
+
+def awg_client_config(d,user,cascade=None,ipv6_only=False):
  """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
+ if cascade is None:
+  import dualstack as _ds
+  cascade=_ds.cascade_status()
  host='[%s]'%host if ':' in host else host
- address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
- lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9, 2620:fe::fe']
- # AmneziaWG 3.x adds S3/S4 and signature packets I1..I5; the profile must carry
- # every parameter the server actually applies, otherwise the two sides disagree.
+ if ipv6_only:
+  address='fd78:1::%x/64'%slot
+  allowed='::/0'
+  dns='2620:fe::fe' if cascade['alive'] else '9.9.9.9'
+ else:
+  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
+  allowed='0.0.0.0/0, ::/0'
+  dns='9.9.9.9, 2620:fe::fe' if cascade['alive'] else '9.9.9.9'
+ lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = '+dns]
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
   if key in awg:
    lines.append('%s = %s'%(key,awg[key]))
  lines+=['MTU = 1280','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
-         'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
+         'AllowedIPs = '+allowed,'PersistentKeepalive = 25','']
  return '\n'.join(lines)
 
 def dispatch(req,actor=None):
@@ -592,6 +645,10 @@ def dispatch(req,actor=None):
  d=load()
  authority(d,actor,action,req)
  if action=='inspect':return {'server':public(d),'phase':d['phase']}
+ # Local, read-only host fact: no deployment identity is involved, so the app may
+ # ask right after `init` even before it has stored an id. Owner-only: a delegated
+ # admin must not receive the server-wide proxy secret.
+ if action=='mtproto':return mtproto_state(d)
  assert req.get('serverId')==d['id'],'Server identity changed; reopen setup'
  if action=='catalog':return catalog_state()
  if action=='status':
@@ -620,7 +677,7 @@ def dispatch(req,actor=None):
   except Exception:
    d['users'].pop(uid,None);save(d);raise
   return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
-          'config':awg_client_config(d,d['users'][uid])}
+          'config':awg_client_config(d,d['users'][uid],ipv6_only=req.get('ipv6Only') is True)}
  if action=='add':
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'

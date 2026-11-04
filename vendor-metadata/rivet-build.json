@@ -1,10 +1,10 @@
 {
   "go": "go version go1.27.3 linux/amd64",
-  "sourceSha256": "07d0f0087572e3740dd35f83230d30c9447649bf79101dfe4fa22f4abaa21d9a",
-  "xrayServerSha256": "58ce9bd5a0b8ce3b86aba500f6d88863b272d6a3b38a13bc7f6f8455a824ad65",
-  "cloakServerSha256": "444796c18da86655919d45d4fa8bb4ccfe3ce27a8cfbd5d64dfc77f348af03cd",
+  "sourceSha256": "cbd1f3cb55a992ac6639403b6e91dadf5faa8debcb894a6998c3596636b48677",
+  "xrayServerSha256": "976eac59770c96d62ce89d6ffd250997da329708a12e93c6304f00abd3c537f4",
+  "cloakServerSha256": "06dfbfd49d3353a19db3fb194eb2093bdd35e745a508ea3b55f0f43528f267b0",
   "fingerprintIncludes": "protocol/rivet plus vendor/anet, cloak, patched xray and tun2socks (tailscale source archive only)",
-  "serverSha256": "2a4f67a2eab92089738b9efe12d117614a25dc03d6ccd4e9728962e32366c48b",
+  "serverSha256": "211369dc5352d441dc1b27154ab890b7adfeb19ab9f210009c77ffc58e494a66",
   "androidRuntime": "single Go runtime; private CLOCK_BOOTTIME patch, crypto unchanged",
   "awgModule": "v3.1.20260814",
   "androidAarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7"

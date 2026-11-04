@@ -15,7 +15,7 @@ package = importlib.util.module_from_spec(spec); spec.loader.exec_module(package
 def fixture(root):
     managed = root / 'server/managed'; (managed / 'xio_vici').mkdir(parents=True)
     for name in ['dualstack.py','client_api.py','admin.py','stack.py','network_stack.py','mesh_stack.py','rivet-setup.py','update.py','readiness.py','xio-ready.service']:
-        (managed / name).write_text('RECIPE = 27\n' if name in ['admin.py','update.py'] else '# fixture\n')
+        (managed / name).write_text('RECIPE = %d\n' % package.RECIPE if name in ['admin.py','update.py'] else '# fixture\n')
     (managed / 'mesh-pins.json').write_text('{}')
     (managed / 'bootstrap.sh').write_bytes(b'set -eu\n')
     (managed / 'xio_vici/__init__.py').write_text('# vici fixture\n')
@@ -73,7 +73,7 @@ class PackageGuardTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); pin = fixture(root); output = root / 'output'
             with patch.object(package, 'AWG_SHA256', pin):
-                self.assertEqual(package.package(root, root, output, check=True)['recipeVersion'], 27)
+                self.assertEqual(package.package(root, root, output, check=True)['recipeVersion'], package.RECIPE)
                 self.assertFalse(output.exists())
                 (root / 'server/managed/admin.py').write_text('RECIPE = 24\n')
                 with self.assertRaisesRegex(RuntimeError, 'Recipe mismatch'):
