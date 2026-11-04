@@ -27,6 +27,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/app_settings.dart';
 import 'package:xio/app_theme.dart';
+import 'package:xio/cascade_health.dart';
 import 'package:xio/cascade_model.dart';
 import 'package:xio/cascade_ui.dart';
 import 'package:xio/core.dart';
@@ -367,9 +368,82 @@ void main() {
     expect(find.text('Каскад'), findsOneWidget);
     expect(find.textContaining('2a0c:b641:1a0:800::2a2'), findsWidgets);
     expect(find.text('XIO Cascade'), findsOneWidget);
+    // P1 replaced the fake demo ping with the real healthcheck button.
+    expect(find.text('Проверить каскад'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     await _shoot(tester, key, 'cascade-configured.png', pixelRatio: _phoneDpr);
+  });
+
+  testWidgets('cascade health: result of «Проверить каскад»', (tester) async {
+    tester.view.physicalSize = _phonePhysical;
+    tester.view.devicePixelRatio = _phoneDpr;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+
+    // The probe is a stand-in for the SSH round-trip: the frame documents the
+    // screen after a real check that came back alive, including the measured
+    // latency and the egress IPv6 the server reported.
+    var probedBridge = '';
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: key,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: _theme(Brightness.dark),
+          home: CascadeScreen(
+            bridgeAddress: '81.177.142.37',
+            exitAddress: '2a0c:b641:1a0:800::2a2',
+            subscription: const CascadeSubscription(
+              entitled: true,
+              planLabel: 'XIO Cascade',
+            ),
+            healthProbe: (bridge) async {
+              probedBridge = bridge;
+              return CascadeHealth(
+                verdict: CascadeHealthVerdict.ok,
+                checkedAt: DateTime(2026, 11, 4, 23, 40),
+                latencyMs: 214,
+                role: 'bridge',
+                runtime: 'systemd',
+                exitHost: '2a0c:b641:1a0:800::2a2',
+                egressIpv6: '2a0c:b641:1a0:800::2a2',
+                checks: const <CascadeHealthCheck>[
+                  CascadeHealthCheck(
+                    name: 'bridge.tunnel',
+                    ok: true,
+                    detail: 'awg0 up',
+                  ),
+                  CascadeHealthCheck(
+                    name: 'exit.egress6',
+                    ok: true,
+                    detail: '2a0c:b641:1a0:800::2a2',
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Проверить каскад'), findsOneWidget);
+    expect(probedBridge, isEmpty);
+
+    await tester.tap(find.text('Проверить каскад'));
+    await tester.pumpAndSettle();
+
+    expect(probedBridge, '81.177.142.37');
+    expect(find.text('214 мс'), findsOneWidget);
+    expect(find.textContaining('2a0c:b641:1a0:800::2a2'), findsWidgets);
+    expect(find.text('Проверить каскад'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await _shoot(tester, key, 'cascade-health.png', pixelRatio: _phoneDpr);
   });
 
   testWidgets('cascade servers dialog: two fields and the install command', (

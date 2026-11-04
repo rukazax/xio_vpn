@@ -79,11 +79,19 @@ for path in sorted(OUTPUT.glob('*.apk')):
             assert any(name.startswith('assets/flutter_assets/assets/' + d + '/')
                        for d in ['help', 'licenses', 'l10n', 'security', 'fonts']), name
         assert not any('CJKsc' in name for name in assets)
-        # The slim Dart entrypoint must not retain SSH administration or telemetry.
+        # The slim Dart entrypoint must not retain server administration or
+        # telemetry.
+        #
+        # `ssh-known-hosts.json` used to be in this list as a proxy for "no SSH
+        # code in the slim client". Since 0.24.2 the cascade screen runs a real
+        # healthcheck over SSH (`CascadeSshProbe`), so the SSH transport and its
+        # host-key store are part of the client on purpose. Server payloads and
+        # telemetry stay forbidden: the probe is read-only and never installs
+        # anything.
         for name in names:
             if name.endswith('/libapp.so'):
                 raw = apk.read(name)
-                for forbidden in [b'ssh-known-hosts.json', b'ipapi.co', b'xio-server-update.py',
+                for forbidden in [b'ipapi.co', b'xio-server-update.py',
                                   b'xio-bootstrap.sh', b'vpn-sharing.sh']:
                     assert forbidden not in raw, (name, forbidden)
             if not name.endswith('.so'):
