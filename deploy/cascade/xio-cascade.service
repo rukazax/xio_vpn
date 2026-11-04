@@ -6,8 +6,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 ExecStart=/usr/local/sbin/xio-cascade-tunnel.sh
+# A five-second restart loop produced 480 restarts in forty minutes while the
+# provider proxy was refusing the tun channel; a slow restart plus the script's own
+# retries keeps the journal readable and still recovers as soon as the path is back.
 Restart=always
-RestartSec=5
+RestartSec=10
+StartLimitIntervalSec=0
 SyslogIdentifier=xio-cascade
 
 [Install]

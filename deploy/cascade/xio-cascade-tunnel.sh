@@ -24,20 +24,41 @@ reapply_v6() {
 }
 
 ip link del tun0 2>/dev/null || true
-ssh -i "$KEY" -p "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
-  -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -w 0:0 \
-  root@"$PROXY" "pkill -f '^sleep infinity$' 2>/dev/null || true; ip addr replace $EXIT_ADDR dev tun0; ip link set tun0 mtu 1400 up; exec sleep infinity" &
-child=$!
+# The provider's jump proxy occasionally refuses to open the tun channel while the
+# exit host is loaded ("channel 0: open failed ... Tunnel forwarding failed"). It
+# used to cost a systemd restart every five seconds; retry inside the script with a
+# backoff instead, and let systemd restart only when every attempt failed.
+start_ssh() {
+  ssh -i "$KEY" -p "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+    -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -w 0:0 \
+    root@"$PROXY" "pkill -f '^sleep infinity$' 2>/dev/null || true; ip addr replace $EXIT_ADDR dev tun0; ip link set tun0 mtu 1400 up; exec sleep infinity" &
+  child=$!
+}
 
-i=0
-while [ "$i" -lt 60 ]; do
-  if ! kill -0 "$child" 2>/dev/null; then
-    echo "xio-cascade: ssh exited before tun0 appeared" >&2
+attempt=0
+while :; do
+  start_ssh
+  attempt=$((attempt + 1))
+  i=0
+  while [ "$i" -lt 30 ]; do
+    ip link show tun0 >/dev/null 2>&1 && break
+    if ! kill -0 "$child" 2>/dev/null; then break; fi
+    sleep 1
+    i=$((i + 1))
+  done
+  ip link show tun0 >/dev/null 2>&1 && break
+  if [ "$attempt" -ge 8 ]; then
+    echo "xio-cascade: tun0 did not appear after $attempt attempts" >&2
+    # Leave a marker so monitoring can see a real outage instead of a silent loop.
+    printf '%s attempts=%s\n' "$(date -Is)" "$attempt" > /run/xio-cascade-last-failure 2>/dev/null || true
     exit 1
   fi
-  ip link show tun0 >/dev/null 2>&1 && break
-  sleep 1
-  i=$((i + 1))
+  echo "xio-cascade: attempt $attempt failed, retrying" >&2
+  kill "$child" 2>/dev/null || true
+  wait "$child" 2>/dev/null || true
+  delay=$((attempt * 5))
+  [ "$delay" -gt 60 ] && delay=60
+  sleep "$delay"
 done
 # 1400 matches the provider uplink; 1500 caused oversized packets on the exit.
 ip addr replace "$BRIDGE_ADDR" dev tun0
