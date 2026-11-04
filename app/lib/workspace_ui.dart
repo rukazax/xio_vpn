@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'update_service.dart';
 import 'update_ui.dart';
@@ -14,6 +15,7 @@ import 'external_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'cascade_model.dart';
 import 'core.dart';
 import 'cascade_ui.dart';
 import 'managed_service.dart';
@@ -1259,6 +1261,8 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   late final serverName = TextEditingController(
     text: widget.server?.name ?? '',
   );
+  /// Exit-сервер каскада: только IPv6. Пусто — обычная установка одного VPS.
+  final cascadeExit = TextEditingController();
   final password = TextEditingController(),
       key = TextEditingController(),
       passphrase = TextEditingController();
@@ -1386,6 +1390,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       key,
       passphrase,
       serverName,
+      cascadeExit,
     ]) {
       c.clear();
       c.dispose();
@@ -1394,6 +1399,52 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       native.invokeMethod('secureScreen', {'enabled': false});
     }
     super.dispose();
+  }
+
+  /// Ставит каскад на только что установленный bridge тем же установщиком, что
+  /// и в терминале, но по SSH из приложения. Адреса сохраняются в профиле,
+  /// поэтому экран «Каскад: IPv4-IPv6» показывает реальные станции.
+  Future<void> _installCascade(String bridge, String exit) async {
+    final command =
+        "curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/"
+        "deploy/cascade/terminal-install.sh -o /tmp/xio-cascade.sh && "
+        "bash /tmp/xio-cascade.sh --role bridge --exit-host '$exit' "
+        ">/var/log/xio-cascade-install.log 2>&1; "
+        "rc=\$?; tail -8 /var/log/xio-cascade-install.log; exit \$rc";
+    final bytes = await ssh.executeInput(command, const <int>[]);
+    final output = utf8.decode(bytes, allowMalformed: true).trim();
+    final saved = await widget.store.setCascadeServers(
+      bridge: bridge,
+      exit: exit,
+    );
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: LText(saved ? 'Каскад поднят' : 'Адрес не сохранён'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              LText('bridge: $bridge'),
+              LText('exit: $exit'),
+              const SizedBox(height: 8),
+              SelectableText(
+                output.isEmpty ? 'Установщик не вернул вывода' : output,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const LText('Закрыть'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> perform(Future<void> Function() action) async {
@@ -1418,55 +1469,6 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     }
   }
 
-  /// Cascade needs a container runtime on the server and, for the bridge role,
-  /// a global IPv6 uplink. Those preconditions are checked on the host, so the
-  /// app hands over the exact command and shows the route screen instead of
-  /// pretending to install a schema the host cannot run yet.
-  Future<void> _offerCascade(String address) async {
-    if (!mounted) return;
-    final command =
-        'curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/'
-        'deploy/cascade/terminal-install.sh | bash -s -- '
-        '--role bridge --exit-host <ipv6-exit>';
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const LText('Каскад включён в профиль'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LText(
-                'Сервер $address готов принимать устройства. Второй сервер '
-                '(exit, только IPv6) подключается командой на bridge:',
-              ),
-              const SizedBox(height: 12),
-              SelectableText(command),
-              const SizedBox(height: 12),
-              const LText(
-                'Нужны: container runtime (docker/podman) и глобальный IPv6 на '
-                'bridge. Пока условий нет — команда вернёт понятную ошибку.',
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const LText('Закрыть'),
-          ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              Navigator.of(context).pushNamed(CascadeScreen.routeName);
-            },
-            child: const LText('Открыть схему'),
-          ),
-        ],
-      ),
-    );
-  }
 
   Future<void> login() async {
     host.text = normalizeServerHost(host.text);
@@ -1710,18 +1712,31 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  CheckboxListTile(
+                  SwitchListTile(
                     value: cascadeEnabled,
                     onChanged: busy
                         ? null
-                        : (v) => setState(() => cascadeEnabled = v ?? false),
+                        : (v) => setState(() => cascadeEnabled = v),
                     contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    title: const LText('Включить каскад (по подписке)'),
+                    title: const LText('Каскад IPv4-IPv6: добавить второй сервер'),
                     subtitle: const LText(
-                      'IPv4 → bridge → IPv6 exit. Ставится командой на сервере.',
+                      'Этот VPS станет bridge, exit подключается по IPv6.',
                     ),
                   ),
+                  if (cascadeEnabled) ...[
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: cascadeExit,
+                      enabled: !busy,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      decoration: InputDecoration(
+                        labelText: tr(context, 'Exit-сервер (только IPv6)'),
+                        hintText: '2a0c:b641:1a0:800::2a2',
+                        helperText: tr(context, 'IPv6-адрес второго сервера.'),
+                      ),
+                    ),
+                  ],
                   FilledButton(
                     onPressed: busy
                         ? null
@@ -1734,11 +1749,16 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                             );
                             await create();
                             if (cascadeEnabled && mounted) {
-                              await _offerCascade(
-                                server!.publicHost.isEmpty
-                                    ? server!.host
-                                    : server!.publicHost,
-                              );
+                              final exit = cascadeExit.text.trim();
+                              final bridge = server!.publicHost.isEmpty
+                                  ? server!.host
+                                  : server!.publicHost;
+                              if (validateCascadeExit(exit) == null) {
+                                throw const FormatException(
+                                  'Нужен IPv6-адрес exit-сервера',
+                                );
+                              }
+                              await _installCascade(bridge, exit);
                             }
                           }),
                     child: const LText('Установить VPN'),
