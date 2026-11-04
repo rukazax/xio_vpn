@@ -172,7 +172,25 @@ The diagram also exists as a standalone file: [docs/landing/architecture.mmd](do
 - **Removal that cleans up after itself.** Only XIO-owned units, rules and keys are removed; IP
   forwarding is restored and shared packages are kept.
 
-### Server payload
+#### Your own cascade servers 🛠️
+
+The cascade used to be a demo only. The app now lets you configure your own pair: open the
+**Cascade** screen, tap the **DNS** icon in the app bar and set the **Bridge** address (IPv4 or
+domain, e.g. `81.177.142.37`) and the **Exit** address (IPv6 only, e.g. `2a0c:b641:1a0:800::2a2`).
+Validation rejects schemes, ports, IPv6 in the bridge field, IPv4 in the exit field and values
+like `999.1.1.1`.
+
+The addresses are stored in the app profile, the route stations display them, and the dialog shows
+the exact install command with your exit:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh \
+  | bash -s -- --role bridge --exit-host 2a0c:b641:1a0:800::2a2
+```
+
+The "Copy command" button puts it on the clipboard. Subscription and server failover are still stubs.
+
+## Server payload
 
 - Five transports on one host, each with its own port and its own systemd unit.
 - Managed firewall with receipts: every added rule is recorded and removed precisely; forwarding is
