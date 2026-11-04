@@ -20,8 +20,8 @@ FLUTTER = 'flutter.bat' if os.name == 'nt' else 'flutter'
 # `flutter build apk --target lib/client_main.dart` runs that shipped the
 # 21 MB server payload inside the client APK. Keep this in sync (guarded by
 # ClientVersionDriftTests in client/test_build.py).
-RELEASE = '0.24.1'
-VERSION = RELEASE + '+5018'
+RELEASE = '0.24.2'
+VERSION = RELEASE + '+5019'
 
 STAGE = ROOT / '.build-support/client'
 APP = STAGE / 'app'

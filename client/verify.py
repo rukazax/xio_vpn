@@ -23,8 +23,8 @@ parser.add_argument('--android-build-tools', type=Path, help='Explicit installed
 parser.add_argument('--architectures', default='arm64-v8a,armeabi-v7a,x86_64,universal', help='Exact expected candidate set; default still requires all four APKs')
 parser.add_argument('--native-aar', type=Path, default=ROOT/'app/android/app/libs/rivet.aar')
 args = parser.parse_args()
-RELEASE = '0.24.1'
-VERSION_CODE = '5018'
+RELEASE = '0.24.2'
+VERSION_CODE = '5019'
 if args.android_build_tools:
     SDK = args.android_build_tools
 expected_architectures = args.architectures.split(',')

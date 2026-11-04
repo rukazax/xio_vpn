@@ -12,8 +12,8 @@ import 'core.dart';
 
 bool automaticUpdatesEnabled = false;
 void Function()? onUpdateRequest;
-const xioVersion = '0.24.1';
-const xioBuild = 5018;
+const xioVersion = '0.24.2';
+const xioBuild = 5019;
 const githubUrl = 'https://github.com/rukazax/xio_vpn';
 const releasesUrl = '$githubUrl/releases';
 const playDistribution = bool.fromEnvironment('XIO_PLAY_BUILD');

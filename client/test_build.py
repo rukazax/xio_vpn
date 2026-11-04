@@ -25,7 +25,7 @@ class ClientStageTests(unittest.TestCase):
         self.module.ROOT = self.root
         self.module.STAGE = self.stage
         self.module.APP = self.stage / 'app'
-        self.put('app/pubspec.yaml', 'name: xio\ndescription: Full app\nversion: 0.24.1+5018\nflutter:\n  assets:\n    - assets/xio-server.tar.gz\n')
+        self.put('app/pubspec.yaml', 'name: xio\ndescription: Full app\nversion: 0.24.2+5019\nflutter:\n  assets:\n    - assets/xio-server.tar.gz\n')
         for name in ['pubspec.lock', 'analysis_options.yaml']:
             self.put('app/' + name, 'fixture')
         self.put('app/lib/client_main.dart', '// client fixture')
@@ -68,7 +68,7 @@ class ClientStageTests(unittest.TestCase):
             raise
 
     def test_unknown_version_fails_before_writes(self):
-        self.put('app/pubspec.yaml', 'version: 9.9.9+1\n# version: 0.24.1+5018\n')
+        self.put('app/pubspec.yaml', 'version: 9.9.9+1\n# version: 0.24.2+5019\n')
         with self.assertRaises(RuntimeError): self.module.prepare()
         self.assertFalse(self.stage.exists())
 
