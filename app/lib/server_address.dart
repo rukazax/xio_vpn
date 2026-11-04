@@ -3,6 +3,11 @@ import 'dart:io';
 /// Raw host for socket/DNS operations. URI brackets belong only to endpoints.
 String normalizeServerHost(String input) {
   var host = input.trim();
+  // Zone-id (`fe80::1%eth0`) — локальная привязка к интерфейсу: транспорт её не
+  // понимает, а InternetAddress.tryParse принимает молча.
+  if (host.contains('%')) {
+    throw const FormatException('Некорректный IP или домен сервера');
+  }
   if (host.startsWith('[') || host.endsWith(']')) {
     if (!host.startsWith('[') || !host.endsWith(']')) {
       throw const FormatException('Некорректный IPv6-адрес сервера');
