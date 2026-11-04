@@ -1731,9 +1731,16 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                       autocorrect: false,
                       enableSuggestions: false,
                       decoration: InputDecoration(
-                        labelText: tr(context, 'Exit-сервер (только IPv6)'),
-                        hintText: '2a0c:b641:1a0:800::2a2',
-                        helperText: tr(context, 'IPv6-адрес второго сервера.'),
+                        labelText: tr(
+                          context,
+                          'Exit-сервер (IPv4 или IPv6)',
+                        ),
+                        hintText: '81.177.142.37 или 2a0c:b641:1a0:800::2a2',
+                        helperText: tr(
+                          context,
+                          'IPv6 — каскад только для IPv6-трафика; '
+                          'IPv4 — весь трафик через зарубежный exit.',
+                        ),
                       ),
                     ),
                   ],
@@ -1753,9 +1760,12 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                               final bridge = server!.publicHost.isEmpty
                                   ? server!.host
                                   : server!.publicHost;
-                              if (validateCascadeExit(exit) == null) {
+                              final exitIsV4 =
+                                  validateCascadeBridge(exit) != null;
+                              if (!exitIsV4 &&
+                                  validateCascadeExit(exit) == null) {
                                 throw const FormatException(
-                                  'Нужен IPv6-адрес exit-сервера',
+                                  'Нужен IPv4 или IPv6-адрес exit-сервера',
                                 );
                               }
                               await _installCascade(bridge, exit);
