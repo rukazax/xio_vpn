@@ -50,12 +50,12 @@ class InstallerTests(unittest.TestCase):
    if args[:3]==('apt-get','-s','purge'):
     return '\n'.join('Purg '+p for p in args[3:])+('\nRemv foreign-app' if 'shared-lib' in args else '')
    return ''
-  with patch.object(m,'installed_packages',return_value={'wireguard-tools','shared-lib','foreign-app'}),patch.object(m,'run',side_effect=command):
+  with patch.object(m,'installed_packages',return_value={'wireguard-tools','shared-lib','foreign-app'}),patch.object(m,'foreign_wireguard_configs',return_value=[]),patch.object(m,'run',side_effect=command):
    result=m.purge_packages({'platform':{'manager':'apt'},'packagesAdded':['wireguard-tools','shared-lib']})
   self.assertEqual(result['packagesRemoved'],['wireguard-tools']);self.assertEqual(result['packagesRetained'],['shared-lib'])
   self.assertFalse(any('foreign-app' in args for args in calls))
  def test_foreign_wireguard_configuration_protects_tools(self):
-  with patch.object(m,'installed_packages',return_value={'wireguard-tools'}),patch.object(m,'run') as command:
+  with patch.object(m,'installed_packages',return_value={'wireguard-tools'}),patch.object(m,'foreign_wireguard_configs',return_value=[]),patch.object(m,'run') as command:
    result=m.purge_packages({'platform':{'manager':'apt'},'packagesAdded':['wireguard-tools'],'preserveWireGuardTools':True})
   self.assertEqual(result['packagesRetained'],['wireguard-tools']);command.assert_not_called()
  def test_firewalld_cleanup_only_recorded_rules(self):

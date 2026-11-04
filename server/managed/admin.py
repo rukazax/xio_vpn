@@ -51,6 +51,12 @@ def packages_install(d):
    for cmd in commands:subprocess.run(cmd,env=env,stdout=log,stderr=log,check=True)
  finally:
   d['packagesAdded']=sorted(previous_added | (installed_packages(manager)-actual_before));save(d)
+def foreign_wireguard_configs():
+ # A WireGuard configuration we did not write makes wireguard-tools shared tooling:
+ # purging it would break an unrelated tunnel. Kept as a named host probe so callers
+ # and tests can see (and substitute) this single fact.
+ return list(Path('/etc/wireguard').glob('*.conf'))
+
 def purge_packages(d):
  manager=d.get('platform',{}).get('manager','apt')
  owned=set(d.get('packagesAdded', ['wireguard-tools'] if d.get('packageOwned') else []))
@@ -59,7 +65,7 @@ def purge_packages(d):
  assert all(re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9+_.:-]*',p) for p in owned),'Invalid package receipt'
  owned &= installed_packages(manager);removed=[]
  # Existing WireGuard configurations make the tooling shared, even without declared package dependencies.
- protected={'wireguard-tools'} if d.get('preserveWireGuardTools') or list(Path('/etc/wireguard').glob('*.conf')) else set()
+ protected={'wireguard-tools'} if d.get('preserveWireGuardTools') or foreign_wireguard_configs() else set()
  candidates=owned-protected
  if manager=='apt' and candidates:
   def plan(names):
