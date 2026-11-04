@@ -567,6 +567,12 @@ def catalog_state():
 def awg_client_config(d,user):
  """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
+ # Мобильные клиенты AmneziaVPN требуют IPv4 внутри туннеля, поэтому
+ # IPv6-only профиль выдаётся только по явному запросу оператора.
+ if ipv6_only:
+  address='fd78:1::%x/64'%slot
+ else:
+  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
  host='[%s]'%host if ':' in host else host
  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9, 2620:fe::fe']
@@ -576,7 +582,7 @@ def awg_client_config(d,user):
   if key in awg:
    lines.append('%s = %s'%(key,awg[key]))
  lines+=['MTU = 1280','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
-         'AllowedIPs = 0.0.0.0/0, ::/0','PersistentKeepalive = 25','']
+         'AllowedIPs = '+allowed,'PersistentKeepalive = 25','']
  return '\n'.join(lines)
 
 def dispatch(req,actor=None):
