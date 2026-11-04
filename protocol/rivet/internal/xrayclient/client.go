@@ -2,7 +2,6 @@
 package xrayclient
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -97,7 +96,7 @@ func Parse(raw string) (Config, error) {
 	if _, _, e := endpoint(c); e != nil {
 		return c, e
 	}
-	if _, e := core.LoadConfig("json", bytes.NewReader(configBytes(c))); e != nil {
+	if _, e := buildConfig(c); e != nil {
 		return c, ErrConfig
 	}
 	return c, nil
@@ -245,7 +244,16 @@ func Start(raw string, p Protector, timeout time.Duration) (*Session, error) {
 	current.Lock()
 	current.s = s
 	current.Unlock()
-	v, e := core.StartInstance("json", configBytes(c))
+	cfg, e := buildConfig(c)
+	if e != nil {
+		s.closeLocked()
+		return nil, ErrConfig
+	}
+	// Same sequence as core.StartInstance: New, then Start.
+	v, e := core.New(cfg)
+	if e == nil {
+		e = v.Start()
+	}
 	if e != nil {
 		s.closeLocked()
 		return nil, ErrConfig

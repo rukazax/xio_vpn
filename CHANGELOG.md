@@ -1,9 +1,135 @@
 # XIO changes / Изменения
-## 0.24.1 — готовится, установочный пакет 0.24.0 и счётчики статистики
+## 0.24.1 — 2026-11-04, fd-баг, Xray protobuf, hardening exit
 
-RU: 0.24.1 исправляет серверный пакет 0.24.0: `bootstrap.sh` выносил `readiness.py` и `xio-ready.service`, но упаковщик их не включал, поэтому любая установка на чистом хосте завершалась кодом 1 на последнем шаге. Оба файла теперь входят в архив, `RECIPE` поднят до 26, а `update.py` принимает 25 как источник миграции — иначе установленные хосты не смогли бы обновиться. Текст архива (`*.py`, `*.json`, `*.sh`) пакуется с переводами строк LF и хешируется после нормализации, поэтому сборка на Windows и на Linux даёт одинаковый архив; из-за этого меняется байтовый хеш `mesh-pins.json` (`cf2bd08f…` → `ea7a3b5d…`) при том же содержимом JSON — ошибки в нём нет. `stats()` больше не падает с `KeyError` на хосте `restrictedNetwork`: ключи `wireguard` без работающего юнита дают нулевые счётчики, а не обрывают всю выборку и месячный учёт трафика. У пакета `probe-physical` появился build-тег `windows` — без него `go test -race ./...` падал на Linux и серверный архив нельзя было собрать ни на одной Linux-машине. Версия приложения 0.24.1+5018. Сборка проверена на Debian 13 стенде: `build-rivet` rc=0, `package-server` даёт 21 член и `recipeVersion` 26, повторный прогон даёт тот же sha256, CRLF-дерево даёт тот же архив, replay установочной секции `bootstrap.sh` — 15 целей, missing=0, rc=0. Чистая Ubuntu 22.04 и публикация — на приёмке.
+Итог дня: найден и исправлен реальный баг с файловыми дескрипторами, из-за которого мобильный
+пакет падал случайным образом; после исправления принята прямая сборка Xray-конфига в protobuf
+(helper −4,1 МиБ); юниты на exit переведены на защиту без mount-namespace. Сводка замеров —
+[docs/optimization-0.24.1.ru.md](docs/optimization-0.24.1.ru.md).
 
-EN: 0.24.1 fixes the 0.24.0 server package: `bootstrap.sh` moved `readiness.py` and `xio-ready.service` out of the tarball, but the packager never shipped them, so every install on a clean host ended with exit code 1 on the last step. Both files are members again, `RECIPE` is 26 and `update.py` accepts 25 as a migration source, otherwise installed hosts could not upgrade. Archive text members (`*.py`, `*.json`, `*.sh`) are packed with LF endings and hashed after normalisation, so a Windows and a Linux build produce the same archive; as a result the byte hash of `mesh-pins.json` changes (`cf2bd08f…` → `ea7a3b5d…`) while the JSON content is identical — this is not an error. `stats()` no longer raises `KeyError` on a `restrictedNetwork` host: `wireguard` keys without a running unit yield zero counters instead of aborting the whole sample and the monthly traffic accounting. The `probe-physical` package now has a `windows` build tag; without it `go test -race ./...` failed on Linux and the server archive could not be built on any Linux machine. App version 0.24.1+5018. Build verified on a Debian 13 stand: `build-rivet` rc=0, `package-server` yields 21 members and `recipeVersion` 26, a second run gives the same sha256, a CRLF tree gives the same archive, replay of the `bootstrap.sh` install section — 15 targets, missing=0, rc=0. Clean Ubuntu 22.04 and publication are pending acceptance.
+**fd-баг (`protocol/rivet/mobile/awg_unix.go`).** `tun.CreateUnmonitoredTUNFromFD` заворачивает fd
+в `*os.File` **до** проверки `TUNGETIFF`, а `AwgTurnOn` на ошибочном пути закрывал тот же номер
+вторым `unix.Close`. Номер успевал достаться другому сокету, и финализатор брошенного `*os.File`
+закрывал уже чужой сокет — отсюда случайные `i/o timeout` и `accept4: bad file descriptor` у Cloak
+(15 падений из 30 прогонов пары тестов). Исправление: конструктору отдаётся дубликат через
+`F_DUPFD_CLOEXEC`, исходный дескриптор закрывает сам `AwgTurnOn`. Регрессионные тесты:
+`TestAwgFailureKeepsRecycledDescriptorUsable` (падает без фикса) и `TestCloakForwardsAfterAwgAndXray`
+(сценарий «отклонённая AWG-активация → Cloak → Xray», падает без фикса с тем же `i/o timeout`) —
+после фикса 30/30.
+
+**Xray-конфиг напрямую в protobuf (`internal/xrayclient/xrayconf.go`).** Сборка `core.Config` без
+`xray-core/infra/conf` и `main/json`:
+
+| Метрика | До | После |
+|---|---|---|
+| `xio-tunnel.exe` (windows/amd64, `-trimpath -ldflags="-s -w"`) | 35 567 104 Б | **31 450 112 Б** (−4 116 992 Б, −11,58 %) |
+| Символов `infra/conf` / `main/json` в бинаре | 261 / 4 | **0 / 0** |
+| Пакетов исчезло из графа зависимостей | — | **145** |
+| Эквивалентность профилей (3 протокола × 6 транспортов × 2 security) | — | **40/40** (побайтово тот же protobuf) |
+
+JSON-путь сохранён под `-tags xrayjson` (ровно 35 567 104 Б — аварийный откат), `cmd/xraygateway`
+по-прежнему грузит серверный JSON. `finalmask`, kcp/hysteria и `tlsSettings.echSockopt` теперь
+**отклоняются** с `ErrConfig` вместо тихой потери полей — набор закреплён тестом
+`TestKnownBehaviourDeltas`.
+
+**Hardening юнитов.** `sandbox_prepare()` больше не пишет `ProtectSystem=no` в compat-режиме:
+контейнеры получают `full` + `ReadWritePaths`, drop-in'ы ставятся 0644. На bridge изоляция
+работает (`/` ro, четыре юнита без защиты получили `full`). На exit (LXC) выяснено, что
+mount-namespace не применяется из-за `NoNewPrivileges=yes` — NNP и ФС-изоляция на этом хосте
+взаимоисключающи; оставлен NNP + seccomp/capabilities (`CAP_NET_ADMIN`, `CAP_NET_RAW`,
+`CAP_DAC_READ_SEARCH` вместо 41 capability), exposure девяти юнитов **62,0 → 33,9**
+(среднее 6,89 → 3,77), три `UNSAFE` → ноль.
+
+**Хосты.** `MemoryMin` 256 → **52 МиБ** (8/24/12/8; −204 МиБ, без рестартов, OOM нет), `/root`
+220 → **54 МиБ** (166 МиБ освобождено), панель `x1o`: `workers 2→1` (3,60 → 2,25 % CPU), затем
+очередь отключена — **0,17 %** CPU вместо 3,6 %, `vm.swappiness=10`, каскад — BBR и MTU 1400 на
+`tun0` обеих сторон, journal 833 → **161 МБ** (`SystemMaxUse=200M`).
+
+Проверки: `go build/vet/test ./...` в обоих режимах тегов — зелёные, кросс-сборки
+windows/android/darwin — зелёные; размер helper'а после фикса не изменился.
+
+## Проверки — 2026-11-04
+
+Локальный `flutter test` на этой машине больше не запускается: Smart App Control блокирует
+`dartaotruntime.exe`, и resident compiler не стартует (отсюда «0 passed» и зависания). Прогон
+перенесён на Debian (`work/flutter-test-debian.ps1`): **188 passed / 10 skip / 0 failed**. Прежние
+«4 известных падения» оказались артефактом отсутствующих каталогов — golden-тесты пишут PNG в
+`verification/` и `docs/images/`.
+
+`work/verify-all.ps1` теперь: flutter-тесты на Debian, helper сверяется с кросс-сборкой на Debian
+(локальный Go-тулчейн тоже блокируется SAC). Последний прогон — **OK 15 / WARN 1 / FAIL 0**.
+
+## Хосты и hardening — 2026-11-04, проход 4
+
+| Что | Было | Стало |
+|---|---|---|
+| `ProtectSystem` на exit (compat-контейнер) | `no` у 6 юнитов | **`full` + `ReadWritePaths`**, у `xio-stack` — `strict` |
+| Юниты на bridge без защиты | 4 | **`full` + RWP** |
+| Предупреждения `world-inaccessible` | 10 (exit) / 1 (bridge) | **0 / 0** (drop-in'ы 0644) |
+| `MemoryMin` четырёх юнитов | 256 МиБ | **52 МиБ** (по PSS), OOM нет |
+| `/root` staging | 220 МиБ | **54 МиБ** (166 МиБ освобождено, бэкапы сохранены) |
+| Очередь панели `x1o` | 3,6 % ядра, 36 ГБ записей/сут | **0,17 %** (workers 1, work.enabled=false) |
+| `vm.swappiness` | 60 | **10** |
+
+Апстрим: `sandbox_prepare()` больше не пишет `ProtectSystem=no` в compat-режиме (это был обход
+собственного пробника remount) и ставит drop-in'ы с правами 0644 — иначе следующий прогон
+установщика откатывал бы hardening.
+
+Отклонено на тот момент: отказ от xray JSON-загрузчика (−4,1 МиБ helper'а) — эквивалентность 40/40
+профилей подтверждена, но в мобильном пакете после него переставал форвардиться cloak-тест, поэтому
+переписывание возвращено в бэклог до живого прогона cloak+AWG. Причина флейка в тот же день найдена
+и исправлена (двойное закрытие дескриптора, см. «0.24.1» выше), после чего переписывание принято.
+
+## Оптимизация 0.24.1, проход 3 — 2026-11-04
+
+| Метрика | До | После |
+|---|---|---|
+| **`inspect` и `add` (живой баг)** | `inspect` не работал никогда, `add` возвращал ошибку без `configs` | **исправлено** (затенение имени `public`), 2 регрессионных теста |
+| `rules()` (apply, 2 протокола) | 20 процессов, ≈50,7 мс | **5 процессов, ≈11,5 мс (−77 %)**, цепочки побайтово те же |
+| `dualstack.apply()` | 3 запроса маршрута | **1** |
+| `catalog.py build` (10 имён) | 1,00 с CPU | **0,24 с CPU (−76 %)** |
+| CJK-шрифт | 16 437 364 Б | **7 535 252 Б** (−54 %), контуры сверены с мастером |
+| Windows-дерево | 103,94 МиБ | **95,45 МиБ** (−8,49 МиБ) |
+| zip / deb / tar.gz артефакты | 61,00 / 49,10 / 57,90 МБ | **53,76 / 43,34 / 50,71 МБ** |
+| Осиротевшие drop-in'ы на exit | 4 | 0 |
+| `vm.swappiness` (bridge) | 60 | 10 (+`MemoryMin=64M` для четырёх юнитов) |
+| Legacy `/usr/local/lib/x1o-managed` | 54 МБ | удалён (бэкап `/root/x1o-legacy-backup-20261103.tar.gz`) |
+
+Команда проверки — `pwsh -File work/verify-all.ps1` (16 проверок, ~2 мин): последний прогон
+**OK 14 / WARN 2 / FAIL 0**.
+
+## Оптимизация 0.24.1 — 2026-11-04
+
+Два прохода: сначала измерения и правки в трёх слоях, затем повторный проход по тому, что
+осталось дорогим, и повторная проверка.
+
+| Метрика | До | После |
+|---|---|---|
+| `xio-tunnel.exe` (helper) | 35 696 640 Б | **35 570 176 Б** (−126 КБ) |
+| Горячий путь пакета RIVET | 831–1185 нс, 3 allocs, 1392 Б | **277–327 нс, 0 allocs, 0 Б** |
+| `import admin` (Debian 13) | 76,2 мс (min) | **53,9 мс** (−29 %) |
+| `admin.py status` CPU | 129,4 мс | **92,8 мс** (−28 %) |
+| `apply()` внешних команд | 2 | **1** |
+| Опрос статуса в клиенте | 20 перерисовок/мин в простое | **0** |
+| Сокеты опроса (desktop) | 2 TCP + 2 RST на тик | **0** (keep-alive) |
+| Загрузка иконок | 4,2 МБ RAM | **1,6 МБ** (cacheWidth 160) |
+| Таймер статистики | 30 с (12 с CPU/ч) | **60 с** (6 с CPU/ч) |
+| Watchdog клиента | 15 с (240 DNS/ч) | **30 с при стабильном канале** |
+| journal на bridge | 833,6 МБ | **161 МБ** (лимит 200 МБ) |
+| Каскад | MTU 1500, cubic | **MTU 1400, BBR, fq** |
+| Дублирующий `x1o-managed-stats.timer` | 108 падений/ч, 94 % журнала | **отключён** |
+| Артефакты (zip/deb/tar.gz) | 61,00 / 49,10 / 57,90 МБ | 60,98 / 49,04 / 57,85 МБ |
+
+Проверено после обоих проходов: `go build/vet ./...`, `go test -count=1 ./...` и
+`go test -race ./internal/...` на Debian 13 — зелёные; `flutter analyze` чист; `flutter test`
+181 passed / 10 skip / 4 падения (те же, что до правок: тесты запускают внешний бинарь, которого
+нет на машине); `test_admin` 24 теста и `test_package_server` 7 тестов; живая пара bridge+exit:
+телефон IPv4 2/2 и IPv6 через каскад 3/3, лаб-клиент 1,4 МБ по IPv6.
+
+## 0.24.1-rc1 — 2026-11-03, установочный пакет 0.24.0, счётчики, каталог SNI и каскад
+
+RU: 0.24.1 исправляет серверный пакет 0.24.0: `bootstrap.sh` выносил `readiness.py` и `xio-ready.service`, но упаковщик их не включал, поэтому любая установка на чистом хосте завершалась кодом 1 на последнем шаге. Оба файла теперь входят в архив, `RECIPE` поднят до 26, а `update.py` принимает 25 как источник миграции — иначе установленные хосты не смогли бы обновиться. Текст архива (`*.py`, `*.json`, `*.sh`) пакуется с переводами строк LF и хешируется после нормализации, поэтому сборка на Windows и на Linux даёт одинаковый архив; из-за этого меняется байтовый хеш `mesh-pins.json` (`cf2bd08f…` → `ea7a3b5d…`) при том же содержимом JSON — ошибки в нём нет. `stats()` больше не падает с `KeyError` на хосте `restrictedNetwork`: ключи `wireguard` без работающего юнита дают нулевые счётчики, а не обрывают всю выборку и месячный учёт трафика. У пакета `probe-physical` появился build-тег `windows` — без него `go test -race ./...` падал на Linux и серверный архив нельзя было собрать ни на одной Linux-машине. Версия приложения 0.24.1+5018. Добавлен каталог «белых» SNI: серверный пакет приносит генератор, pin источника и недельный таймер, а администратор читает пригодные имена действием `catalog`; каталог не маршрутизирует по домену и не применяет маску сам. [Подробности](docs/whitelist/0.24.1.ru.md). Добавлен каскад «IPv4-вход → IPv6-выход»: bridge принимает клиентов любым транспортом, IPv6-трафик уходит на IPv6-сервер через SSH-туннель L3 поверх IPv4-прокси провайдера (проверено: `curl -6` возвращает адрес exit). Для роутеров и iPhone с AmneziaVPN добавлена выдача статичного AWG-профиля действием `add-awg` и утилитой `tools/xio-peer.py` с QR-кодом; проверено живым подключением телефона (IPv4 27 мс, IPv6 115–150 мс через каскад). [Подробности](docs/awg-clients/README.ru.md). Сборка проверена на Debian 13 стенде: `build-rivet` rc=0, `package-server` даёт 27 членов и `recipeVersion` 26, повторный прогон даёт тот же sha256, CRLF-дерево даёт тот же архив, replay установочной секции `bootstrap.sh` — 15 целей, missing=0, rc=0. Чистая Ubuntu 22.04 и публикация — на приёмке.
+
+EN: 0.24.1 fixes the 0.24.0 server package: `bootstrap.sh` moved `readiness.py` and `xio-ready.service` out of the tarball, but the packager never shipped them, so every install on a clean host ended with exit code 1 on the last step. Both files are members again, `RECIPE` is 26 and `update.py` accepts 25 as a migration source, otherwise installed hosts could not upgrade. Archive text members (`*.py`, `*.json`, `*.sh`) are packed with LF endings and hashed after normalisation, so a Windows and a Linux build produce the same archive; as a result the byte hash of `mesh-pins.json` changes (`cf2bd08f…` → `ea7a3b5d…`) while the JSON content is identical — this is not an error. `stats()` no longer raises `KeyError` on a `restrictedNetwork` host: `wireguard` keys without a running unit yield zero counters instead of aborting the whole sample and the monthly traffic accounting. The `probe-physical` package now has a `windows` build tag; without it `go test -race ./...` failed on Linux and the server archive could not be built on any Linux machine. App version 0.24.1+5018. A white-SNI catalog is included: the server package ships the builder, the source pin and a weekly timer, and an administrator reads the eligible names through the `catalog` action; the catalog does not route by domain and never applies a mask on its own. [Details](docs/whitelist/0.24.1.ru.md). A «IPv4 entry → IPv6 exit» cascade is added: the bridge accepts clients on any transport and sends IPv6 traffic to the IPv6 server through an SSH L3 tunnel over the provider IPv4 proxy (verified: `curl -6` returns the exit address). Routers and iPhones with AmneziaVPN get a static AWG profile through the `add-awg` action and the `tools/xio-peer.py` utility with a QR code; verified by a live phone connection (IPv4 27 ms, IPv6 115–150 ms through the cascade). [Details](docs/awg-clients/README.ru.md). Build verified on a Debian 13 stand: `build-rivet` rc=0, `package-server` yields 27 members and `recipeVersion` 26, a second run gives the same sha256, a CRLF tree gives the same archive, replay of the `bootstrap.sh` install section — 15 targets, missing=0, rc=0. Clean Ubuntu 22.04 and publication are pending acceptance.
 
 ## 0.24.0 — 2026-10-31, исправление серверной установки
 

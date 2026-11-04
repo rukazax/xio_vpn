@@ -99,3 +99,73 @@ mv "$tmp/xio-ready.service" /etc/systemd/system/xio-ready.service
 chmod 644 /etc/systemd/system/xio-ready.service
 systemctl daemon-reload
 systemctl enable --now xio-ready.service >> "$lib/bootstrap.log" 2>&1 || true
+
+# White-SNI catalog: the timer refreshes the list of entry names that survive
+# SNI-only operator filtering. It never touches profiles; choosing a name stays
+# an explicit administrator action.
+mkdir -p "$lib/catalog" /var/lib/xio-catalog
+mv "$tmp/catalog/"* "$lib/catalog/"
+chmod 644 "$lib"/catalog/*
+chmod 644 "$lib/catalog/catalog.py" "$lib/catalog/lint_catalog.py"
+cp "$lib/catalog/whitelist-pins.json" /var/lib/xio-catalog/whitelist-pins.json
+chmod 644 /var/lib/xio-catalog/whitelist-pins.json
+# The unit binds the probe socket to a physical device so it measures the server and
+# not the XIO tunnel. Record the device this host actually routes through: a hardcoded
+# eth0 turns every name into "unreachable" on a host whose NIC is ens3 or enp1s0.
+# >>> catalog-iface >>>
+# A device is acceptable when it exists and is neither a bridge nor a tunnel. Bridges
+# are detected by structure, not by name: /sys/class/net/<dev>/bridge exists for
+# docker0, every docker br-<id>, cni0, virbr0 and podman0, so no name pattern has to
+# stay current. The IPv6 route is consulted after the IPv4 one because an IPv6-only
+# host has no IPv4 route at all, and a bare scan then returns whatever sorts first --
+# on a docker host that is a bridge, and a probe bound to a bridge reports every name
+# unreachable, which is the same false "network fault" this block exists to remove.
+xio_catalog_iface_ok() {
+  [ -n "$1" ] || return 1
+  [ -d "/sys/class/net/$1" ] || return 1
+  [ ! -e "/sys/class/net/$1/bridge" ] || return 1
+  case "$1" in lo|tun*|tap*|wg*|xio*|awg*|veth*) return 1 ;; esac
+  return 0
+}
+xio_catalog_iface() {
+  for target in 1.1.1.1 2606:4700:4700::1111; do
+    dev=$(ip route get "$target" 2>/dev/null | sed -n 's/.* dev \([^ ]*\).*/\1/p' | head -1 || true)
+    if xio_catalog_iface_ok "$dev"; then printf '%s\n' "$dev"; return 0; fi
+  done
+  for dev in $(ls /sys/class/net 2>/dev/null); do
+    if xio_catalog_iface_ok "$dev"; then printf '%s\n' "$dev"; return 0; fi
+  done
+  return 1
+}
+# <<< catalog-iface <<<
+if iface=$(xio_catalog_iface); then
+  printf 'XIO_CATALOG_INTERFACE=%s\n' "$iface" > /etc/default/xio-catalog
+  chmod 644 /etc/default/xio-catalog
+else
+  # Writing a guess here would hide the real cause, so the file is left untouched and
+  # the unit's own guard reports the missing device by name.
+  printf '%s\n' 'catalog: no routable non-bridge device found; leaving /etc/default/xio-catalog as it is. Set XIO_CATALOG_INTERFACE there if the host routes through a device this scan cannot see.' >&2
+fi
+mv "$lib/catalog/xio-catalog.service" /etc/systemd/system/xio-catalog.service
+mv "$lib/catalog/xio-catalog.timer" /etc/systemd/system/xio-catalog.timer
+chmod 644 /etc/systemd/system/xio-catalog.service /etc/systemd/system/xio-catalog.timer
+systemctl daemon-reload
+systemctl enable --now xio-catalog.timer >> "$lib/bootstrap.log" 2>&1 || true
+
+# Static AWG profiles for routers and phones.
+install -m 700 "$tmp/xio-peer.py" /usr/local/sbin/xio-peer.py
+# Cascade role: scripts go where the units exec them from, units are installed but
+# never enabled automatically - the role is chosen per host by the administrator.
+install -m 700 "$tmp/cascade/xio-cascade-tunnel.sh" /usr/local/sbin/xio-cascade-tunnel.sh
+install -m 700 "$tmp/cascade/xio-cascade-exit.sh" /usr/local/sbin/xio-cascade-exit.sh
+install -m 644 "$tmp/cascade/xio-cascade.service" /etc/systemd/system/xio-cascade.service
+install -m 644 "$tmp/cascade/xio-cascade-exit.service" /etc/systemd/system/xio-cascade-exit.service
+mkdir -p "$lib/cascade"
+install -m 644 "$tmp/cascade/README.md" "$lib/cascade/README.md" 2>/dev/null || true
+# Host settings that must survive a reboot: IPv6 forwarding for the cascade and the
+# wg(8) UAPI symlink for the AmneziaWG daemon.
+install -m 644 "$tmp/cascade/99-xio-cascade.conf" /etc/sysctl.d/99-xio-cascade.conf
+install -m 644 "$tmp/cascade/xio-awg-uapi.conf" /etc/tmpfiles.d/xio-awg-uapi.conf
+sysctl -q -p /etc/sysctl.d/99-xio-cascade.conf >> "$lib/bootstrap.log" 2>&1 || true
+systemd-tmpfiles --create /etc/tmpfiles.d/xio-awg-uapi.conf >> "$lib/bootstrap.log" 2>&1 || true
+systemctl daemon-reload >> "$lib/bootstrap.log" 2>&1 || true

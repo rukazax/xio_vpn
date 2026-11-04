@@ -71,7 +71,6 @@ flutter:
     - assets/vpn-sharing.sh
     - assets/xio-server-update.py
     - assets/xio-server-release.json
-    - assets/xio_vici/
     - assets/mesh-pins.json
     - assets/xio-mesh-stack.py
     - assets/xio-network-stack.py
@@ -92,6 +91,11 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
+    # X1oCJK is a subset of Noto Sans CJK SC Regular: everyday Chinese (GB2312),
+    # Japanese (JIS X 0208) and Korean (KS X 1001) sets, the full Hangul block,
+    # kana and CJK punctuation only. 16.4 MB -> 7.2 MB of the release bundle.
+    # Rebuild with `python tools/subset-cjk-font.py`; the pristine font lives in
+    # app/fonts-src/ and is intentionally not bundled.
     - family: X1oCJK
       fonts:
         - asset: assets/fonts/NotoSansCJKsc-Regular.otf

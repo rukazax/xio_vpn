@@ -10,7 +10,6 @@ import (
 	_ "github.com/xtls/xray-core/app/proxyman/outbound"
 	_ "github.com/xtls/xray-core/app/router"
 	_ "github.com/xtls/xray-core/app/stats"
-	_ "github.com/xtls/xray-core/main/json"
 	_ "github.com/xtls/xray-core/proxy/blackhole"
 	_ "github.com/xtls/xray-core/proxy/freedom"
 	_ "github.com/xtls/xray-core/proxy/trojan"
@@ -24,9 +23,22 @@ import (
 	_ "github.com/xtls/xray-core/transport/internet/httpupgrade"
 	_ "github.com/xtls/xray-core/transport/internet/reality"
 	_ "github.com/xtls/xray-core/transport/internet/splithttp"
-	_ "github.com/xtls/xray-core/transport/internet/tagged/taggedimpl"
 	_ "github.com/xtls/xray-core/transport/internet/tcp"
 	_ "github.com/xtls/xray-core/transport/internet/tls"
 	_ "github.com/xtls/xray-core/transport/internet/udp"
 	_ "github.com/xtls/xray-core/transport/internet/websocket"
 )
+
+// "tagged" (chained outbounds) is deliberately absent: XIO accepts only
+// vless/vmess/trojan outbounds (internal/xrayclient.Parse), so the tagged
+// protocol can never be reached from a profile, and leaving it out of the
+// registry keeps its implementation out of the helper (-2 KiB measured).
+//
+// "main/json" (the JSON config loader) is deliberately absent as well: the
+// helper builds its config from protobuf directly (internal/xrayclient
+// xrayconf.go), and main/json is the single import that pulls
+// xray-core/infra/conf plus every app, proxy and transport of xray-core into
+// the binary (measured ceiling ~8 MiB, work/opt-helper-size-20261104.md;
+// realised helper delta -4.1 MiB, work/opt-xray-proto-20261104.md). The JSON
+// loader is restored by building with `-tags xrayjson` (registry_json.go);
+// cmd/xraygateway, which really does load JSON, imports main/json itself.

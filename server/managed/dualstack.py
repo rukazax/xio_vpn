@@ -234,15 +234,18 @@ def apply():
 def _apply():
  assert os.geteuid()==0,'Owner root access required'
  state=json.loads(STATE.read_text());assert state.get('owner')=='xio-managed-v1','Unowned deployment'
- if not ipv6_ready():return {'ipv6Forwarding':False,'reason':'No IPv6 default route'}
- dev=routes('-6')[0]['dev'];assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',dev)
+ # One route sample per apply: readiness, the uplink device and the RA protocol all
+ # read the same snapshot instead of three separate `ip -6 route show default` runs.
+ default=routes('-6')
+ if not default:return {'ipv6Forwarding':False,'reason':'No IPv6 default route'}
+ dev=default[0]['dev'];assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',dev)
  receipt=json.loads(RECEIPT.read_text()) if RECEIPT.exists() else {'owner':'xio-dualstack-v1','oldForward':FORWARDING.read_text().strip(),'rules':[],'addresses':[]}
  assert receipt['owner']=='xio-dualstack-v1'
  save(receipt) # Save intent before every network effect.
  # Forwarding can suppress RA acceptance. Retain RA on the physical uplink when
  # it was the source of the existing default route; restore only our own change.
  accept=IPV6_SYS/dev/'accept_ra'
- if routes('-6')[0].get('protocol')=='ra' and accept.exists() and accept.read_text().strip()!='2':
+ if default[0].get('protocol')=='ra' and accept.exists() and accept.read_text().strip()!='2':
   receipt.setdefault('acceptRa',{}).setdefault(dev,accept.read_text().strip());save(receipt);_effect('ra',dev,lambda:accept.write_text('2\n'))
  # Open only ports of the installed owned services; never a blanket policy.
  ports=[]

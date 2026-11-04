@@ -1,0 +1,14 @@
+[Unit]
+Description=XIO Cascade exit: IPv6 forwarding and NAT66 for the tunnel
+Documentation=file:/usr/local/lib/xio-managed/cascade/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/xio-cascade-exit.sh
+ExecReload=/usr/local/sbin/xio-cascade-exit.sh
+
+[Install]
+WantedBy=multi-user.target

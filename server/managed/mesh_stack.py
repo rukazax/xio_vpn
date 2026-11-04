@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Private Headscale + owned Tailscale exit node; pinned verified upstream bins."""
-import hashlib,io,ipaddress,json,os,secrets,shutil,socket,ssl,subprocess,tarfile,time,urllib.request
+import hashlib,ipaddress,json,shutil,socket,subprocess,tarfile,time,urllib.request
 from pathlib import Path
 ROOT=Path('/etc/xio-mesh');LIB=Path('/usr/local/lib/xio-mesh');STATE=Path('/var/lib/xio-mesh');RUN=Path('/run/xio-mesh');PKI=Path('/etc/xio-stack/pki');OWNER='xio-mesh-v1'
 def run(*args,input=None):

@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 """Owned Xray/SS deployment, called only by the SSH-authorized manager."""
-import base64,ipaddress,json,os,secrets,shutil,socket,subprocess,uuid
+import base64,ipaddress,json,secrets,shutil,socket,subprocess,uuid
 from pathlib import Path
 ROOT=Path('/etc/xio-stack');STATE=Path('/var/lib/xio-stack');LIB=Path('/usr/local/lib/xio-managed');OWNER='xio-stack-v1'
 import importlib.util
 _ns=importlib.util.spec_from_file_location("xio_network_stack",str(Path(__file__).with_name("network_stack.py")))
 network=importlib.util.module_from_spec(_ns);_ns.loader.exec_module(network)
-_ms=importlib.util.spec_from_file_location('xio_mesh_stack',str(Path(__file__).with_name('mesh_stack.py')))
-mesh=importlib.util.module_from_spec(_ms);_ms.loader.exec_module(mesh)
+_mesh_module=None
+def _mesh():
+ # mesh_stack pulls urllib.request/tarfile (~50 ms) and most installs never use it.
+ global _mesh_module
+ if _mesh_module is None:
+  _ms=importlib.util.spec_from_file_location('xio_mesh_stack',str(Path(__file__).with_name('mesh_stack.py')))
+  _mesh_module=importlib.util.module_from_spec(_ms);_ms.loader.exec_module(_mesh_module)
+ return _mesh_module
+def __getattr__(name):
+ # PEP 562 keeps the documented `stack.mesh` attribute for admin.py callers.
+ if name=='mesh':return _mesh()
+ raise AttributeError("module 'xio_stack' has no attribute "+repr(name))
 def run(*args,input=None):
  p=subprocess.run(args,input=input,capture_output=True)
  if p.returncode:raise RuntimeError('Stack operation failed: '+(' '.join(args[:3]) if args[0]=='systemctl' else args[0]))
@@ -54,7 +64,8 @@ def config(d):
  clients=[{'id':u['uuid'],'email':uid+'@xio','flow':'xtls-rprx-vision','level':0} for uid,u in users]
  ssclients=[{'password':u['ssKey'],'email':uid+'@xio','level':0} for uid,u in users]
  if not ssclients:ssclients=[{'password':r['inactiveKey'],'email':'inactive@xio'}]
- j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':network.dualstack().listener(),'port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':network.dualstack().listener(),'port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
+ listen=network.dualstack().listener()
+ j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':listen,'port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':listen,'port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
  if d.get('restrictedNetwork'):j['inbounds']=[inbound for inbound in j['inbounds'] if inbound['protocol']!='shadowsocks']
  write(ROOT/'config.json',json.dumps(j))
 def apply(d):
@@ -109,14 +120,14 @@ WantedBy=multi-user.target
 ''',0o644)
  run('systemctl','daemon-reload');subprocess.run(['systemctl','reset-failed','xio-stack'],capture_output=True);run('systemctl','enable','--now','xio-stack');run('systemctl','restart','xio-stack');run('systemctl','is-active','--quiet','xio-stack')
  network.install(d);network.cloak_install(d)
- if not d.get('restrictedNetwork'):network.ike_install(d);mesh.install(d)
+ if not d.get('restrictedNetwork'):network.ike_install(d);_mesh().install(d)
  d['stack']={'protocols':(['xray','cloak'] if d.get('restrictedNetwork') else ['xray','shadowsocks','openvpn','cloak','ikev2']),'publicKey':r['publicKey'],'shortId':r['shortId'],'serverName':r['serverName']}
 def create(d,uid):
  u={'uuid':str(uuid.uuid4()),'ssKey':base64.b64encode(secrets.token_bytes(32)).decode()};d['users'][uid]['stack']=u;configs=network.create(d,uid)
  if not d.get('restrictedNetwork'):configs.update(network.ike_profile(d,uid))
  configs.update(network.cloak_profile(d,uid,configs['openvpn']))
  if d.get('restrictedNetwork'):configs.pop('openvpn',None)
- if d.get('mesh'):configs.update(mesh.create(d,uid))
+ if d.get('mesh'):configs.update(_mesh().create(d,uid))
  # Activate credentials only after every profile, including Cloak UID, exists.
  apply(d)
  return dict(profiles(d,uid),**configs)
@@ -128,6 +139,6 @@ def stats():
  except FileNotFoundError:return {}
 def remove(d):
  if not (ROOT/'receipt.json').exists():return
- r=receipt();mesh.remove();network.remove(d);subprocess.run(['systemctl','disable','--now','xio-stack'],capture_output=True);firewall(r,True)
+ r=receipt();_mesh().remove();network.remove(d);subprocess.run(['systemctl','disable','--now','xio-stack'],capture_output=True);firewall(r,True)
  Path('/etc/systemd/system/xio-stack.service').unlink(missing_ok=True);Path('/usr/local/bin/xio-stack').unlink(missing_ok=True)
  shutil.rmtree(ROOT);shutil.rmtree(STATE,ignore_errors=True);shutil.rmtree('/var/lib/private/xio-stack',ignore_errors=True);run('systemctl','daemon-reload')

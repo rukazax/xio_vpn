@@ -28,16 +28,17 @@ const (
 
 var ErrProtocol = errors.New("rivet: protocol violation")
 var enc cbor.EncMode
-var dec cbor.DecMode
 
 func init() {
 	enc, _ = cbor.CanonicalEncOptions().EncMode()
-	dec, _ = (cbor.DecOptions{DupMapKey: cbor.DupMapKeyEnforcedAPF, IndefLength: cbor.IndefLengthForbidden, TagsMd: cbor.TagsForbidden, MaxNestedLevels: 4, MaxArrayElements: 32, MaxMapPairs: 16}).DecMode()
 }
 
 type Wire struct {
 	io.ReadWriteCloser
 	mu sync.Mutex
+	// hdr is the fixed frame header. Send runs under mu, so the field replaces a
+	// per-frame heap allocation on the packet path.
+	hdr [6]byte
 }
 
 func (w *Wire) Send(t byte, p []byte) error {
@@ -48,10 +49,13 @@ func (w *Wire) Send(t byte, p []byte) error {
 	if len(p) > limit || !validType(t) {
 		return ErrProtocol
 	}
-	h := []byte{t, 0, 0, 0, 0, 0}
-	binary.BigEndian.PutUint32(h[2:], uint32(len(p)))
+	h := w.hdr[:]
 	w.mu.Lock()
 	defer w.mu.Unlock()
+	// The header field is shared, so it is filled only under mu: keepalive
+	// Padding writes and packet writes reach Send concurrently.
+	h[0], h[1] = t, 0
+	binary.BigEndian.PutUint32(h[2:], uint32(len(p)))
 	if d, ok := w.ReadWriteCloser.(interface{ SetWriteDeadline(time.Time) error }); ok {
 		d.SetWriteDeadline(time.Now().Add(5 * time.Second))
 		defer d.SetWriteDeadline(time.Time{})
@@ -158,17 +162,31 @@ type Reassembler struct {
 func NewReassembler() *Reassembler {
 	return &Reassembler{parts: map[uint64]*partial{}, done: map[uint64]bool{}}
 }
+const (
+	// fragmentHeader is the size of the IPPacket datagram header and
+	// fragmentPayload the largest payload carried by one datagram.
+	fragmentHeader  = 15
+	fragmentPayload = 1000
+)
+
+// fragmentHeaderInto writes the datagram header of one fragment. It is the
+// single definition of the fragment layout, shared by Fragment and by the
+// allocation-free send path in Session.
+func fragmentHeaderInto(b []byte, id uint64, total, off, count int) {
+	b[0] = IPPacket
+	binary.BigEndian.PutUint64(b[1:], id)
+	binary.BigEndian.PutUint16(b[9:], uint16(total))
+	binary.BigEndian.PutUint16(b[11:], uint16(off))
+	binary.BigEndian.PutUint16(b[13:], uint16(count))
+}
+
 func Fragment(id uint64, p []byte) [][]byte {
 	var out [][]byte
-	for off := 0; off < len(p); off += 1000 {
-		end := min(off+1000, len(p))
-		b := make([]byte, 15+end-off)
-		b[0] = IPPacket
-		binary.BigEndian.PutUint64(b[1:], id)
-		binary.BigEndian.PutUint16(b[9:], uint16(len(p)))
-		binary.BigEndian.PutUint16(b[11:], uint16(off))
-		binary.BigEndian.PutUint16(b[13:], uint16(end-off))
-		copy(b[15:], p[off:end])
+	for off := 0; off < len(p); off += fragmentPayload {
+		end := min(off+fragmentPayload, len(p))
+		b := make([]byte, fragmentHeader+end-off)
+		fragmentHeaderInto(b, id, len(p), off, end-off)
+		copy(b[fragmentHeader:], p[off:end])
 		out = append(out, b)
 	}
 	return out

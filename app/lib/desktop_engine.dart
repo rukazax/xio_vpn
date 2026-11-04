@@ -58,13 +58,31 @@ class DesktopEngine {
     }
   }
 
+  /// One keep-alive client for the local engine. The 3 s status poll used to
+  /// open and force-close two fresh loopback sockets on every tick; reusing the
+  /// connection removes that churn without changing any request.
+  static HttpClient? _client;
+
+  static HttpClient get _http {
+    final cached = _client;
+    if (cached != null) return cached;
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 2);
+    client.findProxy = (_) => 'DIRECT';
+    return _client = client;
+  }
+
+  static void _dropClient() {
+    _client?.close(force: true);
+    _client = null;
+  }
+
   static Future<Map<String, dynamic>> _json(
     Uri uri, {
     Map<String, dynamic>? body,
     String? token,
   }) async {
-    final client = HttpClient()..connectionTimeout = const Duration(seconds: 2);
-    client.findProxy = (_) => 'DIRECT';
+    final client = _http;
     try {
       final req = await (body == null
           ? client.getUrl(uri)
@@ -89,8 +107,11 @@ class DesktopEngine {
         }
       }
       return Map<String, dynamic>.from(jsonDecode(utf8.decode(bytes)) as Map);
-    } finally {
-      client.close(force: true);
+    } catch (_) {
+      // Never hand out a connection that may be half-dead: the engine can be
+      // restarted between polls and the next call must start clean.
+      _dropClient();
+      rethrow;
     }
   }
 

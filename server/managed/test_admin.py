@@ -1,4 +1,4 @@
-import importlib.util,tempfile,unittest
+import importlib.util,json,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 spec=importlib.util.spec_from_file_location('managed',Path(__file__).with_name('admin.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
@@ -72,7 +72,6 @@ class InstallerTests(unittest.TestCase):
    self.assertFalse(m.firewall_managed(d,True))
   self.assertIn(unittest.mock.call('ufw','--force','route','delete',*rule[1:]),calls.call_args_list)
   self.assertEqual(len(calls.call_args_list),2)
-if __name__=='__main__':unittest.main()
 
 class RestrictedPolicyTests(unittest.TestCase):
  def test_public_profiles_advertise_only_restricted_candidates(self):
@@ -111,3 +110,229 @@ class StatsTests(unittest.TestCase):
     m.stats(d)
    self.assertEqual(d['users']['u']['stats']['awg']['rx'],5)
    self.assertEqual(d['users']['u']['stats']['wireguard']['rx'],0)
+
+class CatalogTests(unittest.TestCase):
+ def test_catalog_action_refuses_a_request_without_server_identity(self):
+  """The action is dispatched, not called directly: the identity check runs first.
+
+  catalog_state() alone is read-only and harmless, so a test that calls it never sees
+  the guard. A client that forgets serverId gets 'Server identity changed; reopen setup'
+  for every press, which is what the masking screen did before this case existed.
+  """
+  d={'id':'server-1','phase':'ready','users':{},'owner':m.OWNER}
+  with tempfile.TemporaryDirectory() as directory:
+   with patch.object(m,'CATALOG_DIR',Path(directory)),patch.object(m,'load',lambda:d):
+    with self.assertRaisesRegex(AssertionError,'identity'):
+     m.dispatch({'action':'catalog'},None)
+    state=m.dispatch({'action':'catalog','serverId':'server-1'},None)
+    self.assertFalse(state['available'])
+    self.assertIn('timer',state['reason'])
+
+ def test_missing_catalog_reports_unavailable(self):
+  with tempfile.TemporaryDirectory() as directory:
+   with patch.object(m,'CATALOG_DIR',Path(directory)):
+    state=m.catalog_state()
+   self.assertFalse(state['available'])
+   self.assertIn('timer',state['reason'])
+
+ def test_catalog_lists_only_eligible_entries(self):
+  """Read the artifact exactly as the builder publishes it, not a hand-made manifest."""
+  import sys as _sys
+  _sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'catalog'))
+  import catalog
+  document={'schema':catalog.SCHEMA,'contentSha256':'c'*64,
+            'source':{'commit':'e61be51b','fetchedAt':'2026-11-03T06:00:00Z'},
+            'probe':{'country':'BE'},'counts':{'unique':2},
+            'entries':[{'fqdn':'a.ru','eligible':True,'certNotAfter':'2027','tlsRttMs':10},
+                       {'fqdn':'b.ru','eligible':False,'tlsRttMs':None}]}
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory)
+   catalog.publish(root,'whitelist-20261103.json',catalog.dumps(document))
+   with patch.object(m,'CATALOG_DIR',root):
+    state=m.catalog_state()
+   self.assertTrue(state['available'])
+   reference=json.loads((root/'whitelist-state.json').read_text())['current']
+   self.assertEqual(state['sha256'],reference['sha256'])
+   self.assertEqual([entry['fqdn'] for entry in state['entries']],['a.ru'])
+   self.assertEqual(state['eligible'],1)
+   self.assertEqual(state['contentSha256'],'c'*64)
+   self.assertEqual(state['fetchedAt'],'2026-11-03T06:00:00Z')
+
+ def test_unreadable_state_is_an_explicit_error(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory)
+   (root/'whitelist-state.json').write_text(json.dumps({'current':{'file':'missing.json'}}))
+   with patch.object(m,'CATALOG_DIR',root),self.assertRaisesRegex(RuntimeError,'Catalog unreadable'):
+    m.catalog_state()
+
+class StaticAwgTests(unittest.TestCase):
+ def deployment(self):
+  return {'owner':m.OWNER,'id':'srv','host':'203.0.113.9','phase':'ready','protocols':['wireguard','awg'],
+          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
+          'H1':1,'H2':2,'H3':3,'H4':4}}
+ def test_add_awg_returns_profile_and_marks_transport(self):
+  d=self.deployment(); saved={}
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x: saved.update(x)),patch.object(m,'apply',return_value=None):
+   answer=m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='})
+  user=answer['user']; self.assertEqual(user['transports'],['awg']); self.assertEqual(user['slot'],2)
+  conf=answer['config']
+  self.assertIn('Endpoint = 203.0.113.9:51821',conf)
+  self.assertIn('PublicKey = SERVERPUBKEY',conf)
+  self.assertIn('Jc = 4',conf)
+  self.assertIn('MTU = 1280',conf)
+  self.assertNotIn('S3 =',conf)  # not present in this deployment, so not invented
+  self.assertIn('10.78.0.2/24',conf)
+  self.assertEqual(d['users']['a'*32]['keys'],{'awg':'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='})
+
+ def test_add_awg_rejects_short_key(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   with self.assertRaises(AssertionError):
+    m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'b'*32,'publicKey':'AAAA'})
+
+class StaticAwgGuardTests(unittest.TestCase):
+ KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='
+ ZERO='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
+ def deployment(self):
+  return {'owner':m.OWNER,'id':'srv','host':'2001:db8::1','phase':'ready','protocols':['wireguard','awg'],
+          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
+          'H1':1,'H2':2,'H3':3,'H4':4}}
+ def dispatch(self,d,**extra):
+  request={'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':self.KEY}
+  request.update(extra)
+  return m.dispatch(request)
+
+ def test_failed_apply_removes_the_peer_from_disk_state(self):
+  d=self.deployment(); saved={}
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',side_effect=lambda x: saved.update(x)),patch.object(m,'apply',side_effect=RuntimeError('uapi down')):
+   with self.assertRaises(RuntimeError): self.dispatch(d)
+  self.assertEqual(saved['users'],{})
+
+ def test_ipv6_host_endpoint_is_bracketed(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   answer=self.dispatch(d)
+  self.assertIn('Endpoint = [2001:db8::1]:51821',answer['config'])
+
+ def test_zero_key_and_server_key_are_rejected(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   with self.assertRaises(AssertionError): self.dispatch(d,publicKey=self.ZERO)
+   with self.assertRaises(AssertionError): self.dispatch(d,publicKey='SERVERPUBKEY')
+
+ def test_static_peer_does_not_appear_in_wireguard_config(self):
+  d=self.deployment()
+  with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
+   self.dispatch(d)
+  self.assertNotIn('wireguard',d['users']['a'*32]['keys'])
+
+
+
+class IsolationRulesTests(unittest.TestCase):
+ def payload(self):
+  return {'restrictedNetwork':True,'outbound':'eth0','users':{},'firewall':{'kind':'iptables'}}
+
+ def test_ipv4_chain_order_and_removal(self):
+  calls=[]
+  fake=type('R',(),{'returncode':1})()
+  with patch.object(m,'run',side_effect=lambda *a,**k: calls.append(a)), \
+       patch.object(m,'shutil') as sh, patch.object(m,'stack') as st, \
+       patch.object(m.subprocess,'run',return_value=fake):
+   sh.which.return_value='/usr/bin/iptables'
+   st.network.dualstack.return_value.outbounds.return_value={'ipv6':'eth0'}
+   m.rules(self.payload())
+  inserts=[c for c in calls if c[0]=='iptables' and 'FORWARD' in c and '-I' in c and 'xio-managed-v1-awg' in c]
+  targets=[c[c.index('-j')+1] for c in inserts if '-j' in c]
+  self.assertEqual(targets[0],'DROP','the drop is inserted first so it ends up below the accepts')
+  self.assertEqual(targets[-1],'ACCEPT')
+  joined=' '.join(' '.join(c) for c in inserts)
+  self.assertIn('RELATED',joined)
+  self.assertIn('-o eth0',joined)
+
+ def test_remove_deletes_the_forward_rules(self):
+  calls=[]
+  fake=type('R',(),{'returncode':0})()
+  with patch.object(m,'run',side_effect=lambda *a,**k: calls.append(a)), \
+       patch.object(m,'shutil') as sh, patch.object(m,'stack') as st, \
+       patch.object(m.subprocess,'run',return_value=fake):
+   sh.which.return_value='/usr/bin/iptables'
+   st.network.dualstack.return_value.outbounds.return_value={'ipv6':'eth0'}
+   m.rules(self.payload(),remove=True)
+  deletes=[c for c in calls if c[0]=='iptables' and 'FORWARD' in c and '-D' in c and 'xio-managed-v1-awg' in c]
+  self.assertEqual(len(deletes),4)  # the four FORWARD rules of the isolation policy
+
+ def test_rule_presence_comes_from_one_dump_per_table(self):
+  # Steady state reads one `-S` per table instead of one `-C` per rule. A rule found
+  # in the dump is neither probed nor inserted, the implicit `-m udp` that iptables
+  # prints must not defeat the match, and a rule missing from the dump still gets the
+  # `-C` probe before it is inserted.
+  calls=[];inserts=[]
+  view=('-P FORWARD ACCEPT\n'
+        '-A FORWARD -i xioawg0 -m comment --comment xio-managed-v1-awg -j ACCEPT\n'
+        '-A FORWARD -i xioawg0 -m comment --comment xio-managed-v1-awg -j DROP\n'
+        '-A INPUT -i eth0 -p udp -m udp --dport 51821 -m comment --comment xio-managed-v1-awg -j ACCEPT\n')
+  def fake(argv,**kwargs):
+   calls.append(list(argv))
+   if '-S' in argv:return type('R',(),{'returncode':0,'stdout':view if argv[0]=='iptables' else ''})()
+   return type('R',(),{'returncode':1,'stdout':''})()
+  with patch.object(m,'run',side_effect=lambda *a,**k: inserts.append(a)), \
+       patch.object(m,'shutil') as sh, patch.object(m,'stack') as st, \
+       patch.object(m.subprocess,'run',side_effect=fake):
+   sh.which.return_value='/usr/bin/iptables'
+   st.network.dualstack.return_value.outbounds.return_value={'ipv6':'eth0'}
+   m.rules(self.payload())
+  dumps=[c for c in calls if '-S' in c]
+  probes=[c for c in calls if '-C' in c]
+  deletes=[c for c in calls if '-D' in c]
+  self.assertEqual(len(dumps),3)  # iptables filter, iptables nat, ip6tables filter
+  self.assertEqual(len([c for c in dumps if c[0]=='iptables' and c[1:]==['-w','5','-S']]),1)  # filter table once
+  self.assertEqual(len(probes),6)  # eight rules minus the two found in the dump
+  self.assertEqual(len(inserts),6)
+  self.assertEqual(len([c for c in inserts if c[0]=='iptables' and 'FORWARD' in c]),3)
+  self.assertFalse(any(c[0]=='iptables' and 'DROP' in c for c in inserts))  # found in the dump
+  self.assertEqual(len(deletes),1)  # the legacy wide rule, deleted without a probe
+  legacy_probe=['iptables','-w','5','-C','FORWARD','-i','xioawg0','-m','comment',
+                '--comment','xio-managed-v1-awg','-j','ACCEPT']
+  self.assertNotIn(legacy_probe,calls)
+
+
+
+
+class DispatchScopeTests(unittest.TestCase):
+ def test_inspect_is_not_shadowed_by_a_local_named_public(self):
+  # dispatch() used `public` as the decoded add-awg key, which made `public` a local
+  # for the whole function: `inspect` (and a successful `add`) raised UnboundLocalError
+  # instead of returning the server block.
+  d={'owner':m.OWNER,'id':'srv','host':'vpn.example','publicKeys':{'awg':'server'},'awg':{},
+     'protocols':['awg'],'phase':'ready'}
+  capabilities={'outboundByFamily':{'ipv4':'eth0'},'ipv4DefaultRoute':True,'ipv6DefaultRoute':False}
+  with patch.object(m,'load',return_value=d),patch.object(m,'stack') as st:
+   st.network.dualstack.return_value.capabilities.return_value=capabilities
+   answer=m.dispatch({'action':'inspect','serverId':'srv'})
+  self.assertEqual(answer['phase'],'ready')
+  self.assertEqual(answer['server']['id'],'srv')
+  self.assertEqual(answer['server']['networkCapabilities'],capabilities)
+
+
+if __name__=='__main__':unittest.main()
+
+class SandboxPolicyTests(unittest.TestCase):
+ def test_compat_containers_keep_a_read_only_system(self):
+  d={}
+  written={}
+  with patch.object(m,'sandbox_supported',return_value=False), \
+       patch.object(m,'write',side_effect=lambda path,text,mode=0o600: written.update({'path':path,'text':text,'mode':mode})), \
+       patch.object(m,'save',return_value=None):
+   mode=m.sandbox_prepare(d)
+  self.assertEqual(mode,'compat')
+  self.assertIn('ProtectSystem=full',written['text'])
+  self.assertIn('ReadWritePaths=/etc/xio-managed /etc/xio-stack',written['text'])
+  self.assertNotIn('ProtectSystem=no',written['text'])
+  self.assertEqual(written['mode'],0o644,'unit drop-ins must stay readable by systemd')
+
+ def test_strict_hosts_drop_the_override(self):
+  with patch.object(m,'sandbox_supported',return_value=True), patch.object(m,'save',return_value=None):
+   self.assertEqual(m.sandbox_prepare({}),'strict')
+
+
+if __name__=='__main__':unittest.main()

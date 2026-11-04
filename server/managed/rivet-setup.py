@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Owned RIVET installation; entry and gateway are separate unprivileged users."""
-import json,os,subprocess,shutil,sys,ipaddress,socket,time,shlex,re
+import json,subprocess,shutil,sys,ipaddress,time,shlex,re
 from pathlib import Path
 ROOT=Path('/etc/xio-rivet'); LIB=Path('/usr/local/lib/xio-rivet'); RECEIPT=ROOT/'install-receipt.json'
 def valid_name(name):

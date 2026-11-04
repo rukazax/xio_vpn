@@ -34,6 +34,15 @@ def sources(root):
               'readiness.py', 'xio-ready.service')]
     files += [(p, 'xio_vici/' + p.name) for p in sorted((managed / 'xio_vici').iterdir())
               if p.is_file() and (p.suffix == '.py' or p.name == 'LICENSE')]
+    files += [(root / 'tools/xio-peer.py', 'xio-peer.py')]
+    files += [(root / 'deploy/cascade' / name, 'cascade/' + name)
+              for name in ('xio-cascade-tunnel.sh', 'xio-cascade.service',
+                           'xio-cascade-exit.sh', 'xio-cascade-exit.service', 'README.md',
+                           '99-xio-cascade.conf', 'xio-awg-uapi.conf')]
+    catalog = root / 'server/catalog'
+    files += [(catalog / name, 'catalog/' + name) for name in
+              ('catalog.py', 'lint_catalog.py', 'whitelist-pins.json', 'README.md',
+               'xio-catalog.service', 'xio-catalog.timer')]
     files += [(root / 'vendor-server' / name, member) for name, member in
               [('xio-xray-linux-amd64', 'xraygateway'), ('xio-cloak-linux-amd64', 'cloak'),
                ('amneziawg-go-linux-amd64', 'amneziawg-go'), ('xio-rivet-linux-amd64', 'rivet')]]
@@ -74,12 +83,20 @@ def check_inputs(root, native_root):
 
 
 TEXT_SUFFIXES = ('.py', '.json', '.sh')
+# Text members whose name carries no text suffix. The vendored VICI LICENSE is the one
+# today: a suffix test alone shipped it with CRLF from a Windows checkout while the
+# archive claimed every text member is LF, so the same commit produced two archives.
+TEXT_MEMBERS = ('xio_vici/LICENSE',)
+
+
+def is_text_member(name):
+    return name.endswith(TEXT_SUFFIXES) or name in TEXT_MEMBERS
 
 
 def member_payload(source, name):
     """Text members are packed with LF endings so Windows and Linux build the same archive."""
     data = source.read_bytes()
-    return data.replace(b'\r\n', b'\n') if name.endswith(TEXT_SUFFIXES) else data
+    return data.replace(b'\r\n', b'\n') if is_text_member(name) else data
 
 
 def archive(files, destination):
@@ -122,7 +139,9 @@ def package(root, native_root, output, check=False):
         (staged / 'xio_vici').mkdir()
         for source, name in files:
             if name.startswith('xio_vici/'):
-                (staged / name).write_bytes(source.read_bytes())
+                # Same bytes as the archive member, not the raw checkout: these files are
+                # published next to the tarball and must match it.
+                (staged / name).write_bytes(member_payload(source, name))
         artifacts = {}
         for source, target in MIRRORS:
             artifacts[target] = sha256(staged / target)

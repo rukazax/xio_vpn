@@ -7,10 +7,12 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/binary"
+	"errors"
 	"io"
 	"math"
 	"net"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 )
@@ -248,5 +250,60 @@ func FuzzFragments(f *testing.F) {
 		}
 	})
 }
+
+// TestWireConcurrentSendKeepsFrames guards the shared frame header: keepalive
+// Padding writes and packet writes reach Send from different goroutines, and a
+// torn header must surface here as a protocol error or a wrong payload.
+func TestWireConcurrentSendKeepsFrames(t *testing.T) {
+	pr, pw := io.Pipe()
+	w := &Wire{ReadWriteCloser: pipeEnd{Writer: pw}}
+	const senders, frames, size = 8, 50, 16
+	var wg sync.WaitGroup
+	for i := 0; i < senders; i++ {
+		wg.Add(1)
+		go func(fill byte) {
+			defer wg.Done()
+			payload := bytes.Repeat([]byte{fill}, size)
+			for j := 0; j < frames; j++ {
+				if e := w.Send(Padding, payload); e != nil {
+					t.Errorf("send: %v", e)
+					return
+				}
+			}
+		}(byte('a' + i))
+	}
+	go func() { wg.Wait(); pw.Close() }()
+	r := &Wire{ReadWriteCloser: pipeEnd{Reader: pr}}
+	seen := 0
+	for {
+		kind, payload, e := r.ReadFrame()
+		if e != nil {
+			if e == io.EOF || errors.Is(e, io.ErrClosedPipe) {
+				break
+			}
+			t.Fatalf("frame %d: %v", seen, e)
+		}
+		if kind != Padding || len(payload) != size {
+			t.Fatalf("frame %d: type %d len %d", seen, kind, len(payload))
+		}
+		for _, b := range payload {
+			if b != payload[0] {
+				t.Fatalf("frame %d: payload torn at %d", seen, b)
+			}
+		}
+		seen++
+	}
+	if seen != senders*frames {
+		t.Fatalf("frames: got %d, want %d", seen, senders*frames)
+	}
+}
+
+// pipeEnd adapts one end of an io.Pipe to io.ReadWriteCloser.
+type pipeEnd struct {
+	io.Reader
+	io.Writer
+}
+
+func (pipeEnd) Close() error { return nil }
 
 var _ io.ReadWriteCloser = bufferConn{}

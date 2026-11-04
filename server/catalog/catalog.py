@@ -15,20 +15,16 @@ tests can replace it.
 from __future__ import annotations
 
 import argparse
-import concurrent.futures
 import datetime as dt
-import errno
 import hashlib
 import ipaddress
 import json
 import os
 import socket
-import ssl
 import sys
 import tempfile
+import threading
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
@@ -192,6 +188,7 @@ def _decode_cert(der: bytes) -> dict:
     ``SSLSocket.getpeercert()`` returns an empty dict when verification is off, so the
     DER form is decoded through the stdlib helper instead.
     """
+    import ssl
     if not der:
         return {}
     pem = ssl.DER_cert_to_PEM_cert(der)
@@ -241,10 +238,53 @@ def _bind_to_device(sock: socket.socket, interface: str) -> None:
     sock.setsockopt(socket.SOL_SOCKET, option, interface.encode("ascii") + b"\x00")
 
 
+def _resolve(fqdn: str, timeout: float):
+    """getaddrinfo ignores socket timeouts; a daemon thread keeps a stuck resolver from wedging the run."""
+    box: dict = {}
+
+    def run():
+        try:
+            box["info"] = socket.getaddrinfo(fqdn, 443, type=socket.SOCK_STREAM)
+        except BaseException as error:  # noqa: BLE001 - reported as unresolved below
+            box["error"] = error
+
+    worker = threading.Thread(target=run, daemon=True)
+    worker.start()
+    worker.join(timeout)
+    if worker.is_alive() or "info" not in box:
+        raise socket.gaierror("dns timeout")
+    if "error" in box:
+        raise box["error"]
+    return box["info"]
+
+
+_TLS_CONTEXT = None
+
+
+def _tls_context():
+    """One client TLS context per process.
+
+    ``create_default_context()`` parses the whole system CA bundle (~28 ms on the
+    reference host) and ``probe_entry`` used to build a fresh one per socket, so a
+    full catalog paid that once per probed name. Verification is off by design
+    (the peer certificate is inspected, not trusted), so the context holds no
+    per-probe state and can be shared.
+    """
+    global _TLS_CONTEXT
+    if _TLS_CONTEXT is None:
+        import ssl
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        _TLS_CONTEXT = context
+    return _TLS_CONTEXT
+
+
 def probe_entry(fqdn: str, timeout: float = PROBE_TIMEOUT, interface: str = "") -> Entry:
     """Run stages 1-5 for one name. Never raises for expected network errors."""
+    import ssl
     try:
-        infos = socket.getaddrinfo(fqdn, 443, type=socket.SOCK_STREAM)
+        infos = _resolve(fqdn, timeout)
     except (socket.gaierror, UnicodeError):
         return Entry(fqdn, reject_reason="unresolved")
     addrs = sorted({info[4][0] for info in infos})
@@ -269,10 +309,7 @@ def probe_entry(fqdn: str, timeout: float = PROBE_TIMEOUT, interface: str = "") 
             raw.close()
             continue
         try:
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            with ctx.wrap_socket(raw, server_hostname=fqdn) as tls:
+            with _tls_context().wrap_socket(raw, server_hostname=fqdn) as tls:
                 version = tls.version()
                 der = tls.getpeercert(binary_form=True) or b""
                 cert = _decode_cert(der)
@@ -327,21 +364,29 @@ ProbeFn = Callable[[str], Entry]
 
 
 def probe_all(names: Sequence[str], probe: ProbeFn, concurrency: int, budget_s: float) -> list[Entry]:
+    import concurrent.futures
     deadline = time.monotonic() + budget_s
     results: list[Entry] = []
-    workers = max(1, min(8, concurrency))
-    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+    workers = max(1, min(32, concurrency))
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
+    try:
         futures = {pool.submit(probe, name): name for name in names}
-        for future in concurrent.futures.as_completed(futures):
-            if time.monotonic() > deadline:
-                for pending in futures:
-                    pending.cancel()
-                raise CatalogError(EXIT_THRESHOLD, "probe budget exceeded")
-            name = futures[future]
-            try:
-                results.append(future.result())
-            except Exception:  # noqa: BLE001 - a crashed probe must not kill the run
-                results.append(Entry(name, reject_reason="unreachable"))
+        try:
+            # Wait for results no longer than the budget: a stuck probe must not
+            # extend the run past the deadline.
+            for future in concurrent.futures.as_completed(
+                futures, timeout=max(0.0, deadline - time.monotonic())
+            ):
+                name = futures[future]
+                try:
+                    results.append(future.result())
+                except Exception:  # noqa: BLE001 - a crashed probe must not kill the run
+                    results.append(Entry(name, reject_reason="unreachable"))
+        except concurrent.futures.TimeoutError:
+            pool.shutdown(wait=False, cancel_futures=True)
+            raise CatalogError(EXIT_THRESHOLD, "probe budget exceeded")
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
     results.sort(key=lambda entry: entry.fqdn)
     return results
 
@@ -438,15 +483,19 @@ def _entries_from_json(entries: Sequence[dict]) -> list[Entry]:
 # --------------------------------------------------------------------------- io
 
 
-class _SameHostRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D102
-        host = urllib.parse.urlsplit(newurl).hostname or ""
-        if host not in ALLOWED_HOSTS:
-            raise CatalogError(EXIT_SOURCE, f"refusing redirect to {host}")
-        return super().redirect_request(req, fp, code, msg, headers, newurl)
-
-
 def fetch_bytes(url: str, timeout: float = 20.0) -> bytes:
+    # urllib costs ~100 ms; only this function fetches (verify/rollback/lint never do).
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    class _SameHostRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D102
+            host = urllib.parse.urlsplit(newurl).hostname or ""
+            if host not in ALLOWED_HOSTS:
+                raise CatalogError(EXIT_SOURCE, f"refusing redirect to {host}")
+            return super().redirect_request(req, fp, code, msg, headers, newurl)
+
     host = urllib.parse.urlsplit(url).hostname or ""
     if host not in ALLOWED_HOSTS:
         raise CatalogError(EXIT_SOURCE, f"host not allowed: {host}")
@@ -618,6 +667,29 @@ def rollback(directory: Path) -> dict:
 # --------------------------------------------------------------------------- build
 
 
+def local_egress(interface: str) -> dict:
+    """Address this host probes from on `interface`: measured, never guessed."""
+    if not interface:
+        return {}
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["ip", "-j", "addr", "show", "dev", interface],
+            capture_output=True, text=True, timeout=5,
+        )
+        if result.returncode != 0:
+            return {}
+        for link in json.loads(result.stdout):
+            for info in link.get("addr_info", []):
+                family = info.get("family")
+                if family in ("inet", "inet6") and info.get("scope") != "link" and info.get("local"):
+                    return {"interface": interface, "address": info["local"],
+                            "family": "4" if family == "inet" else "6"}
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return {}
+    return {}
+
+
 def build(
     *,
     url: str = SOURCE_URL,
@@ -677,8 +749,16 @@ def build(
         "bypassTunnel": bool(interface),
         "tlsRequires": "1.3",
         "probeMode": "tcp-tls13",
+        "countrySource": "operator" if (probe_meta or {}).get("country") else "unknown",
     }
     probe_block.update(probe_meta or {})
+    # What the probe actually touched, so "country" can be checked against reality.
+    probe_block["families"] = sorted(
+        {"6" if ":" in addr else "4" for entry in entries for addr in entry.resolved}
+    )
+    egress = local_egress(interface)
+    if egress:
+        probe_block["egress"] = egress
 
     document = build_document(entries, metadata, probe_block, counts)
     # Lines rejected at stage 0 never become entries, so their count comes from the parser.
@@ -772,6 +852,8 @@ def _cmd_verify(args: argparse.Namespace) -> int:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    import argparse  # only the CLI needs it
+
     parser = argparse.ArgumentParser(prog="catalog.py", description="XIO whitelist catalog")
     sub = parser.add_subparsers(dest="command", required=True)
 

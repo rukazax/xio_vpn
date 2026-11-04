@@ -31,6 +31,7 @@ type Session struct {
 	rx, tx     atomic.Uint64
 	sendMu     sync.Mutex
 	packetID   uint64
+	fragBuf    [fragmentHeader + fragmentPayload]byte
 	reassembly *Reassembler
 	ctx        context.Context
 	cancel     context.CancelFunc
@@ -175,7 +176,14 @@ func (s *Session) SendPacket(p []byte) error {
 			return ErrProtocol
 		}
 		s.packetID++
-		for _, b := range Fragment(s.packetID, p) {
+		// quic-go copies the datagram payload in SendDatagram, so one buffer can
+		// be reused for every fragment of this packet. sendMu is held, and this
+		// removes the per-fragment allocations Fragment would make.
+		for off := 0; off < len(p); off += fragmentPayload {
+			end := min(off+fragmentPayload, len(p))
+			b := s.fragBuf[:fragmentHeader+end-off]
+			fragmentHeaderInto(b, s.packetID, len(p), off, end-off)
+			copy(b[fragmentHeader:], p[off:end])
 			if e := s.Datagram.SendDatagram(b); e != nil {
 				return e
 			}

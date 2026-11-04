@@ -447,5 +447,10 @@
   "Исход создания неизвестен. Нужна сверка владельцем сервера; новая операция не начата.": "The creation outcome is unknown. The server owner must reconcile it; no new operation was started.",
   "Создано {0} из {1}": "Created {0} of {1}",
   "Доступно: {0}": "Available: {0}",
-  "{0}\n\nЭтот профиль содержит ограниченный токен аккаунта. Вы сможете создавать субклиентов в пределах квоты, подтверждённой сервером. SSH/root/admin-ключей в нём нет. Профили получателей не унаследуют этот токен.": "{0}\n\nThis profile contains a scoped account token. You can create subclients within the quota verified by the server. It contains no SSH/root/admin keys. Recipient profiles do not inherit this token."
+  "{0}\n\nЭтот профиль содержит ограниченный токен аккаунта. Вы сможете создавать субклиентов в пределах квоты, подтверждённой сервером. SSH/root/admin-ключей в нём нет. Профили получателей не унаследуют этот токен.": "{0}\n\nThis profile contains a scoped account token. You can create subclients within the quota verified by the server. It contains no SSH/root/admin keys. Recipient profiles do not inherit this token.",
+  "Маскировка входа (белые SNI)": "Login-Maskierung (White-SNI)",
+  "Скопировать имя": "Namen kopieren",
+  "Каталог ещё не собран": "Katalog noch nicht erstellt",
+  "В каталоге нет пригодных имён": "Keine geeigneten Namen im Katalog",
+  "сертификат не проверен": "Zertifikat nicht geprüft"
 }

@@ -95,6 +95,10 @@ class _AppIconPickerState extends State<AppIconPicker> {
                                   'assets/icons/$id.png',
                                   width: 52,
                                   height: 52,
+                                  // The source art is 256x256; decode it near the
+                                  // display size instead of keeping sixteen
+                                  // full-size bitmaps in memory.
+                                  cacheWidth: 160,
                                 ),
                               ),
                             ),

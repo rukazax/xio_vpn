@@ -24,9 +24,29 @@ func AwgTurnOn(name string, tunFD int64, settings string, p Protector) int64 {
 		unix.Close(int(tunFD))
 		return -1
 	}
-	t, _, err := tun.CreateUnmonitoredTUNFromFD(int(tunFD))
-	if err != nil {
+	// tun.CreateUnmonitoredTUNFromFD wraps the descriptor in an *os.File before
+	// it can fail (a descriptor that is not a TUN fails inside on TUNGETIFF)
+	// and returns without closing that file. The descriptor number then stays
+	// owned by an unreachable *os.File, and its GC finalizer closes the number
+	// at an arbitrary later moment. By then the number can already belong to an
+	// unrelated socket, which the finalizer then closes: that is how the cloak
+	// bridge used to lose its listener, and its dials their sockets, when
+	// another test in the same process had failed an AWG activation first.
+	// Handing the constructor a duplicate makes its abandoned close harmless:
+	// only that finalizer ever closes the duplicate, so nobody else can hold
+	// the number when it fires. The caller's descriptor is still consumed on
+	// every path, as documented and as the descriptor-leak test asserts.
+	fd, e := unix.FcntlInt(uintptr(tunFD), unix.F_DUPFD_CLOEXEC, 0)
+	if e != nil {
 		unix.Close(int(tunFD))
+		awgAbortCreation()
+		return -1
+	}
+	unix.Close(int(tunFD))
+	t, _, err := tun.CreateUnmonitoredTUNFromFD(fd)
+	if err != nil {
+		// fd belongs to the *os.File the constructor abandoned; closing it here
+		// would be the same double close this duplicate exists to avoid.
 		awgAbortCreation()
 		return -1
 	}

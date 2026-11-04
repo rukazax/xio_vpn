@@ -4,10 +4,16 @@ import base64,ipaddress,json,os,re,secrets,shutil,socket,subprocess,tempfile,tim
 from pathlib import Path
 ROOT=Path('/etc/xio-stack');PKI=ROOT/'pki';RUN=Path('/run/xio-openvpn');STATE=Path('/var/lib/xio-network')
 SYSTEMD=Path('/etc/systemd/system')
+_dualstack_module=None
 def dualstack():
- import importlib.util
- spec=importlib.util.spec_from_file_location('xio_dualstack',str(Path(__file__).with_name('dualstack.py')))
- module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+ # dualstack.py is stateless: load once instead of re-executing it on every call.
+ global _dualstack_module
+ if _dualstack_module is None:
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('xio_dualstack',str(Path(__file__).with_name('dualstack.py')))
+  module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+  _dualstack_module=module
+ return _dualstack_module
 def run(*args,input=None):
  p=subprocess.run(args,input=input,capture_output=True)
  if p.returncode:raise RuntimeError('Network stack operation failed: '+args[0])
@@ -76,8 +82,9 @@ def firewall(d,remove=False):
  for subnet,iface,ipsec in [('10.80.0.0/24','xioovpn0',False),('10.81.0.0/24','xioovpn1',False)]:
   apply_rules(firewall_rules(subnet,iface,d['outbound']),remove)
 def openvpn_configs():
+ # One IPv6-readiness sample for both transports (was: two loads, two `ip -6 route`).
+ v6=dualstack().ipv6_ready()
  for transport,proto,subnet,device in [('udp','udp','10.80.0.0','xioovpn0'),('tcp','tcp-server','10.81.0.0','xioovpn1')]:
-  v6=dualstack().ipv6_ready()
   if transport=='udp' and v6:proto='udp6'
   v6push='push \"redirect-gateway ipv6\"\npush \"dhcp-option DNS6 2620:fe::fe\"' if v6 else ''
   write(ROOT/(transport+'.ovpn'),f'''port {1194 if transport=='udp' else 1195}
@@ -114,12 +121,14 @@ def ipv6_hook(transport):
 
 def reconcile_ipv6_hooks():
  # Merge only an existing owned service. The updater backs these units up first.
+ receipt=None
  for transport in ['udp','tcp']:
   unit=SYSTEMD/('xio-openvpn-'+transport+'.service')
   if not unit.exists():continue
   if unit.is_symlink() or any(p.is_symlink() for p in unit.parents):raise RuntimeError('Symlink in OpenVPN service')
-  receipt=json.loads((ROOT/'receipt.json').read_text())
-  if receipt.get('owner')!='xio-stack-v1':raise RuntimeError('Unowned OpenVPN stack receipt')
+  if receipt is None: # One receipt read for both transports, and only when one exists.
+   receipt=json.loads((ROOT/'receipt.json').read_text())
+   if receipt.get('owner')!='xio-stack-v1':raise RuntimeError('Unowned OpenVPN stack receipt')
   text=unit.read_text();hook=ipv6_hook(transport)
   if 'Description=XIO managed xio-openvpn-'+transport+'\n' not in text or ' --config '+str(ROOT/(transport+'.ovpn'))+'\n' not in text:raise RuntimeError('Unowned OpenVPN service')
   if hook not in text:
@@ -257,10 +266,12 @@ allow init_t xio_stack_run_t:file {create read write getattr setattr lock append
  if not r.get('selinuxModule'):
   r.update(selinuxModule=True,selinuxReceiptVersion=2,selinuxFcontexts=[],selinuxPort=False);write(receipt,json.dumps(r))
  if r.get('selinuxReceiptVersion')==2:
-  for path,kind in specs:
-   if path not in r['selinuxFcontexts']:
-    existing=run('semanage','fcontext','-l','-C').decode()
-    if not any(line.split() and line.split()[0]==path and ':'+kind+':' in line for line in existing.splitlines()):run('semanage','fcontext','-a','-t',kind,path)
+  missing=[(path,kind) for path,kind in specs if path not in r['selinuxFcontexts']]
+  if missing:
+   # One semanage listing for the whole batch; it used to be re-read per path.
+   existing=run('semanage','fcontext','-l','-C').decode().splitlines()
+   for path,kind in missing:
+    if not any(line.split() and line.split()[0]==path and ':'+kind+':' in line for line in existing):run('semanage','fcontext','-a','-t',kind,path)
     r['selinuxFcontexts'].append(path);write(receipt,json.dumps(r))
   if not r.get('selinuxPort'):
    existing=run('semanage','port','-l','-C').decode()

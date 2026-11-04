@@ -274,6 +274,21 @@ class TunnelStatus {
     this.tx,
     this.handshake,
   });
+
+  /// Lets the 3 s status poll stay silent while the tunnel state is unchanged:
+  /// value equality is what keeps an idle window from redrawing continuously.
+  @override
+  bool operator ==(Object other) =>
+      other is TunnelStatus &&
+      other.active == active &&
+      other.state == state &&
+      other.path == path &&
+      other.rx == rx &&
+      other.tx == tx &&
+      other.handshake == handshake;
+
+  @override
+  int get hashCode => Object.hash(active, state, path, rx, tx, handshake);
 }
 
 /// Imports only client data; never SSH credentials, commands or subscription URLs.
@@ -570,6 +585,13 @@ class _LimitedBytes implements Sink<List<int>> {
   void close() {}
 }
 
+/// The watchdog probes DNS every 15 s until a tunnel has answered six checks in a
+/// row, then every 20 s: a half of the radio wakeups for a link that is already
+/// proven stable. Any failure resets the counter, so detection stays at 15+20 s.
+Duration watchdogIntervalFor(int healthyChecks) => healthyChecks >= 6
+    ? const Duration(seconds: 20)
+    : const Duration(seconds: 15);
+
 class AppStore extends ChangeNotifier {
   LegalRecord? legalRecord;
   String? vpnDisclosure;
@@ -577,6 +599,7 @@ class AppStore extends ChangeNotifier {
   bool get consentReady =>
       legalRecord?.current == true && vpnDisclosure == vpnDisclosureRevision;
   void setForeground(bool active) {
+    _foreground = active;
     _timer?.cancel();
     _timer = null;
     if (active && ready) {
@@ -584,6 +607,10 @@ class AppStore extends ChangeNotifier {
       _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
     }
   }
+
+  /// The poll runs only while a window is visible. Kept as state because a load
+  /// that finishes after the window was hidden must not restart the timer.
+  bool _foreground = true;
 
   Future<void> acknowledgeLegal(String text, String language) async {
     final previous = legalRecord;
@@ -759,7 +786,9 @@ class AppStore extends ChangeNotifier {
     }
     ready = true;
     notifyListeners();
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    if (_foreground) {
+      _timer = Timer.periodic(const Duration(seconds: 3), (_) => refresh());
+    }
     if (Platform.isAndroid &&
         (!enforceConsent || consentReady) &&
         await native.invokeMethod<bool>('consumeConnectRequest') == true) {
@@ -830,6 +859,9 @@ class AppStore extends ChangeNotifier {
       '${DateTime.now().toIso8601String().substring(11, 19)}  $event',
     );
     if (events.length > 100) events.removeLast();
+    // The journal is on screen; publish the new line instead of waiting for the
+    // next status tick to repaint it.
+    notifyListeners();
   }
 
   Future<void> select(String id) async {
@@ -1780,6 +1812,7 @@ class AppStore extends ChangeNotifier {
       _statusPoll.run(_readStatus, fresh: fresh);
 
   Future<void> _readStatus() async {
+    final previous = status;
     try {
       final p = activeProfile ?? selected;
       if (nativeProtocols.contains(p?.protocol) && nativeTunnel) {
@@ -1813,6 +1846,22 @@ class AppStore extends ChangeNotifier {
       );
     } finally {
       _syncWatchdog();
+      // An unchanged read must not repaint: the poll runs every 3 s and a full
+      // rebuild of the three workspace pages was the largest idle CPU cost.
+      _notifyStatusChange(previous);
+    }
+  }
+
+  int _unchangedTicks = 0;
+  /// Safety net for state that is written without its own notification.
+  static const _unchangedTickLimit = 20; // 60 s at the 3 s poll interval.
+
+  void _notifyStatusChange(TunnelStatus previous) {
+    if (status != previous) {
+      _unchangedTicks = 0;
+      notifyListeners();
+    } else if (++_unchangedTicks >= _unchangedTickLimit) {
+      _unchangedTicks = 0;
       notifyListeners();
     }
   }
@@ -1820,17 +1869,37 @@ class AppStore extends ChangeNotifier {
   /// Runs while the owner wants the tunnel: it re-checks the live link and
   /// restores the connection when the engine dropped or the link died, on every
   /// platform and build.
+  int _watchdogHealthy = 0;
+  /// A tunnel that has answered six checks in a row is stable enough to be
+  /// checked half as often: the DNS probe is the only periodic radio wakeup the
+  /// app makes, so 30 lookups per hour instead of 120 is real battery.
+  Duration get _watchdogInterval => watchdogIntervalFor(_watchdogHealthy);
+  bool _disposed = false;
+
+  bool _watchdogScheduled = false;
+
   void _syncWatchdog() {
+    // A tick in flight can outlive dispose(); re-arming there used to schedule a
+    // timer on a dead ChangeNotifier and the next tick threw after disposal.
+    if (_disposed) return;
     if (_desired && autoReconnect) {
-      _watchdog ??= Timer.periodic(
-        const Duration(seconds: 15),
-        (_) => unawaited(_watchdogTick()),
-      );
+      if (_watchdogScheduled) return;
+      _watchdogScheduled = true;
+      _watchdog = Timer(_watchdogInterval, _watchdogRun);
     } else {
       _watchdog?.cancel();
       _watchdog = null;
+      _watchdogScheduled = false;
       _watchdogMisses = 0;
+      _watchdogHealthy = 0;
     }
+  }
+
+  void _watchdogRun() {
+    _watchdogScheduled = false;
+    unawaited(_watchdogTick().whenComplete(() {
+      if (!_disposed && _desired && autoReconnect) _syncWatchdog();
+    }));
   }
 
   Future<void> _watchdogTick() async {
@@ -1850,8 +1919,10 @@ class AppStore extends ChangeNotifier {
     }
     if (alive) {
       _watchdogMisses = 0;
+      if (_watchdogHealthy < 6) _watchdogHealthy++;
       return;
     }
+    _watchdogHealthy = 0;
     // Two consecutive misses rule out a single lost DNS answer.
     if (++_watchdogMisses < 2) return;
     _watchdogMisses = 0;
@@ -1914,6 +1985,7 @@ class AppStore extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _timer?.cancel();
     _watchdog?.cancel();
     _watchdog = null;

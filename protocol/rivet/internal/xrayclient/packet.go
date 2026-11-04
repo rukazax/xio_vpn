@@ -13,7 +13,20 @@ type packet struct {
 	b []byte
 	a net.Addr
 	e error
+	// slot is the pooled 64 KiB read buffer, returned to datagramPool once the
+	// payload has been copied out to the caller.
+	slot *[]byte
 }
+
+// datagramPool recycles the pump's read buffers. Each pooled buffer is owned by
+// exactly one in-flight packet: the pump hands it over, ReadFrom copies the
+// payload out and returns it. Without the pool every UDP datagram allocated
+// 64 KiB, which dominated garbage on UDP-heavy tunnels.
+var datagramPool = sync.Pool{New: func() any {
+	b := make([]byte, 65535)
+	return &b
+}}
+
 type packetConn struct {
 	net.PacketConn
 	s        *Session
@@ -30,12 +43,13 @@ func newPacketConn(pc net.PacketConn, s *Session, cancel context.CancelFunc) *pa
 	p := &packetConn{PacketConn: pc, s: s, cancel: cancel, done: make(chan struct{}), packets: make(chan packet, 8), changed: make(chan struct{})}
 	go func() {
 		for {
-			b := make([]byte, 65535)
-			n, a, e := pc.ReadFrom(b)
-			r := packet{b[:n], a, e}
+			slot := datagramPool.Get().(*[]byte)
+			n, a, e := pc.ReadFrom(*slot)
+			r := packet{(*slot)[:n], a, e, slot}
 			select {
 			case p.packets <- r:
 			case <-p.done:
+				datagramPool.Put(slot)
 				return
 			}
 			if e != nil {
@@ -66,6 +80,9 @@ func (p *packetConn) ReadFrom(b []byte) (int, net.Addr, error) {
 				timer.Stop()
 			}
 			n := copy(b, r.b)
+			if r.slot != nil {
+				datagramPool.Put(r.slot)
+			}
 			if n > 0 {
 				p.s.handshake.Store(time.Now().UnixMilli())
 			}

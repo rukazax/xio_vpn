@@ -194,6 +194,12 @@ class ManagedService {
     store.log('Сервер XIO обновлён; пользователи и ключи сохранены');
   }
 
+  /// Read-only: eligible entry names for SNI masking, built by the server timer.
+  /// The server rejects anything but an "inspect" without the identity of the
+  /// installation it is being asked about, so serverId travels with the request.
+  Future<Map<String, dynamic>> catalog(String serverId) =>
+      command({'action': 'catalog', 'serverId': serverId});
+
   Future<Map<String, dynamic>> command(
     Map<String, dynamic> request, {
     Duration timeout = const Duration(minutes: 6),
