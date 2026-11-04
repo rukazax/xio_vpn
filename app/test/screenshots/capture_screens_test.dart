@@ -33,6 +33,7 @@ import 'package:xio/cascade_ui.dart';
 import 'package:xio/core.dart';
 import 'package:xio/l10n.dart';
 import 'package:xio/mtproto_ui.dart';
+import 'package:xio/split_routing.dart';
 import 'package:xio/workspace_ui.dart';
 
 import '../support/screenshots.dart';
@@ -522,6 +523,56 @@ void main() {
     expect(tester.takeException(), isNull);
 
     await _shoot(tester, key, 'settings-dns.png', pixelRatio: _phoneDpr);
+  });
+
+  testWidgets('split routing: IP/site modes and the domains field', (
+    tester,
+  ) async {
+    // Tall frame: the whole form (mode picker, IP list and the site list) has
+    // to fit into one frame, otherwise the frame would only prove the top of
+    // the screen. 360 × 1180 logical at DPR 3.
+    tester.view.physicalSize = const Size(1080, 3540);
+    tester.view.devicePixelRatio = _phoneDpr;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(native, null),
+    );
+
+    // The rules normally come from Android; the frame documents the widget, so
+    // the channel answers with a saved "IP/sites through the VPN" policy.
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(native, (call) async {
+          switch (call.method) {
+            case 'routingGet':
+              return {
+                'mode': 'ipInclude',
+                'packages': <String>[],
+                'networks': <String>['203.0.113.5', '192.168.0.0/16'],
+                'domains': <String>['youtube.com', '*.example.com'],
+              };
+            case 'routingApps':
+              return <dynamic>[];
+          }
+          return null;
+        });
+
+    final key = GlobalKey();
+    await tester.pumpWidget(
+      RepaintBoundary(key: key, child: _page(const SplitRoutingPage())),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Маршрутизация'), findsOneWidget);
+    expect(find.text('Только выбранные IP/сайты через VPN'), findsOneWidget);
+    expect(find.byKey(const ValueKey('routing-domains')), findsOneWidget);
+    expect(find.text('Сохранить правила').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await _shoot(tester, key, 'routing-domains.png', pixelRatio: _phoneDpr);
   });
 
   testWidgets('mtproto proxy: instruction, saved link and status', (

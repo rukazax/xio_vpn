@@ -566,13 +566,17 @@ entitlements NetworkExtension. См. [сборка из исходников](do
 (`app/test/screenshots/capture_screens_test.dart`, команда в
 [docs/screenshots/README.md](docs/screenshots/README.md)):
 
-| Главная, «Отключено» | Вкладка «Соединение» |
+| Главная, «Отключено» | Вкладка «Настройка соединений» |
 |---|---|
-| ![Главная: отключено, выбран сервер](docs/screenshots/main-idle.png) | ![Соединение: ключ, свой сервер, каскад, пользователь](docs/screenshots/connection-tab.png) |
+| ![Главная: отключено, выбран сервер](docs/screenshots/main-idle.png) | ![Настройка соединений: ключ, свой сервер, «Каскад VPN на своих VPS», пользователь](docs/screenshots/connection-tab.png) |
 
 | «DNS-резолвер»: наборы и свои адреса | «Telegram-прокси (MTProto)»: шаги и сохранённая ссылка |
 |---|---|
 | ![DNS-резолвер: AdGuard, Quad9, Cloudflare, Google Public DNS и пункт «Свои»](docs/screenshots/settings-dns.png) | ![Telegram-прокси (MTProto): инструкция, ссылка tg://proxy и статус «Прокси настроен»](docs/screenshots/settings-mtproto.png) |
+
+| «Маршрутизация»: режимы IP/сайтов и поле доменов |
+|---|
+| <img src="docs/screenshots/routing-domains.png" width="260" alt="Маршрутизация: режим «Только выбранные IP/сайты через VPN», список IP 203.0.113.5 и 192.168.0.0/16, поле «Домены и сайты» с youtube.com и *.example.com"> |
 
 Экраны Android остаются чёрными на системном скриншоте: приложение ставит `FLAG_SECURE`. Это
 защита, а не ошибка — Android-кадры в документации получены из widget-тестов Flutter. Список

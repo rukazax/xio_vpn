@@ -61,6 +61,50 @@ MTProto-прокси, настройки поведения (автозапус�
   сдаётся через 15 с. Кадр —
   [`cascade-health.png`](screenshots/cascade-health.png).
 
+#### Что нового в 0.24.2 (обновление от 05.11)
+
+Второе обновление того же выпуска: в `main` влито всё накопленное — реальная проверка каскада,
+автоматическая MTProto-ссылка, маршрутизация по доменам и сайтам, нативный reclaim памяти,
+переименованная вкладка настроек и настройки поведения. Версия и `versionCode` по-прежнему
+`0.24.2+5019`, сертификат тот же (`e4e81b12…c9671`): APK ставятся поверх предыдущей сборки,
+профили и ключи не пересоздаются.
+
+- **🩺 «Проверить каскад» действительно ходит на сервер.** Кнопка открывает SSH к сохранённому
+  bridge-серверу и запускает `deploy/cascade/cascade-healthcheck.sh`, а если его нет — встроенную
+  read-only пробу systemd. Экран показывает живой туннель или отказ, реальное время ответа,
+  реальный выходной IPv6 и причину отказа; кнопка заблокирована на время запроса и сдаётся
+  через 15 с. Демо-таймеры и подставной пинг `38 мс` удалены — раньше кадр «Каскад» рисовал
+  успех, даже когда каскада не было. Кадр — [`cascade-health.png`](screenshots/cascade-health.png).
+- **✈️ MTProto-ссылка подставляется сама.** Если сервер XIO уже сохранён, экран «Telegram-прокси
+  (MTProto)» не просит вставлять ссылку: приложение спрашивает её у сервера по SSH (действие
+  `mtproto`) и показывает — при открытии экрана, **после установки сервера** и **после
+  добавления пользователя**. Ссылка попадает в профиль и переживает перезапуск; кнопка
+  «Установить MTProto на сервер» поднимает `deploy/mtproto/xio-mtproto-setup.sh` и повторяет
+  запрос. Кадр — [`settings-mtproto.png`](screenshots/settings-mtproto.png).
+- **🧭 Маршрутизация по сайтам и IP.** «Настройка соединений» → **«Маршрутизация»**: к прежним
+  режимам по приложениям добавились **«Только выбранные IP/сайты через VPN»** и **«Выбранные
+  IP/сайты в обход VPN»**, а к списку IP и подсетей — поле **«Домены и сайты»**. Домены
+  разрешаются при подключении и подставляются в правила вместе с IP-списком, повторно — не чаще
+  раза в 10 минут; `*.example.com` разрешает сам домен и известные поддомены. Правила хранятся
+  в приватном каталоге Android и в профиле приложения, старые маршруты заменяются при правке
+  списка. Кадр — [`routing-domains.png`](screenshots/routing-domains.png).
+- **🧹 Утечка памяти закрыта нативным reclaim.** Цикл подключения/отключения больше не
+  накапливает память: было **−9,5 МБ за цикл** (падало до OOM на длинной серии), стало
+  **+0,28 МБ за цикл** — это шум измерения, а не рост. Reclaim выполняется на нативной стороне,
+  поэтому Dart-хип и JNI-ссылки не участвуют.
+- **🌐 Выбор стороннего DNS.** «Настройка соединений» → **«DNS-резолвер»**: AdGuard DNS, Quad9,
+  Cloudflare, Google Public DNS или два своих адреса (IPv4, IPv6, домен). Выбор пишется в новые
+  AWG-профили; сервер как DNS не используется. Кадр — [`settings-dns.png`](screenshots/settings-dns.png).
+- **⚙️ Автозапуск, автоподключение, скриншоты.** «Приложение»: «Автозапуск при загрузке
+  устройства» (ресивер `BootReceiver` включается и выключается через `PackageManager`),
+  «Автоподключение после запуска» и «Разрешить скриншоты» (по умолчанию выключено —
+  `FLAG_SECURE`). Кадр — [`settings-behaviour.png`](screenshots/settings-behaviour.png).
+- **🏷️ Вкладка и пункты переименованы.** Вкладка настроек называется **«Настройка соединений»**
+  без подзаголовка, а на вкладке соединений появился отдельный пункт **«Каскад VPN на своих
+  VPS»** (вход на IPv4-VPS, выход на втором сервере) рядом с прежним «Каскад: IPv4-IPv6».
+  Кадры — [`settings.png`](screenshots/settings.png) и
+  [`connection-tab.png`](screenshots/connection-tab.png).
+
 **🩹 Старт больше не зависит от нативного слоя.** `AppStore.load()` вызывается через `unawaited`,
 и любой `PlatformException` из нативных методов (`setAutostart`, `setAutoConnectOnStart`,
 `setConsent`, `secureScreen`) оставлял приложение на сплэше навсегда: `ready` не наступал. Теперь
@@ -176,8 +220,8 @@ Ready-ответчик слушает **только** адреса шлюза �
 
 | Что | Было | Стало |
 | --- | --- | --- |
-| `flutter test` на Debian | 197 passed / 10 skipped (main) | **213 passed / 10 skipped / 0 failed** |
-| Новых тестов | — | **16**: 13 на каскад, профили и герметичность, 3 на батарею и опрос статуса |
+| `flutter test` на Debian | 197 passed / 10 skipped (main) | **315 passed / 10 skipped / 0 failed** (было 314 до кадра «Маршрутизация») |
+| Новых тестов | — | **118**: 16 в 0.24.2 плюс 102 на каскад-проверку, MTProto, домены, DNS и настройки поведения |
 | Внешний `openssl` | нужен трём наборам | **не нужен**: самоподписанные фикстуры в репозитории (2020–2120, SAN localhost/127.0.0.1/::1) |
 | Запись картинок при прогоне | писала в `verification/` и `docs/images/` | только с `XIO_CAPTURE_IMAGES=1`; вёрстка проверяется всегда |
 
@@ -216,7 +260,7 @@ Ready-ответчик слушает **только** адреса шлюза �
 * установка и запуск на POCO X6 5G (Android 16, arm64; сборка 0.24.1 из этой же линии кода): экран
   лицензии и согласия, главный экран, «Настройки», «О XIO»; `ANR`/`FATAL EXCEPTION` в logcat нет,
   процесс жив;
-* `flutter analyze` — 0 замечаний; `flutter test` на Debian — 213 passed / 10 skipped / 0 failed;
+* `flutter analyze` — 0 замечаний; `flutter test` на Debian — 315 passed / 10 skipped / 0 failed;
 * Go: `build`/`vet`/`test ./...` в обоих режимах тегов, кросс-сборки windows/android/darwin;
 * Xray: эквивалентность 40/40 профилей, живой смоук `Parse`+`Start` на 10 профилях, локальные TLS- и
   XHTTP-туннели;
@@ -333,6 +377,51 @@ certificate (`e4e81b12…c9671`), so the update installs over the previous build
   The screen reports a live tunnel or a failure, the real response time, the real egress IPv6 and
   the failure reason; the button is locked while the request runs and gives up after 15 s. Frame —
   [`cascade-health.png`](screenshots/cascade-health.png).
+
+#### What's new in 0.24.2 (05.11 update)
+
+A second refresh of the same release: `main` now carries everything that accumulated — the real
+cascade health check, the automatic MTProto link, routing by domains and sites, native memory
+reclaim, the renamed settings tab and the behaviour settings. Version and `versionCode` are still
+`0.24.2+5019` under the same certificate (`e4e81b12…c9671`): the APKs install over the previous
+build and profiles and keys are not recreated.
+
+- **🩺 "Check cascade" really talks to the server.** The button opens SSH to the saved bridge and
+  runs `deploy/cascade/cascade-healthcheck.sh` or, when it is absent, a built-in read-only systemd
+  probe. The screen shows a live tunnel or a failure, the real response time, the real egress IPv6
+  and the failure reason; the button is locked while the request runs and gives up after 15 s. The
+  demo timers and the fake `38 ms` ping are gone — the old frame drew success even when there was
+  no cascade. Frame — [`cascade-health.png`](screenshots/cascade-health.png).
+- **✈️ The MTProto link fills itself in.** When an XIO server is already saved, the "Telegram proxy
+  (MTProto)" screen does not ask for a link: the app asks the server for it over SSH (the `mtproto`
+  action) and shows it — when the screen opens, **after a server install** and **after a user is
+  added**. The link lands in the profile and survives a restart; the "Install MTProto on the
+  server" button runs `deploy/mtproto/xio-mtproto-setup.sh` and asks again. Frame —
+  [`settings-mtproto.png`](screenshots/settings-mtproto.png).
+- **🧭 Routing by sites and IPs.** "Connection settings" → **"Routing"**: the per-application modes
+  gained **"Only the selected IPs/sites through the VPN"** and **"Selected IPs/sites around the
+  VPN"**, and the IP list gained a **"Domains and sites"** field. Domains are resolved on connect
+  and merged into the rules together with the IP list, at most once per 10 minutes;
+  `*.example.com` covers the domain itself and its known subdomains. Rules live in Android's
+  private directory and in the app profile, and editing the list replaces the old routes. Frame —
+  [`routing-domains.png`](screenshots/routing-domains.png).
+- **🧹 The memory leak is closed by native reclaim.** A connect/disconnect cycle no longer
+  accumulates memory: it was **−9.5 MB per cycle** (falling into OOM on a long series) and is now
+  **+0.28 MB per cycle** — measurement noise, not growth. Reclaim happens on the native side, so
+  neither the Dart heap nor JNI references are involved.
+- **🌐 Third-party DNS choice.** "Connection settings" → **"DNS resolver"**: AdGuard DNS, Quad9,
+  Cloudflare, Google Public DNS or two addresses of your own (IPv4, IPv6, domain). The choice is
+  written into new AWG profiles; the server is never used as DNS. Frame —
+  [`settings-dns.png`](screenshots/settings-dns.png).
+- **⚙️ Autostart, auto-connect, screenshots.** "Application": "Autostart on device boot" (the
+  `BootReceiver` component is enabled and disabled through `PackageManager`), "Auto-connect after
+  launch" and "Allow screenshots" (**off** by default — `FLAG_SECURE`). Frame —
+  [`settings-behaviour.png`](screenshots/settings-behaviour.png).
+- **🏷️ Tab and entries renamed.** The settings tab is **"Connection settings"** with no subtitle,
+  and the connection tab has a separate **"Cascade VPN on your own VPS"** entry (IPv4 entry VPS,
+  exit on the second server) next to the existing "Cascade: IPv4-IPv6". Frames —
+  [`settings.png`](screenshots/settings.png) and
+  [`connection-tab.png`](screenshots/connection-tab.png).
 
 **🩹 Startup no longer depends on the native layer.** `AppStore.load()` runs through `unawaited`, so
 any `PlatformException` from a native method (`setAutostart`, `setAutoConnectOnStart`, `setConsent`,
@@ -452,8 +541,8 @@ Measurements and methodology: [Optimisation and measurements 0.24.1](optimizatio
 
 | What | Before | After |
 | --- | --- | --- |
-| `flutter test` on Debian | 197 passed / 10 skipped (main) | **213 passed / 10 skipped / 0 failed** |
-| New tests | — | **16**: 13 for cascade, profiles and hermeticity, 3 for battery and status polling |
+| `flutter test` on Debian | 197 passed / 10 skipped (main) | **315 passed / 10 skipped / 0 failed** (314 before the "Routing" frame) |
+| New tests | — | **118**: 16 in 0.24.2 plus 102 for the cascade probe, MTProto, domains, DNS and the behaviour settings |
 | External `openssl` | required by three suites | **not needed**: self-signed fixtures in the repo (2020–2120, SAN localhost/127.0.0.1/::1) |
 | Image writes during a run | wrote into `verification/` and `docs/images/` | only with `XIO_CAPTURE_IMAGES=1`; layout is always asserted |
 
@@ -493,7 +582,7 @@ below).
 * install and launch on a POCO X6 5G (Android 16, arm64; the 0.24.1 build from this same code line):
   licence and consent screens, main screen, Settings, About; no `ANR` or `FATAL EXCEPTION` in logcat,
   the process stays alive;
-* `flutter analyze` — 0 issues; `flutter test` on Debian — 213 passed / 10 skipped / 0 failed;
+* `flutter analyze` — 0 issues; `flutter test` on Debian — 315 passed / 10 skipped / 0 failed;
 * Go: `build`/`vet`/`test ./...` under both tag sets, cross-builds for windows/android/darwin;
 * Xray: 40/40 profile equivalence, a live `Parse`+`Start` smoke on 10 profiles, local TLS and XHTTP
   tunnels;

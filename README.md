@@ -559,13 +559,17 @@ Fresh Android frames produced by the golden render
 (`app/test/screenshots/capture_screens_test.dart`, command in
 [docs/screenshots/README.md](docs/screenshots/README.md)):
 
-| Home, disconnected | Connection tab |
+| Home, disconnected | "Connection settings" tab |
 |---|---|
-| ![Home: disconnected, server chosen](docs/screenshots/main-idle.png) | ![Connection: key, own server, cascade, user](docs/screenshots/connection-tab.png) |
+| ![Home: disconnected, server chosen](docs/screenshots/main-idle.png) | ![Connection settings: key, own server, "Cascade VPN on your own VPS", users](docs/screenshots/connection-tab.png) |
 
 | "DNS resolver": presets and custom addresses | "Telegram proxy (MTProto)": steps and the saved link |
 |---|---|
 | ![DNS resolver: AdGuard, Quad9, Cloudflare, Google Public DNS and "Custom"](docs/screenshots/settings-dns.png) | ![MTProto proxy: instruction, tg://proxy link and the "Proxy configured" status](docs/screenshots/settings-mtproto.png) |
+
+| "Routing": IP/site modes and the domains field |
+|---|
+| <img src="docs/screenshots/routing-domains.png" width="260" alt="Routing: mode «Only the selected IPs/sites through the VPN», the IP list 203.0.113.5 and 192.168.0.0/16, and the «Domains and sites» field with youtube.com and *.example.com"> |
 
 Android screens on the phone stay black in a system screenshot: the app sets `FLAG_SECURE`. That is
 protection, not a bug — the Android images in the docs come from Flutter widget tests. The list of

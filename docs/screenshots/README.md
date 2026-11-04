@@ -2,7 +2,7 @@
 
 [Главная](../../README.ru.md) · [Возможности](../features.ru.md) · [Схемы](../landing/architecture.mmd) · [Home (EN)](../../README.md)
 
-Десять кадров Android-интерфейса уже сняты и лежат рядом с этим файлом — их рисует сам
+Одиннадцать кадров Android-интерфейса уже сняты и лежат рядом с этим файлом — их рисует сам
 Flutter в widget-тесте (раздел 1). Остальные кадры (Windows, Ubuntu, телефон, веб-панель,
 терминал) ещё нужно снять: для них ниже точные инструкции и таблица статусов, а не выдумка.
 
@@ -16,22 +16,23 @@ Flutter в widget-тесте (раздел 1). Остальные кадры (Wi
 
 ## 1. Снятые кадры (golden-рендер, PNG)
 
-Все десять кадров получены `flutter test` на Debian 13, `Flutter 3.47.7`, тема тёмная, язык
+Все одиннадцать кадров получены `flutter test` на Debian 13, `Flutter 3.47.7`, тема тёмная, язык
 `ru`. Кадр рисует Flutter, а не система, поэтому `FLAG_SECURE` ему не мешает. Файлы —
 настоящие PNG, не SVG и не макеты.
 
 | Файл | Что на нём | Размер | Как воспроизвести |
 |---|---|---|---|
 | `main-idle.png` | Главная: «Отключено», круглая кнопка «Подключиться», выбранный сервер «🇷🇺 Основной сервер», «Автоматически · Xray / REALITY», счётчики 0 B | 1080×2400 | тест `main screen: idle, server chosen` |
-| `connection-tab.png` | Вкладка «Соединение»: «Вставить ключ или конфигурацию», «Файл с настройками подключения», «VPN на своём сервере», «Каскад: два сервера» (`IPv4 → bridge → IPv6 exit · по подписке`), «Добавить пользователя» | 1080×2400 | тест `connection tab: key, own server, cascade, user` |
+| `connection-tab.png` | Вкладка «Настройка соединений» (без подзаголовка): «Вставить ключ или конфигурацию», «Файл с настройками подключения», «VPN на своём сервере», «Каскад VPN на своих VPS» (`Вход на IPv4-VPS, выход на втором сервере`), «Каскад: IPv4-IPv6» (`IPv4 → bridge → IPv6 exit · по подписке`), «Добавить пользователя» | 1080×2400 | тест `connection tab: key, own server, cascade, user` |
 | `cascade-configured.png` | Экран «Каскад» с настроенными адресами: Устройство → Bridge `81.177.142.37` → Exit `2a0c:b641:1a0:800::2a2`, «Готов к подключению», «Отклик —», «Выходной IPv6 —», кнопка «Проверить каскад», плашка подписки «XIO Cascade» | 1080×2400 | тест `cascade screen: configured bridge and IPv6 exit` |
 | `cascade-health.png` | Тот же экран после «Проверить каскад», когда проверка вернула `ok`: зелёные линии и станции, «Защищённый туннель только IPv6 · проверено», «Отклик 214 мс», «Выходной IPv6 2a0c:b641:1a0:800::2a2», «Обновлено 23:40:00» | 1080×2400 | тест `cascade health: result of «Проверить каскад»` |
 | `cascade-servers-dialog.png` | Диалог «Серверы каскада»: два поля (Bridge IPv4/домен, Exit только IPv6) с заполненными адресами и готовая команда установки `--role bridge --exit-host 2a0c:b641:1a0:800::2a2` | 1080×2400 | тест `cascade servers dialog: two fields and the install command` |
-| `settings.png` | Настройки: Серверы, Соединение, Приложение, Пользователи, Поддержать XIO, О XIO | 824×1830 (412×915 @2×) | тест `settings: list, then the application/locale screen` |
+| `settings.png` | Настройки: Серверы, «Настройка соединений» (без подзаголовка), «Telegram-прокси (MTProto)» с адресом `proxy.xio.fr:443`, Приложение, Пользователи, Поддержать XIO, О XIO | 824×1830 (412×915 @2×) | тест `settings: list, then the application/locale screen` |
 | `settings-locales.png` | «Приложение» целиком: язык «Русский · ru», «Проверить обновления», три переключателя, «Оформление» | 824×1830 (412×915 @2×) | тот же тест, второй кадр |
 | `settings-dns.png` | «DNS-резолвер»: пояснение, четыре готовых набора (AdGuard DNS (IPv6), Quad9, Cloudflare, Google Public DNS) с отмеченным Cloudflare, пункт «Свои» и кнопка «Сохранить» | 1080×2400 | тест `dns resolver: presets, the saved pair and the custom fields` |
 | `settings-mtproto.png` | «Telegram-прокси (MTProto)»: четыре шага включения прокси в Telegram, поле «Ссылка прокси» с `tg://proxy?…`, подпись «Сервер: proxy.xio.fr:443», кнопки «Сохранить / Скопировать / Открыть в Telegram / Вставить / Очистить» и строка «Прокси настроен» | 1080×2400 | тест `mtproto proxy: instruction, saved link and status` |
 | `settings-behaviour.png` | Три переключателя экрана «Приложение»: «Автозапуск при загрузке устройства», «Автоподключение после запуска» (вкл.), «Разрешить скриншоты» (вкл.) с подписями-пояснениями | 1080×2400 | тест `application settings: autostart, auto-connect, screenshots` |
+| `routing-domains.png` | «Маршрутизация»: режим «Только выбранные IP/сайты через VPN», список IP `203.0.113.5` и `192.168.0.0/16`, подпись про DNS, поле «Домены и сайты» с `youtube.com` и `*.example.com`, кнопка «Сохранить правила» | 1080×3540 (360×1180 @3×) | тест `split routing: IP/site modes and the domains field` |
 
 Команда прогона (из каталога `app/`):
 
@@ -53,6 +54,9 @@ XIO_CAPTURE_IMAGES=1 flutter test test/screenshots
 
 - размер задаёт тест: телефон — `tester.view.physicalSize = 1080×2400`, `devicePixelRatio = 3`
   (логический 360×800), кадр `settings*.png` — 412×915 логических при `pixelRatio = 2×`;
+- `routing-domains.png` снят высоким кадром (360×1180 логических, 1080×3540 px): форма
+  маршрутизации длиннее экрана телефона, и в обычный кадр попал бы только её верх — без поля
+  доменов, ради которого кадр и снят. На телефоне форма прокручивается, содержимое то же;
 - плашка подписки на `cascade-configured.png` — состояние «подписка активна»
   (`CascadeSubscription(entitled: true, planLabel: 'XIO Cascade')`). Сама подписка пока
   заглушка: `CascadeFeatureGate.enabled == false`, поэтому кнопка «Активировать» в кадре
@@ -349,7 +353,7 @@ sudo ./install-webui.sh 0.0.0.0:10443        # скрипт печатает URL
 | Пункт | Закрывает кадр | Чем отличается от съёмки на телефоне |
 |---|---|---|
 | A1 (главная, «Отключено») | `main-idle.png` | нет системной строки состояния, тёмная тема принудительная |
-| A2 (вкладка «Соединение») | `connection-tab.png` | то же |
+| A2 (вкладка «Настройка соединений») | `connection-tab.png` | то же |
 | A3 (экран «Каскад», настроенные адреса) | `cascade-configured.png` | подписка показана активной (заглушка `enabled == false`) |
 | A4 (экран «Каскад» после проверки) | `cascade-health.png` | probe подставлен тестом: кадр показывает состояние экрана после `ok`, а не живой SSH-ответ сервера |
 | A5 (форма установки) | `cascade-servers-dialog.png` | это диалог адресов, а не галочка «Включить каскад» |
@@ -357,6 +361,7 @@ sudo ./install-webui.sh 0.0.0.0:10443        # скрипт печатает URL
 | A7 (Соединение → «DNS-резолвер») | `settings-dns.png` | выбор набора без системной строки состояния |
 | A7 (Настройки → «Telegram-прокси (MTProto)») | `settings-mtproto.png` | экран настроек без системной строки состояния |
 | A7 (Приложение → автозапуск/автоподключение/скриншоты) | `settings-behaviour.png` | на Linux-хосте «Автозапуск» неактивен и с не-андроидной подписью |
+| A7 («Настройка соединений» → «Маршрутизация») | `routing-domains.png` | высокий кадр 360×1180: форма показана целиком, на телефоне она прокручивается |
 
 ---
 
@@ -368,7 +373,7 @@ sudo ./install-webui.sh 0.0.0.0:10443        # скрипт печатает URL
 | Файл | Что на нём |
 |---|---|
 | `docs/screenshots/main-idle.png` | Android Full, главная: «Отключено», выбор сервера (golden) |
-| `docs/screenshots/connection-tab.png` | Android Full, вкладка «Соединение» (golden) |
+| `docs/screenshots/connection-tab.png` | Android Full, вкладка «Настройка соединений» с пунктами «Каскад VPN на своих VPS» и «Каскад: IPv4-IPv6» (golden) |
 | `docs/screenshots/cascade-configured.png` | Android Full, «Каскад» с настроенными адресами (golden) |
 | `docs/screenshots/cascade-health.png` | Android Full, «Каскад» после успешной «Проверить каскад» (golden) |
 | `docs/screenshots/cascade-servers-dialog.png` | Диалог «Серверы каскада» и команда установки (golden) |
@@ -376,6 +381,7 @@ sudo ./install-webui.sh 0.0.0.0:10443        # скрипт печатает URL
 | `docs/screenshots/settings-dns.png` | Android Full, «DNS-резолвер»: наборы и «Свои» (golden) |
 | `docs/screenshots/settings-mtproto.png` | Android Full, «Telegram-прокси (MTProto)» с сохранённой ссылкой (golden) |
 | `docs/screenshots/settings-behaviour.png` | Android Full, три переключателя «Приложения» (golden) |
+| `docs/screenshots/routing-domains.png` | Android Full, «Маршрутизация»: режимы IP/сайтов и поле доменов (golden) |
 | `docs/images/2026-10-26-full-home.png` | Full XIO, главная |
 | `docs/images/2026-10-26-full-settings.png` | Full XIO, настройки |
 | `docs/images/2026-10-26-win-windows-home.png` | XIO Client для Windows |
