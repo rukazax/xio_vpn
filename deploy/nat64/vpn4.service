@@ -1,0 +1,15 @@
+[Unit]
+Description=vpn4 - IPv4 over the provider NAT64 prefix for AmneziaWG clients
+After=network-online.target awg-owner.service
+Wants=network-online.target
+Documentation=https://github.com/rukazax/xio_vpn/tree/main/deploy/nat64
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/xio-vpn4.conf
+ExecStart=/usr/local/bin/vpn4
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

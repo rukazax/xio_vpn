@@ -1,0 +1,13 @@
+[Unit]
+Description=vpn4 addressing, routing and netfilter rules
+After=network-online.target awg-owner.service
+Wants=network-online.target
+Before=vpn4.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/vpn4-rules.sh
+
+[Install]
+WantedBy=multi-user.target
