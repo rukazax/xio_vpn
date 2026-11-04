@@ -44,8 +44,10 @@ Finish your VPN session before updating. Profiles and credentials remain in the 
 
 The pinned Ed25519 public key is `app/assets/security/update-ed25519.pub`. Its signature covers the exact bytes of the version, build, package URLs, sizes and SHA-256 values. Only HTTPS is accepted. Initial package URLs must belong to this repository's release assets; redirects are restricted to GitHub asset hosts. Equal or older versions are rejected. The separate signing key reduces the impact of a GitHub account/file compromise, but cannot protect a compromised signing key or endpoint.
 
-The private key is excluded from source and releases. Forks must use their own key and pin it before building. After building final packages, run `tools/sign-update.py --key PATH --notes TEXT` and attach `releases/XIO-update.json` to the matching `vMAJOR.MINOR.PATCH` release. Any package modification after signing invalidates its hash. Publish matching complete sources and SHA256SUMS alongside the packages.
+The private key is excluded from source and releases. Forks must use their own key and pin it before building. After building final packages, run `tools/release/update-manifest.py --key PATH --asset PLATFORM=PACKAGE ...` and attach `releases/XIO-update.json` to the matching `vMAJOR.MINOR.PATCH` release. Any package modification after signing invalidates its hash. Publish matching complete sources and SHA256SUMS alongside the packages.
 
 0.21 is the first release with this updater. Install it normally over 0.20; subsequent signed releases can be discovered by the app.
+
+The full release procedure, envelope format, restrictions and the "no manifest" case are documented in [the update channel guide](../update-channel.en.md).
 
 Platform references: [Android JobScheduler](https://developer.android.com/reference/android/app/job/JobScheduler), [Android PackageInstaller](https://developer.android.com/reference/android/content/pm/PackageInstaller), [Apple distribution](https://developer.apple.com/distribute/), [GitHub Releases API](https://docs.github.com/en/rest/releases/releases).

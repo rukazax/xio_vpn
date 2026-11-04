@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Sign an XIO update envelope. Private key must remain outside source/release archives."""
+"""Deprecated: use tools/release/update-manifest.py.
+
+This legacy signer still assumes the pre-0.23 asset names
+(`XIO-<version>-android-arm64-v8a.apk`), so with the Client/Full naming it fails
+with "Missing ..." and, if renamed by hand, produces a manifest whose URLs the
+client rejects. Kept only for old release tags; it does no validation against
+the client rules and no post-write verification.
+"""
 from pathlib import Path
 import argparse,base64,hashlib,json,re
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey

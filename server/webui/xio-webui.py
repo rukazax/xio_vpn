@@ -11,6 +11,8 @@
 Безопасность:
   * только TLS (самоподписанный сертификат в ./tls/, генерируется при первом старте);
   * Bearer-токен из ./token (создаётся с правами 600) + cookie-сессия;
+  * токен печатается только в интерактивный терминал: при запуске из systemd
+    секрет не попадает в журнал (journalctl), а остаётся в файле 0600;
   * сравнение секретов через hmac.compare_digest;
   * CSRF-заголовок X-XIO-CSRF на всех POST;
   * rate-limit: 5 неудачных попыток аутентификации с адреса -> блокировка;
@@ -132,7 +134,15 @@ class TokenStore(object):
         self.csrf = base64.urlsafe_b64encode(digest[:24]).decode("ascii").rstrip("=")
         if created:
             log("token file created: %s" % self.path)
-            sys.stdout.write("XIO WebUI token: %s\n" % raw)
+            # Секрет печатаем только в интерактивный терминал. Под systemd stdout
+            # уходит в журнал, а журнал переживает установку: токен оставался бы
+            # читаемым для всех членов systemd-journal/adm и в `journalctl -xe`.
+            if sys.stdout.isatty():
+                sys.stdout.write("XIO WebUI token: %s\n" % raw)
+            else:
+                sys.stdout.write(
+                    "XIO WebUI token written to %s (0600); read it with: cat %s\n"
+                    % (self.path, self.path))
             sys.stdout.flush()
 
     def _write(self, raw):
