@@ -1,4 +1,55 @@
 # XIO changes / Изменения
+## 0.24.2 — 2026-11-04, слияние rc13 с main: каскад, −7 МиБ APK, батарея
+
+RU: 0.24.2 сводит вместе ветку релиза `release-0.24.0` (то, что раньше уходило в rc13) и работу по
+main: каскад двух серверов, сабсет CJK-шрифта, честный клиентский конвейер, экономию батареи и
+герметичные тесты. Главное — исправлен реальный баг дескриптора: `tun.CreateUnmonitoredTUNFromFD`
+заворачивает fd в `*os.File` до проверки `TUNGETIFF`, на ошибке `AwgTurnOn` закрывал тот же номер
+вторым `unix.Close`, и финализатор брошенного объекта закрывал уже чужой сокет; теперь конструктору
+отдаётся дубликат `F_DUPFD_CLOEXEC` (флейк Cloak 15/30 → 30/30). Xray-конфиг собирается прямо в
+protobuf без `xray-core/infra/conf`: `xio-tunnel.exe` 35 567 104 → **31 450 112 Б** (−11,58 %),
+эквивалентность профилей 40/40, JSON-путь остался под `-tags xrayjson`. Серверный пакет снова
+содержит `readiness.py` и `xio-ready.service`, `RECIPE` 26, текстовые члены пакуются с LF, поэтому
+Windows- и Linux-дерево дают один и тот же архив. Добавлен каскад: отдельный экран без прокрутки,
+галочка «Включить каскад (по подписке)» в установке, `deploy/cascade/*` в контейнере, веб-панель
+`server/webui` (TLS + токен, порт 10443) и установка из терминала одной командой; живой трафик через
+каскад не проверен — у тестового bridge нет глобального IPv6. Размер: CJK-шрифт 16 437 364 →
+7 535 252 Б (Full APK ≈ −7,1 МиБ, −12,3 %), Client больше не тащит серверный архив (57,4 → ≈22,9
+МиБ) — официальный `client/build.py` починен, Gradle вырезает payload в client-only сборке, пины
+версии закреплены тестом. Батарея и CPU: watchdog сначала читает статус (свежий handshake ≤150 с или
+растущий rx), DNS — только запасной путь, в фоне не чаще 1/90 с; `Engine.status()` не пишет prefs и
+расшифровывает профиль один раз на протокол; опрос уведомляет слушателей только при изменении;
+каскад останавливает тикер и анимацию в фоне. Тесты на Debian: **213 passed / 10 skipped /
+0 failed**, 16 новых — каскад 360×640 и 412×915 без overflow, отмена таймеров в `dispose`,
+TLS-фикстуры вместо внешнего `openssl`. Локальная сборка на Windows заблокирована WDAC — APK
+собирается на Debian. [Подробности](docs/release-notes-0.24.2.md) ·
+[Совместимость](docs/compatibility/0.24.2.ru.md).
+
+EN: 0.24.2 brings together the `release-0.24.0` branch (what used to ship as rc13) and the main-side
+work: the two-server cascade, the CJK font subset, an honest client pipeline, battery savings and a
+hermetic test suite. The headline is a real descriptor bug: `tun.CreateUnmonitoredTUNFromFD` wraps the
+fd in an `*os.File` before it validates `TUNGETIFF`, on failure `AwgTurnOn` closed the same number with
+a second `unix.Close`, and the abandoned object's finalizer closed a socket that already belonged to
+someone else; the constructor now gets an `F_DUPFD_CLOEXEC` duplicate (Cloak flake 15/30 → 30/30). The
+Xray config is assembled directly in protobuf without `xray-core/infra/conf`: `xio-tunnel.exe`
+35 567 104 → **31 450 112 B** (−11.58 %), profile equivalence 40/40, with the JSON path kept behind
+`-tags xrayjson`. The server package ships `readiness.py` and `xio-ready.service` again, `RECIPE` is
+26, and text members are packed with LF, so a Windows and a Linux tree produce the same archive. A
+cascade is added: a dedicated screen without scrolling, an "Enable cascade (subscription)" checkbox in
+the installer, `deploy/cascade/*` in a container, the `server/webui` panel (TLS + token, port 10443)
+and a one-command terminal install; live traffic through the cascade is not verified — the test bridge
+has no global IPv6. Size: the CJK font goes from 16 437 364 to 7 535 252 B (Full APK ≈ −7.1 MiB,
+−12.3 %), and Client no longer carries the server archive (57.4 → ≈22.9 MiB) — the official
+`client/build.py` is fixed, Gradle strips the payload in a client-only build, and the version pins are
+locked by a test. Battery and CPU: the watchdog reads the status first (fresh handshake ≤150 s or a
+moving rx), DNS is only the fallback, and a hidden window probes at most once per 90 s;
+`Engine.status()` stops rewriting prefs and decrypts the profile once per protocol; the poll notifies
+listeners only on change; the cascade stops its ticker and animation in the background. Tests on
+Debian: **213 passed / 10 skipped / 0 failed**, 16 new — the cascade at 360×640 and 412×915 without
+overflow, step timers cancelled in `dispose`, TLS fixtures instead of external `openssl`. Local Windows
+builds are blocked by WDAC — APKs are built on Debian. [Details](docs/release-notes-0.24.2.md) ·
+[Compatibility](docs/compatibility/0.24.2.en.md).
+
 ## 0.24.1 — 2026-11-04, fd-баг, Xray protobuf, hardening exit
 
 Итог дня: найден и исправлен реальный баг с файловыми дескрипторами, из-за которого мобильный
@@ -213,7 +264,7 @@ EN: Detailed bilingual RIVET/H3 and RIVET/S1 library, diagrams, charts, evidence
 
 RU: удалены отдельные WireGuard/OpenVPN/IKEv2/Shadowsocks/Tailscale; «Протоколы» перенесены в «Соединение». Добавлены раздача через VPN с root на Android и экспериментальная Windows ICS, миграция управляемого сервера с откатом, проверенный импорт XHTTP/VLESS Encryption и два исправления гонок Xray. Названия загрузок типовые. Переписаны RU/EN инструкции. [Статья](docs/blog/2026-10-19-restricted-networks.md).
 
-EN: retired standalone WireGuard/OpenVPN/IKEv2/Shadowsocks/Tailscale; moved Protocols to Connection. Added rooted Android tethering and experimental Windows ICS, managed-server migration with rollback, checked XHTTP/VLESS Encryption import and two Xray race fixes. Generic download names and rewritten RU/EN guides. [Article](docs/blog/2026-10-19-restricted-networks.md#english).
+EN: retired standalone WireGuard/OpenVPN/IKEv2/Shadowsocks/Tailscale; moved Protocols to Connection. Added rooted Android tethering and experimental Windows ICS, managed-server migration with rollback, checked XHTTP/VLESS Encryption import and two Xray race fixes. Generic download names and rewritten RU/EN guides. [Article](docs/blog/2026-10-19-restricted-networks.md#xio-022-allowlists-xhttp-and-managed-server-updates).
  / История изменений
 
 ## 0.20.0
