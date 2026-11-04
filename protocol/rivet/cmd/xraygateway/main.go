@@ -7,17 +7,16 @@ import (
 	"fmt"
 	"github.com/xtls/xray-core/core"
 	"github.com/xtls/xray-core/features/stats"
-	// The gateway loads a JSON Xray config written by the server, so it needs
-	// the JSON loader directly: internal/xrayregistry no longer links it (the
-	// helper builds protobuf, see xrayregistry/registry.go).
-	_ "github.com/xtls/xray-core/main/json"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
-	_ "xio.local/rivet/internal/xrayregistry"
+	// The gateway needs the server-side registry: the JSON loader it loads the
+	// config with, the VLESS inbound handler and the stats app it samples. The
+	// helper links the smaller internal/xrayregistry instead.
+	_ "xio.local/rivet/internal/xrayregistry/gateway"
 )
 
 type counter struct {
