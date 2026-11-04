@@ -71,7 +71,7 @@ flutter:
     - assets/vpn-sharing.sh
     - assets/xio-server-update.py
     - assets/xio-server-release.json
-    - assets/xio_vici/
+    - assets/xio_vici/.gitkeep
     - assets/mesh-pins.json
     - assets/xio-mesh-stack.py
     - assets/xio-network-stack.py
