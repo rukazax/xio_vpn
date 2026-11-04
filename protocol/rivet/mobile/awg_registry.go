@@ -111,6 +111,9 @@ func awgTurnOff(handle int64) {
 	awgHandles.Lock()
 	awgRetireLocked(handle, e)
 	awgHandles.Unlock()
+	// The device and its queued packet buffers are unreachable now; hand their
+	// pages back while the caller is still off the packet path (see reclaim.go).
+	reclaimAfterTeardown()
 }
 func awgCancelHandshake(handle int64) {
 	awgHandles.Lock()

@@ -224,6 +224,10 @@ func Stop() {
 	if tun != nil {
 		tun.Close()
 	}
+	// The session and TUN are closed; the packet buffers they queued are now
+	// unreachable, so return their pages instead of holding them until the next
+	// collection (see reclaim.go).
+	reclaimAfterTeardown()
 }
 func Status() string {
 	global.Lock()
