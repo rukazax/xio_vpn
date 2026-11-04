@@ -69,6 +69,10 @@ final class XIOEngine: NSObject, UIDocumentPickerDelegate {
       case "openExternalLink":
         guard let raw = args["url"] as? String, let url = URL(string: raw), url.scheme == "https", url.user == nil else { result(error("Invalid URL.")); return }
         UIApplication.shared.open(url, options: [:]); result(nil)
+      // Ссылка MTProto-прокси: схема tg открывает Telegram с диалогом добавления.
+      case "openTelegramLink":
+        guard let raw = args["url"] as? String, let url = URL(string: raw), url.scheme == "tg", url.user == nil else { result(error("Invalid URL.")); return }
+        UIApplication.shared.open(url, options: [:]); result(nil)
       case "openSupportLink":
         UIApplication.shared.open(URL(string: "https://xio.org/pay")!, options: [:]); result(nil)
       default: result(FlutterMethodNotImplemented)
