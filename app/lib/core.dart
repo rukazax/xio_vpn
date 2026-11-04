@@ -1,6 +1,8 @@
 import 'build_identity.dart';
 import 'version.dart';
 import 'cascade_model.dart';
+import 'mtproto_link.dart';
+export 'mtproto_link.dart';
 import 'protocol_compatibility.dart';
 import 'account_access.dart';
 import 'client_policy.dart';
@@ -674,6 +676,10 @@ class AppStore extends ChangeNotifier {
   /// Каскад разблокирован. Биллинга пока нет, поэтому «Активировать» включает
   /// функцию бесплатно и запоминает это в профиле.
   bool cascadeUnlocked = false;
+  /// Ссылка MTProto-прокси для Telegram в каноническом виде `tg://proxy?…`.
+  /// Пустая строка означает «прокси в приложении не настроен»: приложение
+  /// ничего не подключает само, оно только передаёт ссылку в Telegram.
+  String mtprotoLink = '';
 
 
   TunnelStatus status = const TunnelStatus();
@@ -773,6 +779,10 @@ class AppStore extends ChangeNotifier {
         cascadeBridge = validateCascadeBridge(j['cascadeBridge'] as String? ?? '') ?? '';
         cascadeExit = validateCascadeExit(j['cascadeExit'] as String? ?? '') ?? '';
         cascadeUnlocked = j['cascadeUnlocked'] == true;
+        // Некорректная или устаревшая ссылка не роняет загрузку профиля:
+        // экран покажет «не настроено», остальные настройки сохранятся.
+        mtprotoLink =
+            parseMtprotoLink(j['mtprotoLink'] as String? ?? '')?.link ?? '';
         autoReconnect = j['autoReconnect'] != false;
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
             .toInt()
@@ -842,6 +852,29 @@ class AppStore extends ChangeNotifier {
     return true;
   }
 
+  /// Сохраняет ссылку MTProto-прокси. Пустая строка допустима и означает
+  /// «не настроено». Некорректную ссылку не сохраняем и возвращаем `false` —
+  /// экран показывает причину отказа.
+  Future<bool> setMtprotoLink(String value) async {
+    final text = value.trim();
+    if (text.isEmpty) {
+      if (mtprotoLink.isEmpty) return true;
+      mtprotoLink = '';
+      await save();
+      notifyListeners();
+      return true;
+    }
+    final parsed = parseMtprotoLink(text);
+    if (parsed == null) return false;
+    // Канонический вид: t.me-ссылка из буфера станет tg:// и наоборот,
+    // повторное сохранение того же адреса не пишет файл.
+    if (parsed.link == mtprotoLink) return true;
+    mtprotoLink = parsed.link;
+    await save();
+    notifyListeners();
+    return true;
+  }
+
   Future<void> save() async {
     if (!_storageHealthy) {
       throw StateError('Повреждённое хранилище защищено от перезаписи');
@@ -859,6 +892,7 @@ class AppStore extends ChangeNotifier {
       'cascadeBridge': cascadeBridge,
       'cascadeUnlocked': cascadeUnlocked,
       'cascadeExit': cascadeExit,
+      'mtprotoLink': mtprotoLink,
       'checkSite': checkSite,
       'siteCheckEnabled': siteCheckEnabled,
       'autoReconnect': autoReconnect,

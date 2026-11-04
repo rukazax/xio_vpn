@@ -13,6 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'cascade_ui.dart';
 import 'client_policy.dart';
 import 'core.dart';
+import 'mtproto_ui.dart';
 import 'version.dart';
 import 'help_legal_ui.dart';
 import 'l10n.dart';
@@ -378,6 +379,26 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                 PopupMenuItem(value: 'ru', child: Text('Русский')),
                 PopupMenuItem(value: 'en', child: Text('English')),
               ],
+            ),
+            IconButton(
+              tooltip: tr(context, 'Telegram-прокси (MTProto)'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (_) => Scaffold(
+                    appBar: AppBar(
+                      title: const LText('Telegram-прокси (MTProto)'),
+                    ),
+                    body: SafeArea(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: MtprotoProxyScreen(store: store),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              icon: const Icon(Icons.send_outlined),
             ),
             IconButton(
               tooltip: tr(context, 'Как работает VPN'),

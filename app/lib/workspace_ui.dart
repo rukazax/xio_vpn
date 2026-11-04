@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 
 import 'cascade_model.dart';
 import 'core.dart';
+import 'mtproto_ui.dart';
 import 'cascade_ui.dart';
 import 'managed_service.dart';
 import 'server_address.dart';
@@ -655,6 +656,21 @@ class _WorkspaceShellState extends State<WorkspaceShell>
             ),
             onDiagnostics: () => push('Диагностика', diagnostics()),
           ),
+        ),
+      ),
+      const Divider(),
+      ListTile(
+        leading: const Icon(Icons.send_outlined),
+        title: const LText('Telegram-прокси (MTProto)'),
+        subtitle: LText(
+          store.mtprotoLink.isEmpty
+              ? 'Ссылка не настроена'
+              : 'Прокси для Telegram',
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => push(
+          'Telegram-прокси (MTProto)',
+          MtprotoProxyScreen(store: store),
         ),
       ),
       const Divider(),

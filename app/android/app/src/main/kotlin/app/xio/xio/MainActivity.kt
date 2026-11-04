@@ -267,6 +267,16 @@ class MainActivity : FlutterActivity() {
                         startActivity(Intent(Intent.ACTION_VIEW,uri)); result.success(null)
                     } catch (_: Exception) { result.error("LINK","Не удалось открыть ссылку",null) }
                 }
+                // Ссылка MTProto-прокси: Telegram сам покажет диалог добавления.
+                // Разрешена только схема tg, иначе приложение стало бы
+                // универсальным диспетчером произвольных интентов.
+                "openTelegramLink" -> {
+                    try {
+                        val uri = android.net.Uri.parse(call.argument<String>("url") ?: "")
+                        require(uri.scheme == "tg" && uri.userInfo == null)
+                        startActivity(Intent(Intent.ACTION_VIEW,uri)); result.success(null)
+                    } catch (_: Exception) { result.error("LINK","Telegram не установлен или ссылка не открылась",null) }
+                }
                 "shareApplication" -> {
                     startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type="text/plain";putExtra(Intent.EXTRA_TEXT,call.argument<String>("text")) },"XIO"));result.success(null)
                 }
