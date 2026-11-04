@@ -564,18 +564,26 @@ def catalog_state():
   'fetchedAt':source.get('fetchedAt'),'source':document.get('source'),'probe':document.get('probe'),
   'eligible':len(entries),'unique':document.get('counts',{}).get('unique'),'entries':entries}
 
-def awg_client_config(d,user):
- """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
+def awg_client_config(d,user,cascade=None,ipv6_only=False):
+ """Ready-to-import AmneziaWG profile for a device that has no XIO client.
+
+ The IPv6 resolver is advertised only when the cascade just passed its live probe:
+ an IPv6 DNS address with no working v6 egress stalls Android's resolver on AWG.
+ IPv6-only profiles are issued only on an explicit operator request: the mobile
+ AmneziaVPN clients need an IPv4 address inside the tunnel.
+ """
  awg=d['awg'];slot=user['slot'];host=d['host']
- # Мобильные клиенты AmneziaVPN требуют IPv4 внутри туннеля, поэтому
- # IPv6-only профиль выдаётся только по явному запросу оператора.
+ cascade=cascade if cascade is not None else cascade_status()
+ host='[%s]'%host if ':' in host else host
  if ipv6_only:
   address='fd78:1::%x/64'%slot
+  allowed='::/0'
+  dns='2620:fe::fe' if cascade['alive'] else '9.9.9.9'
  else:
   address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
- host='[%s]'%host if ':' in host else host
- address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
- lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = 9.9.9.9, 2620:fe::fe']
+  allowed='0.0.0.0/0, ::/0'
+  dns='9.9.9.9, 2620:fe::fe' if cascade['alive'] else '9.9.9.9'
+ lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = '+dns]
  # AmneziaWG 3.x adds S3/S4 and signature packets I1..I5; the profile must carry
  # every parameter the server actually applies, otherwise the two sides disagree.
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
