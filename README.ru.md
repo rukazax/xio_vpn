@@ -340,6 +340,14 @@ flowchart LR
 - пинг, время обновления, кнопка «Переподключить»;
 - плашка «Платная функция. Требуется подписка» и кнопка «Активировать».
 
+| Экран «Каскад» с настроенными адресами | Диалог «Серверы каскада» |
+|---|---|
+| ![Экран «Каскад»: устройство, bridge 81.177.142.37, exit 2a0c:b641:1a0:800::2a2](docs/screenshots/cascade-configured.png) | ![Диалог «Серверы каскада»: два поля и команда установки](docs/screenshots/cascade-servers-dialog.png) |
+
+Кадры — настоящий рендер экрана из widget-теста (`docs/screenshots/README.md`, раздел 1), а не
+макет. Плашка подписки в кадре показана в состоянии «активна», хотя подписка пока заглушка:
+`CascadeFeatureGate.enabled == false`.
+
 **Одной командой на сервере:**
 
 ```bash
@@ -546,6 +554,14 @@ entitlements NetworkExtension. См. [сборка из исходников](do
 ### Скриншоты
 
 <p><img src="docs/images/2026-10-26-full-home.png" width="220" alt="Полная XIO, главная"> <img src="docs/images/2026-10-26-win-windows-home.png" width="220" alt="XIO Client для Windows"> <img src="docs/images/client-0.22.4-dark.png" width="220" alt="XIO Client, тёмная тема"></p>
+
+Свежие кадры Android-интерфейса — из golden-рендера
+(`app/test/screenshots/capture_screens_test.dart`, команда в
+[docs/screenshots/README.md](docs/screenshots/README.md)):
+
+| Главная, «Отключено» | Вкладка «Соединение» |
+|---|---|
+| ![Главная: отключено, выбран сервер](docs/screenshots/main-idle.png) | ![Соединение: ключ, свой сервер, каскад, пользователь](docs/screenshots/connection-tab.png) |
 
 Экраны Android остаются чёрными на системном скриншоте: приложение ставит `FLAG_SECURE`. Это
 защита, а не ошибка — Android-кадры в документации получены из widget-тестов Flutter. Список
