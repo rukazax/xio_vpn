@@ -40,19 +40,6 @@ import 'package:flutter/material.dart';
 
 import 'cascade_model.dart';
 
-/// Цвет линии/станции для стадии каскада.
-Color cascadeStageColor(BuildContext context, CascadeStage stage) {
-  final scheme = Theme.of(context).colorScheme;
-  return switch (stage) {
-    CascadeStage.idle => scheme.outline,
-    CascadeStage.deviceToBridge => const Color(0xFFFFB300),
-    CascadeStage.bridgeToExit => const Color(0xFF2ECC71),
-    CascadeStage.active => const Color(0xFF2ECC71),
-    CascadeStage.degraded => const Color(0xFFFFB300),
-    CascadeStage.failed => const Color(0xFFE53935),
-  };
-}
-
 /// Подпись под схемой для каждой стадии.
 String cascadeStatusCaption(CascadeStage stage) => switch (stage) {
   CascadeStage.idle => 'Готов к подключению',

@@ -2,6 +2,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import re
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -24,7 +25,7 @@ class ClientStageTests(unittest.TestCase):
         self.module.ROOT = self.root
         self.module.STAGE = self.stage
         self.module.APP = self.stage / 'app'
-        self.put('app/pubspec.yaml', 'name: xio\ndescription: Full app\nversion: 0.24.0+5017\nflutter:\n  assets:\n    - assets/xio-server.tar.gz\n')
+        self.put('app/pubspec.yaml', 'name: xio\ndescription: Full app\nversion: 0.24.1+5018\nflutter:\n  assets:\n    - assets/xio-server.tar.gz\n')
         for name in ['pubspec.lock', 'analysis_options.yaml']:
             self.put('app/' + name, 'fixture')
         self.put('app/lib/client_main.dart', '// client fixture')
@@ -67,7 +68,7 @@ class ClientStageTests(unittest.TestCase):
             raise
 
     def test_unknown_version_fails_before_writes(self):
-        self.put('app/pubspec.yaml', 'version: 9.9.9+1\n# version: 0.24.0+5017\n')
+        self.put('app/pubspec.yaml', 'version: 9.9.9+1\n# version: 0.24.1+5018\n')
         with self.assertRaises(RuntimeError): self.module.prepare()
         self.assertFalse(self.stage.exists())
 
@@ -117,5 +118,33 @@ class ClientStageTests(unittest.TestCase):
         self.prepare()
         self.assertFalse(stale.exists())
         self.assertEqual(canary.read_text(), 'keep')
+
+class ClientVersionPinTests(unittest.TestCase):
+    """The staging base is pinned on purpose, so it must track the application.
+
+    A stale pin is not a harmless warning: prepare() refuses to run, and the
+    workaround people reach for (a hand-rolled
+    `flutter build apk --target lib/client_main.dart`) ships the full server
+    payload inside the client APK. This test turns that drift into a failure
+    here instead of a 21 MB surprise in the artifact.
+    """
+
+    def test_pinned_base_matches_application_pubspec(self):
+        module = load_module()
+        pubspec = Path(__file__).resolve().parents[1] / 'app' / 'pubspec.yaml'
+        found = re.findall(r'(?m)^version:\s*([^\s#]+)', pubspec.read_text(encoding='utf-8'))
+        self.assertEqual(len(found), 1, 'exactly one active version line expected')
+        # prepare() itself compares exactly this expression; keep them identical.
+        self.assertEqual(found, [module.VERSION])
+        self.assertEqual(module.RELEASE, module.VERSION.split('+')[0])
+
+    def test_verify_release_and_code_match_application_pubspec(self):
+        module = load_module()
+        source = Path(__file__).with_name('verify.py').read_text(encoding='utf-8')
+        release = re.findall(r"(?m)^RELEASE = '([^']+)'", source)
+        code = re.findall(r"(?m)^VERSION_CODE = '([^']+)'", source)
+        self.assertEqual(release, [module.RELEASE])
+        self.assertEqual(code, [module.VERSION.split('+')[1]])
+
 
 if __name__ == '__main__': unittest.main(verbosity=2)

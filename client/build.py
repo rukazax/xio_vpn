@@ -15,8 +15,13 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 FLUTTER = 'flutter.bat' if os.name == 'nt' else 'flutter'
-RELEASE = '0.24.0'
-VERSION = RELEASE + '+5017'
+# Pinned staging base. It must track app/pubspec.yaml: a stale pin makes
+# prepare() refuse to run, which is what pushed people into ad-hoc
+# `flutter build apk --target lib/client_main.dart` runs that shipped the
+# 21 MB server payload inside the client APK. Keep this in sync (guarded by
+# ClientVersionDriftTests in client/test_build.py).
+RELEASE = '0.24.1'
+VERSION = RELEASE + '+5018'
 
 STAGE = ROOT / '.build-support/client'
 APP = STAGE / 'app'

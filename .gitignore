@@ -53,3 +53,5 @@ server/catalog/whitelist-state.json
 server/catalog/whitelist-manifest.json
 server/catalog/*.sig
 __pycache__/
+# The full CJK master font is only needed to rebuild the subset (see app/fonts-src/README.md).
+app/fonts-src/*.otf

@@ -23,7 +23,6 @@ import 'core.dart';
 import 'workspace_ui.dart';
 
 extension X1oColors on BuildContext {
-  Color get ink => Theme.of(this).scaffoldBackgroundColor;
   Color get panel => Theme.of(this).colorScheme.surface;
   Color get lime => Theme.of(this).colorScheme.primary;
   Color get muted => Theme.of(this).colorScheme.onSurfaceVariant;
