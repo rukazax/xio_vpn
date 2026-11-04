@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'core.dart';
+import 'routing_domains.dart';
 
 // Both cached tab entries must reflect a rule change immediately.
 final _routingRevision = ValueNotifier<int>(0);
@@ -11,15 +12,18 @@ final _routingRevision = ValueNotifier<int>(0);
 String routingLabel(String mode) => switch (mode) {
   'include' => 'Только выбранные приложения через VPN',
   'exclude' => 'Выбранные приложения в обход VPN',
-  'ipInclude' => 'Только выбранные IP через VPN',
-  'ipExclude' => 'Выбранные IP в обход VPN',
+  'ipInclude' => 'Только выбранные IP/сайты через VPN',
+  'ipExclude' => 'Выбранные IP/сайты в обход VPN',
   _ => 'Все приложения через VPN',
 };
 
 /// Rules live in Android's private no-backup directory, outside exports/logs.
 class SplitRoutingControl extends StatefulWidget {
-  const SplitRoutingControl({super.key, this.compact = false});
+  const SplitRoutingControl({super.key, this.compact = false, this.store});
   final bool compact;
+
+  /// Магазин нужен, чтобы запомнить доменные правила в профиле приложения.
+  final AppStore? store;
   @override
   State<SplitRoutingControl> createState() => _SplitRoutingControlState();
 }
@@ -59,9 +63,11 @@ class _SplitRoutingControlState extends State<SplitRoutingControl> {
   }
 
   Future<void> _open() async {
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const SplitRoutingPage()));
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SplitRoutingPage(store: widget.store),
+      ),
+    );
     await _reload();
   }
 
@@ -84,7 +90,10 @@ class _SplitRoutingControlState extends State<SplitRoutingControl> {
 }
 
 class SplitRoutingPage extends StatefulWidget {
-  const SplitRoutingPage({super.key});
+  const SplitRoutingPage({super.key, this.store});
+
+  /// Магазин запоминает доменные правила рядом с остальными настройками.
+  final AppStore? store;
   @override
   State<SplitRoutingPage> createState() => _SplitRoutingPageState();
 }
@@ -93,11 +102,13 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
   String mode = 'all', query = '';
   final selected = <String>{};
   final networks = TextEditingController();
+  final domains = TextEditingController();
   bool get ipMode => mode.startsWith('ip');
   bool get appMode => mode == 'include' || mode == 'exclude';
   @override
   void dispose() {
     networks.dispose();
+    domains.dispose();
     super.dispose();
   }
 
@@ -118,6 +129,7 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
       mode = policy!['mode'] as String;
       selected.addAll((policy['packages'] as List).cast<String>());
       networks.text = ((policy['networks'] as List?) ?? []).join('\n');
+      domains.text = ((policy['domains'] as List?) ?? []).join('\n');
     } catch (_) {
       error = 'Не удалось прочитать правила. Можно выбрать и сохранить новые.';
     }
@@ -141,6 +153,26 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
       });
       return;
     }
+    final rules = <String>[], sites = <String>[];
+    if (ipMode) {
+      // Проверяем до нативной стороны: сообщение об ошибке должно называть
+      // конкретную запись, а не «некорректные правила».
+      try {
+        rules.addAll(parseNetworkEntries(networks.text));
+        sites.addAll(parseDomainEntries(domains.text));
+      } on FormatException catch (e) {
+        setState(() {
+          error = e.message;
+        });
+        return;
+      }
+      if (rules.isEmpty && sites.isEmpty) {
+        setState(() {
+          error = 'Добавьте хотя бы один IP-адрес, подсеть или домен';
+        });
+        return;
+      }
+    }
     setState(() {
       saving = true;
       error = null;
@@ -149,13 +181,14 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
       await native.invokeMethod<dynamic>('routingSave', {
         'mode': mode,
         'packages': appMode ? (selected.toList()..sort()) : <String>[],
-        'networks': ipMode
-            ? networks.text
-                  .split(RegExp(r'[\s,;]+'))
-                  .where((v) => v.isNotEmpty)
-                  .toList()
-            : <String>[],
+        'networks': ipMode ? rules : <String>[],
+        'domains': ipMode ? sites : <String>[],
       });
+      // Домены запоминаются в профиле рядом с остальными настройками; кэш
+      // разрешения сбрасывается, чтобы переподключение взяло свежие адреса.
+      if (widget.store != null) {
+        await widget.store!.setSplitDomains(ipMode ? sites : const []);
+      }
       _routingRevision.value++;
       if (mounted) Navigator.of(context).pop();
     } on PlatformException catch (e) {
@@ -249,7 +282,7 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
                                 const SizedBox(height: 12),
                                 LText(
                                   ipMode
-                                      ? 'Правила IP действуют для всех приложений.'
+                                      ? 'Правила IP и сайтов действуют для всех приложений.'
                                       : mode == 'include'
                                       ? 'Остальные приложения выходят напрямую, вне VPN.'
                                       : mode == 'exclude'
@@ -260,15 +293,16 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
                                   const SizedBox(height: 12),
                                   LText(
                                     mode == 'ipInclude'
-                                        ? 'Только указанные адреса в пределах AllowedIPs профиля идут через VPN. Остальные IPv4 и IPv6 идут напрямую.'
-                                        : 'Указанные адреса исключаются из AllowedIPs профиля. Остальные маршруты профиля сохраняются.',
+                                        ? 'Только указанные адреса и сайты в пределах AllowedIPs профиля идут через VPN. Остальные IPv4 и IPv6 идут напрямую.'
+                                        : 'Указанные адреса и сайты исключаются из AllowedIPs профиля. Остальные маршруты профиля сохраняются.',
                                   ),
                                   const SizedBox(height: 12),
                                   const LText(
-                                    'IP и подсети, по одному на строку (до 128). Домены не поддерживаются. DNS остаётся из профиля. Включите IP DNS-сервера в маршруты VPN, иначе разрешение имён может не работать. Приложения и IP выбираются раздельными режимами.',
+                                    'IP и подсети, по одному на строку (до 128). DNS остаётся из профиля. Включите IP DNS-сервера в маршруты VPN, иначе разрешение имён может не работать. Приложения и IP/сайты выбираются раздельными режимами.',
                                   ),
                                   const SizedBox(height: 12),
                                   TextField(
+                                    key: const ValueKey('routing-networks'),
                                     controller: networks,
                                     enabled: !saving,
                                     minLines: 3,
@@ -278,6 +312,26 @@ class _SplitRoutingPageState extends State<SplitRoutingPage> {
                                     decoration: const InputDecoration(
                                       labelText: 'IPv4 / IPv6 / CIDR',
                                       hintText: '203.0.113.5\n192.168.0.0/16\n2001:db8::/32',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const LText(
+                                    'Сайты (домены), по одному на строку. При подключении имя разрешается в IP и подставляется в правила вместе с IP-списком, повторно — не чаще раза в 10 минут. Wildcard *.example.com разрешает сам домен и известные поддомены. После правки списка старые маршруты заменяются.',
+                                  ),
+                                  const SizedBox(height: 12),
+                                  TextField(
+                                    key: const ValueKey('routing-domains'),
+                                    controller: domains,
+                                    enabled: !saving,
+                                    minLines: 3,
+                                    maxLines: 7,
+                                    maxLength: 8192,
+                                    keyboardType: TextInputType.multiline,
+                                    autocorrect: false,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Домены и сайты',
+                                      hintText: 'youtube.com\n*.example.com',
                                       border: OutlineInputBorder(),
                                     ),
                                   ),

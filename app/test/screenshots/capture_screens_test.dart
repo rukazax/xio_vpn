@@ -316,12 +316,12 @@ void main() {
 
     for (final item in const <String>[
       'Серверы',
-      'Соединение',
+      'Настройка соединений',
       'Приложение',
       'Пользователи',
       'О XIO',
     ]) {
-      // «Соединение» is also the bottom-bar label, so match the tile itself.
+      // Нижняя вкладка называется так же, поэтому совпадаем именно по плитке.
       expect(
         find.widgetWithText(ListTile, item).hitTestable(),
         findsOneWidget,

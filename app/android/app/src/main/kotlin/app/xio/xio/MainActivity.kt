@@ -342,8 +342,18 @@ class MainActivity : FlutterActivity() {
                             "routingSave" -> {
                                 if (Engine.isUp())
                                     throw RoutingException("Сначала отключите VPN, затем сохраните правила")
-                                SplitRouting(this).save(call.argument<String>("mode") ?: "", call.argument<List<String>>("packages") ?: emptyList(), call.argument<List<String>>("networks") ?: emptyList()).map()
+                                SplitRouting(this).save(
+                                    call.argument<String>("mode") ?: "",
+                                    call.argument<List<String>>("packages") ?: emptyList(),
+                                    call.argument<List<String>>("networks") ?: emptyList(),
+                                    call.argument<List<String>>("domains") ?: emptyList(),
+                                ).map()
                             }
+                            // Домены разрешаются в приложении; адреса приходят
+                            // отдельным вызовом и заменяют предыдущий набор.
+                            "routingResolved" -> SplitRouting(this)
+                                .saveResolved(call.argument<List<String>>("networks") ?: emptyList())
+                                .map()
                             "dataDirectory" -> filesDir.absolutePath
                             "saveConfig" -> {
                                 val id = call.argument<String>("id")!!

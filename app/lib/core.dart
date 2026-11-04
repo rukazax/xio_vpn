@@ -18,6 +18,7 @@ export 'extended_profile.dart';
 export 'rivet_profile.dart';
 import 'status_poll.dart';
 import 'l10n.dart';
+import 'routing_domains.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -34,6 +35,14 @@ import 'package:flutter/services.dart';
 const native = EngineChannel();
 bool get platformTunnel =>
     Platform.isAndroid || Platform.isIOS || DesktopEngine.enabled;
+
+/// Android-экран настроек раздельного туннелирования.
+///
+/// `Platform.isAndroid` нельзя переопределить в widget-тестах, поэтому те же
+/// экраны включаются и оверрайдом платформы: на настольных сборках
+/// `defaultTargetPlatform` никогда не `android`, поведение не меняется.
+bool get androidSettingsUi =>
+    Platform.isAndroid || defaultTargetPlatform == TargetPlatform.android;
 Set<String> get platformProtocols => Platform.isAndroid
     ? availableAndroidProtocols
     : Platform.isIOS
@@ -648,7 +657,10 @@ class AppStore extends ChangeNotifier {
     this.siteProbe,
     this.probeSecurityContext,
     this.nativeTunnelOverride,
+    this.domainLookup,
   });
+  /// Подменяемый DNS для доменных правил: тесты не ходят в сеть.
+  final DomainAddressLookup? domainLookup;
   final bool? nativeTunnelOverride;
   bool get nativeTunnel => nativeTunnelOverride ?? platformTunnel;
   Set<String> get supportedProtocols => nativeTunnelOverride == true
@@ -689,6 +701,13 @@ class AppStore extends ChangeNotifier {
   /// Пустая строка означает «прокси в приложении не настроен»: приложение
   /// ничего не подключает само, оно только передаёт ссылку в Telegram.
   String mtprotoLink = '';
+  /// Доменные правила раздельного туннелирования (Android): `youtube.com`,
+  /// `*.example.com`. Источник — нативная политика (IP-правила и домены лежат
+  /// в одном файле); поле кэширует список для подключения и журнала.
+  List<String> splitDomains = [];
+  /// Адреса, полученные разрешением [splitDomains] в последний раз.
+  List<String> splitResolvedAddresses = const [];
+  SplitDomainSync? _splitSync;
 
 
   TunnelStatus status = const TunnelStatus();
@@ -819,6 +838,17 @@ class AppStore extends ChangeNotifier {
         // экран покажет «не настроено», остальные настройки сохранятся.
         mtprotoLink =
             parseMtprotoLink(j['mtprotoLink'] as String? ?? '')?.link ?? '';
+        // Доменные правила — рядом с IP-правилами раздельного
+        // туннелирования. Повреждённые записи пропускаем: профиль важнее.
+        final storedDomains = <String>[];
+        for (final entry in (j['splitDomains'] as List? ?? const [])) {
+          if (entry is! String) continue;
+          final rule = normalizeDomainRule(entry);
+          if (rule != null && !storedDomains.contains(rule)) {
+            storedDomains.add(rule);
+          }
+        }
+        splitDomains = storedDomains;
         autoReconnect = j['autoReconnect'] != false;
         protocolTimeoutSeconds = (j['protocolTimeoutSeconds'] as num? ?? 15)
             .toInt()
@@ -869,6 +899,9 @@ class AppStore extends ChangeNotifier {
             'enabled': autoConnectOnStart,
           }),
         );
+        // Доменные правила живут в нативной политике: подтягиваем их, чтобы
+        // «Маршрутизация» и подключение видели один и тот же список.
+        await _tolerateNative(loadSplitDomains);
       }
       if (_storageHealthy) await applyScreenSecurity();
     } finally {
@@ -937,6 +970,101 @@ class AppStore extends ChangeNotifier {
     return true;
   }
 
+  /// Разрешение доменных правил в адреса. Один экземпляр на приложение:
+  /// кэш на 10 минут живёт между подключениями и переподключениями.
+  SplitDomainSync get splitSync => _splitSync ??= SplitDomainSync(
+    resolver: SplitDomainResolver(
+      lookup: domainLookup ?? const SystemDomainAddressLookup(),
+    ),
+    apply: (addresses) =>
+        native.invokeMethod<void>('routingResolved', {'networks': addresses}),
+  );
+
+  /// Читает доменные правила из нативной политики раздельного туннелирования.
+  ///
+  /// Нативная сторона — источник истины: экран «Маршрутизация» пишет правила
+  /// туда, а поле [splitDomains] кэширует список для подключения. Старый
+  /// native-слой без метода не ломает запуск: остаётся прежний список.
+  Future<void> loadSplitDomains() async {
+    if (!androidSettingsUi) return;
+    final policy = await native.invokeMapMethod<String, dynamic>('routingGet');
+    if (policy == null) return;
+    final raw = (policy['domains'] as List?)?.whereType<String>() ?? const [];
+    final valid = <String>[];
+    for (final entry in raw) {
+      final rule = normalizeDomainRule(entry);
+      if (rule != null && !valid.contains(rule)) valid.add(rule);
+    }
+    splitDomains = valid;
+  }
+
+  /// Запоминает доменные правила, сохранённые экраном «Маршрутизация».
+  ///
+  /// Кэш разрешения сбрасывается: следующее подключение возьмёт свежие IP,
+  /// а старые адреса нативная сторона уже заменила при сохранении правил.
+  Future<void> setSplitDomains(List<String> domains) async {
+    final next = <String>[];
+    for (final entry in domains) {
+      final rule = normalizeDomainRule(entry);
+      if (rule == null) {
+        throw FormatException(
+          'Некорректный домен «$entry»: нужно имя без схемы и слэшей, '
+          'например youtube.com или *.example.com',
+        );
+      }
+      if (!next.contains(rule)) next.add(rule);
+    }
+    if (listEquals(next, splitDomains)) return;
+    splitDomains = next;
+    splitResolvedAddresses = const [];
+    _splitSync?.invalidate();
+    if (directory != null) await save();
+    notifyListeners();
+  }
+
+  /// Разрешает [splitDomains] в адреса и передаёт их нативной стороне.
+  ///
+  /// Вызывается перед подключением: правила применяются при активации
+  /// туннеля. Повторное разрешение — не чаще раза в 10 минут (кэш
+  /// [SplitDomainSync]); пустой список доменов очищает нативные адреса,
+  /// поэтому устаревшие маршруты не остаются после правки правил.
+  Future<void> syncSplitDomains({bool force = false}) async {
+    if (!androidSettingsUi || !nativeTunnel) return;
+    try {
+      await loadSplitDomains();
+    } catch (_) {
+      // Нативная политика недоступна — работаем с сохранённым списком.
+    }
+    final sync = splitSync;
+    if (splitDomains.isEmpty) {
+      splitResolvedAddresses = const [];
+      try {
+        await sync.refresh(rules: const <String>[]);
+      } catch (e) {
+        log('Не удалось очистить адреса доменов: $e');
+      }
+      return;
+    }
+    try {
+      splitResolvedAddresses = await sync.refresh(
+        rules: splitDomains,
+        force: force,
+      );
+      final failed = sync.lastResolution?.failed ?? const <String>[];
+      if (splitResolvedAddresses.isEmpty && failed.isNotEmpty) {
+        log('Домены не разрешились: ${failed.take(3).join(', ')}');
+      } else if (sync.resolutions > 0) {
+        log(
+          'Домены: ${splitDomains.length} правил → '
+          '${splitResolvedAddresses.length} адресов',
+        );
+      }
+    } catch (e) {
+      // Сбой DNS не должен лишать человека VPN: подключаемся с IP-правилами.
+      log('Не удалось применить домены: $e');
+    }
+  }
+
   Future<void> save() async {
     if (!_storageHealthy) {
       throw StateError('Повреждённое хранилище защищено от перезаписи');
@@ -955,6 +1083,7 @@ class AppStore extends ChangeNotifier {
       'cascadeUnlocked': cascadeUnlocked,
       'cascadeExit': cascadeExit,
       'mtprotoLink': mtprotoLink,
+      'splitDomains': splitDomains,
       'checkSite': checkSite,
       'siteCheckEnabled': siteCheckEnabled,
       'dnsServers': dnsServers,
@@ -1945,6 +2074,9 @@ class AppStore extends ChangeNotifier {
     error = null;
     connectionCheck = null;
     notifyListeners();
+    // Домены → IP до активации туннеля: правила применяются при подключении,
+    // а старые адреса нативная сторона заменяет целиком.
+    await _tolerateNative(() => syncSplitDomains());
     try {
       for (final p in candidates) {
         selectedId = p.id;
@@ -2040,6 +2172,8 @@ class AppStore extends ChangeNotifier {
       status = const TunnelStatus();
       error = null;
       connectionCheck = null;
+      // Следующее подключение разрешит домены заново: адреса могли устареть.
+      _splitSync?.invalidate();
       log('Туннель отключён');
     } catch (_) {
       error = 'Не удалось отключить туннель. Проверьте системную службу.';

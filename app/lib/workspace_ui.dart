@@ -340,7 +340,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
             ),
           ),
         const SizedBox(height: 26),
-        if (Platform.isAndroid) const SplitRoutingControl(compact: true),
+        if (Platform.isAndroid) SplitRoutingControl(compact: true, store: store),
         const SizedBox(height: 16),
         Card(
           child: Padding(
@@ -427,11 +427,6 @@ class _WorkspaceShellState extends State<WorkspaceShell>
   Widget connection() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      const LText(
-        'Вставьте профиль XIO или конфигурацию VPN',
-        style: TextStyle(fontSize: 20),
-      ),
-      const SizedBox(height: 20),
       ListTile(
         leading: const Icon(Icons.paste),
         title: const LText('Вставить ключ или конфигурацию'),
@@ -708,7 +703,6 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                   onTap: () =>
                       push('Иконка приложения', AppIconPicker(store: store)),
                 ),
-                const SplitRoutingControl(),
                 const SizedBox(height: 16),
                 const AndroidControls(),
               ],
@@ -882,6 +876,9 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
       ),
       const VpnSharingControl(),
       DnsServersTile(store: widget.store),
+      // Раздельное туннелирование — рядом с DNS-резолвером и протоколами:
+      // это маршрутизация соединения, а не настройки приложения.
+      if (androidSettingsUi) SplitRoutingControl(store: widget.store),
       const SizedBox(height: 8),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
