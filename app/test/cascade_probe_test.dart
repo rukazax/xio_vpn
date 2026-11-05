@@ -15,7 +15,7 @@ void main() {
       expect(selectCascadeServer([first, bridge], '81.177.142.37'), bridge);
       expect(
         selectCascadeServer(<ManagedServer>[first], '81.177.142.37'),
-        first,
+        isNull,
       );
     });
 
@@ -26,9 +26,9 @@ void main() {
       );
     });
 
-    test('адрес без сервера — берём первый сохранённый', () {
-      expect(selectCascadeServer([first, bridge], ''), first);
-      expect(selectCascadeServer([first, bridge], 'unknown.example'), first);
+    test('нет точного адреса — нельзя проверять посторонний VPS', () {
+      expect(selectCascadeServer([first, bridge], ''), isNull);
+      expect(selectCascadeServer([first, bridge], 'unknown.example'), isNull);
     });
 
     test('без серверов проверять нечего', () {

@@ -134,6 +134,7 @@ class _CascadeScreenState extends State<CascadeScreen>
   /// Последний реальный результат проверки; `null` — ещё не проверяли.
   CascadeHealth? _health;
   Timer? _deadline;
+  int _checkGeneration = 0;
   bool _visible = true;
 
   CascadeSubscription get _subscription {
@@ -248,25 +249,28 @@ class _CascadeScreenState extends State<CascadeScreen>
     });
     _syncAnimation();
     _deadline?.cancel();
-    _deadline = Timer(_healthDeadline, () {
-      if (!mounted || !_busy) return;
+    final generation = ++_checkGeneration;
+    final deadline = Timer(_healthDeadline, () {
+      if (!mounted || !_busy || generation != _checkGeneration) return;
       _finish(
         CascadeHealth.failure(
           'Проверка не уложилась в ${_healthDeadline.inSeconds} с',
         ),
       );
     });
+    _deadline = deadline;
     CascadeHealth health;
     try {
-      health = await probe(_bridgeAddress);
+      health = (await probe(_bridgeAddress)).forExit(_exitAddress);
     } catch (_) {
       // Экран не показывает текст исключения: в нём бывают адреса и ключи.
       health = CascadeHealth.failure('Не удалось проверить каскад по SSH');
     } finally {
-      _deadline?.cancel();
-      _deadline = null;
+      // A late response must neither cancel a newer poll's timer nor overwrite it.
+      deadline.cancel();
+      if (identical(_deadline, deadline)) _deadline = null;
     }
-    if (!mounted || !_busy) return;
+    if (!mounted || !_busy || generation != _checkGeneration) return;
     _finish(health);
   }
 

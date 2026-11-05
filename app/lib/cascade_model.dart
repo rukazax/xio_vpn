@@ -5,6 +5,8 @@
 /// (`cascade_ui.dart`), и в тестах, и в персистентном состоянии через JSON.
 library;
 
+import 'dart:io';
+
 /// Стадия построения / жизни каскада.
 enum CascadeStage {
   /// Ничего не запущено.
@@ -135,7 +137,8 @@ class CascadeRoute {
 
   /// Идёт ли прямо сейчас анимация «бегущих точек».
   bool get isAnimating =>
-      stage == CascadeStage.deviceToBridge || stage == CascadeStage.bridgeToExit;
+      stage == CascadeStage.deviceToBridge ||
+      stage == CascadeStage.bridgeToExit;
 
   /// Туннель поднят.
   bool get isTunnelActive => stage == CascadeStage.active;
@@ -284,57 +287,52 @@ CascadeHopState cascadeHopStateFromName(String? name) {
   return CascadeHopState.idle;
 }
 
-
 /// Проверка адреса bridge: IPv4 или доменное имя (без схемы и порта).
 ///
 /// Возвращает нормализованную строку или `null`, если ввод неверен. Пустая
 /// строка — допустимое значение «не настроено» и тоже даёт `null`.
 String? validateCascadeBridge(String value) {
   final text = value.trim();
-  if (text.isEmpty) return null;
-  if (text.contains('://') || text.contains('/') || text.contains(' ')) {
-    return null;
-  }
-  if (text.startsWith('[') || text.contains(':')) return null; // bridge — IPv4/домен
+  if (text.isEmpty || text.startsWith('[') || text.contains(':')) return null;
+  final address = _cascadeIpv4(text);
+  if (address != null) return address;
   final parts = text.split('.');
-  final allNumeric = parts.every((p) => p.isNotEmpty && int.tryParse(p) != null);
-  if (allNumeric) {
-    // Похоже на IPv4: принимаем только четыре октета 0..255. «999.1.1.1»
-    // не должно проскочить как домен.
-    if (parts.length != 4) return null;
-    for (final part in parts) {
-      final n = int.tryParse(part)!;
-      if (n < 0 || n > 255) return null;
-    }
-    return text;
-  }
+  // An invalid/legacy IPv4 spelling must not slip through as a DNS hostname.
+  // A numeric final label is not a public DNS TLD.
+  if (RegExp(r'^[0-9]+$').hasMatch(parts.last)) return null;
   final label = RegExp(r'^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$');
-  if (text.length <= 253 && parts.length >= 2 && parts.every(label.hasMatch)) {
+  if (text.length <= 253 &&
+      parts.length >= 2 &&
+      parts.every((p) => p.length <= 63 && label.hasMatch(p))) {
     return text.toLowerCase();
   }
   return null;
 }
 
-/// Проверка адреса exit: только IPv6 (можно в квадратных скобках).
+String? _cascadeIpv4(String text) {
+  final octets = text.split('.');
+  if (octets.length != 4 ||
+      octets.any((p) => !RegExp(r'^(0|[1-9][0-9]{0,2})$').hasMatch(p))) {
+    return null;
+  }
+  final address = InternetAddress.tryParse(text);
+  if (address == null || address.type != InternetAddressType.IPv4) return null;
+  return address.address;
+}
+
+/// Exit is a literal IPv4 or IPv6 address, never DNS, URL, scope or host:port.
+/// Brackets are accepted only around IPv6. Parsing never performs DNS/network IO.
 String? validateCascadeExit(String value) {
   final text = value.trim();
   if (text.isEmpty) return null;
-  var host = text;
-  if (host.startsWith('[') && host.endsWith(']')) {
-    host = host.substring(1, host.length - 1);
-  }
-  if (!host.contains(':')) return null;
-  if (host.contains('://') || host.contains('/') || host.contains(' ')) {
-    return null;
-  }
-  final groups = host.split(':');
-  if (groups.length < 3 || groups.length > 8) return null;
-  final hex = RegExp(r'^[0-9A-Fa-f]{1,4}$');
-  for (final g in groups) {
-    if (g.isEmpty) continue; // '::'
-    if (!hex.hasMatch(g)) return null;
-  }
-  return host.toLowerCase();
+  final bracketed = text.startsWith('[') && text.endsWith(']');
+  final host = bracketed ? text.substring(1, text.length - 1) : text;
+  if (!host.contains(':')) return bracketed ? null : _cascadeIpv4(host);
+  if (!RegExp(r'^[0-9A-Fa-f:.]+$').hasMatch(host)) return null;
+  final address = InternetAddress.tryParse(host);
+  if (address == null || address.type != InternetAddressType.IPv6) return null;
+  return InternetAddress.fromRawAddress(address.rawAddress).address
+      .toLowerCase();
 }
 
 /// Строит маршрут каскада из адресов, введённых владельцем.

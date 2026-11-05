@@ -133,6 +133,33 @@ class CascadeHealth {
       verdict == CascadeHealthVerdict.ok ||
       verdict == CascadeHealthVerdict.degraded;
 
+  /// Bind an otherwise positive verdict to the configured exit, not merely to
+  /// whichever route happens to be running on the bridge. Missing identity is
+  /// unknown, never success; an existing failure keeps its original reason.
+  CascadeHealth forExit(String expectedExit) {
+    if (!alive) return this;
+    final expected = validateCascadeExit(expectedExit);
+    final actual = validateCascadeExit(exitHost ?? '');
+    if (expected != null && actual == expected) return this;
+    final message = actual == null
+        ? 'Проверка не подтвердила адрес выбранного exit'
+        : 'Проверен другой exit: $actual (ожидался ${expected ?? expectedExit})';
+    return CascadeHealth(
+      verdict: CascadeHealthVerdict.failed,
+      checkedAt: checkedAt,
+      latencyMs: latencyMs,
+      role: role,
+      runtime: runtime,
+      exitHost: exitHost,
+      egressIpv6: egressIpv6,
+      error: message,
+      checks: [
+        ...checks,
+        CascadeHealthCheck(name: 'exit.identity', ok: false, detail: message),
+      ],
+    );
+  }
+
   /// Проваленные проверки.
   List<CascadeHealthCheck> get failures =>
       checks.where((check) => !check.ok).toList(growable: false);
@@ -385,31 +412,20 @@ class CascadeHealth {
     return null;
   }
 
-  static final RegExp _addressToken = RegExp(r'[0-9A-Fa-f:]{2,45}');
+  static final RegExp _addressToken = RegExp(
+    r'(?<![0-9A-Za-z_.:%])[0-9A-Fa-f:.]+(?![0-9A-Za-z_.:%])',
+  );
 
-  /// Первый IPv6-адрес в произвольной строке (`выходной IPv6: 2a0c:…`).
-  ///
-  /// Берём подряд идущие hex-символы и двоеточия и проверяем группу вручную:
-  /// так «6:» из слова `IPv6:` и время `20:41:07` не выдаются за адрес.
+  /// Parse a complete address token through the shared strict SDK parser.
+  /// Never accept a valid-looking prefix of a malformed/scoped/overlong token.
   static String? _ipv6In(String text) {
     for (final match in _addressToken.allMatches(text)) {
       final candidate = match.group(0)!;
-      if (_validIpv6(candidate)) return candidate;
+      if (!candidate.contains(':')) continue;
+      final address = validateCascadeExit(candidate);
+      if (address != null) return address;
     }
     return null;
-  }
-
-  static bool _validIpv6(String value) {
-    if (!value.contains(':')) return false;
-    if ('::'.allMatches(value).length > 1) return false;
-    var groups = 0;
-    for (final section in value.split(':')) {
-      if (section.isEmpty) continue;
-      if (!RegExp(r'^[0-9A-Fa-f]{1,4}$').hasMatch(section)) return false;
-      groups++;
-    }
-    // Без «::» IPv6 состоит ровно из восьми групп; «::» сжимает хотя бы одну.
-    return value.contains('::') ? groups <= 7 : groups == 8;
   }
 
   @override

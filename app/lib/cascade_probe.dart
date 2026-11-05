@@ -12,29 +12,28 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'cascade_health.dart';
+import 'cascade_model.dart';
 import 'core.dart';
 import 'credentials.dart';
 
 /// Находит managed-сервер для проверки каскада.
 ///
-/// Сначала точное совпадение SSH-хоста или VPN-адреса с bridge; если такого
-/// нет — первый сохранённый сервер (владелец обычно держит один bridge).
+/// Only an unambiguous exact SSH/VPN-host match may supply credentials.
+/// Never probe an unrelated first server or guess between duplicate records.
 ManagedServer? selectCascadeServer(
   Iterable<ManagedServer> servers,
   String bridgeAddress,
 ) {
-  final list = servers.toList(growable: false);
-  if (list.isEmpty) return null;
-  final wanted = bridgeAddress.trim().toLowerCase();
-  if (wanted.isNotEmpty) {
-    for (final server in list) {
-      if (server.host.toLowerCase() == wanted ||
-          server.publicHost.toLowerCase() == wanted) {
-        return server;
-      }
-    }
-  }
-  return list.first;
+  final wanted = validateCascadeBridge(bridgeAddress);
+  if (wanted == null) return null;
+  final matches = servers
+      .where(
+        (server) =>
+            validateCascadeBridge(server.host) == wanted ||
+            validateCascadeBridge(server.publicHost) == wanted,
+      )
+      .toList(growable: false);
+  return matches.length == 1 ? matches.single : null;
 }
 
 /// Проверка каскада по SSH на сохранённом сервере.
@@ -54,7 +53,7 @@ class CascadeSshProbe {
     final server = selectCascadeServer(store.servers, bridgeAddress);
     if (server == null) {
       return CascadeHealth.failure(
-        'Нет сохранённого сервера: добавьте bridge с SSH-доступом',
+        'Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты',
         latencyMs: clock.elapsedMilliseconds,
       );
     }

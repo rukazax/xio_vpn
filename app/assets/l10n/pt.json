@@ -1,4 +1,7 @@
 {
+  "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Não há um servidor SSH único para este bridge: verifique o endereço e as entradas duplicadas",
+  "Проверка не подтвердила адрес выбранного exit": "A verificação não confirmou o endereço do servidor de saída selecionado",
+  "Проверен другой exit: {0} (ожидался {1})": "Foi verificado outro servidor de saída: {0} (esperado: {1})",
   "{0} Б": "{0} B",
   "{0} КБ": "{0} kB",
   "{0} МБ": "{0} MB",

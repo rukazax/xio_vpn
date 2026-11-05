@@ -1,4 +1,3 @@
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/cascade_model.dart';
 
@@ -15,14 +14,14 @@ void main() {
       expect(validateCascadeBridge('localhost'), isNull);
     });
 
-    test('exit принимает только IPv6', () {
+    test('exit принимает literal IPv4 и IPv6', () {
       expect(
         validateCascadeExit('2a0c:b641:1a0:800::2a2'),
         '2a0c:b641:1a0:800::2a2',
       );
       expect(validateCascadeExit('[fd79:1::fe]'), 'fd79:1::fe');
       expect(validateCascadeExit(''), isNull);
-      expect(validateCascadeExit('81.177.142.37'), isNull);
+      expect(validateCascadeExit('81.177.142.37'), '81.177.142.37');
       expect(validateCascadeExit('2001:db8::zz'), isNull);
     });
 
