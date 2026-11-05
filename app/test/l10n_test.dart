@@ -106,6 +106,104 @@ void main() {
     },
   );
   test(
+    'no catalogue keeps a known machine-translation defect',
+    () {
+      // Cells that a machine-translation pass produced instead of a real
+      // translation: a foreign toponym, an invented word, a transliteration,
+      // or a marker that leaked from the translation tool. None of these may
+      // appear in any cell of any language again.
+      //
+      // Toponyms first. A country or city name has no business in this UI, so
+      // each spelling that the broken pass emitted is listed for every script.
+      const toponyms = <String>[
+        '东帝汶', '帝汶', 'ティモール', '동티모르', 'تيمور', 'तिमोर', 'Timor',
+        'Leste',
+      ];
+      // Words and markers produced by the bad pass itself. They are not
+      // translations of anything the app says.
+      const artifacts = <String>[
+        'FÜRSTELLEN', // "to present" instead of «Доступен» → VERFÜGBAR
+        'RECIVIDAD', // invented Spanish word instead of RECIBIDO
+        'ثانيا - زكس', // transliteration instead of «Обфускация WireGuard»
+        '爆炸', // "explosion" instead of «Обфускация»
+        'SSHQ', // product name mangled by the pass
+        'AndroidZQ', // tool marker leaked into the value
+        'ZXQ', // tool marker
+        'Diagnotics', // misspelling that shipped in the Chinese cell
+        'スピートトトンネル', // garbled Japanese
+      ];
+      final offenders = <String>[];
+      for (final entry in AppLanguages.catalogs.entries) {
+        for (final cell in entry.value.entries) {
+          for (final word in [...toponyms, ...artifacts]) {
+            if (cell.value.contains(word)) {
+              offenders.add(
+                '${entry.key} «${cell.key}» → «${cell.value}» ($word)',
+              );
+            }
+          }
+          // A toponym written in Latin letters must match a whole word:
+          // "Timor" may not hide inside a longer token by accident.
+          for (final word in toponyms.where(_startsLatin)) {
+            if (RegExp(
+              '\\b${RegExp.escape(word)}\\b',
+              caseSensitive: false,
+            ).hasMatch(cell.value)) {
+              offenders.add(
+                '${entry.key} «${cell.key}» → «${cell.value}» ($word)',
+              );
+            }
+          }
+        }
+      }
+      expect(offenders, isEmpty, reason: offenders.join('\n'));
+    },
+  );
+  test(
+    'status rows are translated and never left as the Russian key',
+    () {
+      // «Подключено» is not a catalogue key in this build; the status rows
+      // that do exist are listed here. Each one must be a real translation in
+      // every language: non-empty and different from the Russian source.
+      const statusKeys = <String>[
+        'ПОЛУЧЕНО',
+        'ПЕРЕДАНО',
+        'ДОСТУПЕН',
+        'Отключено',
+        'В РАЗРАБОТКЕ',
+        'ПРОТОКОЛ',
+      ];
+      final source = AppLanguages.catalogs['ru']!;
+      final offenders = <String>[];
+      for (final key in statusKeys) {
+        if (!source.containsKey(key)) {
+          offenders.add('missing source row «$key»');
+          continue;
+        }
+        for (final entry in AppLanguages.catalogs.entries) {
+          final value = entry.value[key];
+          if (value == null || value.trim().isEmpty) {
+            offenders.add('${entry.key} «$key» is empty');
+            continue;
+          }
+          if (entry.key != 'ru' && value == key) {
+            offenders.add('${entry.key} «$key» is still the Russian source');
+          }
+        }
+      }
+      expect(offenders, isEmpty, reason: offenders.join('\n'));
+      // The four defects reported for this iteration, pinned by value so the
+      // exact regressions cannot come back.
+      expect(AppLanguages.catalogs['de']!['ДОСТУПЕН'], 'VERFÜGBAR');
+      expect(AppLanguages.catalogs['es']!['ПОЛУЧЕНО'], 'RECIBIDO');
+      expect(AppLanguages.catalogs['zh']!['ПЕРЕДАНО'], '已发送');
+      expect(
+        AppLanguages.catalogs['ar']!['Обфускация WireGuard'],
+        'تشويش WireGuard',
+      );
+    },
+  );
+  test(
     'no catalogue reuses the English value while Russian is the source',
     () {
       final source = AppLanguages.catalogs['ru']!;
@@ -564,6 +662,10 @@ void main() {
     },
   );
 }
+
+/// True for a toponym written in Latin letters (CJK, Arabic and Devanagari
+/// spellings are matched by plain substring: no word boundaries there).
+bool _startsLatin(String word) => RegExp(r'^[A-Za-z]').hasMatch(word);
 
 /// One Dart string literal with its nesting level inside `${…}`.
 class _Literal {
