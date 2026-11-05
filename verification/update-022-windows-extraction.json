@@ -10,5 +10,7 @@
   ],
   "archiveExtractionPassed": true,
   "passed": true,
-  "archiveSha256": "5538e6ce9620771d9f31a49fb9f4fa5251cc6959b3a0b3dd2e8ca5c7072fabac"
+  "archiveSha256": "40cb61813a8170172e80e79ec1f2935c4e526a3bd8c4d684e10253d438b05b89",
+  "peVersion": "0.24.2+5019",
+  "peFileVersion": "0.24.2.5019"
 }

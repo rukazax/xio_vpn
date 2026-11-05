@@ -363,6 +363,60 @@ python3 tooling/cross-platform/build-windows-on-linux.py \
 релиза (см. `docs/update-channel.ru.md`), но при включении автообновления на
 Windows раскладку придётся согласовать.
 
+**PE-версия `XIO.exe` — проверять до упаковки.** Раннер приходит готовым, поэтому
+версия в его ресурсе VERSIONINFO — это версия той сборки, из которой раннер взяли,
+а не текущего выпуска. Так в 0.24.2 в пакет 0.24.2+5019 попал `XIO.exe` от
+0.24.1+5018. Чтение и перепроштамповка — `tooling/cross-platform/pe-version.py`:
+
+```bash
+# что записано в PE-ресурсе (FileVersion и PRODUCTVERSION — из app/pubspec.yaml)
+python3 tooling/cross-platform/pe-version.py releases/XIO.exe --print
+#   FILEVERSION:     0.24.2.5019
+#   PRODUCTVERSION:  0.24.2.5019
+#   FileVersion:     0.24.2+5019
+#   ProductVersion:  0.24.2+5019
+
+# вторая, независимая проверка — binutils читает PE сам, а не наш разбор ресурса
+strings -el releases/XIO.exe | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\+[0-9]+$'   # ровно 2 строки
+
+# на Windows — то же, что видит Проводник (Свойства → Подробно)
+(Get-Item XIO.exe).VersionInfo | Select-Object FileVersion,ProductVersion,FileVersionRaw
+```
+
+`build-windows-on-linux.py` штампует версию сам: берёт `version: X.Y.Z+B` из
+`app/pubspec.yaml`, вызывает `pe-version.py --stamp` для `XIO.exe` в собранном
+бандле и сразу читает ресурс обратно; несовпадение — ошибка сборки, а не
+предупреждение. Размер `.rsrc` при этом не меняется: правится только VERSIONINFO
+(в 0.24.2 — 8 байт: два числа FILEVERSION/PRODUCTVERSION и две строки), остальные
+ресурсы (иконка, манифест) не затрагиваются.
+
+Если `pe-version.py` завершился кодом 2 (`НУЖНА ПЕРЕЛИНКОВКА`), в секции `.rsrc`
+не осталось места под более длинную строку версии. Тогда нужен раннер, собранный
+из `Runner.rc`: нативная сборка на Windows (§3.4) или `x86_64-w64-mingw32-g++` из
+`tooling/cross-platform/windows_runner.cpp` (так делает
+`client/build_windows_on_linux.py`). Альтернатива — `rcedit` под wine; он
+переписывает ресурс целиком, поэтому размер `.rsrc` меняется:
+
+```bash
+wine rcedit-x64.exe XIO.exe \
+     --set-file-version 0.24.2.5019 --set-product-version 0.24.2.5019 \
+     --set-version-string FileVersion "0.24.2+5019" \
+     --set-version-string ProductVersion "0.24.2+5019"
+```
+
+Обе записи проверены на 0.24.2 и дают одинаковые значения (см.
+`work/windows-version-20261105.md`).
+
+Плоский ZIP выпуска собирается тем же скриптом флагом `--release-zip` (раскладка
+как у `Invoke-WindowsStep`, см. «Раскладка архива» выше):
+
+```bash
+python3 tooling/cross-platform/build-windows-on-linux.py --runner … --gen-snapshot … \
+    --wine-prefix … --release-zip
+# releases/XIO-<ver>-windows-x64.zip       — вложенный XIO/…, его ждёт апдейтер
+# releases/XIO-Full-<ver>-windows-x64.zip  — плоский, он и идёт в выпуск
+```
+
 **Границы:** wine запускает только доверенный AOT-компилятор и пробник. Wintun,
 драйвер, UAC, маршруты и DNS так не проверяются — для них нужен настоящий
 Windows-хост (`"scope": "Windows runtime under Wine, not a native Windows
@@ -401,7 +455,33 @@ go build -trimpath -ldflags="-s -w" `
 # 6. упаковка: ПЛОСКИЙ ZIP (XIO.exe в корне, без папки XIO\)
 Compress-Archive -Path "app\build\windows\x64\runner\Release\*" `
     -DestinationPath "releases\XIO-Full-0.24.2-windows-x64.zip" -CompressionLevel Optimal
+
+# 7. ПРОВЕРКА ПЕРЕД ПУБЛИКАЦИЕЙ — PE-версия должна совпасть с pubspec
+(Get-Item "app\build\windows\x64\runner\Release\XIO.exe").VersionInfo |
+    Select-Object FileVersion, ProductVersion, FileVersionRaw
+# ожидается: 0.24.2+5019 / 0.24.2+5019 / 0.24.2.5019
+python ..\tooling\cross-platform\pe-version.py `
+    "app\build\windows\x64\runner\Release\XIO.exe" --expect 0.24.2+5019
+# код 0 — версия совпала; 1 — расхождение, разбираться по списку ниже
 ```
+
+**Что делать при расхождении.** `Runner.rc` подставляет `FLUTTER_VERSION_*`,
+которые `flutter build windows` берёт из `pubspec.yaml`, поэтому расхождение
+почти всегда означает не «неверный pubspec», а устаревший артефакт:
+
+1. если `VersionInfo` показывает версию прошлого выпуска — раннер не пересобран:
+   удалить `app\build\windows` и повторить `flutter build windows --release`
+   (инкрементальная сборка переиспользует старый `.res`);
+2. если показывает `1.0.0` — CMake не передал `FLUTTER_VERSION_*` (сборка шла
+   напрямую через `cmake`, а не через `flutter build`) либо в `Runner.rc`
+   сработал обходной макрос `1,0,0,0`;
+3. если править `Runner.rc` нельзя (готовый чужой раннер, как в полу-кроссе
+   §3.3) — перепроштамповать бандл перед упаковкой:
+   `python tooling\cross-platform\pe-version.py XIO.exe --stamp --version 0.24.2+5019`
+   (или `rcedit`, см. §3.3);
+4. **пересобрать ZIP после правки** — иначе в архив попадёт старый exe. Помнить:
+   `release.py` считает расхождение версий Windows ZIP только предупреждением и
+   выпуск не блокирует, поэтому шаг 7 обязателен и его результат идёт в отчёт.
 
 Всё это уже автоматизировано: `pwsh tools/release/build-all.ps1 -Version 0.24.2
 -Skip android-full,android-client,linux,server` (шаг `windows`).
