@@ -696,6 +696,26 @@ RIVET нет. Доступность входа и маскировка тран
 - **Рядом с другим VPN** XIO не работает: конфликтуют маршруты `/1`.
 - Приложение Windows не подписано сертификатом издателя, поэтому SmartScreen предупреждает.
 
+## Клонирование и сборка из Git
+
+Достаточно обычного клона. Изменённые исходники AWG лежат в репозитории обычными файлами — это
+не сабмодули и не Git LFS: `vendor/amneziawg-go` (upstream `amnezia-vpn/amneziawg-go`
+v3.1.20260814 плюс API активации XIO, описанный в `vendor/amneziawg-go/XIO-CHANGES.md`) и
+`vendor/amneziawg` (Android-мост с готовыми `jniLibs`). `protocol/rivet/go.mod` подменяет модуль
+на `../../vendor/amneziawg-go`, поэтому `go build ./...` идёт сразу после клонирования.
+
+```sh
+git clone --recurse-submodules https://github.com/rukazax/xio_vpn.git
+cd xio_vpn
+cd app && flutter pub get && flutter analyze   # app/pubspec.yaml
+cd ../protocol/rivet && go build ./...         # Go 1.27.x
+```
+
+`--recurse-submodules` безвреден и оставлен на будущее, но сейчас ничего не делает: файла
+`.gitmodules` нет, `git submodule update --init --recursive` — пустая операция. Вне git остаются
+только артефакты сборки: `vendor-server/*` и AAR создаёт `tools/build-rivet.py`, а
+`python3 tools/package-server.py --check` сверяет их с `vendor-metadata/rivet-build.json`.
+
 ## Документация
 
 - [Возможности подробно](docs/features.ru.md) · [Features (EN)](docs/features.md)

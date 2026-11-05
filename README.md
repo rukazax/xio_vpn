@@ -687,6 +687,27 @@ different jobs.
 - **Alongside another VPN** XIO does not work: the `/1` routes conflict.
 - The Windows application is not signed with a publisher certificate, so SmartScreen warns.
 
+## Clone and build from Git
+
+A plain clone is enough. The modified AWG sources are tracked files, not submodules and not Git
+LFS: `vendor/amneziawg-go` (upstream `amnezia-vpn/amneziawg-go` v3.1.20260814 plus the XIO
+activation API documented in `vendor/amneziawg-go/XIO-CHANGES.md`) and `vendor/amneziawg`
+(Android bridge with the prebuilt `jniLibs`). `protocol/rivet/go.mod` replaces the module with
+`../../vendor/amneziawg-go`, so `go build ./...` works straight after cloning.
+
+```sh
+git clone --recurse-submodules https://github.com/rukazax/xio_vpn.git
+cd xio_vpn
+cd app && flutter pub get && flutter analyze   # app/pubspec.yaml
+cd ../protocol/rivet && go build ./...         # Go 1.27.x
+```
+
+`--recurse-submodules` is harmless and future-proof, but does nothing here: there is no
+`.gitmodules`, and `git submodule update --init --recursive` is a no-op as well. Only build
+artifacts stay out of the tree: `tools/build-rivet.py` produces `vendor-server/*` and the AAR,
+and `python3 tools/package-server.py --check` verifies them against
+`vendor-metadata/rivet-build.json`.
+
 ## Documentation
 
 - [Features in detail](docs/features.md) · [Возможности (RU)](docs/features.ru.md)

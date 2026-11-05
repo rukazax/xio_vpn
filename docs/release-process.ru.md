@@ -40,6 +40,7 @@
 | Шаг | Команда |
 |---|---|
 | синтаксис скриптов | `bash -n` для всех `deploy/**/*.sh` (сейчас 11 файлов) |
+| нативные исходники | отдельный шаг не нужен: `vendor/amneziawg-go` и `vendor/amneziawg` — обычные файлы в git (не сабмодули и не LFS), поэтому после `actions/checkout` сразу работают `go build ./...` в `protocol/rivet` и `python3 tools/package-server.py --check` |
 | тесты | `sudo -n python3 -m pytest -q -p no:cacheprovider --deselect … server/managed server/catalog tools` |
 | артефакт | `.github-ci/{pytest,shellcheck}.log` → `ci-server-<sha>` |
 

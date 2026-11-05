@@ -2,7 +2,7 @@
 
 [Русский](../ru/build.md) · [Home](../../README.md)
 
-Download the matching source archive from [Downloads](downloads.md). It includes original code, modified third-party components and pinned dependency sources. SDKs, production signing keys and private profiles are excluded. When building from Git, use the vendor sources matching the release. Do not replace modified forks with arbitrary upstream versions.
+Download the matching source archive from [Downloads](downloads.md). It includes original code, modified third-party components and pinned dependency sources. SDKs, production signing keys and private profiles are excluded. When building from Git, the modified forks (`vendor/amneziawg-go`, `vendor/amneziawg`) are already tracked in the repository — nothing extra to download, and there is no `.gitmodules`. Do not replace modified forks with arbitrary upstream versions: the XIO AWG patch (`vendor/amneziawg-go/XIO-CHANGES.md`) is required by `protocol/rivet`.
 
 Current toolchain: Flutter 3.47.7, Dart 3.13.5, Go 1.27.2 and Python 3.12; Android also needs JDK 17, SDK 36, NDK 30.0.16248370 and CMake/Ninja. Do not automatically upgrade dependencies when reproducing a release.
 
