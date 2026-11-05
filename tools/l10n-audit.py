@@ -31,7 +31,6 @@ from __future__ import annotations
 import json
 import re
 import sys
-import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -179,13 +178,6 @@ LATIN_ALLOW = {
 # Curated expected values for the status rows: a translator must use a
 # participle (or the idiomatic noun) of the target language, never a country
 # name and never a Russian/English transliteration.
-STATE_KEYS = [
-    "ПОЛУЧЕНО",
-    "ПЕРЕДАНО",
-    "ДОСТУПЕН",
-    "В РАЗРАБОТКЕ",
-    "ПРОТОКОЛ",
-]
 # Values that are intentionally identical in every language: units follow
 # international notation («B», «kB», «MB», «s», «ms»), so a bare unit cell is
 # not a missing translation.
