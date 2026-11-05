@@ -25,7 +25,7 @@ wLength корневого узла, поэтому хвостовые нули 
   pe-version.py --print releases/XIO.exe
   pe-version.py --print releases/XIO.exe --json
   pe-version.py --stamp releases/XIO.exe --pubspec app/pubspec.yaml
-  pe-version.py --expect releases/XIO.exe 0.24.2+5019
+  pe-version.py releases/XIO.exe --expect 0.24.2+5019
   pe-version.py --self-test releases/XIO.exe
 """
 from __future__ import annotations
