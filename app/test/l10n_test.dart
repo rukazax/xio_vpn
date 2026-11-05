@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/cascade_ui.dart';
 import 'package:xio/core.dart';
 import 'package:xio/l10n.dart';
+import 'package:xio/legal_record.dart';
 import 'package:xio/main.dart';
 import 'package:xio/mtproto_ui.dart';
 import 'support/screenshots.dart';
@@ -100,6 +101,96 @@ void main() {
             reason: '${entry.key}: $key',
           );
           expect(entry.value[key], isNot(contains('ZXQ')));
+        }
+      }
+    },
+  );
+  test(
+    'no catalogue reuses the English value while Russian is the source',
+    () {
+      final source = AppLanguages.catalogs['ru']!;
+      final english = AppLanguages.catalogs['en']!;
+      // English is only a translation target here: every catalogue key is the
+      // Russian source string, so an English value would mean "not translated".
+      // The few values that may still equal English are listed below.
+      //
+      // 1. Unit suffixes follow international notation: German, Spanish,
+      //    Italian, Portuguese and English write the same «B», «kB», «MB»,
+      //    «s» and «ms». Translating them would be wrong, not missing.
+      const unitKeys = {'{0} Б', '{0} КБ', '{0} МБ', '{0} с', '{0} мс'};
+      // 2. Version banners only replace the number; the word stays «Version».
+      final versionKey = RegExp(
+        r'Версия (\d+\.\d+\.\d+|\{\d+\})$',
+        multiLine: true,
+      );
+      // 3. Words spelled exactly like the English one in that language
+      //    (German «Server», French «Cascade», Italian «Home», …).
+      const cognates = <String, Set<String>>{
+        'de': {
+          'Server',
+          'Server: {0}',
+          'Routing',
+          'Tests',
+          'Online',
+          'Offline',
+          'Name',
+          'Subclients',
+        },
+        'es': {
+          'Experimental · QUIC / CONNECT-UDP',
+          'Experimental · TLS / WebSocket',
+        },
+        'pt': {
+          'Experimental · QUIC / CONNECT-UDP',
+          'Experimental · TLS / WebSocket',
+        },
+        'fr': {
+          'Tests',
+          'Application',
+          'Interface active',
+          'Turquoise',
+          'Cascade',
+          'Licences',
+        },
+        'it': {'Server', 'Server: {0}', 'Online', 'Offline', 'Home'},
+      };
+      final offenders = <String>[];
+      final used = <String>{};
+      for (final code in AppLanguages.names.keys) {
+        // Russian is the source and English is its translation: both are
+        // supposed to match themselves.
+        if (code == 'ru' || code == 'en') continue;
+        final catalogue = AppLanguages.catalogs[code]!;
+        for (final key in source.keys) {
+          final value = catalogue[key]!;
+          if (value != english[key]) continue;
+          if (unitKeys.contains(key)) {
+            used.add('units:$key');
+            continue;
+          }
+          if (versionKey.hasMatch(key)) {
+            used.add('version:$key');
+            continue;
+          }
+          if ((cognates[code] ?? const <String>{}).contains(value)) {
+            used.add('$code:$value');
+            continue;
+          }
+          offenders.add('$code «$key» → «$value»');
+        }
+      }
+      expect(offenders, isEmpty, reason: offenders.join('\n'));
+      // A stale allowlist entry would hide the next real regression.
+      for (final key in unitKeys) {
+        expect(used, contains('units:$key'), reason: 'drop the «$key» exception');
+      }
+      for (final entry in cognates.entries) {
+        for (final word in entry.value) {
+          expect(
+            used,
+            contains('${entry.key}:$word'),
+            reason: 'drop the «$word» exception for ${entry.key}',
+          );
         }
       }
     },
@@ -335,6 +426,60 @@ void main() {
         '../verification/l10n-layouts-0.16.json',
         const JsonEncoder.withIndent('  ').convert(evidence),
       );
+    },
+  );
+  testWidgets(
+    'licence and VPN acknowledgement screens fit 360×640 in all 13 languages',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      for (final code in AppLanguages.names.keys) {
+        for (final vpn in [false, true]) {
+          AppLanguages.set(code);
+          final store = _MemoryStore()
+            ..ready = true
+            ..enforceConsent = true;
+          if (vpn) {
+            // Legal acknowledgement done: the gate shows the VPN disclosure.
+            store.legalRecord = LegalRecord.acknowledge('document', 'en');
+          }
+          await tester.pumpWidget(
+            XioApp(key: UniqueKey(), store: store, requireConsent: true),
+          );
+          await tester.pumpAndSettle();
+          final title = vpn ? 'Как работает VPN' : 'Лицензия и ответственность';
+          expect(
+            find.text(AppLanguages.text(title)),
+            findsOneWidget,
+            reason: '$code vpn=$vpn',
+          );
+          // Interface labels are translated; the long legal body is not a key.
+          if (code != 'ru') {
+            expect(
+              AppLanguages.text('Продолжить'),
+              isNot('Продолжить'),
+              reason: '$code keeps a Russian label',
+            );
+          }
+          await tester.scrollUntilVisible(
+            find.byKey(const ValueKey('ack-continue')),
+            300,
+            scrollable: find.byType(Scrollable).first,
+          );
+          expect(
+            find.text(AppLanguages.text('Продолжить')),
+            findsOneWidget,
+            reason: '$code vpn=$vpn',
+          );
+          expect(tester.takeException(), isNull, reason: '$code vpn=$vpn');
+          await tester.pumpWidget(const SizedBox());
+          store.dispose();
+        }
+      }
     },
   );
   testWidgets(
