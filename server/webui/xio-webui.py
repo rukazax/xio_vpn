@@ -1171,26 +1171,61 @@ class TLSServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
     request_queue_size = 64
+    connection_limit = 32
+    handshake_timeout = 5
+    http_idle_timeout = 15
+    request_deadline = 60
 
     def __init__(self, address, handler, ssl_context):
         self.address_family = socket.AF_INET6 if ":" in address[0] else socket.AF_INET
         super().__init__(address, handler)
         self.ssl_context = ssl_context
+        self._connection_slots = threading.BoundedSemaphore(self.connection_limit)
 
-    def get_request(self):
-        sock, addr = self.socket.accept()
-        sock.settimeout(30)
+    def process_request(self, request, client_address):
+        # Admission happens before creating a worker. A slow TLS client cannot
+        # block accept(), and unlimited sockets cannot create unlimited threads.
+        if not self._connection_slots.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
         try:
-            tls = self.ssl_context.wrap_socket(sock, server_side=True)
-        except (ssl.SSLError, OSError) as exc:
-            log("tls handshake failed: %s" % exc.__class__.__name__, "WARN")
-            try:
-                sock.close()
-            except OSError:
-                pass
+            super().process_request(request, client_address)
+        except BaseException:
+            self._connection_slots.release()
             raise
-        tls.settimeout(None)
-        return tls, addr
+
+    @staticmethod
+    def _expire_connection(connection):
+        # An absolute deadline also closes trickled headers/body: an idle timeout
+        # alone can be defeated by sending one byte before each timeout expires.
+        try:
+            connection.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+
+    def process_request_thread(self, request, client_address):
+        connection = request
+        deadline = None
+        try:
+            request.settimeout(self.handshake_timeout)
+            connection = self.ssl_context.wrap_socket(request, server_side=True)
+            connection.settimeout(self.http_idle_timeout)
+            deadline = threading.Timer(
+                self.request_deadline, self._expire_connection, (connection,))
+            deadline.daemon = True
+            deadline.start()
+            self.finish_request(connection, client_address)
+        except (ssl.SSLError, OSError) as exc:
+            log("TLS/HTTP connection failed: %s" % exc.__class__.__name__, "WARN")
+        except Exception:
+            self.handle_error(connection, client_address)
+        finally:
+            if deadline is not None:
+                deadline.cancel()
+            try:
+                self.shutdown_request(connection)
+            finally:
+                self._connection_slots.release()
 
 
 def main(argv=None):

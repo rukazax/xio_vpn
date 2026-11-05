@@ -185,6 +185,8 @@ void main() {
     ]) {
       final archive = Archive()
         ..add(ArchiveFile.string('XIO/XIO.exe', 'exe'))
+        ..add(ArchiveFile.string('XIO/flutter_windows.dll', 'engine'))
+        ..add(ArchiveFile.string('XIO/data/app.so', 'aot'))
         ..add(entry);
       final source = File('${dir.path}/test.zip')
         ..writeAsBytesSync(ZipEncoder().encode(archive));
@@ -197,6 +199,7 @@ void main() {
     }
     final archive = Archive()
       ..add(ArchiveFile.string('XIO/XIO.exe', 'exe'))
+      ..add(ArchiveFile.string('XIO/flutter_windows.dll', 'engine'))
       ..add(ArchiveFile.string('XIO/data/app.so', 'aot'));
     final source = File('${dir.path}/test.zip')
       ..writeAsBytesSync(ZipEncoder().encode(archive));
