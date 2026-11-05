@@ -236,89 +236,222 @@ $ python3 tools/release/release.py --dry-run --dir …\release-0.24.2 --tag v0.2
 
 ---
 
-## 3. Windows: почему в 0.24.2 лежит ZIP от 0.24.1 и как пересобрать
+## 3. Windows: где собирается пакет, почему в 0.24.2 лежал ZIP от 0.24.1
 
-### 3.1 Почему 0.24.1
+### 3.1 Главное правило
 
-В выпуске 0.24.2 файл называется `XIO-Full-0.24.1-windows-x64.zip`
-(54 535 239 Б) — это не опечатка. Причины, зафиксированные в
-`docs/release-notes-0.24.2.md`:
+> **Windows-пакет `XIO-Full-<ver>-windows-x64.zip` собирается только на
+> Windows-хосте.** Штатной кросс-компиляции Windows-приложений во Flutter нет:
+> `flutter build windows` отвечает `"build windows" only supported on Windows
+> hosts.` и на Linux, и на macOS. Ни `wine`, ни `mingw` этого ограничения не
+> снимают — они дают лишь **полу-кросс** (раздел 3.3), который not a substitute
+> для нативной сборки.
 
-1. **Нативная сборка на Windows-хосте заблокирована** WDAC/Smart App Control:
-   `dartaotruntime.exe`, `gen_snapshot.exe`, `impellerc.exe`, `flutter_tester.exe`
-   не запускаются (`WinError 4551`). Поэтому APK и тесты идут на Debian, а
-   Windows-часть собирается отдельно.
-2. **Кросс-сборка на Debian требует подготовленного входа** — прекомпилированный
-   Windows-runner и `gen_snapshot.exe` ровно от той ревизии Flutter, что в
-   `pubspec.lock`/SDK. Пока их нет, ZIP остаётся прежним.
-3. Итог в самом документе: «Windows-сборка в этом релизе может быть от rc13 —
-   если пересборка не успеет, ZIP останется прежним». Так и вышло.
+В выпуске 0.24.2 изначально лежал `XIO-Full-0.24.1-windows-x64.zip`
+(54 535 239 Б) — не опечатка, а следствие двух причин:
 
-Важно: `release.py` считает такую ситуацию **предупреждением, а не ошибкой**
-(`! Windows ZIP от версии 0.24.1`), потому что это осознанное состояние
-выпуска, а не битый набор.
+1. **Нативная сборка на этом ПК упирается в AppLocker/WDAC.** Проверено
+   2026-11-05: `dartaotruntime.exe --version` ещё запускается, а
+   `gen_snapshot.exe` — нет (`Политика управления приложениями заблокировала
+   этот файл`). Без AOT-компилятора `flutter build windows --release` не
+   доходит до результата (`WinError 4551`, см. `docs/release-notes-0.24.2.md`).
+2. **Полу-кросс на Debian требует подготовки**: wine, `xvfb`, артефакты движка
+   Windows от **той же** ревизии Flutter и готовый Windows-runner. Пока их нет,
+   ZIP остаётся прежним.
 
-### 3.2 Кросс-сборка на Debian (wine + mingw, engine cache)
+2026-11-05 пакет 0.24.2 собран на Debian по разделу 3.3
+(`XIO-Full-0.24.2-windows-x64.zip`, 55 068 159 Б) и положен в каталог выпуска
+вместо 0.24.1. Для вступления в силу нужна перепубликация (`release.py` без
+`--dry-run`); сама по себе замена файла в каталоге GitHub не меняет.
 
-Основной поддерживаемый путь для Full-сборки — штатный:
+`release.py` считает расхождение версий **предупреждением, а не ошибкой**: если
+Windows ZIP ниже версии выпуска, в отчёте появляется блок
+`ПРЕДУПРЕЖДЕНИЯ: N — на код возврата не влияют` со строкой
+`Windows ZIP от версии X — ниже версии выпуска Y: пакет не пересобран …`.
+Так расходятся версии не забываются, но выпуск не блокируется.
+
+### 3.2 Диагноз: что показывает Debian (2026-11-05)
 
 ```bash
-# на Debian, из корня репозитория
-python3 tooling/cross-platform/build-windows-on-linux.py \
-    --runner   /path/to/windows-runner-bundle   \
-    --gen-snapshot /path/to/gen_snapshot.exe     \
-    --wine-prefix /path/to/private/wineprefix
+$ which wine wine64 xvfb-run mingw32-gcc x86_64-w64-mingw32-gcc
+/usr/bin/xvfb-run          # wine/xvfb-run были только из этого списка; mingw не было вовсе
+$ apt-cache policy wine     # wine 10.0~repack-6, wine32 в trixie недоступен (только amd64)
+$ apt-get install -y --no-install-recommends wine wine64   # поставлено, 772 МБ префикс
+$ wine --version
+wine-10.0 (Debian 10.0~repack-6)
+
+$ flutter build windows --release
+"build windows" only supported on Windows hosts.
+
+$ flutter config --enable-windows-desktop
+Setting "enable-windows-desktop" value to "true".
 ```
+
+Последняя команда — **ловушка**: `flutter config` принимает флаг, но сборку не
+разрешает; ограничение зашито в сам инструмент (`only supported on Windows
+hosts`) и не переключается настройкой.
+
+Что при этом **работает** на Linux (проверено, код 0):
+
+```bash
+$ flutter precache --windows        # скачивает windows-x64{,-release}/gen_snapshot.exe
+$ flutter build bundle --release --target-platform=windows-x64
+```
+
+### 3.3 Полу-кросс на Debian: вход, команда, что проверено
+
+Это не «кросс-компиляция Flutter», а сборка из трёх частей: Dart-ядро
+компилируется на Linux, AOT-образ для Windows делает **Windows-овский**
+`gen_snapshot.exe` под wine, а Win32-обвязка берётся готовой с Windows-хоста.
 
 Что нужно подготовить заранее:
 
 | Вход | Что это | Где взять |
 |---|---|---|
-| `--runner` | готовый Windows-бандл Flutter (XIO.exe, `flutter_windows.dll`, `data/icudtl.dat`) | одна успешная нативная сборка `flutter build windows --release` на Windows-хосте; в 0.22.4 использовался бандл из `work/win-full-0231` |
-| `--gen-snapshot` | AOT-компилятор под Windows **той же** ревизии Flutter (3.47.7) | артефакты движка Windows: `flutter precache --windows`, каталог `engine/windows-x64*/gen_snapshot.exe` |
-| `--wine-prefix` | отдельный `WINEPREFIX` | создаётся один раз: `WINEPREFIX=… wineboot -i`; приватный префикс нужен, чтобы не конфликтовать с другой Wine-сессией |
+| `--runner` | готовый Windows-бандл (`XIO.exe`, `flutter_windows.dll`, `data/icudtl.dat`) | одна успешная нативная сборка `flutter build windows --release` на Windows-хосте (каталог `app/build/windows/x64/runner/Release`); в 0.22.4 — бандл `work/win-full-0231` |
+| `--gen-snapshot` | AOT-компилятор под Windows **той же** ревизии Flutter | `flutter precache --windows` → `bin/cache/artifacts/engine/windows-x64-release/gen_snapshot.exe` |
+| `--wine-prefix` | отдельный `WINEPREFIX` | `WINEPREFIX=… wineboot -i` |
 
-Скрипт делает всё остальное: `flutter build bundle --target-platform=windows-x64`,
-подменяет `data/flutter_assets`, гоняет `xvfb-run -a wine gen_snapshot.exe
---deterministic --snapshot_kind=app-aot-elf --strip` (ELF-образ для Windows
-engine), собирает архив и **проверяет его на себе**: запускает пробник под Wine
-(`Platform.isWindows`, семь движков, распаковка ZIP) и пишет
-`verification/update-0XX-windows-extraction.json`.
+**Ключевое условие — совпадение ревизии движка.** В 0.24.2 на обеих машинах
+Flutter 3.47.7 с `engineRevision deb287481e3ce9468f3434937ced4240a70539ca`;
+если ревизии разные, `flutter_windows.dll` не примет `app.so`, и проверять это
+надо до сборки.
 
-Старый путь (клиентская сборка) с `engine cache` и mingw — в
-`client/build_windows_on_linux.py`:
+Полный прогон 2026-11-05 (Debian, репозиторий из `main`):
 
 ```bash
-python3 client/build_windows_on_linux.py \
-    --engine-cache   /path/to/engine/windows-cache \
-    --runtime-template /path/to/windows-runtime \
-    --wine-prefix    /path/to/wineprefix
+export PATH=/opt/flutter/bin:$PATH WINEPREFIX=/root/.wine-xio WINEDEBUG=-all
+python3 tooling/cross-platform/build-windows-on-linux.py \
+    --runner       /root/win-runner \
+    --gen-snapshot /opt/flutter/bin/cache/artifacts/engine/windows-x64-release/gen_snapshot.exe \
+    --wine-prefix  /root/.wine-xio
 ```
 
-Здесь `--engine-cache` — каталог артефактов движка Flutter для Windows, откуда
-берутся `release/` (заголовки `flutter_windows.h`, `libflutter_windows.a`) и
-`debug/gen_snapshot.exe`; runner (`runner.cpp` из
-`tooling/cross-platform/windows_runner.cpp` + ресурсы `.rc`) компилируется
-`x86_64-w64-mingw32-g++`/`-windres` прямо на Debian.
+Результат: `releases/XIO-0.24.2-windows-x64.zip` (55 068 159 Б) и
+`verification/update-022-windows-extraction.json`:
 
-Требования к Debian-хосту: `wine`, `xvfb-run` (`xvfb`), `x86_64-w64-mingw32-g++`
-и `-windres` (`g++-mingw-w64-x86-64`, `binutils-mingw-w64-x86-64`), Go для
-`xio-tunnel.exe` (`GOOS=windows GOARCH=amd64 CGO_ENABLED=0`), Flutter 3.47.7.
+```json
+{"operatingSystem":"windows","isWindows":true,"scope":"Windows runtime under Wine, not a native Windows driver/UAC test",
+ "engines":["awg","rivet-h3","rivet-s1","xray"],"archiveExtractionPassed":true,"passed":true}
+```
 
-**Границы:** Wine запускает только доверенный AOT-компилятор и пробник. Ни
-Wintun, ни драйвер, ни UAC, ни маршруты/DNS так не проверяются — для них нужен
-настоящий Windows-хост. Об этом же говорит `verification/update-022-windows-extraction.json`
-(`"scope": "Windows runtime under Wine, not a native Windows driver/UAC test"`).
+Дополнительно проверено вручную: `data/app.so` — ELF 64-bit x86-64 (9,52 МБ,
+это Windows-AOT-образ), `libexec/xio-tunnel.exe` — PE32+ (Go 1.27.3,
+`GOOS=windows GOARCH=amd64`, 31,45 МБ), распакованный пакет запускается под wine
+и держится 25 с без падения (`Impeller`, `OpenGLESSDF`).
 
-### 3.3 Проверка Windows-архива после сборки
+Две ловушки, на которых спотыкается первый прогон (обе безобидны):
+
+* в `--runner` должен быть **пустой** каталог `data/flutter_assets` — скрипт
+  делает `rmtree` без `ignore_errors`; без каталога падает `FileNotFoundError`;
+* после неудачного прогона нужно чистить `app/.dart_tool/flutter_build`, иначе
+  `flutter build bundle` переиспользует старый `app.dill` и срабатывает
+  проверка «Kernel generation did not produce a fresh snapshot».
+
+**Раскладка архива.** Скрипт пишет записи с префиксом `XIO/`, а выпуск
+(`tools/release/build-all.ps1`, `Invoke-WindowsStep`) пакует **плоский** ZIP:
+`XIO.exe`, `flutter_windows.dll`, `data/`, `libexec/`, `native_assets.json`,
+`LICENSE`, `COPYRIGHT`, `CROSS-PLATFORM-0.19.ru.md` в корне. Для выпуска нужен
+плоский вариант; при перепаковке из кросс-сборки убираются `CHANGELOG.md`,
+`THIRD-PARTY-0.21.md`, `THIRD-PARTY-0.22.md` и `data/flutter_assets/.last_build_id`
+и добавляется `native_assets.json`.
+
+Отдельно: **встроенный апдейтер ждёт наоборот вложенный архив** —
+`extractWindowsUpdate` требует `XIO/XIO.exe` и отвергает плоский ZIP
+(`FormatException: Unsafe update archive`). Сейчас это не проявляется, потому
+что в манифесте 0.24.2 нет `windows-x64` и Windows-клиент открывает страницу
+релиза (см. `docs/update-channel.ru.md`), но при включении автообновления на
+Windows раскладку придётся согласовать.
+
+**Границы:** wine запускает только доверенный AOT-компилятор и пробник. Wintun,
+драйвер, UAC, маршруты и DNS так не проверяются — для них нужен настоящий
+Windows-хост (`"scope": "Windows runtime under Wine, not a native Windows
+driver/UAC test"`). Полу-кросс — обход блокировки, а не замена нативной сборки.
+
+Старый клиентский путь (`client/build_windows_on_linux.py`) собирает runner
+`x86_64-w64-mingw32-g++` из `tooling/cross-platform/windows_runner.cpp` и требует
+`--engine-cache`; для Full-пакета он не нужен.
+
+### 3.4 Штатный путь: пошагово на Windows-хосте
+
+Нужны: Windows 11 x64, Flutter 3.47.7 (та же ревизия движка), Go 1.27.3,
+Visual Studio 2022 Build Tools с workload «Desktop development with C++»,
+PowerShell 7, и — обязательно — политика приложений, не блокирующая
+`gen_snapshot.exe`.
+
+```powershell
+# 1. зависимости и проверки (тесты можно гонять на Debian, если на Windows их режет WDAC)
+cd app;  flutter pub get;  flutter analyze;  flutter test
+
+# 2. сборка раннера и AOT (даёт XIO.exe, flutter_windows.dll, data/app.so)
+flutter build windows --release
+
+# 3. VPN-помощник
+cd ..\protocol\rivet
+go build -trimpath -ldflags="-s -w" `
+    -o ..\..\app\build\windows\x64\runner\Release\libexec\xio-tunnel.exe ./cmd/xio-desktop
+
+# 4. Wintun 0.14.1 (amd64) — только официальный архив, sha256 ниже
+#    https://www.wintun.net/builds/wintun-0.14.1.zip
+#    07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51
+#    -> libexec\wintun.dll + libexec\WINTUN-LICENSE.txt
+
+# 5. лицензии в корень бандла: LICENSE, COPYRIGHT, CROSS-PLATFORM-0.19.ru.md
+
+# 6. упаковка: ПЛОСКИЙ ZIP (XIO.exe в корне, без папки XIO\)
+Compress-Archive -Path "app\build\windows\x64\runner\Release\*" `
+    -DestinationPath "releases\XIO-Full-0.24.2-windows-x64.zip" -CompressionLevel Optimal
+```
+
+Всё это уже автоматизировано: `pwsh tools/release/build-all.ps1 -Version 0.24.2
+-Skip android-full,android-client,linux,server` (шаг `windows`).
+
+**Подпись.** Authenticode сейчас не применяется: сертификата code signing в
+проекте нет, `signtool` нигде не вызывается. Целостность обеспечивает
+`SHA256SUMS-<ver>.txt`, который `release.py` пересчитывает и сверяет при
+публикации и при анонимной проверке. Когда сертификат появится, подписывать
+нужно **до** упаковки ZIP, по каждому PE-файлу:
+
+```powershell
+signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 `
+    /f cert.pfx /p $env:CERT_PASSWORD `
+    app\build\windows\x64\runner\Release\XIO.exe `
+    app\build\windows\x64\runner\Release\libexec\xio-tunnel.exe
+```
+
+`wintun.dll` — сторонний бинарник, его не переподписываем (лицензия Wintun
+запрещает модификацию), поэтому подпись `XIO.exe` + `xio-tunnel.exe` и sha256
+всего архива остаются единственными точками доверия.
+
+### 3.5 Вариант: собрать на другой Windows-машине по ssh
+
+Если Windows-хост есть, но не этот ПК (или политика приложений на нём мягче),
+сборку можно запустить с Debian одной командой:
 
 ```bash
-# состав плоского ZIP: XIO.exe, data/, libexec/xio-tunnel.exe, libexec/wintun.dll
+# на Windows-хосте должен быть OpenSSH Server и тот же репозиторий
+ssh win-build 'powershell -NoProfile -ExecutionPolicy Bypass -File C:\xio\XIO\tools\release\build-all.ps1 -Version 0.24.2 -Skip android-full,android-client,linux,server'
+scp 'win-build:C:/xio/XIO/releases/XIO-Full-0.24.2-windows-x64.zip' .
+python3 tools/release/release.py --tag v0.24.2 --dir ./release-0.24.2   # публикация
+```
+
+Требования к такому хосту: Flutter 3.47.7, Go 1.27.3, VS Build Tools (C++),
+и `gen_snapshot.exe` не должен блокироваться. **На этом ПК путь не работает**:
+именно `gen_snapshot.exe` режет AppLocker/WDAC (раздел 3.2), а агент `WinWorker`
+живёт на этой же машине — то есть нужен либо другой Windows-хост/VM, либо
+снятие политики для каталога Flutter.
+
+### 3.6 Проверка Windows-архива после сборки
+
+```bash
+# плоский ZIP: XIO.exe, data/, libexec/xio-tunnel.exe, libexec/wintun.dll
 python3 - <<'PY'
-import zipfile; z=zipfile.ZipFile('releases/XIO-0.24.2-windows-x64.zip')
+import zipfile; z=zipfile.ZipFile('releases/XIO-Full-0.24.2-windows-x64.zip')
 names=z.namelist()
-for need in ('XIO/XIO.exe','XIO/libexec/xio-tunnel.exe','XIO/libexec/wintun.dll'):
+for need in ('XIO.exe','libexec/xio-tunnel.exe','libexec/wintun.dll',
+             'data/app.so','data/icudtl.dat','flutter_windows.dll'):
     assert need in names, need
+assert not any(n.startswith('XIO/') for n in names), 'выпуск пакуется плоским'
 print('windows zip ok:', len(names), 'файлов')
 PY
 ```
@@ -384,6 +517,26 @@ python3 tools/release/release.py --tag v0.24.2 --ssh debian17 \
   совпали, код 0;
 * реальная подпись 5 APK через `apksigner` — сертификат `e4e81b12…c9671`.
 
+Проверено 2026-11-05 (сборка Windows-пакета 0.24.2):
+
+* на Debian стоит `wine-10.0`, `xvfb-run`; mingw не ставился (для Full он не нужен);
+* `flutter build windows --release` на Debian — `"build windows" only supported
+  on Windows hosts.`; `flutter config --enable-windows-desktop` ограничение не снимает;
+* `flutter precache --windows` и `flutter build bundle --target-platform=windows-x64`
+  на Debian — код 0;
+* `gen_snapshot.exe` (windows-x64-release) запускается под `xvfb-run wine` и
+  компилирует `app.so`;
+* полный прогон `tooling/cross-platform/build-windows-on-linux.py` собрал
+  `XIO-Full-0.24.2-windows-x64.zip` (55 068 159 Б); пробник под wine:
+  `isWindows:true, passed:true`, `archiveExtractionPassed:true`;
+* распакованный пакет 0.24.2 стартует под wine и держится 25 с без падения;
+* ревизии движка Flutter на Windows и Debian совпали
+  (`deb287481e3ce9468f3434937ced4240a70539ca`);
+* на этом ПК `gen_snapshot.exe` по-прежнему блокируется политикой приложений —
+  нативная Windows-сборка 0.24.2 без снятия блокировки невозможна;
+* 29 тестов `tools/test_release_script.py` — зелёные после добавления
+  предупреждения о версии Windows ZIP.
+
 Не проверено:
 
 * **реальный прогон CI на раннере** — раннеры зарегистрированы на другой
@@ -397,11 +550,12 @@ python3 tools/release/release.py --tag v0.24.2 --ssh debian17 \
   повторного запуска `flutter test`**, после чего baseline в
   `tools/ci/pytest-baseline.txt` нужно перепроверить вместе с добавленным
   `tools/test_release_script.py` (ожидаемо 189 passed, 5 deselected);
-* Windows-кросс-сборка не выполнялась: на Debian не проверялось наличие
-  `wine`/`xvfb-run`/`mingw` (SSH был недоступен), прекомпилированного Windows
-  runner и `gen_snapshot.exe` под рукой нет;
+* **Windows-пакет 0.24.2 не проверен на живой Windows**: драйвер Wintun, UAC,
+  маршруты, DNS и установка поверх 0.24.1 — вне возможностей wine (раздел 3.3);
 * публикация (upload/delete ассетов) не выполнялась — по заданию ничего не
-  публикуем; проверены только план и анонимная сверка.
+  публикуем; проверены только план и анонимная сверка. После замены файла в
+  каталоге выпуска GitHub всё ещё отдаёт `XIO-Full-0.24.1-windows-x64.zip`,
+  пока не выполнена перепубликация.
 
 ---
 
@@ -439,28 +593,41 @@ download every asset **anonymously** and compare sha256 and size. Exit code 1 on
 any mismatch. `--dry-run` performs checks and prints the plan only;
 `--verify-only` downloads and verifies without publishing.
 
-**Windows** stays at 0.24.1 in the 0.24.2 release because the native Windows
-build is blocked by WDAC (`dartaotruntime.exe`, `gen_snapshot.exe`,
-`impellerc.exe`, `flutter_tester.exe` fail with `WinError 4551`) and the Debian
-cross-build needs a prebuilt Windows runner plus a `gen_snapshot.exe` from the
-same Flutter revision:
+**Windows** is the one artifact that has **no official cross-build**: Flutter
+answers `"build windows" only supported on Windows hosts.` on Linux, and
+`flutter config --enable-windows-desktop` changes nothing. The package is built
+on a Windows host (section 3.4: `flutter build windows --release`, Go helper,
+Wintun 0.14.1, flat ZIP; Authenticode is not configured yet, integrity rests on
+`SHA256SUMS-<ver>.txt`). On this PC that native path is blocked — AppLocker/WDAC
+refuses `gen_snapshot.exe` — so the 0.24.2 package was produced on Debian with
+the **semi-cross** route (Dart kernel on Linux, Windows AOT via `xvfb-run wine
+gen_snapshot.exe`, runner bundle from the Windows host):
 
 ```bash
 python3 tooling/cross-platform/build-windows-on-linux.py \
     --runner BUNDLE --gen-snapshot GEN_SNAPSHOT_EXE --wine-prefix WINE_PREFIX
 ```
 
-The legacy client path (`client/build_windows_on_linux.py --engine-cache …`)
-compiles the runner with `x86_64-w64-mingw32-g++` and runs the trusted AOT
-compiler under `xvfb-run wine`. Wine proves only that the app is a Windows
-binary that starts and unpacks its archive — never the Wintun driver, UAC or
-routing. **Ubuntu** is packaged by `tooling/cross-platform/package-ubuntu.py`
-after `sh tools/build-linux.sh` (Flutter Linux build, Go helper, `dpkg-deb`).
+That run (2026-11-05) produced `XIO-Full-0.24.2-windows-x64.zip`
+(55 068 159 B) and its wine probe reported `isWindows:true, passed:true,
+archiveExtractionPassed:true`. Wine proves only that the app is a Windows binary
+that starts and unpacks its archive — never the Wintun driver, UAC or routing,
+so a native Windows run is still required before calling the package released.
+A second Windows host can be driven over ssh (section 3.5), but this PC and
+`WinWorker` share the same WDAC policy. The legacy client path
+(`client/build_windows_on_linux.py --engine-cache …`) compiles the runner with
+`x86_64-w64-mingw32-g++`; the Full package does not need it. **Ubuntu** is
+packaged by `tooling/cross-platform/package-ubuntu.py` after
+`sh tools/build-linux.sh` (Flutter Linux build, Go helper, `dpkg-deb`).
+
+`release.py` treats an older Windows ZIP as a **warning, not an error**: it
+prints a `ПРЕДУПРЕЖДЕНИЯ` block naming the version gap, so it cannot be
+forgotten, and the exit code stays 0.
 
 Verified locally: workflow YAML parses, 29 release-script tests pass, the Debian
 pytest baseline was measured, `bash -n` covers 11 deploy scripts,
 `release.py --dry-run` and `--verify-only` both returned 0 on the real 0.24.2
 artifacts (10 assets downloaded anonymously, all digests matched). Not verified:
 an actual CI run on the runner, a completed `flutter test` on Debian (the host
-stopped answering SSH mid-run), the Windows cross-build, and the publish step
-itself.
+stopped answering SSH mid-run), the Windows package on real Windows (driver,
+UAC, routing), and the publish step itself.

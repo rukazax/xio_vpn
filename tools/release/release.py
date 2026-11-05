@@ -178,6 +178,38 @@ def windows_version_of(name: str) -> Optional[str]:
     return match.group(1) if match else None
 
 
+def version_tuple(value: str) -> Tuple[int, int, int]:
+    """Версия как кортеж чисел — чтобы сравнивать «ниже/выше», а не по строке."""
+    major, minor, patch = normalize_version(value).split(".")
+    return int(major), int(minor), int(patch)
+
+
+def windows_version_warnings(windows_versions: Iterable[str], version: str) -> List[str]:
+    """Предупреждения о Windows ZIP, собранном не той версии, что выпуск.
+
+    Это **не ошибка** набора: Windows-пакет собирается только на Windows-хосте,
+    поэтому в выпуске может лежать ZIP предыдущей версии (так вышло в 0.24.2,
+    где лежит 0.24.1). Но забывать об этом нельзя, поэтому расхождение всегда
+    попадает в отчёт отдельным блоком предупреждений и не меняет код возврата.
+    """
+    v = normalize_version(version)
+    result: List[str] = []
+    for windows in windows_versions:
+        w = normalize_version(windows)
+        if w == v:
+            continue
+        if version_tuple(w) < version_tuple(v):
+            result.append(
+                f"Windows ZIP от версии {w} — ниже версии выпуска {v}: пакет не пересобран "
+                "(собирается только на Windows-хосте, см. docs/release-process.ru.md, раздел 3)"
+            )
+        else:
+            result.append(
+                f"Windows ZIP от версии {w} — выше версии выпуска {v}: проверьте, откуда взялся файл"
+            )
+    return result
+
+
 def sums_name(version: str) -> str:
     return SUMS_TEMPLATE.format(v=normalize_version(version))
 
@@ -925,9 +957,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print("  посторонние файлы выпуска (не входят в 9):")
             for name in others:
                 print(f"  ? {name}")
-    for windows in inventory.windows_versions:
-        if windows != version:
-            print(f"  ! Windows ZIP от версии {windows}, а выпуск {version} (см. docs/release-process.ru.md)")
+    warnings: List[str] = windows_version_warnings(inventory.windows_versions, version)
+    for warning in warnings:
+        print(f"  ! {warning}")
 
     # 3. Подпись APK.
     print("\n[2/5] подпись APK")
@@ -1028,6 +1060,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         for failure in failures:
             print(f"  - {failure}")
         return 1
+    if warnings:
+        print(f"ПРЕДУПРЕЖДЕНИЯ: {len(warnings)} — на код возврата не влияют")
+        for warning in warnings:
+            print(f"  ! {warning}")
     print("ИТОГ: OK — все проверки пройдены")
     return 0
 
