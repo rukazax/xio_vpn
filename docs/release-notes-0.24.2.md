@@ -4,6 +4,15 @@
 > Матрица платформ и ограничения: [0.24.2.ru.md](compatibility/0.24.2.ru.md) · [0.24.2.en.md](compatibility/0.24.2.en.md)
 > 🇬🇧 [English version](#english)
 
+> **05.11:** рецепт 28 · 13 языков · каскад IPv4 через NAT64. Новый серверный payload,
+> полная локализация на 13 языков, MTProto-автоссылка, маршрутизация по сайтам, чистка
+> прежнего имени. APK пересобраны из `main` `9358079`, сертификат прежний (`e4e81b12…c9671`),
+> `versionCode` 5019 — установка поверх.
+> **05.11:** recipe 28 · 13 languages · the IPv4 cascade through NAT64. New server payload,
+> full localisation into 13 languages, automatic MTProto link, routing by sites, the former
+> product name removed. APKs rebuilt from `main` `9358079`, same certificate (`e4e81b12…c9671`),
+> `versionCode` 5019 — installs in place.
+
 ## Русский
 
 0.24.2 — это встреча двух линий работы. Ветка `release-0.24.0` (то, что раньше уходило в rc13) принесла
@@ -233,16 +242,16 @@ Ready-ответчик слушает **только** адреса шлюза �
 
 | Файл | Что это | Размер | Изменение к предыдущей сборке 0.24.2 |
 | --- | --- | --- | --- |
-| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | 53 365 651 Б (50,9 МиБ) | пересобран из `main` (1a9fa38), подпись та же |
-| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | 53 332 893 Б (50,9 МиБ) | то же |
-| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | 24 502 229 Б (23,4 МиБ) | собран `client/build.py`, `verify.py` — ok |
-| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | 24 453 087 Б (23,3 МиБ) | то же |
-| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | 71 615 148 Б (68,3 МиБ) | без серверного архива и CJK |
+| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | 53 488 531 Б (51,0 МиБ) | пересобран из `main` (9358079), подпись та же |
+| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | 53 455 773 Б (51,0 МиБ) | то же |
+| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | 24 625 109 Б (23,5 МиБ) | собран `client/build.py`, `verify.py` — ok |
+| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | 24 575 967 Б (23,4 МиБ) | то же |
+| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | 71 738 028 Б (68,4 МиБ) | без серверного архива и CJK |
 | `XIO-Full-0.24.1-windows-x64.zip` | Windows 11 x64 | 54 535 239 Б | не пересобирался в этом обновлении |
 | `XIO-0.24.2-ubuntu-amd64.deb` | Ubuntu 22.04+ x64 | 43 981 120 Б | не пересобирался в этом обновлении |
 | `XIO-0.24.2-ubuntu-x64.tar.gz` | Ubuntu, переносимый | 51 124 840 Б | не пересобирался в этом обновлении |
-| `xio-server-0.24.2.tar.gz` | сервер, recipe 26 | 22 355 224 Б | +`readiness.py`, +`xio-ready.service`, LF |
-| `SHA256SUMS-0.24.2.txt` | контрольные суммы девяти файлов | 908 Б | пересчитан, LF |
+| `xio-server-0.24.2.tar.gz` | сервер, recipe 26 | 22 355 224 Б | не пересобирался в этом обновлении (recipe 28 едет внутри APK) |
+| `XIO-update.json` | подписанный манифест обновления (Ed25519) | 1 531 Б | перевыпущен: arm64-v8a, armeabi-v7a, linux-x64 |
 
 Размеры и SHA-256 точных файлов — в `SHA256SUMS-0.24.2.txt` рядом с релизом. Числа в таблице
 измерены на самих файлах (APK собраны на Debian 13, см. «Проверено»), а не посчитаны по компонентам.
@@ -560,16 +569,16 @@ AppStore, a dead-import guard for `lib/` and `test/`, and `ClientVersionPinTests
 
 | File | What it is | Size | Change vs the previous 0.24.2 build |
 | --- | --- | --- | --- |
-| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | 53 365 651 B (50.9 MiB) | rebuilt from `main` (1a9fa38), same signer |
-| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | 53 332 893 B (50.9 MiB) | same |
-| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | 24 502 229 B (23.4 MiB) | built by `client/build.py`, `verify.py` ok |
-| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | 24 453 087 B (23.3 MiB) | same |
-| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | 71 615 148 B (68.3 MiB) | no server archive, no CJK font |
+| `XIO-Full-0.24.2-android-arm64-v8a.apk` | Full, arm64-v8a | 53 488 531 B (51.0 MiB) | rebuilt from `main` (9358079), same signer |
+| `XIO-Full-0.24.2-android-armeabi-v7a.apk` | Full, armeabi-v7a | 53 455 773 B (51.0 MiB) | same |
+| `XIO-Client-0.24.2-android-arm64-v8a.apk` | Client, arm64-v8a | 24 625 109 B (23.5 MiB) | built by `client/build.py`, `verify.py` ok |
+| `XIO-Client-0.24.2-android-armeabi-v7a.apk` | Client, armeabi-v7a | 24 575 967 B (23.4 MiB) | same |
+| `XIO-Client-0.24.2-android-universal.apk` | Client, arm + arm64 | 71 738 028 B (68.4 MiB) | no server archive, no CJK font |
 | `XIO-Full-0.24.1-windows-x64.zip` | Windows 11 x64 | 54 535 239 B | not rebuilt in this update |
 | `XIO-0.24.2-ubuntu-amd64.deb` | Ubuntu 22.04+ x64 | 43 981 120 B | not rebuilt in this update |
 | `XIO-0.24.2-ubuntu-x64.tar.gz` | Ubuntu, portable | 51 124 840 B | not rebuilt in this update |
-| `xio-server-0.24.2.tar.gz` | server, recipe 26 | 22 355 224 B | +`readiness.py`, +`xio-ready.service`, LF |
-| `SHA256SUMS-0.24.2.txt` | checksums of the nine files | 908 B | recomputed, LF |
+| `xio-server-0.24.2.tar.gz` | server, recipe 26 | 22 355 224 B | not rebuilt in this update (recipe 28 ships inside the APK) |
+| `XIO-update.json` | signed update manifest (Ed25519) | 1 531 B | regenerated: arm64-v8a, armeabi-v7a, linux-x64 |
 
 Exact sizes and SHA-256 live in `SHA256SUMS-0.24.2.txt` next to the release. The numbers in the table
 are measured on the files themselves (the APKs are built on Debian 13, see "Verified"), not computed
