@@ -39,6 +39,44 @@ VPS, XIO brings the rest.
 
 ---
 
+## Current state: 0.24.3+5020 (17 Nov 2026)
+
+The phone → Russian VPS → foreign VPS cascade is built, deployed and verified on live servers.
+The app shows it on the main screen: device, bridge and exit with country flags, the real egress
+IP and the exit country. The client no longer offers OpenVPN/Cloak; the server payload and the
+sections below still describe the full 0.24.0–0.24.2 set, including those transports.
+
+| Check | Result |
+|---|---|
+| Bridge | `81.177.142.37` (RU, Debian 12), `xio-cascade-bridge` active |
+| Exit | `103.102.135.124` (FR), `xio-cascade-exit` active, NAT44/NAT66 |
+| Tunnel | SSH TUN `10.250.0.1 ⇄ 10.250.0.2`, ping 50.8 ms |
+| Phone egress | IPv4 `103.102.135.124`, IPv6 `2a0c:b641:1a0:800::2a2` |
+| Tests | `flutter test`: 1138 passed, 23 skipped, 0 failed |
+| Analyse | `flutter analyze`: 0 errors |
+| APK | `XIO-0.24.3+5020-android-arm64-cascade-20261117.apk`, arm64 |
+
+Commands and numbers: [CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-RU-FR-20261117.md) ·
+[ANDROID-VALIDATION-20261117.md](docs/ANDROID-VALIDATION-20261117.md) ·
+[screenshots](docs/screenshots/README.md) · [CHANGELOG](CHANGELOG.md).
+
+**Known limits, not hidden:**
+
+- there is no single button that installs the cascade on both servers; bridge and exit are
+  installed as separate steps (`deploy/cascade/native/`);
+- updating or reinstalling the APK breaks the saved native receipt: a clean install, profile
+  import and connection work, but after a reinstall the app may report
+  “saved plan could not be reconciled”;
+- the bridge–exit link is an SSH TUN (TCP-over-TCP), not WireGuard: the WireGuard handshake
+  succeeds but transport packets are lost; BBR is enabled on the bridge, not on the exit;
+- the mobile profile uses `9.9.9.9` for DNS, not the carrier resolver;
+- Yandex Browser on the test phone renders a blank page while the tunnel works; Chrome works.
+  This is browser behaviour, not the cascade;
+- verified in this run: import, connection, cascade, IPv4/IPv6 egress and the main screen.
+  Xray/RIVET, Wi-Fi ↔ LTE switching and a long soak after BBR were not re-checked.
+
+---
+
 ## What this is
 
 | Part | What it does | Runs on |
