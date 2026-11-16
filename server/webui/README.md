@@ -1,129 +1,163 @@
-# XIO WebUI
+# XIO WebUI — bounded contract repair
 
-Веб-панель XIO-сервера: состояние служб, добавление и отзыв пользователей,
-управление каскадом. Один Python-файл, только стандартная библиотека, без сборки
-и без CDN. Интерфейс — одна страница `index.html`.
+TLS owner panel, one Python standard-library backend and one inline HTML/JS page.
+This is a **partial WebUI repair**, not completion of all provisioning features.
 
-## Что внутри
+## Implemented and pending
 
-| Файл | Назначение |
+- Managed inspection/status, immutable-ID user revocation and fixed allowlisted
+  service commands use the actual owner managed-admin JSON protocol.
+- **User creation is pending a durable client issuance/delivery workflow.** The
+  old name-only form is removed; `/api/user/add` returns `ISSUANCE_PENDING` before
+  any command. No user or key is created. Public-key-only input is not a complete
+  XIO client profile; there is no fabricated key or server-private-key shortcut.
+- Legacy RIVET gateway Start/Stop controls only `xio-rivet-gateway`. Stopping it
+  interrupts RIVET clients. Service command success is not tunnel/native health.
+- Native cascade is **informational only**: inspect with pinned identity; enabled,
+  phase, guard provenance, infrastructure and fresh family evidence are separate.
+  Missing/stale evidence is not healthy. GET never verifies/probes/configures,
+  reconciles or removes native state. Two-host setup and explicit direct-mode
+  removal remain separate owner-coordinator work.
+- Source/mock tests do not certify installed systemd/runtime behavior or release
+  artifacts. Unsupported/untested deployment variants must not be advertised as
+  working merely because optional write paths exist.
+
+## API / wire contract
+
+Bearer token or `xio_sid` cookie authenticates the **owner**; there is no browser
+actor/delegate selector. Every POST also requires `X-XIO-CSRF` from authenticated
+`GET /api/state`. No CORS relaxation. Default listener is `127.0.0.1:10443` over TLS.
+
+| Method / path | Request / result |
 |---|---|
-| `xio-webui.py` | HTTP(S)-сервер: TLS, токен, cookie-сессии, API, вызовы `admin.py`/`systemctl` |
-| `index.html` | SPA: тёмная тема, обновление `fetch` раз в 5 с, мобильная вёрстка |
-| `xio-webui.service` | systemd unit (`Type=simple`, `User=root`, `Restart=always`) |
-| `install-webui.sh` | установка в `/opt/xio-webui`, запуск, печать URL/токена/отпечатка |
+| GET `/`, `/index.html` | Static panel |
+| GET `/api/health` | Public panel process health, not managed tunnel health |
+| GET `/api/state` | `schema:1`, managed availability, safe server/users/traffic/service/native projection |
+| POST `/api/user/revoke` | Exact `{expectedServerId,id}`; id is lower-case 32-hex UID, never display name |
+| POST `/api/user/add` | Explicit unsupported issuance workflow; no effects |
+| POST `/api/service/start\|stop\|restart` | Exact `{expectedServerId}` plus `X-XIO-Unit` from fixed unit allowlist |
+| POST `/api/cascade/enable\|disable` | Legacy alias, exact `{expectedServerId}`, fixed RIVET gateway start/stop only |
 
-## Быстрый запуск
+All browser mutations capture identity from the **rendered control**, not the
+latest global/server state. Backend never substitutes the current deployment ID.
+Managed owner CLI receives `[python, admin.py]` with action inside stdin JSON,
+not in argv. The service action is owner-only and uses the same managed CLI lock
+and deployment-ID guard as revoke. Only five exact units and start/stop/restart
+are accepted; no shell, arbitrary argv, unit/path, actor or command proxy.
+
+Success requires both zero process exit and top-level boolean `ok:true`, then an
+exact action-specific result: e.g. revoke must return the requested UID. Raw
+backend/config/key output never becomes an HTTP error or generic `data` passthrough.
+Errors use fixed messages and finite `errorCode`, `outcomeUnknown`, HTTP `code`.
+HTTP 2xx alone, a JSON scalar, missing/false `ok` or nonzero success JSON is NOT
+success. Existing auth errors remain their original HTTP/error envelope.
+The browser independently checks the original submitted target: revoke HTTP data
+must be exactly `{revoked,serverId}`; service data is `{service:{serverId,unit,verb}}`
+(including legacy gateway aliases). Missing/conflicting confirmation stays UNKNOWN;
+it cannot clear the pending marker. The HTTP revoke serverId is bound to the
+successful managed guard's submitted identity, not a later inspection.
+
+Requests are capped at 64 KiB HTTP and 32768 bytes encoded admin input. Admin
+stdout is captured intact up to 16 MiB; excess/invalid UTF-8/JSON, duplicate keys
+or nonfinite numbers fail explicitly. Stderr is discarded. Separate pipe reader
+and bounded input writer share the admin deadline (20 seconds); failed/expired
+POSIX admin sessions are killed, not retried. This does not roll back effects.
+Legacy read-only systemctl display commands retain their existing timeout/clip.
+Large deployments beyond the output budget show unavailable, not partial users.
+
+## State and uncertainty
+
+GET first inspects A, then requests status with A, and rejects inconsistent IDs.
+A conflicting native-inspect identity also invalidates the whole managed snapshot;
+optional native-module unavailability without identity conflict remains distinct.
+Login, manual refresh and timer observations share one request sequence: an older
+success or auth failure cannot overwrite a newer observation in the same session.
+A reinitialized deployment cannot be silently substituted. Failed observations
+show unknown users/traffic and invalidate mutation context, never fabricated zero.
+An empty successful list is known zero. Names need not be unique; UID is retained.
+Traffic sums returned server RX/TX protocol counters (server received/sent), with
+sample timestamp; missing/invalid counters stay unknown. These are observed server
+counters, not guaranteed end-to-end delivery or billing. Whitelists have no managed
+contract here and remain unavailable. **Status samples and saves counters**; GET
+is observational at the product level, not literally zero filesystem writes.
+
+A timeout, lost reply, inconsistent envelope, or generic mutating nonzero exit
+without a typed no-effects guarantee is **PARTIAL / UNKNOWN**. `revoked:true` in
+status alone does not prove every runtime peer/credential was removed: deployment
+save occurs before final apply/reload. No automatic retry, compensating revoke,
+rollback or direct fallback. Successful mutation and a later failed GET are
+separate outcomes.
+
+Before submission, the page stores only non-secret operation/target metadata in
+sessionStorage. Duplicate submission is suppressed; uncertain outcomes remain
+sticky across polls/reload/logout in that tab and block further mutations.
+An independent operator must reconcile protocol runtime state; the UI does not
+pretend a registry refresh resolves uncertainty. The marker is not a durable
+server operation receipt and can be lost when the browser session is discarded.
+Do not restart issuance/revocation blindly after losing a browser session. No
+automatic “clear unknown” button is supplied because this panel cannot establish
+all-protocol runtime reconciliation. Full durable owner workflows remain pending.
+
+## Security / installation
+
+TLS >=1.2, no compression; bounded TLS admission/handshake/HTTP deadlines; token
+comparison with HMAC-safe comparison; cookie Secure/HttpOnly/SameSite=Strict;
+12-hour session policy; CSRF on POST; five auth failures trigger rate limiting.
+No-store, nosniff, frame denial, referrer policy, CSP and fixed service allowlists
+are preserved. Logs omit token/cookie/request bodies and raw command errors.
+There is no newly claimed Host-header allowlist. Reverse-proxy/public deployment
+policy is unchanged: do not expose the raw administration port to the internet;
+use a trusted HTTPS proxy and restrict access. X-Forwarded-For is not trusted for
+rate limiting. Do not enable arbitrary browser-selected command identities.
+
+The installer still copies exactly the backend, page, unit and README; no new
+runtime dependency/module/build step. Ordinary installation (not a test command):
 
 ```bash
-sudo ./install-webui.sh                 # https://127.0.0.1:10443
-sudo ./install-webui.sh 0.0.0.0:10443    # слушать все интерфейсы
+sudo ./install-webui.sh                 # default loopback TLS
 ```
 
-Скрипт печатает URL с токеном, сам токен и SHA-256 отпечаток сертификата.
-Дальше:
+The installer prints the token and certificate fingerprint to its operator;
+protect that output. The backend generates a token/certificate beside itself on
+first startup, so tests must never import it directly from the installed/source
+directory. Keep existing credentials/certificates during an upgrade. Source-only
+changes do not update an already installed service until separately deployed.
+
+### Narrow writable-path inventory (sensitive; runtime unverified)
+
+`ProtectSystem=full`, `ProtectHome=read-only` and the other unit hardening remain.
+Optional `ReadWritePaths=-...` avoid failing startup when a variant is absent;
+they do not enable that feature or prove it works. No whole `/etc` or home grant.
+
+| Path / runtime boundary | Reason |
+|---|---|
+| `/etc/xio-managed` (existing exception) | Counter/deployment save and atomic replacement |
+| `/etc/xio-stack` | Xray config, Cloak config/receipt, optional PKI CRL/certificate updates and IKE configs/symlinks |
+| `/etc/xio-rivet` | RIVET CLI lock and atomic users/tokens updates; `/var/lib/xio-rivet` alone was insufficient |
+| `/etc/wireguard` | Optional unrestricted WG config before `wg syncconf` |
+| `/etc/xio-mesh` | Optional mesh statistics file |
+| `/root/.ssh` | **Sensitive** owner admin-revoke grant: authorized_keys is atomically replaced via a sibling temp file, so parent-directory access is required; not a whole-home grant |
+| Runtime sockets/kernel/systemd | AWG UAPI removal, WG syncconf, OpenVPN management kill, IKE terminate/load-creds/load-all, mesh Headscale operations, Cloak/Xray restart/check |
+
+Static tests validate exact exceptions and preserved hardening. A separately
+approved disposable installed-runtime gate must verify namespaces, capabilities,
+Unix sockets, PKI/SSH replacement, all advertised protocol effects and SELinux/
+AppArmor policy. Partial failure must remain unknown; never remove the sandbox
+wholesale to make a green button. Live install/reload was not part of this repair.
+
+## Tests
 
 ```bash
-systemctl status xio-webui
-journalctl -u xio-webui -f
-cat /opt/xio-webui/token
+python3 -B server/webui/test_contract.py
+node server/webui/test_frontend.cjs
+python3 -B -m unittest discover -s server/webui -p test_webui.py -v
 ```
 
-Ручной запуск без установки (из каталога с файлами):
-
-```bash
-python3 xio-webui.py --listen 127.0.0.1:10443
-```
-
-При первом старте создаются `./token` (права 600) и `./tls/cert.pem` +
-`./tls/key.pem` (самоподписанный сертификат на 10 лет, SAN: localhost, 127.0.0.1,
-::1 и адрес из `--listen`). Сертификат делается через `openssl`, а если его нет —
-встроенным генератором на чистом Python (RSA-2048, медленнее, до минуты).
-
-## API
-
-Все ответы — JSON. Аутентификация: `Authorization: Bearer <токен>` либо cookie
-`xio_sid` (выдаётся после первого успешного запроса). Для POST обязателен
-заголовок `X-XIO-CSRF` со значением поля `csrf` из `GET /api/state`.
-
-| Метод | Путь | Смысл |
-|---|---|---|
-| GET | `/` | страница панели |
-| GET | `/api/state` | сервер, службы, версия, роль каскада, пользователи, трафик |
-| GET | `/api/health` | `{"ok": true}` без аутентификации (для мониторинга) |
-| POST | `/api/service/start\|stop\|restart` | действие над юнитом из `X-XIO-Unit` |
-| POST | `/api/user/add` | `{"name": "...", "note": "..."}` → `admin.py add` |
-| POST | `/api/user/revoke` | `{"name": "..."}` → `admin.py revoke` |
-| POST | `/api/cascade/enable\|disable` | старт/стоп юнита `xio-rivet-gateway` |
-
-Пример:
-
-```bash
-T=$(cat /opt/xio-webui/token)
-C=$(curl -sk -H "Authorization: Bearer $T" https://127.0.0.1:10443/api/state | python3 -c 'import json,sys;print(json.load(sys.stdin)["csrf"])')
-curl -sk -X POST -H "Authorization: Bearer $T" -H "X-XIO-CSRF: $C" \
-     -H "X-XIO-Unit: xio-rivet-entry" https://127.0.0.1:10443/api/service/restart
-```
-
-Коды: 200 — успех, 400 — плохой запрос/имя, 401 — нет аутентификации,
-403 — нет CSRF, 404 — нет эндпоинта, 405 — метод, 413 — большое тело,
-429 — блокировка после 5 неудач, 502/504 — сбой или таймаут внешней команды.
-
-## Безопасность
-
-* **Только TLS.** Токен и cookie не должны ходить открытым текстом: сервер вообще
-  не умеет HTTP, порт поднимается как TLS-сокет (минимум TLS 1.2).
-* **Токен + cookie.** Токен — 32 случайных байта в файле с правами 600; сравнение
-  только через `hmac.compare_digest` (без утечки по времени). Cookie `HttpOnly`,
-  `Secure`, `SameSite=Strict`, живёт 12 часов.
-* **CSRF.** POST требует заголовок `X-XIO-CSRF`; значение выводится из токена
-  через HMAC-SHA-256 и отдаётся только в `/api/state`, который нельзя прочитать
-  межсайтово (нет CORS-заголовков). Плюс `Content-Type: application/json`.
-* **Rate-limit.** 5 неудачных попыток с одного адреса за 15 минут — блокировка
-  адреса на 15 минут, ответ 429.
-* **Без shell.** Все внешние действия — `subprocess.run([...], shell=False)` с
-  фиксированными путями, белым списком юнитов и таймаутами (20 с `admin.py`,
-  25 с `systemctl`). Пользовательский ввод проверяется регуляркой `^[A-Za-z0-9][A-Za-z0-9_.-]{0,31}$`
-  и попадает только в JSON на stdin `admin.py`.
-* **Логи** — `./webui.log` (600): время, действие, код, IP, длительность.
-  Токены, cookie и тела запросов не пишутся. Ротация на 2 МиБ (`webui.log.1`).
-* **Токен не попадает в журнал systemd.** При первом старте секрет печатается
-  только в интерактивный терминал; при запуске службой в stdout уходит лишь путь
-  к файлу. Раньше токен печатался всегда и оставался в `journalctl` навсегда —
-  если панель обновляется с такой версии, токен надо считать утёкшим:
-  `rm /opt/xio-webui/token && systemctl restart xio-webui` (сессии сбросятся).
-
-## Наружу — только через обратный прокси
-
-Панель по умолчанию слушает `127.0.0.1`. Если нужен доступ из интернета,
-не публикуйте 10443 напрямую, а поставьте перед ней nginx/caddy с настоящим
-сертификатом (Let's Encrypt), например:
-
-```nginx
-location / {
-    proxy_pass https://127.0.0.1:10443;
-    proxy_ssl_verify off;          # самоподписанный сертификат панели
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-}
-```
-
-Дополнительно: ограничьте доступ по IP, включите fail2ban на 401/429 и
-не держите панель на публичном порту без прокси. `X-Forwarded-For` панель
-намеренно не учитывает для rate-limit — за прокси лимит будет общим.
-
-## Что не проверено
-
-* Схема JSON у `admin.py` (`add`/`revoke`/`inspect`) восстановлена по описанию
-  действий; ключи ответа разбираются «мягко» (users/traffic/role ищутся в
-  нескольких вариантах). Точный контракт нужно сверить на живом сервере.
-* `/api/cascade/enable|disable` реализован как `systemctl start|stop xio-rivet-gateway`
-  и не подтверждён как «настоящее» переключение каскада в `deployment.json`.
-* Счётчики трафика берутся из ответа `inspect`; если их там нет — панель
-  показывает «—». Отдельного источника (`nft`/`awg`/`vnstat`) не добавлено.
-* «Белые списки» отображаются только для чтения: API для их изменения в задании
-  не было.
-* Проверено: `python3 -m py_compile`, генерация сертификата, TLS-хендшейк и
-  коды ответов на локальной машине. На реальном XIO-сервере (Debian, systemd,
-  `admin.py`) запуск не выполнялся — `systemctl`/`admin.py` там не вызывались.
-* SELinux/AppArmor и версия systemd не проверялись; unit рассчитан на Debian 12/13.
+Contract tests AST-load actual definitions and exercise real Handler byte streams,
+actual CLI admission/envelope branch and actual dispatch with commands/state fully
+mocked. No root check/flock/main is launched. Frontend tests execute actual inline
+JS with deterministic DOM/fetch fixtures. The existing six TLS tests are unchanged
+and copy source into a temporary token directory, using only an ephemeral loopback
+listener and bundled fixture certificates. Run those only in an authorized test
+scope; they are not live deployment validation. Also retain existing managed
+admission/authority/native RPC contract regressions. Independent review required.

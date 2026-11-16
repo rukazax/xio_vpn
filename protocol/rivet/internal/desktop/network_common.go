@@ -19,6 +19,12 @@ type commandRunner func(string, ...string) ([]byte, error)
 func runNetworkCommand(name string, args ...string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	return runNetworkCommandContext(ctx, name, args...)
+}
+func runNetworkCommandContext(ctx context.Context, name string, args ...string) ([]byte, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	return exec.CommandContext(ctx, name, args...).Output()
 }
 
@@ -128,15 +134,27 @@ func resolvePhysical(host string, servers []string, protect socketProtect) strin
 }
 
 func resolvePhysicalWith(host string, servers []string, lookup physicalLookup) string {
+	return resolvePhysicalContext(context.Background(), host, servers, lookup)
+}
+func resolvePhysicalContext(parent context.Context, host string, servers []string, lookup physicalLookup) string {
+	if parent.Err() != nil {
+		return ""
+	}
 	if a, err := netip.ParseAddr(host); err == nil {
 		return a.Unmap().String()
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
+	ctx, cancel := context.WithTimeout(parent, 4*time.Second)
 	defer cancel()
 	for _, server := range servers {
+		if ctx.Err() != nil {
+			return ""
+		}
 		query, done := context.WithTimeout(ctx, 1500*time.Millisecond)
 		ips, err := lookup(query, "ip", host, server)
 		done()
+		if ctx.Err() != nil {
+			return ""
+		}
 		if err == nil && len(ips) > 0 {
 			// Bound each family first, then interleave BEFORE the overall cap.
 			// A DNS answer with 16 A records followed by one AAAA (or the
@@ -190,11 +208,25 @@ type networkCommand struct {
 	undo    []string
 }
 
-func applyNetworkPlan(plan []networkCommand, run commandRunner, applied *[]networkCommand) error {
+func applyNetworkPlan(plan []networkCommand, run commandRunner, applied *[]networkCommand, setup ...*setupLease) error {
 	for _, command := range plan {
-		// Also undo a partially successful failing command (notably DNS).
+		var lease *setupLease
+		if len(setup) > 0 {
+			lease = setup[0]
+		}
+		ctx, done, err := lease.admit(10 * time.Second)
+		if err != nil {
+			return err
+		}
+		// Also undo a partially successful admitted failing command (notably DNS).
 		*applied = append(*applied, command)
-		if _, err := run(command.program, command.args...); err != nil {
+		if run != nil {
+			_, err = run(command.program, command.args...)
+		} else {
+			_, err = runNetworkCommandContext(ctx, command.program, command.args...)
+		}
+		done()
+		if err != nil {
 			return err
 		}
 	}

@@ -172,7 +172,13 @@ class DomainResolution {
     required this.addresses,
     required this.queried,
     required this.failed,
+    this.incomplete = const [],
   });
+
+  /// Bounded resolution is not a complete routing policy when work was skipped,
+  /// an answer was empty, or the address budget was exceeded.
+  final List<String> incomplete;
+  bool get complete => failed.isEmpty && incomplete.isEmpty;
 
   /// правило → полученные адреса (пусто, если имя не разрешилось).
   final Map<String, List<String>> byRule;
@@ -185,8 +191,8 @@ class DomainResolution {
   /// «известные поддомены» wildcard-правил.
   final List<String> queried;
 
-  /// Имена, которые не разрешились. Подключение из-за них не блокируется:
-  /// недоступный DNS не должен оставлять человека без VPN.
+  /// Names whose lookup threw. Empty answers and capacity limits are reported
+  /// separately in [incomplete]; neither may silently become an active subset.
   final List<String> failed;
 
   /// Сколько обращений к DNS было сделано.
@@ -218,20 +224,29 @@ class SplitDomainResolver {
   Future<DomainResolution> resolve(
     Iterable<String> rules, {
     Iterable<String> knownHosts = const [],
+    bool Function()? isCurrent,
   }) async {
     final byRule = <String, List<String>>{};
     final all = <String>{};
     final queried = <String>[];
     final failed = <String>[];
+    final incomplete = <String>[];
 
     // Одно имя — один запрос: правило и поддомен wildcard не должны
     // удваивать DNS.
     final cache = <String, List<String>>{};
 
     Future<List<String>> ask(String host) async {
+      if (isCurrent?.call() == false) {
+        throw StateError('Routing resolution superseded');
+      }
       final known = cache[host];
       if (known != null) return known;
-      if (queried.length >= _maxLookups) return const [];
+      if (queried.length >= _maxLookups) {
+        incomplete.add('lookup-capacity:$host');
+        cache[host] = const [];
+        return const [];
+      }
       queried.add(host);
       try {
         final addresses = await _lookup.lookup(host, timeout: _timeout);
@@ -239,6 +254,10 @@ class SplitDomainResolver {
           for (final address in addresses)
             if (isIpv4Literal(address) || isIpv6Literal(address)) address,
         ];
+        if (valid.isEmpty) incomplete.add('empty-answer:$host');
+        if (valid.length != addresses.length) {
+          incomplete.add('invalid-answer:$host');
+        }
         cache[host] = valid;
         return valid;
       } catch (_) {
@@ -304,6 +323,10 @@ class SplitDomainResolver {
       addresses: (all.toList()..sort()).take(_maxAddresses).toList(),
       queried: queried,
       failed: failed,
+      incomplete: [
+        ...incomplete,
+        if (all.length > _maxAddresses) 'address-capacity',
+      ],
     );
   }
 }
@@ -334,8 +357,11 @@ class SplitDomainSync {
   List<String> _known = const [];
   String _signature = '';
   DateTime? _resolvedAt;
+  String? _resolutionId;
+  String? get resolutionId => _resolvedAt == null ? null : _resolutionId;
   int _resolutions = 0;
   DomainResolution? _last;
+  int _generation = 0;
 
   /// Адреса, переданные нативной стороне последним проходом.
   List<String> get addresses => List.unmodifiable(_addresses);
@@ -347,12 +373,15 @@ class SplitDomainSync {
   DomainResolution? get lastResolution => _last;
 
   /// Забыть кэш: следующее подключение разрешит домены заново.
-  void invalidate() {
-    // Адреса остаются действующими до следующего разрешения: очистка
-    // списка правил должна снять их отдельным вызовом [refresh].
-    _signature = '';
-    _resolvedAt = null;
-    _known = const [];
+  void invalidate({bool discardCache = true}) {
+    _generation++;
+    // A connection lease can be revoked without discarding a still-fresh DNS
+    // result. The next applyCurrent must acknowledge it under the new lease.
+    if (discardCache) {
+      _signature = '';
+      _resolvedAt = null;
+      _known = const [];
+    }
   }
 
   /// Разрешает [rules] и отдаёт адреса нативной стороне.
@@ -362,45 +391,99 @@ class SplitDomainSync {
   Future<List<String>> refresh({
     required Iterable<String> rules,
     bool force = false,
+    int addressCapacity = maxResolvedAddresses,
+    bool Function()? isCurrent,
+    Future<void> Function(List<String>, Duration)? applyCurrent,
+    String? resolutionId,
+    bool? reuseNativeResolution,
   }) async {
+    final generation = ++_generation;
+    void requireCurrent() {
+      if (generation != _generation || isCurrent?.call() == false) {
+        throw StateError('Routing resolution superseded');
+      }
+    }
+
+    requireCurrent();
     final normalized = <String>[];
     for (final rule in rules) {
       final value = normalizeDomainRule(rule);
-      if (value != null && !normalized.contains(value)) normalized.add(value);
+      if (value == null) throw const FormatException('Invalid routing domain');
+      if (!normalized.contains(value)) normalized.add(value);
+    }
+    if (normalized.length > maxDomainRules || addressCapacity < 0) {
+      throw StateError('Routing capacity exceeded');
     }
     normalized.sort();
-    final key = normalized.join(',');
+    final key = '${normalized.join(',')}:$addressCapacity';
     final now = _clock();
+    final resolvedAt = _resolvedAt;
     final fresh =
-        _resolvedAt != null &&
-        now.difference(_resolvedAt!) < ttl &&
-        key == _signature;
-    if (!force && fresh) return addresses;
-
-    if (normalized.isEmpty) {
-      _signature = '';
-      _resolvedAt = now;
-      _known = const [];
-      _last = const DomainResolution(
+        resolvedAt != null &&
+        key == _signature &&
+        (reuseNativeResolution == null
+            ? now.difference(resolvedAt) >= Duration.zero &&
+                  now.difference(resolvedAt) < ttl
+            : reuseNativeResolution &&
+                  resolutionId != null &&
+                  resolutionId == _resolutionId);
+    if (reuseNativeResolution == true && (!fresh || force)) {
+      throw StateError('Native DNS provenance does not match local cache');
+    }
+    if (!force && fresh && applyCurrent == null) return addresses;
+    // A failed apply/clear must not leave a fresh success receipt behind.
+    _resolvedAt = null;
+    late final DomainResolution resolution;
+    if (!force && fresh) {
+      resolution = _last!;
+    } else if (normalized.isEmpty) {
+      resolution = const DomainResolution(
         byRule: {},
         addresses: [],
         queried: [],
         failed: [],
       );
-      if (_addresses.isEmpty) return const [];
-      _addresses = const [];
-      await apply(const <String>[]);
-      return const [];
+    } else {
+      resolution = await _resolver.resolve(
+        normalized,
+        knownHosts: _known,
+        isCurrent: () =>
+            generation == _generation && isCurrent?.call() != false,
+      );
+      requireCurrent();
+      _resolutions++;
     }
-
-    final resolution = await _resolver.resolve(normalized, knownHosts: _known);
+    requireCurrent();
+    if (!resolution.complete || resolution.addresses.length > addressCapacity) {
+      throw StateError(
+        'Routing domain policy is incomplete; reduce rules or retry DNS',
+      );
+    }
+    // New native leases must be acknowledged even for a cached/empty result.
+    if (applyCurrent != null) {
+      // Android owns expiry across leases/suspend. Wall time is only used by
+      // standalone callers without native provenance, never to renew Android DNS.
+      final validity = reuseNativeResolution != null
+          ? ttl
+          : !force && fresh
+          ? ttl - _clock().difference(resolvedAt)
+          : ttl - _clock().difference(now);
+      if (validity <= Duration.zero) {
+        throw StateError('Routing DNS cache expired');
+      }
+      await applyCurrent(resolution.addresses, validity);
+    } else if (normalized.isNotEmpty || _addresses.isNotEmpty) {
+      await apply(resolution.addresses);
+    }
+    requireCurrent();
     _last = resolution;
-    _resolutions++;
-    _addresses = resolution.addresses;
-    _known = {..._known, ...resolution.queried}.toList();
+    _addresses = List.of(resolution.addresses);
+    _known = normalized.isEmpty
+        ? const []
+        : {..._known, ...resolution.queried}.toList();
     _signature = key;
-    _resolvedAt = now;
-    await apply(_addresses);
+    _resolvedAt = !force && fresh ? resolvedAt : now;
+    _resolutionId = resolutionId;
     return addresses;
   }
 }

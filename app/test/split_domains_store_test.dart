@@ -31,9 +31,9 @@ void main() {
     ]);
     expect(store.splitDomains, ['youtube.com', '*.example.com']);
 
-    final decoded =
-        jsonDecode(File('${directory.path}/profiles.json').readAsStringSync())
-            as Map<String, dynamic>;
+    final decoded = jsonDecode(
+      File('${directory.path}/profiles.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
     expect(decoded['splitDomains'], ['youtube.com', '*.example.com']);
 
     final reloaded = AppStore()..directory = directory;
@@ -61,7 +61,11 @@ void main() {
               'mode': 'ipInclude',
               'packages': <String>[],
               'networks': <String>[],
-              'domains': ['youtube.com', 'https://bad.example', '*.example.org'],
+              'domains': [
+                'youtube.com',
+                'https://bad.example',
+                '*.example.org',
+              ],
             };
           }
           return null;
@@ -71,61 +75,78 @@ void main() {
     expect(store.splitDomains, ['youtube.com', '*.example.org']);
   });
 
-  test('syncSplitDomains разрешает домены и передаёт адреса нативной стороне',
-      () async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.android;
-    final applied = <List<String>>[];
-    var domains = <String>['youtube.com', '*.example.com'];
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(native, (call) async {
-          switch (call.method) {
-            case 'routingGet':
-              return {
-                'mode': 'ipInclude',
-                'packages': <String>[],
-                'networks': <String>[],
-                'domains': domains,
-              };
-            case 'routingResolved':
-              applied.add(
-                ((call.arguments as Map)['networks'] as List).cast<String>(),
-              );
-              return null;
-          }
-          return null;
-        });
-    final lookup = FakeDomainLookup({
-      'youtube.com': ['203.0.113.5'],
-      'example.com': ['198.51.100.1'],
-      'mail.example.com': ['198.51.100.2'],
-    });
-    final store = AppStore(domainLookup: lookup, nativeTunnelOverride: true);
+  test(
+    'syncSplitDomains разрешает домены и передаёт адреса нативной стороне',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final applied = <List<String>>[];
+      var domains = <String>['youtube.com', '*.example.com'];
+      String? cachedRules;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(native, (call) async {
+            switch (call.method) {
+              case 'routingGet':
+              case 'routingBegin':
+                return {
+                  'revision': 'fixture-revision',
+                  'reuseAllowed':
+                      cachedRules == domains.join(',') &&
+                      (call.arguments as Map?)?['resolutionId'] != null,
+                  'resolutionId':
+                      cachedRules == domains.join(',') &&
+                          (call.arguments as Map?)?['resolutionId'] != null
+                      ? (call.arguments as Map)['resolutionId']
+                      : 'dns-${domains.join(',')}',
+                  if (call.method == 'routingBegin')
+                    'lease': (call.arguments as Map)['lease'],
+                  'mode': 'ipInclude',
+                  'packages': <String>[],
+                  'networks': <String>[],
+                  'domains': domains,
+                };
+              case 'routingResolved':
+                cachedRules = domains.join(',');
+                applied.add(
+                  ((call.arguments as Map)['networks'] as List).cast<String>(),
+                );
+                return null;
+            }
+            return null;
+          });
+      final lookup = FakeDomainLookup({
+        'youtube.com': ['203.0.113.5'],
+        'example.com': ['198.51.100.1'],
+        'mail.example.com': ['198.51.100.2'],
+      });
+      final store = AppStore(domainLookup: lookup, nativeTunnelOverride: true);
 
-    await store.syncSplitDomains();
-    expect(applied, [
-      ['198.51.100.1', '203.0.113.5'],
-    ]);
-    expect(store.splitDomains, ['youtube.com', '*.example.com']);
-    expect(store.splitResolvedAddresses, ['198.51.100.1', '203.0.113.5']);
+      await store.syncSplitDomains();
+      expect(applied, [
+        ['198.51.100.1', '203.0.113.5'],
+      ]);
+      expect(store.splitDomains, ['youtube.com', '*.example.com']);
+      expect(store.splitResolvedAddresses, ['198.51.100.1', '203.0.113.5']);
 
-    // Повторно в пределах десяти минут DNS не спрашиваем и политику не пишем.
-    await store.syncSplitDomains();
-    expect(applied, hasLength(1));
-    expect(lookup.calls, ['example.com', 'youtube.com']);
+      // DNS remains cached, but each new native lease re-acknowledges the
+      // complete result; a previous lease cannot authorize this activation.
+      await store.syncSplitDomains();
+      expect(applied, hasLength(2));
+      expect(lookup.calls, ['example.com', 'youtube.com']);
 
-    // Список доменов очищен — нативная сторона получает пустой набор,
-    // старые маршруты снимаются.
-    domains = <String>[];
-    await store.syncSplitDomains();
-    expect(applied.last, isEmpty);
-    expect(store.splitResolvedAddresses, isEmpty);
+      // Список доменов очищен — нативная сторона получает пустой набор,
+      // старые маршруты снимаются.
+      domains = <String>[];
+      await store.syncSplitDomains();
+      expect(applied.last, isEmpty);
+      expect(store.splitResolvedAddresses, isEmpty);
 
-    // force игнорирует кэш: адреса пересчитываются принудительно.
-    domains = ['youtube.com'];
-    await store.syncSplitDomains(force: true);
-    expect(applied.last, ['203.0.113.5']);
-    store.dispose();
-  });
+      // force игнорирует кэш: адреса пересчитываются принудительно.
+      domains = ['youtube.com'];
+      await store.syncSplitDomains(force: true);
+      expect(applied.last, ['203.0.113.5']);
+      store.dispose();
+    },
+  );
 
   test('без Android домены не трогают нативную сторону', () async {
     // flutter_test по умолчанию сообщает android как целевую платформу, поэтому

@@ -1,0 +1,38 @@
+[
+  {
+    "path": "tools/package-server.py",
+    "sha256": "db6bbff068c0d6af6507c6439c7c0a2dcb7b6e5ff08696559e40838fd5e643d7"
+  },
+  {
+    "path": "server/managed/bootstrap.sh",
+    "sha256": "2509ff6458de94c691e679c1a9af79e7b7f4b3d740d2e6e64dfba9ca35a7733d"
+  },
+  {
+    "path": "server/managed/update.py",
+    "sha256": "931dd576aafa9e89c36959572db207e9e5561a75e61d0d8410fd126b0c99495f"
+  },
+  {
+    "path": "tools/test_package_server.py",
+    "sha256": "5897e08365ee65daad1bc89810cadfc8989a200fabdc815e67b59bfcef0526d8"
+  },
+  {
+    "path": "server/managed/test_update.py",
+    "sha256": "425580edf2b9c4cd52673cc1fc3ad77c60fd3be342f4cc1542bbb614ed4dbe74"
+  },
+  {
+    "path": "tools/test_native_shipping.py",
+    "sha256": "0187a1bb29711225a1e7f3c55a13201a340e6b854e6f2fae5c4402ec1ed2ad01"
+  },
+  {
+    "path": "server/managed/cascade_native.py",
+    "sha256": "e16b9f63262caa9bb01a7a1e7602afa2010092baaad4d33e1bf2f3690c7c52b4"
+  },
+  {
+    "path": "server/managed/cascade_native_lifecycle.py",
+    "sha256": "ab43499fb0f5e4b2ed211dbccb7bcf42d94b1646317c47bf90346939ca8ca257"
+  },
+  {
+    "path": "server/managed/cascade_native_rpc.py",
+    "sha256": "dd52ff878ad8f6372737aa4c55b872bc4922b8961e27d34f3cdb0909180066d7"
+  }
+]

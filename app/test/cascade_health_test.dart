@@ -65,7 +65,7 @@ void main() {
       expect(health.runtime, 'docker');
       expect(health.checkedAt, DateTime.utc(2026, 11, 4, 20, 41, 7));
       expect(health.reason, isNull);
-      expect(health.caption(), contains('только IPv6'));
+      expect(health.caption(), contains('Каскад активен'));
       expect(health.checks, hasLength(5));
     });
 

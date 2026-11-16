@@ -131,7 +131,8 @@ class SshMtprotoRemote implements MtprotoRemote {
     }
     final ssh = await _connect(target);
     try {
-      final bytes = await ssh.executeInput(
+      final bytes = await _stdoutOnEitherExit(
+        ssh,
         mtprotoProbeCommand,
         utf8.encode(jsonEncode({'action': 'mtproto'})),
         timeout: timeout,
@@ -163,7 +164,8 @@ class SshMtprotoRemote implements MtprotoRemote {
     }
     final ssh = await _connect(target);
     try {
-      final bytes = await ssh.executeInput(
+      final bytes = await _stdoutOnEitherExit(
+        ssh,
         mtprotoInstallCommand,
         const <int>[],
         timeout: installTimeout,
@@ -194,6 +196,22 @@ class SshMtprotoRemote implements MtprotoRemote {
       } catch (_) {
         // См. fetch(): закрытие сессии не влияет на результат.
       }
+    }
+  }
+
+  Future<List<int>> _stdoutOnEitherExit(
+    VpsService ssh,
+    String command,
+    List<int> input, {
+    required Duration timeout,
+  }) async {
+    try {
+      return await ssh.executeInput(command, input, timeout: timeout);
+    } on SshCommandFailure catch (failure) {
+      if (failure.stdoutBytes.isEmpty) {
+        throw StateError('Операция сервера завершилась ошибкой');
+      }
+      return failure.stdoutBytes;
     }
   }
 

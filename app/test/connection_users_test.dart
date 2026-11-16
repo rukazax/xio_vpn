@@ -10,6 +10,7 @@ import 'package:xio/main.dart';
 import 'package:xio/startup_statistics.dart';
 import 'package:xio/status_poll.dart';
 import 'package:xio/workspace_ui.dart';
+
 import 'support/screenshots.dart';
 
 class ProbeStore extends AppStore {
@@ -93,6 +94,16 @@ void main() {
       final connected = <String>[];
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(native, (call) async {
+            if (call.method == 'routingBegin') {
+              return {
+                'revision': 'fixture-routing',
+                'resolutionId': 'fixture-empty-dns',
+                'reuseAllowed': false,
+                'lease': (call.arguments as Map)['lease'],
+                'domains': <String>[],
+                'networks': <String>[],
+              };
+            }
             if (call.method == 'connect') {
               connected.add(call.arguments['id'] as String);
             }

@@ -1,8 +1,10 @@
 package desktop
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"golang.org/x/sys/unix"
 	"io"
 	"net"
@@ -12,9 +14,13 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 )
 
 type networkState struct {
+	setup                *setupLease
+	cleanupCtx           context.Context
+	lookup               physicalLookup
 	preserveJournal      bool
 	owned                bool
 	journal              *os.File
@@ -30,21 +36,46 @@ type networkState struct {
 func isAdmin() bool          { return os.Geteuid() == 0 }
 func platformFwmark() string { return "fwmark=" + strconv.Itoa(mark) + "\n" }
 func (n *networkState) command(name string, args ...string) ([]byte, error) {
+	return n.setup.command(n.run, name, args...)
+}
+func (n *networkState) cleanupCommand(name string, args ...string) ([]byte, error) {
+	// Never inherit the revoked setup context. The owner joins before unlock.
+	parent := n.cleanupCtx
+	if parent == nil {
+		parent = context.Background()
+	}
+	ctx, cancel := context.WithTimeout(parent, 10*time.Second)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if n.run != nil {
 		return n.run(name, args...)
 	}
-	return runNetworkCommand(name, args...)
+	return runNetworkCommandContext(ctx, name, args...)
 }
-func prepareNetwork() (*networkState, error) {
-	fd, e := unix.Open("/run/xio-client.lock", unix.O_CREAT|unix.O_NOFOLLOW|unix.O_RDWR|unix.O_CLOEXEC, 0600)
+func prepareNetwork(leases ...*setupLease) (*networkState, error) {
+	var setup *setupLease
+	if len(leases) > 0 {
+		setup = leases[0]
+	}
+	if err := setup.check(); err != nil {
+		return nil, err
+	}
+	fd := -1
+	var e error
+	e = setup.effect(func() error {
+		fd, e = unix.Open("/run/xio-client.lock", unix.O_CREAT|unix.O_NOFOLLOW|unix.O_RDWR|unix.O_CLOEXEC, 0600)
+		return e
+	})
 	if e != nil {
 		return nil, e
 	}
-	if e = unix.Flock(fd, unix.LOCK_EX|unix.LOCK_NB); e != nil {
+	if e = setup.effect(func() error { return unix.Flock(fd, unix.LOCK_EX|unix.LOCK_NB) }); e != nil {
 		unix.Close(fd)
 		return nil, errors.New("another XIO tunnel is active")
 	}
-	n := &networkState{lock: fd, cache: map[string]string{}, resolvers: []string{"1.1.1.1:53", "[2606:4700:4700::1111]:53"}}
+	n := &networkState{setup: setup, lock: fd, cache: map[string]string{}, resolvers: []string{"1.1.1.1:53", "[2606:4700:4700::1111]:53"}}
 	fail := true
 	defer func() {
 		if fail {
@@ -65,7 +96,12 @@ func prepareNetwork() (*networkState, error) {
 	data, _ := io.ReadAll(io.LimitReader(f, 4096))
 	if string(data) == "XIO019-routing-owned\n" {
 		n.preserveJournal = true
-		if e := cleanupLinuxOwned(n.command); e != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		n.cleanupCtx = ctx
+		e := cleanupLinuxOwned(n.cleanupCommand)
+		cancel()
+		n.cleanupCtx = nil
+		if e != nil {
 			return nil, e
 		}
 		n.preserveJournal = false
@@ -76,7 +112,10 @@ func prepareNetwork() (*networkState, error) {
 	_, _ = f.Seek(0, 0)
 	// Keep ownership with n; os.File must not close the lock from its finalizer.
 	n.journal = f
-	if _, e = net.InterfaceByName(deviceName); e == nil {
+	if err := setup.effect(func() error { _, e = net.InterfaceByName(deviceName); return nil }); err != nil {
+		return nil, err
+	}
+	if e == nil {
 		return nil, errors.New("the XIO interface already exists")
 	}
 	for _, family := range []string{"-4", "-6"} {
@@ -126,9 +165,25 @@ func prepareNetwork() (*networkState, error) {
 	return n, nil
 }
 func (n *networkState) Protect(fd int64) bool {
-	return fd >= 0 && unix.SetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_MARK, mark) == nil
+	if fd < 0 {
+		return false
+	}
+	return n.setup.effect(func() error { return unix.SetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_MARK, mark) }) == nil
 }
 func (n *networkState) Resolve(host string) string {
+	return n.ResolveContext(context.Background(), host)
+}
+func (n *networkState) ResolveContext(parent context.Context, host string) string {
+	ctx, done, err := n.setup.admit(4 * time.Second)
+	if err != nil {
+		return ""
+	}
+	defer done()
+	if parent.Err() != nil {
+		return ""
+	}
+	stop := context.AfterFunc(parent, done)
+	defer stop()
 	if a, e := netip.ParseAddr(host); e == nil {
 		return reachableAddresses(a.Unmap().String(), n.physical4, n.physical6)
 	}
@@ -138,35 +193,46 @@ func (n *networkState) Resolve(host string) string {
 	if v != "" {
 		return v
 	}
-	v = reachableAddresses(resolvePhysical(host, n.resolvers, familyProtect(n.Protect)), n.physical4, n.physical6)
+	lookup := n.lookup
+	if lookup == nil {
+		lookup = protectedLookup(familyProtect(n.Protect))
+	}
+	v = reachableAddresses(resolvePhysicalContext(ctx, host, n.resolvers, setupLookup(n.setup, lookup)), n.physical4, n.physical6)
 	if v != "" {
-		n.mu.Lock()
-		n.cache[host] = v
-		n.mu.Unlock()
+		if err := n.setup.publish(func() { n.mu.Lock(); n.cache[host] = v; n.mu.Unlock() }); err != nil {
+			return ""
+		}
 	}
 	return v
 }
 func (n *networkState) bypass(ip netip.Addr) error { return nil } // SO_MARK excludes only engine/control sockets.
 func (n *networkState) configure(p Profile) error {
+	if err := n.setup.check(); err != nil {
+		return err
+	}
 	n.owned = true
-	if _, e := n.journal.WriteAt([]byte("XIO019-routing-owned\n"), 0); e != nil {
+	if e := n.setup.effect(func() error { _, err := n.journal.WriteAt([]byte("XIO019-routing-owned\n"), 0); return err }); e != nil {
 		return e
 	}
-	if e := n.journal.Sync(); e != nil {
+	if e := n.setup.effect(n.journal.Sync); e != nil {
 		return e
 	}
-	if e := applyNetworkPlan(linuxNetworkPlan(p), n.command, &n.applied); e != nil {
-		return errors.New("could not configure owned VPN routing or DNS")
+	if e := applyNetworkPlan(linuxNetworkPlan(p), n.run, &n.applied, n.setup); e != nil {
+		return fmt.Errorf("could not configure owned VPN routing or DNS: %w", e)
 	}
 	return nil
 }
 func (n *networkState) close() {
-	undoNetworkPlan(n.applied, n.command)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	n.cleanupCtx = ctx
+	defer func() { n.cleanupCtx = nil }()
+	undoNetworkPlan(n.applied, n.cleanupCommand)
 	n.applied = nil
 	if n.lock >= 0 {
 		if n.journal != nil {
 			if n.owned {
-				n.preserveJournal = cleanupLinuxOwned(n.command) != nil
+				n.preserveJournal = cleanupLinuxOwned(n.cleanupCommand) != nil
 			}
 			if !n.preserveJournal {
 				_ = n.journal.Truncate(0)

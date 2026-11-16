@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/sys/unix"
 	"xio.local/rivet/internal/physical"
 	"xio.local/rivet/internal/rivet"
 )
@@ -20,27 +21,53 @@ type Protector interface {
 	Resolve(string) string
 }
 type state struct {
-	mu        sync.Mutex
-	cfg       rivet.ClientConfig
-	p         Protector
-	ctx       context.Context
-	cancel    context.CancelFunc
-	session   *rivet.Session
-	tun       io.ReadWriteCloser
-	pipe      *packetPipe
-	phase     string
-	rx, tx    uint64
-	handshake int64
-	closed    bool
+	mu                                            sync.Mutex
+	cfg                                           rivet.ClientConfig
+	p                                             Protector
+	ctx                                           context.Context
+	cancel                                        context.CancelFunc
+	session                                       nativeSession
+	policy                                        reconnectPolicy
+	preferred                                     string
+	hooks                                         recoveryHooks
+	activateDone, readDone, monitorDone, stopDone chan struct{}
+	stopOnce                                      sync.Once
+	recoveryID                                    uint64
+	recoveryDeadline                              time.Time
+	retiredSession                                nativeSession
+	retiredDone                                   chan struct{}
+	retiredCancel                                 context.CancelFunc
+	retirementPending                             bool
+	tun                                           io.ReadWriteCloser
+	pipe                                          *packetPipe
+	phase                                         string
+	rx, tx                                        uint64
+	handshake                                     int64
+	closed                                        bool
 }
 
 var global struct {
 	sync.Mutex
-	current *state
+	current   *state
+	lastPhase string
 }
 
 func Connect(raw string, p Protector) (string, error) { return ConnectTimeout(raw, p, 10000) }
 func ConnectTimeout(raw string, p Protector, timeoutMillis int64) (string, error) {
+	return ConnectPolicyTimeout(raw, p, timeoutMillis, "")
+}
+
+// ConnectPolicyTimeout carries explicit runtime intent separately from profiles.
+// Existing Connect/ConnectTimeout callers retain automatic recovery by default.
+func ConnectPolicyTimeout(raw string, p Protector, timeoutMillis int64, policyJSON string) (string, error) {
+	return connectPolicyTimeout(raw, p, timeoutMillis, policyJSON, realRecoveryHooks())
+}
+func connectPolicyTimeout(raw string, p Protector, timeoutMillis int64, policyJSON string, hooks recoveryHooks) (result string, resultErr error) {
+	started := hooks.now()
+	policy, err := parseReconnectPolicy(policyJSON)
+	if err != nil {
+		return "", err
+	}
 	if timeoutMillis < 1 || timeoutMillis > 60000 {
 		return "", rivet.ErrProtocol
 	}
@@ -54,13 +81,42 @@ func ConnectTimeout(raw string, p Protector, timeoutMillis int64) (string, error
 	if e := cfg.Validate(); e != nil {
 		return "", e
 	}
-	Stop()
+	timeout := min(time.Duration(timeoutMillis)*time.Millisecond, maxRound)
+	if err := StopWithTimeout(max(int64(1), (timeout - hooks.now().Sub(started)).Milliseconds())); err != nil {
+		return "", err
+	}
+	left := timeout - hooks.now().Sub(started)
+	if left <= 0 {
+		return "", context.DeadlineExceeded
+	}
 	ctx, cancel := context.WithCancel(context.Background())
-	s := &state{cfg: cfg, p: p, ctx: ctx, cancel: cancel, phase: "connecting"}
+	s := &state{cfg: cfg, p: p, ctx: ctx, cancel: cancel, phase: "connecting", policy: policy, preferred: cfg.Protocol, hooks: hooks, activateDone: make(chan struct{}), stopDone: make(chan struct{})}
 	global.Lock()
+	if global.current != nil {
+		global.Unlock()
+		cancel()
+		return "", errCleanupPending
+	}
 	global.current = s
 	global.Unlock()
-	session, e := dialPhysical(ctx, cfg, p, time.Duration(timeoutMillis)*time.Millisecond)
+	defer func() {
+		close(s.activateDone)
+		if resultErr != nil {
+			beginStop(s, "failed")
+		}
+	}()
+	dialCtx, dialCancel := hooks.timeout(ctx, left)
+	defer dialCancel()
+	session, e := s.hooks.dial(ctx, dialCtx, cfg, p, left)
+	if e == nil {
+		e = dialCtx.Err()
+	}
+	if e == nil && hooks.now().Sub(started) >= timeout {
+		e = context.DeadlineExceeded
+	}
+	if e != nil && session != nil {
+		session.Close()
+	}
 	if e != nil {
 		cancel()
 		s.mu.Lock()
@@ -94,9 +150,13 @@ func AttachTun(fd int64) error {
 		return rivet.ErrProtocol
 	}
 	s.tun = os.NewFile(uintptr(fd), "xio-rivet-tun")
+	if s.tun == nil {
+		s.mu.Unlock()
+		return rivet.ErrProtocol
+	}
+	_ = unix.SetNonblock(int(fd), true)
 	s.mu.Unlock()
-	go s.readTun()
-	go s.monitor()
+	s.startIO()
 	return nil
 }
 func (s *state) readTun() {
@@ -104,6 +164,7 @@ func (s *state) readTun() {
 	for {
 		n, e := s.tun.Read(buf)
 		if e != nil {
+			beginStop(s, "failed")
 			return
 		}
 		if n == 0 || buf[0]>>4 == 6 && s.cfg.IP6 == "" || rivet.CheckIP(buf[:n], s.cfg.IP, true) != nil {
@@ -116,7 +177,7 @@ func (s *state) readTun() {
 			continue
 		} // Keep TUN active and discard while reconnecting.
 		if e = session.SendPacket(buf[:n]); e != nil {
-			session.Close()
+			s.retireSession(session)
 		} else {
 			s.mu.Lock()
 			s.tx += uint64(n)
@@ -125,12 +186,12 @@ func (s *state) readTun() {
 	}
 }
 func (s *state) monitor() {
-	// One reusable backoff timer: time.After in the reconnect loop allocated a
-	// timer that lived until it fired on every attempt.
-	var pause *time.Timer
 	for {
 		s.mu.Lock()
 		session := s.session
+		if session == nil && s.retirementPending && !s.closed {
+			session = s.retiredSession
+		}
 		s.mu.Unlock()
 		if session == nil {
 			return
@@ -144,101 +205,70 @@ func (s *state) monitor() {
 			if rivet.CheckIP(packet, "", false) != nil || (destination != s.cfg.IP && (s.cfg.IP6 == "" || destination != s.cfg.IP6)) {
 				break
 			}
-			if _, e = s.tun.Write(packet); e != nil {
-				session.Close()
+			if n, e := s.tun.Write(packet); e != nil || n != len(packet) {
+				beginStop(s, "failed")
 				return
 			}
 			s.mu.Lock()
 			s.rx += uint64(len(packet))
 			s.mu.Unlock()
 		}
-		session.Close()
-		s.mu.Lock()
-		if s.closed {
-			s.mu.Unlock()
+		retired := s.retireSession(session)
+		if retired == nil {
 			return
 		}
-		s.session = nil
-		s.phase = "reconnecting"
-		cfg := s.cfg
+		select {
+		case <-retired:
+		case <-s.ctx.Done():
+			return
+		}
+		s.mu.Lock()
+		s.retirementPending = false
+		if s.retiredCancel != nil {
+			s.retiredCancel()
+			s.retiredCancel = nil
+		}
 		s.mu.Unlock()
-		for attempt := 0; ; attempt++ {
-			delay := time.Duration(min(1<<min(attempt, 3), 8)) * time.Second
-			if pause == nil {
-				pause = time.NewTimer(delay)
-			} else {
-				// The channel was drained by the previous iteration.
-				pause.Reset(delay)
-			}
-			select {
-			case <-s.ctx.Done():
-				pause.Stop()
-				return
-			case <-pause.C:
-			}
-			if attempt%2 == 0 {
-				if cfg.Protocol == "rivet-h3" {
-					cfg.Protocol = "rivet-s1"
-				} else {
-					cfg.Protocol = "rivet-h3"
-				}
-			}
-			next, e := dialPhysical(s.ctx, cfg, s.p, 10*time.Second)
-			if e != nil {
-				continue
-			}
-
-			s.mu.Lock()
-			if s.closed {
-				s.mu.Unlock()
-				next.Close()
-				return
-			}
-			s.session = next
-			s.cfg.Protocol = cfg.Protocol
-			s.phase = "connected"
-			_, _, s.handshake = next.Counts()
-			s.mu.Unlock()
-			break
+		if !s.recoverSession() {
+			return
 		}
 	}
 }
-func Stop() {
-	global.Lock()
-	s := global.current
-	global.current = nil
-	global.Unlock()
-	if s == nil {
-		return
-	}
-	s.mu.Lock()
-	s.closed = true
-	s.phase = "disconnected"
-	s.cancel()
-	session := s.session
-	tun := s.tun
-	s.mu.Unlock()
-	if session != nil {
-		session.Close()
-	}
-	if tun != nil {
-		tun.Close()
-	}
-	// The session and TUN are closed; the packet buffers they queued are now
-	// unreachable, so return their pages instead of holding them until the next
-	// collection (see reclaim.go).
-	reclaimAfterTeardown()
-}
+func Stop() { _ = StopWithTimeout(5000) }
 func Status() string {
 	global.Lock()
-	s := global.current
+	s, last := global.current, global.lastPhase
 	global.Unlock()
 	if s == nil {
-		return `{"active":false,"phase":"disconnected"}`
+		if last == "" {
+			last = "disconnected"
+		}
+		b, _ := json.Marshal(map[string]any{"active": false, "secure": false, "phase": last, "recoveryPending": false, "cleanupPending": false})
+		return string(b)
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	b, _ := json.Marshal(map[string]any{"active": !s.closed && s.tun != nil, "secure": s.session != nil && !s.closed, "phase": s.phase, "protocol": s.cfg.Protocol, "ip": s.cfg.IP, "rx": s.rx, "tx": s.tx, "handshake": s.handshake})
+	phase := s.phase
+	recovering := !s.closed && (phase == "reconnecting" || phase == "cooldown")
+	left := int64(0)
+	if recovering {
+		left = max(int64(0), s.recoveryDeadline.Sub(s.hooks.now()).Milliseconds())
+	}
+	cleanup := s.closed
+	if cleanup {
+		select {
+		case <-s.stopDone:
+			cleanup = false
+		default:
+		}
+	}
+	if recovering && left == 0 {
+		phase = "failed"
+		recovering = false
+		cleanup = true
+	}
+	secure := !s.closed && s.session != nil && s.phase == "connected"
+	b, _ := json.Marshal(map[string]any{"active": secure && s.tun != nil, "interfaceUp": !s.closed && s.tun != nil, "secure": secure, "phase": phase, "protocol": s.cfg.Protocol, "ip": s.cfg.IP, "rx": s.rx, "tx": s.tx, "handshake": s.handshake, "policyMode": s.policy.Mode, "recoveryPending": recovering, "recoveryId": s.recoveryID, "recoveryRemainingMillis": left, "cleanupPending": cleanup})
 	return string(b)
 }
 
@@ -300,8 +330,8 @@ func Validate(raw string) error {
 
 // Try alternate A/AAAA endpoints within one overall deadline. Attempts are
 // sequential because two successful handshakes for one identity replace peers.
-func dialPhysical(ctx context.Context, c rivet.ClientConfig, p Protector, timeout time.Duration) (*rivet.Session, error) {
-	attempt, cancel := context.WithTimeout(ctx, timeout)
+func dialPhysical(lifetime, establishment context.Context, c rivet.ClientConfig, p Protector, timeout time.Duration) (*rivet.Session, error) {
+	attempt, cancel := context.WithTimeout(establishment, timeout)
 	defer cancel()
 	host, port, err := physical.ParseEndpoint(c.Endpoint)
 	if err != nil {
@@ -328,7 +358,7 @@ func dialPhysical(ctx context.Context, c rivet.ClientConfig, p Protector, timeou
 		}
 		candidate := c
 		candidate.Endpoint = net.JoinHostPort(address, port)
-		session, e := rivet.DialWithTimeout(ctx, candidate, p, budget)
+		session, e := rivet.DialWithLifetime(lifetime, attempt, candidate, p, budget)
 		if e == nil {
 			return session, nil
 		}

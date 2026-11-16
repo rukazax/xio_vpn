@@ -1,0 +1,119 @@
+{
+  "source": "android-native-policy WIRE-DELTA-ANDROID.md (Android e7c9e6d, branch agent/policy-android-native-20261106 @ 849a677)",
+  "capabilities": {
+    "version": 1,
+    "instanceNonce": "66666666666666666666666666666666",
+    "state": "ready",
+    "resourceState": "clean"
+  },
+  "identity": {
+    "storeIdentity": "4444444444444444444444444444444444444444444444444444444444444444",
+    "controllerNonce": "55555555555555555555555555555555",
+    "instanceNonce": "66666666666666666666666666666666",
+    "transactionId": "11111111111111111111111111111111",
+    "planGeneration": "22222222222222222222222222222222"
+  },
+  "plan": {
+    "schema": 2,
+    "selectedId": "awg1",
+    "ids": ["awg1", "xr1"],
+    "profiles": [
+      {
+        "id": "awg1",
+        "protocol": "awg",
+        "endpoint": "203.0.113.9:51820",
+        "configDigest": "39f8033617d67670c707dde7332ad7e616ef4902d4b7e6cf797e102af1611389"
+      },
+      {
+        "id": "xr1",
+        "protocol": "xray",
+        "endpoint": "example.invalid:443",
+        "configDigest": "c40bb489a48a897507a8a486f6403b631ed8b518d9077a7a9102058cfc2c9542"
+      }
+    ],
+    "routing": {
+      "mode": "all",
+      "packages": [],
+      "networks": [],
+      "domains": []
+    },
+    "priorityProtocol": "xray",
+    "policy": {"mode": "automatic", "roundMillis": 30000},
+    "site": "https://youtube.com",
+    "siteCheckEnabled": false,
+    "timeoutSeconds": 15,
+    "roundMillis": 30000,
+    "clientOnly": false,
+    "consentRevision": "2026-10-18",
+    "vpnDisclosure": "2026-10-18"
+  },
+  "beginRequest": {
+    "version": 1,
+    "storeIdentity": "4444444444444444444444444444444444444444444444444444444444444444",
+    "controllerNonce": "55555555555555555555555555555555",
+    "instanceNonce": "66666666666666666666666666666666",
+    "transactionId": "11111111111111111111111111111111",
+    "expectedGeneration": null,
+    "planGeneration": "22222222222222222222222222222222",
+    "plan": {
+      "schema": 2,
+      "selectedId": "awg1",
+      "ids": ["awg1", "xr1"],
+      "profiles": [
+        {
+          "id": "awg1",
+          "protocol": "awg",
+          "endpoint": "203.0.113.9:51820",
+          "configDigest": "39f8033617d67670c707dde7332ad7e616ef4902d4b7e6cf797e102af1611389"
+        },
+        {
+          "id": "xr1",
+          "protocol": "xray",
+          "endpoint": "example.invalid:443",
+          "configDigest": "c40bb489a48a897507a8a486f6403b631ed8b518d9077a7a9102058cfc2c9542"
+        }
+      ],
+      "routing": {
+        "mode": "all",
+        "packages": [],
+        "networks": [],
+        "domains": []
+      },
+      "priorityProtocol": "xray",
+      "policy": {"mode": "automatic", "roundMillis": 30000},
+      "site": "https://youtube.com",
+      "siteCheckEnabled": false,
+      "timeoutSeconds": 15,
+      "roundMillis": 30000,
+      "clientOnly": false,
+      "consentRevision": "2026-10-18",
+      "vpnDisclosure": "2026-10-18"
+    }
+  },
+  "beginAck": {
+    "version": 1,
+    "instanceNonce": "66666666666666666666666666666666",
+    "controllerNonce": "55555555555555555555555555555555",
+    "transactionId": "11111111111111111111111111111111",
+    "planGeneration": "22222222222222222222222222222222",
+    "state": "pending"
+  },
+  "commitAck": {
+    "version": 1,
+    "instanceNonce": "66666666666666666666666666666666",
+    "controllerNonce": "55555555555555555555555555555555",
+    "transactionId": "11111111111111111111111111111111",
+    "planGeneration": "22222222222222222222222222222222",
+    "state": "ready"
+  },
+  "abortRequest": {
+    "version": 1,
+    "instanceNonce": "66666666666666666666666666666666",
+    "transactionId": "11111111111111111111111111111111"
+  },
+  "abortResponse": {
+    "version": 1,
+    "state": "blocked",
+    "transactionId": "11111111111111111111111111111111"
+  }
+}

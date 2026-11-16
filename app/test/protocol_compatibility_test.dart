@@ -24,26 +24,11 @@ void main() {
     final xray = ClientImport.parse(
       'vless://b3b2eb49-e41f-41df-9761-0956785a236b@example.org:443?security=tls&sni=example.org',
     ).config!;
-    // Opaque Cloak configuration is validated by existing import tests; bundle
-    // serialization must never trim it merely because a target lacks the engine.
     final configs = {
       'awg': profile(extra: 'Jc = 4'),
       'rivet-h3': jsonEncode(fixture('rivet-h3')),
       'rivet-s1': jsonEncode(fixture('rivet-s1')),
       'xray': xray,
-      'cloak': ExtendedProfile.parse(
-        jsonEncode({
-          'protocol': 'cloak',
-          'config': 'client\ndev tun\nproto tcp-client\nremote vpn.example 1194\nremote-cert-tls server\n<ca>\nPUBLIC_TEST_CA_PLACEHOLDER\n</ca>\n',
-          'cloak': {
-            'RemoteHost': 'vpn.example',
-            'RemotePort': '443',
-            'ServerName': 'vpn.example',
-            'UID': base64Encode(List.filled(16, 1)),
-            'PublicKey': base64Encode(List.filled(32, 2)),
-          },
-        }),
-      ).encoded,
     };
     for (final target in ClientPlatform.values) {
       final restored = UserBundle.decode(
@@ -58,9 +43,9 @@ void main() {
     'unimplemented engines are explicit and not simulated by reducing Android',
     () {
       expect(missingProtocolsFor(ClientPlatform.android), isEmpty);
-      expect(missingProtocolsFor(ClientPlatform.windows), {'cloak'});
-      expect(missingProtocolsFor(ClientPlatform.ubuntu), {'cloak'});
-      expect(missingProtocolsFor(ClientPlatform.ios), {'xray', 'awg', 'cloak'});
+      expect(missingProtocolsFor(ClientPlatform.windows), isEmpty);
+      expect(missingProtocolsFor(ClientPlatform.ubuntu), isEmpty);
+      expect(missingProtocolsFor(ClientPlatform.ios), {'xray', 'awg'});
       expect(completeProtocolParity, isFalse);
     },
   );
@@ -83,7 +68,7 @@ void main() {
   );
 
   test(
-    'limited native engines retain all five imported profiles for re-export',
+    'limited native engines retain every imported profile for re-export',
     () async {
       final configs = {
         'awg': profile(extra: 'Jc = 4'),
@@ -92,19 +77,6 @@ void main() {
         'xray': ClientImport.parse(
           'vless://b3b2eb49-e41f-41df-9761-0956785a236b@example.org:443?security=tls&sni=example.org',
         ).config!,
-        'cloak': ExtendedProfile.parse(
-          jsonEncode({
-            'protocol': 'cloak',
-            'config': 'client\ndev tun\nproto tcp-client\nremote vpn.example 1194\nremote-cert-tls server\n<ca>\nPUBLIC_TEST_CA_PLACEHOLDER\n</ca>\n',
-            'cloak': {
-              'RemoteHost': 'vpn.example',
-              'RemotePort': '443',
-              'ServerName': 'vpn.example',
-              'UID': base64Encode(List.filled(16, 1)),
-              'PublicKey': base64Encode(List.filled(32, 2)),
-            },
-          }),
-        ).encoded,
       };
       for (final target in ClientPlatform.values) {
         final saved = <String, String>{};
@@ -153,4 +125,19 @@ void main() {
       }
     },
   );
+
+  test('OpenVPN / Cloak profiles are rejected, not repaired', () {
+    expect(
+      () => ExtendedProfile.parse(
+        jsonEncode({
+          'protocol': 'cloak',
+          'config': 'client\ndev tun\n',
+          'cloak': <String, Object?>{},
+        }),
+      ),
+      throwsFormatException,
+    );
+    expect(nativeProtocols, isNot(contains('cloak')));
+    expect(protocols.map((p) => p.id), isNot(contains('cloak')));
+  });
 }

@@ -4,8 +4,9 @@
 No provider addresses/routes are invented, no firewall is flushed, and no
 packages are installed. Existing IPv4 rules and server credentials are retained.
 """
-import json,os,re,socket,stat,subprocess,sys,time
+import importlib.util,json,os,re,socket,stat,subprocess,sys,time
 from pathlib import Path
+from datetime import datetime,timezone
 STATE=Path('/etc/xio-managed/deployment.json')
 RECEIPT=Path('/etc/xio-managed/dualstack-receipt.json')
 CONFIG_DIR=Path('/etc/xio-stack')
@@ -16,6 +17,67 @@ SYS_NET=Path('/sys/class/net')
 IPV6_SYS=Path('/proc/sys/net/ipv6/conf')
 FORWARDING=IPV6_SYS/'all/forwarding'
 SUBNETS=(('xio0','fd77:1::/64','fd77:1::1/64'),('xioawg0','fd78:1::/64','fd78:1::1/64'),('xiorivet','fd79:1::/64','fd79:1::1/64'),('xioovpn0','fd80:0::/64','fd80:0::1/64'),('xioovpn1','fd80:1::/64','fd80:1::1/64'))
+# The optional connector owns its policy routes/guards. Native hooks must never
+# replace a host main default or infer readiness from the endpoint's family.
+NATIVE_MODULE=Path(__file__).with_name('cascade_native.py')
+NATIVE_CONFIG_ROOT=Path('/etc/xio-managed/cascade-native')
+def _native_module(root=None):
+ root=NATIVE_CONFIG_ROOT if root is None else Path(root)
+ if not NATIVE_MODULE.is_file():
+  if root.exists():raise RuntimeError('Native cascade configuration exists but connector module is missing')
+  return None
+ spec=importlib.util.spec_from_file_location('xio_cascade_native',NATIVE_MODULE)
+ module=importlib.util.module_from_spec(spec);sys.modules[spec.name]=module
+ spec.loader.exec_module(module)
+ return module
+
+def reconcile_native(reason='native-firewall-reapply',root=None):
+ root=NATIVE_CONFIG_ROOT if root is None else Path(root)
+ module=_native_module(root)
+ if module is not None:return module.reconcile_native(reason=reason,root=root)
+
+def desired_native_families(root=None):
+ root=NATIVE_CONFIG_ROOT if root is None else Path(root)
+ module=_native_module(root)
+ value=None if module is None else module.desired_native_families(root=root)
+ if value is None:return None
+ if not isinstance(value,dict):raise RuntimeError('Invalid native cascade family intent')
+ for protocol in ('awg','rivet'):
+  entry=value.get(protocol)
+  if not isinstance(entry,dict) or any(type(entry.get(family)) is not bool for family in ('ipv4','ipv6')):
+   raise RuntimeError('Invalid native cascade family intent')
+ return {protocol:{family:value[protocol][family] for family in ('ipv4','ipv6')} for protocol in ('awg','rivet')}
+
+def _native_timestamp(value):
+ if not isinstance(value,str) or not re.fullmatch(r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|\+00:00)',value):return None
+ try:return datetime.fromisoformat(value.replace('Z','+00:00')).timestamp()
+ except ValueError:return None
+
+def native_capabilities(root=None):
+ root=NATIVE_CONFIG_ROOT if root is None else Path(root)
+ module=_native_module(root)
+ value=None if module is None else module.native_capabilities(root=root)
+ if value is None:return None # Only an absent opt-in permits legacy metadata.
+ if not isinstance(value,dict) or type(value.get('schema')) is not int or value.get('schema')!=1 or value.get('enabled') is not True:
+  raise RuntimeError('Invalid native cascade readiness')
+ identity=value.get('connectorId');revision=value.get('revision')
+ if (not isinstance(identity,str) or not identity.strip() or identity!=identity.strip()
+     or type(revision) not in (int,str) or (isinstance(revision,int) and revision<0)
+     or (isinstance(revision,str) and not revision.strip())):
+  raise RuntimeError('Invalid native cascade readiness identity')
+ result=dict(value)
+ for protocol in ('awg','rivet'):
+  entry=value.get(protocol)
+  if not isinstance(entry,dict) or any(type(entry.get(family)) is not bool for family in ('ipv4','ipv6')):
+   raise RuntimeError('Invalid native cascade family readiness')
+  result[protocol]=dict(entry)
+ observed=_native_timestamp(value.get('observedAt'));expires=_native_timestamp(value.get('expiresAt'));now=time.time()
+ if (observed is None or expires is None or not observed<=now+5 or not now<expires or not observed<expires
+      or expires-observed>60 or now-observed>60):
+  for protocol in ('awg','rivet'):
+   result[protocol].update(ipv4=False,ipv6=False,reason4='stale-readiness',reason6='stale-readiness')
+ return result
+
 def call(*args,check=True):
  p=subprocess.run(args,capture_output=True,text=True,timeout=30)
  if check and p.returncode:raise RuntimeError('IPv6 network operation failed: '+args[0])
@@ -296,15 +358,47 @@ def delta_rollback(plan):
   _fence_path().unlink()
 
 def apply():
- with _lock():return _apply()
+ # Reassert the independent connector guard even when the base apply returns
+ # early (IPv4-only main table), or fails after partially changing native rules.
+ reconcile_native(reason='dualstack-before')
+ try:
+  with _lock():return _apply()
+ finally:reconcile_native(reason='dualstack-after')
+
+def _ensure_native_ipv6(state,desired):
+ if desired is None:return False
+ selected=[]
+ for protocol,interface,address in [('awg','xioawg0','fd78:1::1/64'),('rivet','xiorivet','fd79:1::1/64')]:
+  if not desired[protocol]['ipv6'] or not (SYS_NET/interface).exists():continue
+  if protocol=='awg' and 'awg' not in state.get('protocols',[]):continue
+  if protocol=='rivet' and not state.get('rivet'):continue
+  selected.append((interface,address))
+ if not selected:return False
+ receipt=json.loads(RECEIPT.read_text()) if RECEIPT.exists() else {'owner':'xio-dualstack-v1','oldForward':FORWARDING.read_text().strip(),'rules':[],'addresses':[]}
+ if receipt.get('owner')!='xio-dualstack-v1':raise RuntimeError('Unowned IPv6 receipt')
+ save(receipt)
+ for interface,address in selected:
+  entries=json.loads(call('ip','-j','-6','address','show','dev',interface).stdout)
+  matching=[x for e in entries for x in e.get('addr_info',[]) if x.get('local')==address.split('/')[0]]
+  if matching and any(x.get('prefixlen')!=64 for x in matching):raise RuntimeError('Conflicting native IPv6 gateway address')
+  if not matching:
+   item=[interface,address]
+   if item not in receipt['addresses']:receipt['addresses'].append(item);save(receipt)
+   _effect('address',item,lambda interface=interface,address=address:call('ip','-6','address','add',address,'dev',interface))
+ if FORWARDING.read_text().strip()!='1':_effect('forward',None,lambda:call('sysctl','-q','-w','net.ipv6.conf.all.forwarding=1'))
+ return True
 
 def _apply():
  assert os.geteuid()==0,'Owner root access required'
  state=json.loads(STATE.read_text());assert state.get('owner')=='xio-managed-v1','Unowned deployment'
- # One route sample per apply: readiness, the uplink device and the RA protocol all
- # read the same snapshot instead of three separate `ip -6 route show default` runs.
+ # Sample the management/outer default BEFORE native provisioning can enable
+ # global forwarding and suppress RA. Keep one snapshot for device/protocol.
  default=routes('-6')
- if not default:return {'ipv6Forwarding':False,'reason':'No IPv6 default route'}
+ desired=desired_native_families()
+ if not default:
+  # Native policy IPv6 still works without a main default; A owns its routing.
+  native_ipv6=_ensure_native_ipv6(state,desired)
+  return {'ipv6Forwarding':native_ipv6,'reason':'Native policy only' if native_ipv6 else 'No IPv6 default route'}
  dev=default[0]['dev'];assert re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',dev)
  receipt=json.loads(RECEIPT.read_text()) if RECEIPT.exists() else {'owner':'xio-dualstack-v1','oldForward':FORWARDING.read_text().strip(),'rules':[],'addresses':[]}
  assert receipt['owner']=='xio-dualstack-v1'
@@ -314,6 +408,9 @@ def _apply():
  accept=IPV6_SYS/dev/'accept_ra'
  if default[0].get('protocol')=='ra' and accept.exists() and accept.read_text().strip()!='2':
   receipt.setdefault('acceptRa',{}).setdefault(dev,accept.read_text().strip());save(receipt);_effect('ra',dev,lambda:accept.write_text('2\n'))
+ # Preserve RA before ANY native address/forwarding effect. The helper journals
+ # addresses separately, so refresh the receipt before base-rule saves below.
+ if _ensure_native_ipv6(state,desired):receipt=json.loads(RECEIPT.read_text())
  # Open only ports of the installed owned services; never a blanket policy.
  ports=[]
  if state.get('rivet'):ports += [(8443,'tcp'),(8443,'udp')]

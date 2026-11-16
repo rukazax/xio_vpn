@@ -20,7 +20,7 @@
       android-client  python client/build.py --stage <temp> --output-dir <temp>
                       -> XIO-Client-<ver>-android-<abi>.apk (4 ABI: arm64, armv7, x86_64, universal)
       windows         flutter build windows + go helper + wintun
-                      -> XIO-Full-<ver>-windows-x64.zip (плоский ZIP, как в выпусках 0.24.x)
+                      -> XIO-Full-<ver>-windows-x64.zip (один каталог XIO/ в корне)
       linux           XIO-<ver>-ubuntu-amd64.deb + XIO-<ver>-ubuntu-x64.tar.gz
                       (собирается на Linux либо импортируется из -LinuxArtifacts)
 
@@ -630,6 +630,69 @@ function Invoke-AndroidClientStep {
     return New-StepRecord -Name 'android-client' -Status 'built' -Outputs $outputs.ToArray()
 }
 
+function New-WindowsFullArchive {
+    <# Packaging only: never build/execute payloads or delete an input/previous archive. #>
+    param(
+        [Parameter(Mandatory)][string]$Bundle,
+        [Parameter(Mandatory)][string]$StageDirectory,
+        [Parameter(Mandatory)][string]$DestinationPath
+    )
+    foreach ($path in @($Bundle, $StageDirectory, $DestinationPath)) {
+        if (-not [IO.Path]::IsPathFullyQualified($path)) { throw "Archive paths must be absolute: $path" }
+    }
+    $bundlePath = (Get-Item -LiteralPath $Bundle).FullName
+    $stagePath = (Get-Item -LiteralPath $StageDirectory).FullName
+    $zipPath = [IO.Path]::GetFullPath($DestinationPath)
+    $outputParent = Split-Path -Parent $zipPath
+    # Verify resolved directory boundaries before staging; reject reparse-point escapes.
+    foreach ($path in @($bundlePath, $stagePath, $outputParent)) {
+        $directory = Get-Item -LiteralPath $path
+        if (-not $directory.PSIsContainer) { throw "Expected archive directory: $path" }
+        while ($null -ne $directory) {
+            if ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Linked archive path: $($directory.FullName)" }
+            $directory = $directory.Parent
+        }
+    }
+    $separator = [IO.Path]::DirectorySeparatorChar
+    $bundlePrefix = $bundlePath.TrimEnd($separator) + $separator
+    $stagePrefix = $stagePath.TrimEnd($separator) + $separator
+    if ($bundlePath -eq $stagePath -or $stagePath.StartsWith($bundlePrefix, [StringComparison]::OrdinalIgnoreCase) -or
+        $bundlePath.StartsWith($stagePrefix, [StringComparison]::OrdinalIgnoreCase) -or
+        $zipPath.StartsWith($bundlePrefix, [StringComparison]::OrdinalIgnoreCase) -or
+        $zipPath.StartsWith($stagePrefix, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Archive source, staging and destination must not overlap'
+    }
+    if (Test-Path -LiteralPath $zipPath) { throw "Refusing to replace an existing archive: $zipPath" }
+    $required = @('XIO.exe', 'flutter_windows.dll', 'data/app.so', 'data/icudtl.dat',
+        'libexec/xio-tunnel.exe', 'libexec/wintun.dll', 'libexec/WINTUN-LICENSE.txt',
+        'data/flutter_assets/AssetManifest.bin')
+    foreach ($name in $required) {
+        if (-not (Test-Path -LiteralPath (Join-Path $bundlePath $name) -PathType Leaf)) { throw "Missing Windows bundle entry: $name" }
+    }
+    foreach ($item in Get-ChildItem -LiteralPath $bundlePath -Recurse -Force) {
+        if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Linked bundle entry: $($item.FullName)" }
+    }
+    # Fresh child of the caller's owned stage; no recursive deletion or bundle mutation.
+    $ownedStage = Join-Path $stagePath ('windows-full-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $ownedStage | Out-Null
+    $portable = Join-Path $ownedStage 'XIO'
+    New-Item -ItemType Directory -Path $portable | Out-Null
+    foreach ($item in Get-ChildItem -LiteralPath $bundlePath -Force) {
+        Copy-Item -LiteralPath $item.FullName -Destination $portable -Recurse -Force
+    }
+    # includeBaseDirectory preserves XIO/; unlike Compress-Archive this retains hidden files.
+    [IO.Compression.ZipFile]::CreateFromDirectory($portable, $zipPath, [IO.Compression.CompressionLevel]::Optimal, $true)
+    $zip = [IO.Compression.ZipFile]::OpenRead($zipPath)
+    try { $names = @($zip.Entries | ForEach-Object FullName) } finally { $zip.Dispose() }
+    if (@($names | Where-Object { -not $_.StartsWith('XIO/', [StringComparison]::Ordinal) }).Count) {
+        throw 'Unexpected Windows Full archive root'
+    }
+    foreach ($name in $required) {
+        if ($names -cnotcontains "XIO/$name") { throw "Missing Windows archive entry: XIO/$name" }
+    }
+    return $names
+}
+
 function Invoke-WindowsStep {
     Write-Step 'windows — Windows Full ZIP'
     $appDir = Join-Path $RepoRoot 'app'
@@ -681,22 +744,10 @@ function Invoke-WindowsStep {
         if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $bundle -Force }
     }
 
-    # Плоский ZIP: XIO.exe и data/ лежат в корне, как в выпусках 0.24.x.
-    $portable = Join-Path $Stage 'windows/XIO'
-    if (Test-Path -LiteralPath $portable) { Remove-Item -LiteralPath $portable -Recurse -Force }
-    New-Item -ItemType Directory -Force -Path $portable | Out-Null
-    Copy-Item -Path (Join-Path $bundle '*') -Destination $portable -Recurse -Force
-    if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
-    Compress-Archive -Path (Join-Path $portable '*') -DestinationPath $zipPath -CompressionLevel Optimal -Force
-
-    try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { }
-    $zip = [IO.Compression.ZipFile]::OpenRead($zipPath)
-    try { $names = @($zip.Entries | ForEach-Object FullName) } finally { $zip.Dispose() }
-    foreach ($required in 'XIO.exe', 'libexec/xio-tunnel.exe', 'libexec/wintun.dll', 'libexec/WINTUN-LICENSE.txt', 'data/flutter_assets/AssetManifest.bin') {
-        if ($names -notcontains $required) { throw "В ZIP нет обязательного элемента: $required" }
-    }
-    if (@($names | Where-Object { $_.StartsWith('data/flutter_assets/assets/') }).Count -eq 0) {
-        Write-Warn 'в ZIP нет data/flutter_assets/assets/*: проверьте app/assets перед сборкой'
+    # Canonical Full layout matches the strict shared gate: exactly one XIO/ root.
+    $names = @(New-WindowsFullArchive -Bundle $bundle -StageDirectory $Stage -DestinationPath $zipPath)
+    if (@($names | Where-Object { $_.StartsWith('XIO/data/flutter_assets/assets/') }).Count -eq 0) {
+        Write-Warn 'в ZIP нет XIO/data/flutter_assets/assets/*: проверьте app/assets перед сборкой'
     }
 
     $asset = Add-Artifact -Path $zipPath -Step 'windows'
@@ -714,7 +765,8 @@ function Resolve-LinuxArtifact {
 }
 
 function Assert-DebAndTar {
-    param([Parameter(Mandatory)][string]$Deb, [Parameter(Mandatory)][string]$Tar)
+    param([Parameter(Mandatory)][string]$Deb, [Parameter(Mandatory)][string]$Tar,
+          [Parameter(Mandatory)][string]$Expected)
     foreach ($path in $Deb, $Tar) {
         if ((Get-Item -LiteralPath $path).Length -lt 1MB) { throw "Подозрительно маленький файл: $path" }
     }
@@ -722,6 +774,11 @@ function Assert-DebAndTar {
     if ([Text.Encoding]::ASCII.GetString($debHead) -ne "!<arch>`n") { throw "Файл не похож на .deb (нет магии !<arch>): $Deb" }
     $tarHead = Read-FileHead -Path $Tar -Count 2
     if ($tarHead[0] -ne 0x1F -or $tarHead[1] -ne 0x8B) { throw "Файл не похож на .tar.gz (нет gzip-магии): $Tar" }
+    # Imported artifacts must pass the same content gate as local packaging.
+    $code = Invoke-Native -Exe $script:Tools.Python -Arguments @(
+        'tooling/cross-platform/linux_provenance.py', 'verify', '--expected', $Expected,
+        '--app-source', (Join-Path $RepoRoot 'app'), $Deb, $Tar) -WorkDir $RepoRoot
+    if ($code -ne 0) { throw "Linux artifact provenance failed (exit $code); DEB/tar not accepted" }
 }
 
 function Read-FileHead {
@@ -741,15 +798,35 @@ function Invoke-LinuxStep {
     $tarName = "XIO-$Version-ubuntu-x64.tar.gz"
     $debOut = Join-Path $OutDir $debName
     $tarOut = Join-Path $OutDir $tarName
+    $linuxExpected = Join-Path $Stage 'linux/provenance.json'
+    if (-not $DryRun) {
+        $code = Invoke-Native -Exe $script:Tools.Python -Arguments @(
+            'tooling/cross-platform/linux_provenance.py', 'capture', '--flavor', 'full',
+            '--app-source', (Join-Path $RepoRoot 'app'), '--output', $linuxExpected) -WorkDir $RepoRoot
+        if ($code -ne 0) { throw "Linux staged-source provenance capture failed (exit $code)" }
+    }
 
     if ($LinuxArtifacts) {
         if ($DryRun) {
             Write-Sub "импорт из $LinuxArtifacts`: $debName, $tarName -> $OutDir"
             return New-StepRecord -Name 'linux' -Status 'dry-run' -Note 'импорт'
         }
-        Copy-Item -LiteralPath (Resolve-LinuxArtifact -Dir $LinuxArtifacts -Name $debName) -Destination $debOut -Force
-        Copy-Item -LiteralPath (Resolve-LinuxArtifact -Dir $LinuxArtifacts -Name $tarName) -Destination $tarOut -Force
-        Assert-DebAndTar -Deb $debOut -Tar $tarOut
+        # Stage both candidates beside the finals; rejected inputs never replace
+        # previously accepted outputs. Each rename is atomic, not a pair transaction.
+        $copyId = [guid]::NewGuid().ToString('N')
+        $debPart = "$debOut.$copyId.part"
+        $tarPart = "$tarOut.$copyId.part"
+        try {
+            Copy-Item -LiteralPath (Resolve-LinuxArtifact -Dir $LinuxArtifacts -Name $debName) -Destination $debPart
+            Copy-Item -LiteralPath (Resolve-LinuxArtifact -Dir $LinuxArtifacts -Name $tarName) -Destination $tarPart
+            Assert-DebAndTar -Deb $debPart -Tar $tarPart -Expected $linuxExpected
+            [IO.File]::Move($debPart, $debOut, $true)
+            [IO.File]::Move($tarPart, $tarOut, $true)
+        } finally {
+            foreach ($part in $debPart, $tarPart) {
+                if (Test-Path -LiteralPath $part) { Remove-Item -LiteralPath $part -Force }
+            }
+        }
         $assetDeb = Add-Artifact -Path $debOut -Step 'linux'
         $assetTar = Add-Artifact -Path $tarOut -Step 'linux'
         return New-StepRecord -Name 'linux' -Status 'imported' -Outputs @($assetDeb.Name, $assetTar.Name) -Note "источник: $LinuxArtifacts"
@@ -772,9 +849,20 @@ function Invoke-LinuxStep {
     foreach ($path in $producedDeb, $producedTar) {
         if (-not (Test-Path -LiteralPath $path)) { throw "build-linux.sh не создал $path (проверьте version в app/pubspec.yaml)" }
     }
-    Copy-Item -LiteralPath $producedDeb -Destination $debOut -Force
-    Copy-Item -LiteralPath $producedTar -Destination $tarOut -Force
-    Assert-DebAndTar -Deb $debOut -Tar $tarOut
+    $copyId = [guid]::NewGuid().ToString('N')
+    $debPart = "$debOut.$copyId.part"
+    $tarPart = "$tarOut.$copyId.part"
+    try {
+        Copy-Item -LiteralPath $producedDeb -Destination $debPart
+        Copy-Item -LiteralPath $producedTar -Destination $tarPart
+        Assert-DebAndTar -Deb $debPart -Tar $tarPart -Expected $linuxExpected
+        [IO.File]::Move($debPart, $debOut, $true)
+        [IO.File]::Move($tarPart, $tarOut, $true)
+    } finally {
+        foreach ($part in $debPart, $tarPart) {
+            if (Test-Path -LiteralPath $part) { Remove-Item -LiteralPath $part -Force }
+        }
+    }
     $assetDeb = Add-Artifact -Path $debOut -Step 'linux'
     $assetTar = Add-Artifact -Path $tarOut -Step 'linux'
     return New-StepRecord -Name 'linux' -Status 'built' -Outputs @($assetDeb.Name, $assetTar.Name)

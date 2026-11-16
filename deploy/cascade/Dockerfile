@@ -1,8 +1,8 @@
 # XIO Cascade — образ для bridge/exit.
 #
-# Минимальный Debian: iproute2/nftables/wireguard-tools + python3 для admin.py
-# серверного пакета xio-server. curl оставлен намеренно: он нужен healthcheck-у
-# (проверка выходного IPv6 изнутри exit) и whitelist-update (скачивание списков).
+# Standalone kernel WireGuard only. No admin.py, RIVET, AWG or wireguard-go.
+# TUN-only VPS without kernel WG is NOT supported by this image.
+# curl is used for explicit infrastructure egress diagnostics.
 #
 # Сборка: docker build -t xio-cascade:local -f Dockerfile .
 # Запуск:  см. cascade-install.sh (роль задаётся CASCADE_ROLE=bridge|exit).

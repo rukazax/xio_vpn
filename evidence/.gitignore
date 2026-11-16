@@ -1,0 +1,5 @@
+# Local-only scratch/cache and superseded preliminary logs.
+cache/
+tmp/
+before.log
+after-initial.log

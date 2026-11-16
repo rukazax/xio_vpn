@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RECIPE = 28
 AWG_SHA256 = 'fc1a1f9fae43cd8b8a4ac969b49bf80db9ed8d536d935166286cad53fcf34c9a'
 BINARY_MEMBERS = {'amneziawg-go', 'rivet', 'xraygateway', 'cloak'}
+NATIVE_MODULES = ('cascade_native.py', 'cascade_native_lifecycle.py', 'cascade_native_rpc.py')
 MIRRORS = [('admin.py', 'xio-admin.py'), ('stack.py', 'xio-stack.py'),
            ('network_stack.py', 'xio-network-stack.py'), ('mesh_stack.py', 'xio-mesh-stack.py'),
            ('mesh-pins.json', 'mesh-pins.json'), ('bootstrap.sh', 'xio-bootstrap.sh'),
@@ -28,10 +29,16 @@ def sha256(path):
 
 def sources(root):
     managed = root / 'server/managed'
+    # Mandatory source closure, never an optional discovery/stale-asset fallback.
+    # Reject linked parents too: is_file() alone follows an external source link.
+    for name in NATIVE_MODULES:
+        source = managed / name
+        if any(p.is_symlink() for p in (source, *source.parents)) or not source.is_file():
+            raise RuntimeError('Missing or unsafe required managed source: ' + name)
     files = [(managed / name, name) for name in
              ('dualstack.py', 'client_api.py', 'admin.py', 'stack.py', 'network_stack.py',
               'mesh_stack.py', 'mesh-pins.json', 'rivet-setup.py',
-              'readiness.py', 'xio-ready.service')]
+              'readiness.py', 'xio-ready.service', *NATIVE_MODULES)]
     files += [(p, 'xio_vici/' + p.name) for p in sorted((managed / 'xio_vici').iterdir())
               if p.is_file() and (p.suffix == '.py' or p.name == 'LICENSE')]
     files += [(root / 'tools/xio-peer.py', 'xio-peer.py')]

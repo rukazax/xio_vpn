@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/app_settings.dart';
 import 'package:xio/core.dart';
@@ -25,14 +27,21 @@ void main() {
   late Directory directory;
   setUp(() async {
     directory = await Directory.systemTemp.createTemp('xio-app-settings-');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('app.xio/engine'),
+          (_) async => null,
+        );
   });
   tearDown(() async {
+    debugDefaultTargetPlatformOverride = null;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(const MethodChannel('app.xio/engine'), null);
     if (directory.existsSync()) await directory.delete(recursive: true);
   });
 
-  Future<Map<String, dynamic>> savedJson() async => jsonDecode(
-    await File('${directory.path}/profiles.json').readAsString(),
-  );
+  Future<Map<String, dynamic>> savedJson() async =>
+      jsonDecode(await File('${directory.path}/profiles.json').readAsString());
 
   test('defaults: screenshots off, autostart off, Quad9 resolver', () {
     final store = AppStore();
@@ -44,48 +53,52 @@ void main() {
     store.dispose();
   });
 
-  test('dns, autostart, auto-connect and screenshots survive a restart', () async {
-    final store = AppStore()..directory = directory;
-    await store.setDnsServers(['1.1.1.1', '2606:4700:4700::1111']);
-    await store.setAutostart(true);
-    await store.setAutoConnectOnStart(true);
-    await store.setAllowScreenshots(true);
+  test(
+    'dns, autostart, auto-connect and screenshots survive a restart',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      final store = AppStore()..directory = directory;
+      await store.setDnsServers(['1.1.1.1', '2606:4700:4700::1111']);
+      await store.setAutostart(true);
+      await store.setAutoConnectOnStart(true);
+      await store.setAllowScreenshots(true);
 
-    final data = await savedJson();
-    expect(data['dnsServers'], ['1.1.1.1', '2606:4700:4700::1111']);
-    expect(data['autostart'], isTrue);
-    expect(data['autoConnectOnStart'], isTrue);
-    expect(data['allowScreenshots'], isTrue);
+      final data = await savedJson();
+      expect(data['dnsServers'], ['1.1.1.1', '2606:4700:4700::1111']);
+      expect(data['autostart'], isTrue);
+      expect(data['autoConnectOnStart'], isTrue);
+      expect(data['allowScreenshots'], isTrue);
 
-    final reloaded = AppStore()..directory = directory;
-    await reloaded.load();
-    expect(reloaded.dnsServers, ['1.1.1.1', '2606:4700:4700::1111']);
-    expect(reloaded.autostart, isTrue);
-    expect(reloaded.autoConnectOnStart, isTrue);
-    expect(reloaded.allowScreenshots, isTrue);
-    // Existing connection settings are untouched by the new fields.
-    expect(reloaded.checkSite, 'https://youtube.com');
-    expect(reloaded.siteCheckEnabled, isFalse);
+      final reloaded = AppStore()..directory = directory;
+      await reloaded.load();
+      expect(reloaded.dnsServers, ['1.1.1.1', '2606:4700:4700::1111']);
+      expect(reloaded.autostart, isTrue);
+      expect(reloaded.autoConnectOnStart, isTrue);
+      expect(reloaded.allowScreenshots, isTrue);
+      // Existing connection settings are untouched by the new fields.
+      expect(reloaded.checkSite, 'https://youtube.com');
+      expect(reloaded.siteCheckEnabled, isFalse);
 
-    // Switching back to the default preset is persisted as well.
-    await reloaded.setDnsServers(['9.9.9.9', '2620:fe::fe']);
-    await reloaded.setAllowScreenshots(false);
-    final again = AppStore()..directory = directory;
-    await again.load();
-    expect(again.dnsServers, ['9.9.9.9', '2620:fe::fe']);
-    expect(again.allowScreenshots, isFalse);
+      // Switching back to the default preset is persisted as well.
+      await reloaded.setDnsServers(['9.9.9.9', '2620:fe::fe']);
+      await reloaded.setAllowScreenshots(false);
+      final again = AppStore()..directory = directory;
+      await again.load();
+      expect(again.dnsServers, ['9.9.9.9', '2620:fe::fe']);
+      expect(again.allowScreenshots, isFalse);
 
-    store.dispose();
-    reloaded.dispose();
-    again.dispose();
-  });
+      store.dispose();
+      reloaded.dispose();
+      again.dispose();
+    },
+  );
 
-  test('custom DNS validation accepts IPv4, IPv6 and domain names', () {
+  test('custom DNS validation accepts unicast IPv4 and IPv6 literals', () {
     expect(validateDnsServer('1.1.1.1'), '1.1.1.1');
     expect(validateDnsServer(' 9.9.9.9 '), '9.9.9.9');
     expect(validateDnsServer('2620:fe::fe'), '2620:fe::fe');
     expect(validateDnsServer('2a10:50c0::ad1:ff'), '2a10:50c0::ad1:ff');
-    expect(validateDnsServer('DNS.Example.ORG'), 'dns.example.org');
+    expect(() => validateDnsServer('DNS.Example.ORG'), throwsFormatException);
     expect(validateDnsServers(['1.1.1.1', '']), ['1.1.1.1']);
     // Duplicates collapse instead of producing a repeated profile line.
     expect(validateDnsServers(['1.1.1.1', '1.1.1.1']), ['1.1.1.1']);
@@ -122,33 +135,47 @@ void main() {
     );
   });
 
-  test('a damaged resolver list falls back to the Quad9 default', () async {
-    File('${directory.path}/profiles.json').writeAsStringSync(
-      jsonEncode({
-        'schema': 2,
-        'profiles': <Object>[],
-        'dnsServers': ['1.1.1.1:53', 'http://bad'],
-        'autostart': 'yes',
-      }),
-    );
-    final store = AppStore()..directory = directory;
-    await store.load();
-    expect(store.dnsServers, ['9.9.9.9', '2620:fe::fe']);
-    // «yes» is not a bool, so the flag stays off instead of being truthy.
-    expect(store.autostart, isFalse);
-    store.dispose();
-  });
+  test(
+    'an unsupported resolver list is preserved for explicit repair',
+    () async {
+      File('${directory.path}/profiles.json').writeAsStringSync(
+        jsonEncode({
+          'schema': 2,
+          'profiles': <Object>[],
+          'dnsServers': ['1.1.1.1:53', 'http://bad'],
+          'autostart': 'yes',
+        }),
+      );
+      final store = AppStore()..directory = directory;
+      await store.load();
+      expect(store.dnsServers, ['1.1.1.1:53', 'http://bad']);
+      expect(
+        () => managedDnsServers({}, store.dnsServers),
+        throwsFormatException,
+      );
+      await store.save();
+      expect((await savedJson())['dnsServers'], ['1.1.1.1:53', 'http://bad']);
+      // «yes» is not a bool, so the flag stays off instead of being truthy.
+      expect(store.autostart, isFalse);
+      store.dispose();
+    },
+  );
 
   test('AWG profile DNS follows the selection and the IPv6 capability', () {
     // No IPv6 egress: the IPv6 resolver from the mixed pair is dropped, exactly
     // as before the setting existed.
     expect(managedDnsServers({}), '9.9.9.9');
-    expect(managedDnsServers({}, ['8.8.8.8', '2001:4860:4860::8888']), '8.8.8.8');
     expect(
-      managedDnsServers({'rivet': {'ipv6': true}}, [
-        '8.8.8.8',
-        '2001:4860:4860::8888',
-      ]),
+      managedDnsServers({}, ['8.8.8.8', '2001:4860:4860::8888']),
+      '8.8.8.8',
+    );
+    expect(
+      managedDnsServers(
+        {
+          'rivet': {'ipv6': true},
+        },
+        ['8.8.8.8', '2001:4860:4860::8888'],
+      ),
       '8.8.8.8, 2001:4860:4860::8888',
     );
     // An explicit IPv6-only choice is kept: the owner picked it, the settings
@@ -158,7 +185,9 @@ void main() {
       '2a10:50c0::ad1:ff, 2a10:50c0::ad2:ff',
     );
     expect(
-      managedDnsServers({'rivet': {'ipv6': 'true'}}),
+      managedDnsServers({
+        'rivet': {'ipv6': 'true'},
+      }),
       '9.9.9.9',
       reason: 'строка «true» не подтверждает IPv6-выход',
     );
@@ -169,13 +198,17 @@ void main() {
     expect(dnsPresetIdFor(['2620:fe::fe', '9.9.9.9']), 'quad9');
     expect(dnsPresetIdFor(['1.1.1.1', '2606:4700:4700::1111']), 'cloudflare');
     expect(dnsPresetIdFor(['2a10:50c0::ad1:ff']), customDnsPreset);
-    expect(dnsServersLabel(['1.1.1.1', '2606:4700:4700::1111']), contains(
-      'Cloudflare',
-    ));
+    expect(
+      dnsServersLabel(['1.1.1.1', '2606:4700:4700::1111']),
+      contains('Cloudflare'),
+    );
     expect(dnsServersLabel(['192.0.2.1']), contains('Свои'));
   });
 
-  testWidgets('the three settings switches persist immediately', (tester) async {
+  testWidgets('the three settings switches persist immediately', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
     final store = _MemoryStore();
     await tester.pumpWidget(
       MaterialApp(
@@ -217,6 +250,7 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     store.dispose();
+    debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('resolver page saves a preset and rejects a bad custom address', (
@@ -263,7 +297,7 @@ void main() {
     await tester.tap(find.text('Сохранить'));
     await tester.pumpAndSettle();
     expect(store.dnsServers, ['1.1.1.1', '2606:4700:4700::1111']);
-    expect(find.textContaining('без порта'), findsOneWidget);
+    expect(find.textContaining('без домена, порта'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());
     store.dispose();

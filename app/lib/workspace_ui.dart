@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 
 import 'cascade_model.dart';
 import 'cascade_probe.dart';
+import 'connection_mode_ui.dart';
 import 'core.dart';
 import 'mtproto_ui.dart';
 import 'cascade_ui.dart';
@@ -33,7 +34,6 @@ String protocolName(String id) =>
       'rivet-h3': 'RIVET / H3',
       'rivet-s1': 'RIVET / S1',
       'xray': 'Xray / REALITY',
-      'cloak': 'OpenVPN / Cloak',
     }[id] ??
     id;
 String traffic(num bytes) => bytes < 1024
@@ -101,7 +101,11 @@ Future<void> openAdmin(
 
 class WorkspaceShell extends StatefulWidget {
   final AppStore store;
-  const WorkspaceShell({super.key, required this.store});
+
+  /// Durable connection-mode seam supplied by the host; see
+  /// [ConnectionModeSource].
+  final ConnectionModeSource? modeSource;
+  const WorkspaceShell({super.key, required this.store, this.modeSource});
   @override
   State<WorkspaceShell> createState() => _WorkspaceShellState();
 }
@@ -420,6 +424,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        CascadeMainCard(store: store),
       ],
     );
   }
@@ -469,7 +475,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
       ListTile(
         leading: const Icon(Icons.alt_route),
         title: const LText('Каскад: IPv4-IPv6'),
-        subtitle: const LText('IPv4 → bridge → IPv6 exit · по подписке'),
+        subtitle: const LText('IPv4 → bridge → IPv6 exit · бесплатно'),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
@@ -482,6 +488,14 @@ class _WorkspaceShellState extends State<WorkspaceShell>
               onUnlock: () => store.setCascadeUnlocked(true),
               healthProbe: (bridge) =>
                   CascadeSshProbe(store: store).check(bridge),
+              egressProbe: () => store.probeCascadeEgress(),
+              onHealth: (health) => store.setCascadeHealth(
+                ok: health.isAlive,
+                pingMs: health.latencyMs,
+                exitIpv6: health.egressIpv6 ?? '',
+                exitIp: health.egressIp ?? '',
+                checkedAt: health.checkedAt.toIso8601String(),
+              ),
             ),
           ),
         ),
@@ -647,6 +661,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           'Настройки соединения',
           ConnectionSettings(
             store: store,
+            modeSource: widget.modeSource,
             onProtocols: () => push(
               'Протоколы',
               Column(
@@ -831,10 +846,16 @@ class _CachedPageState extends State<_CachedPage>
 
 class ConnectionSettings extends StatefulWidget {
   final AppStore store;
+
+  /// Durable mode seam. Null means the core Store API for the mode is not
+  /// available in this build yet: the control is omitted rather than shown
+  /// next to a save that cannot persist it.
+  final ConnectionModeSource? modeSource;
   final VoidCallback? onDiagnostics, onProtocols;
   const ConnectionSettings({
     super.key,
     required this.store,
+    this.modeSource,
     this.onDiagnostics,
     this.onProtocols,
   });
@@ -848,6 +869,12 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
   late int timeoutSeconds = widget.store.protocolTimeoutSeconds;
   late bool siteCheck = widget.store.siteCheckEnabled;
   late bool reconnect = widget.store.autoReconnect;
+
+  /// Draft mode for this form, never the Store's acknowledged value.
+  late ConnectionPolicy policy =
+      widget.modeSource?.connectionPolicy ?? widget.store.connectionPolicy;
+  bool saving = false;
+  String? saveError;
   @override
   void dispose() {
     site.dispose();
@@ -874,6 +901,13 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         trailing: const Icon(Icons.chevron_right),
         onTap: widget.onProtocols,
       ),
+      if (widget.modeSource != null)
+        ConnectionModeControl(
+          source: widget.modeSource!,
+          draft: policy,
+          saving: saving,
+          onChanged: (value) => setState(() => policy = value),
+        ),
       const VpnSharingControl(),
       DnsServersTile(store: widget.store),
       // Раздельное туннелирование — рядом с DNS-резолвером и протоколами:
@@ -885,9 +919,9 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         value: reconnect,
         onChanged: (v) => setState(() => reconnect = v),
         title: const LText('Переподключаться при потере связи'),
-        subtitle: const LText(
-          'Пока туннель активен, приложение проверяет связь и при потере поднимает соединение заново — выбранный сервер, затем другой протокол, затем другой профиль.',
-        ),
+        // Wording follows the selected mode: automatic may switch protocol and
+        // profile, manual keeps the selected one even on reconnection.
+        subtitle: LText(ConnectionModeText.reconnect(policy)),
       ),
       SwitchListTile(
         contentPadding: EdgeInsets.zero,
@@ -949,27 +983,80 @@ class _ConnectionSettingsState extends State<ConnectionSettings> {
         },
       ),
       const SizedBox(height: 16),
-      LText(
-        siteCheck
-            ? 'Сайт проверяется после подключения. При раздельном туннелировании запрос следует правилам приложения; успешный ответ сам по себе не подтверждает маршрут всего трафика. Сначала проверяется приоритетный протокол; при неудаче — следующий из профиля пользователя.'
-            : 'Проверка сайта выключена: соединение подтверждается самим туннелем (свежий handshake, счётчики, DNS-ответ через туннель). При неудаче проверяется следующий протокол из профиля пользователя.',
-      ),
+      LText(ConnectionModeText.siteCheck(enabled: siteCheck, policy: policy)),
+      if (saveError != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: LText(saveError!),
+        ),
       const SizedBox(height: 20),
-      FilledButton(
-        onPressed: () => actionGuard(context, () async {
-          await widget.store.saveConnectionSettings(
-            site.text,
-            priority,
-            timeoutSeconds: timeoutSeconds,
-            siteCheck: siteCheck,
-            reconnect: reconnect,
-          );
-          if (context.mounted) Navigator.pop(context);
-        }),
-        child: const LText('Сохранить'),
+      ListenableBuilder(
+        listenable: Listenable.merge([widget.modeSource]),
+        builder: (context, _) => FilledButton(
+          key: const ValueKey('connection-settings-save'),
+          onPressed: saving || !_modeChangeAllowed ? null : save,
+          child: const LText('Сохранить'),
+        ),
       ),
     ],
   );
+
+  /// Saves through the Store when the mode seam is absent, or through the seam
+  /// as one owned publication. A rejected or unconfirmed result keeps the form
+  /// open with its localized explanation: nothing here may look like success.
+  Future<void> save() async {
+    setState(() {
+      saving = true;
+      saveError = null;
+    });
+    try {
+      final source = widget.modeSource;
+      if (source == null) {
+        await widget.store.saveConnectionSettings(
+          site.text,
+          priority,
+          timeoutSeconds: timeoutSeconds,
+          siteCheck: siteCheck,
+          reconnect: reconnect,
+        );
+      } else {
+        await source.saveConnectionSettings(
+          site.text,
+          priority,
+          timeoutSeconds: timeoutSeconds,
+          siteCheck: siteCheck,
+          reconnect: reconnect,
+          policy: policy,
+        );
+      }
+      if (mounted && _modeSettled) Navigator.pop(context);
+    } catch (error) {
+      // Code/phase mapping only: raw exception text never reaches the UI.
+      if (mounted) {
+        setState(() => saveError = ConnectionModeText.saveFailure(error));
+      }
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  /// All connection settings in this form are plan-sensitive (site check,
+  /// verification site, timeout, reconnection, mode), so the Store's idle-only
+  /// admission applies to the save button as a whole. The Store guard stays
+  /// authoritative; the widget only reflects it.
+  bool get _modeChangeAllowed {
+    final source = widget.modeSource;
+    if (source == null) return true;
+    return source.canChangeConnectionMode && !source.connectionModePending;
+  }
+
+  /// True only after the Store acknowledged the publication: a pending or
+  /// failed persist must keep the form open with its honest state.
+  bool get _modeSettled {
+    final source = widget.modeSource;
+    return source == null ||
+        (!source.connectionModePending && source.connectionPolicyError == null);
+  }
 }
 
 class SharingPage extends StatefulWidget {
@@ -1258,6 +1345,79 @@ class _SharingPageState extends State<SharingPage> {
   }
 }
 
+/// Pinned trust inputs for the standalone cascade bootstrap. The bootstrap
+/// (`deploy/cascade/terminal-install.sh`) and the bundle archive are shipped in
+/// the app; their digests come from `assets/xio-cascade-release.json`. The URLs
+/// stay on the mutable `main` branch only because the digests below are verified
+/// before any execution: a different or tampered download fails the digest check
+/// and aborts.
+const String cascadeBootstrapUrl =
+    'https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh';
+const String cascadeBootstrapSha256 =
+    'e9db1d8ef13ffa781bce69fec2d8c1d95e7aa12a11c0f21c9e906563c5f43331';
+const String cascadeBundleUrl =
+    'https://raw.githubusercontent.com/rukazax/xio_vpn/main/app/assets/xio-cascade.tar.gz';
+const String cascadeBundleSha256 =
+    '6ca4b316517e25ddbcb105173c96bcaa712a99ee4fcc054824a3200504f52171';
+
+/// Explicit success evidence printed by the verified cascade installer
+/// (`cascade-install.sh`) only after the containers are started.
+const String cascadeInstallSuccessMarker = 'Configuration installed';
+
+/// Builds the remote cascade install command. The exit host is not interpolated
+/// into this string: it is delivered over stdin into `exit_host` and forwarded
+/// as a double-quoted argv element, so an untrusted value can never become shell
+/// code. The bootstrap is downloaded into a fresh `mktemp` directory, its SHA-256
+/// is verified against [cascadeBootstrapSha256] before execution, and the
+/// installer runs with the pinned bundle URL + digest.
+String buildCascadeInstallCommand() {
+  const template = r'''set -u
+IFS= read -r exit_host || exit 90
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/xio-cascade-install.XXXXXXXX") || exit 91
+trap 'rm -rf -- "$tmp"' EXIT
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --tlsv1.2 --max-time 120 --max-filesize 1048576 --retry 2 --output "$tmp/terminal-install.sh" '__BOOTSTRAP_URL__' || exit 92
+printf '%s  %s\n' '__BOOTSTRAP_SHA__' "$tmp/terminal-install.sh" | sha256sum --check --status || exit 93
+chmod 700 "$tmp/terminal-install.sh"
+bash "$tmp/terminal-install.sh" --bundle-url '__BUNDLE_URL__' --sha256 '__BUNDLE_SHA__' --data-dir /var/lib/xio-cascade --unattended -- --role bridge --exit-host "$exit_host" >/var/log/xio-cascade-install.log 2>&1
+rc=$?
+tail -n 50 /var/log/xio-cascade-install.log
+exit "$rc"
+''';
+  return template
+      .replaceAll('__BOOTSTRAP_URL__', cascadeBootstrapUrl)
+      .replaceAll('__BOOTSTRAP_SHA__', cascadeBootstrapSha256)
+      .replaceAll('__BUNDLE_URL__', cascadeBundleUrl)
+      .replaceAll('__BUNDLE_SHA__', cascadeBundleSha256);
+}
+
+/// Runs the pinned cascade bootstrap over [ssh] and returns the installer tail
+/// only on verified success: exit code 0 (enforced by [VpsService.executeInput])
+/// plus the explicit [cascadeInstallSuccessMarker] in the output. Any other
+/// outcome throws [StateError] with the real failure. The exit host is passed
+/// over stdin, never interpolated into the command.
+Future<String> runCascadeInstall(
+  VpsService ssh,
+  String exit, {
+  Duration timeout = const Duration(minutes: 20),
+}) async {
+  final command = buildCascadeInstallCommand();
+  final List<int> bytes;
+  try {
+    bytes = await ssh.executeInput(command, utf8.encode('$exit\n'), timeout: timeout);
+  } on SshCommandFailure catch (failure) {
+    final tail = utf8.decode(failure.stdoutBytes, allowMalformed: true).trim();
+    throw StateError(
+      'Установщик каскада завершился ошибкой (код ${failure.exitCode})'
+      '${tail.isEmpty ? '' : ':\n$tail'}',
+    );
+  }
+  final output = utf8.decode(bytes, allowMalformed: true).trim();
+  if (!output.contains(cascadeInstallSuccessMarker)) {
+    throw StateError('Установщик каскада не подтвердил установку');
+  }
+  return output;
+}
+
 class ManagedAdminDialog extends StatefulWidget {
   final AppStore store;
   final bool admin;
@@ -1434,17 +1594,13 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   }
 
   /// Ставит каскад на только что установленный bridge тем же установщиком, что
-  /// и в терминале, но по SSH из приложения. Адреса сохраняются в профиле,
-  /// поэтому экран «Каскад: IPv4-IPv6» показывает реальные станции.
+  /// и в терминале, но по SSH из приложения. Успех выводится только из
+  /// положительных свидетельств: сверенная SHA-256 бутстрапа, явное
+  /// подтверждение установщика и код выхода 0. Адреса сохраняются только после
+  /// подтверждённого успеха; при ошибке экран показывает реальную причину и не
+  /// показывает «Каскад поднят».
   Future<void> _installCascade(String bridge, String exit) async {
-    final command =
-        "curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/"
-        "deploy/cascade/terminal-install.sh -o /tmp/xio-cascade.sh && "
-        "bash /tmp/xio-cascade.sh --role bridge --exit-host '$exit' "
-        ">/var/log/xio-cascade-install.log 2>&1; "
-        "rc=\$?; tail -8 /var/log/xio-cascade-install.log; exit \$rc";
-    final bytes = await ssh.executeInput(command, const <int>[]);
-    final output = utf8.decode(bytes, allowMalformed: true).trim();
+    final output = await runCascadeInstall(ssh, exit);
     final saved = await widget.store.setCascadeServers(
       bridge: bridge,
       exit: exit,
@@ -1785,6 +1941,18 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                     onPressed: busy
                         ? null
                         : () => perform(() async {
+                            // Validate the cascade inputs before any server is
+                            // installed or any record is created: an invalid
+                            // exit address must fail without side effects,
+                            // not after the server already exists.
+                            final exit = cascadeExit.text.trim();
+                            if (cascadeEnabled &&
+                                validateCascadeBridge(exit) == null &&
+                                validateCascadeExit(exit) == null) {
+                              throw const FormatException(
+                                'Нужен IPv4 или IPv6-адрес exit-сервера',
+                              );
+                            }
                             server = await service.install(
                               widget.store,
                               publicHost: publicHost.text.trim().isEmpty
@@ -1793,18 +1961,9 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                             );
                             await create();
                             if (cascadeEnabled && mounted) {
-                              final exit = cascadeExit.text.trim();
                               final bridge = server!.publicHost.isEmpty
                                   ? server!.host
                                   : server!.publicHost;
-                              final exitIsV4 =
-                                  validateCascadeBridge(exit) != null;
-                              if (!exitIsV4 &&
-                                  validateCascadeExit(exit) == null) {
-                                throw const FormatException(
-                                  'Нужен IPv4 или IPv6-адрес exit-сервера',
-                                );
-                              }
                               await _installCascade(bridge, exit);
                             }
                           }),
@@ -2103,5 +2262,215 @@ class _ServerFileDialogState extends State<ServerFileDialog> {
         ),
       ],
     ),
+  );
+}
+
+/// Схема каскада на главном экране.
+///
+/// Показывается только когда каскад включён и оба адреса заданы. Компактно
+/// повторяет экран «Каскад»: устройство → bridge → exit, итог последней
+/// реальной проверки, отклик и выходной IPv6. Тап открывает полный экран,
+/// где можно поменять адреса и запустить проверку заново.
+class CascadeMainCard extends StatelessWidget {
+  const CascadeMainCard({super.key, required this.store});
+  final AppStore store;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!store.cascadeUnlocked) return const SizedBox.shrink();
+    final bridge = store.cascadeBridge;
+    final exit = store.cascadeExit;
+    if (bridge.isEmpty || exit.isEmpty) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final ok = store.cascadeHealthOk && store.status.active;
+    final accent = ok
+        ? theme.colorScheme.primary
+        : theme.colorScheme.onSurfaceVariant;
+    final ping = store.cascadeHealthPingMs;
+    final egress = store.cascadeExitIp.isNotEmpty
+        ? store.cascadeExitIp
+        : store.cascadeExitIpv6;
+    final bridgeFlag = store.cascadeBridgeCountry.isEmpty
+        ? '🌐'
+        : flagEmoji(store.cascadeBridgeCountry);
+    final exitFlag = store.cascadeExitCountry.isEmpty
+        ? '🌐'
+        : flagEmoji(store.cascadeExitCountry);
+    final locale = Localizations.localeOf(context);
+    var localeCountry = locale.countryCode ?? '';
+    if (localeCountry.isEmpty) {
+      final raw = Platform.localeName;
+      if (raw.contains('_')) localeCountry = raw.split('_').last;
+    }
+    if (localeCountry.isEmpty && locale.languageCode == 'ru') {
+      localeCountry = 'RU';
+    }
+    final deviceFlag = localeCountry.isEmpty ? '📱' : flagEmoji(localeCountry);
+
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => CascadeScreen(
+              bridgeAddress: bridge,
+              exitAddress: exit,
+              onSaveServers: (b, e) =>
+                  store.setCascadeServers(bridge: b, exit: e),
+              unlocked: store.cascadeUnlocked,
+              onUnlock: () => store.setCascadeUnlocked(true),
+              healthProbe: (b) => CascadeSshProbe(store: store).check(b),
+              egressProbe: () => store.probeCascadeEgress(),
+              onHealth: (health) => store.setCascadeHealth(
+                ok: health.isAlive,
+                pingMs: health.latencyMs,
+                exitIpv6: health.egressIpv6 ?? '',
+                exitIp: health.egressIp ?? '',
+                checkedAt: health.checkedAt.toIso8601String(),
+              ),
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(Icons.alt_route, size: 18, color: accent),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: LText(
+                      ok ? 'Каскад активен' : 'Каскад настроен',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  Text(
+                    ok
+                        ? (ping == null ? '—' : '$ping мс')
+                        : 'не проверен',
+                    style: theme.textTheme.labelSmall?.copyWith(color: accent),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: <Widget>[
+                  _CascadeStation(
+                    icon: Icons.smartphone,
+                    flag: deviceFlag,
+                    label: 'Устройство',
+                    detail: 'IPv4',
+                    accent: accent,
+                  ),
+                  _CascadeArrow(accent: accent),
+                  _CascadeStation(
+                    icon: Icons.dns_outlined,
+                    flag: bridgeFlag,
+                    label: 'Bridge',
+                    detail: bridge,
+                    accent: accent,
+                  ),
+                  _CascadeArrow(accent: accent),
+                  _CascadeStation(
+                    icon: Icons.public,
+                    flag: exitFlag,
+                    label: 'Exit',
+                    detail: exit,
+                    accent: accent,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                ok && egress.isNotEmpty
+                    ? '${tr(context, 'Выход: {0}').replaceFirst('{0}', egress)} '
+                          '${store.cascadeExitCountry}'.trim()
+                    : tr(context, 'Маршрут: {0} → {1} · проверьте выход')
+                          .replaceFirst(
+                            '{0}',
+                            store.cascadeBridgeCountry,
+                          )
+                          .replaceFirst(
+                            '{1}',
+                            store.cascadeExitCountry,
+                          ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CascadeStation extends StatelessWidget {
+  const _CascadeStation({
+    required this.icon,
+    required this.flag,
+    required this.label,
+    required this.detail,
+    required this.accent,
+  });
+
+  final IconData icon;
+  final String flag;
+  final String label;
+  final String detail;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(icon, size: 14, color: accent),
+              const SizedBox(width: 4),
+              Text(flag, style: const TextStyle(fontSize: 18)),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall,
+          ),
+          Text(
+            detail,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CascadeArrow extends StatelessWidget {
+  const _CascadeArrow({required this.accent});
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 2),
+    child: Icon(Icons.arrow_forward, size: 14, color: accent),
   );
 }

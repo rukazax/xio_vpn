@@ -14,12 +14,14 @@ class _SettingsStore extends AppStore {
     int? timeoutSeconds,
     bool? siteCheck,
     bool? reconnect,
+    ConnectionPolicy? policy,
   }) async {
     checkSite = validateCheckSite(site).toString();
     priorityProtocol = priority;
     protocolTimeoutSeconds = timeoutSeconds ?? protocolTimeoutSeconds;
     siteCheckEnabled = siteCheck ?? siteCheckEnabled;
     autoReconnect = reconnect ?? autoReconnect;
+    if (policy != null) connectionPolicyForTesting = policy;
     changed();
   }
 }

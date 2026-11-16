@@ -1,0 +1,10 @@
+[
+  {
+    "path": "server/managed/update.py",
+    "sha256": "30eb074ac1a3d03bcd81dc9216d0a1ecf70e65285ead3eeebf38d05c852fca10"
+  },
+  {
+    "path": "tools/test_native_shipping.py",
+    "sha256": "57e1ee276e4b072ba9161627c94a992853f8b136d26fd90220e327dac7ad7977"
+  }
+]

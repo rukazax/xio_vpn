@@ -1,0 +1,74 @@
+# Current-target CI / candidate gates — 2026-11-05
+
+## Scope and prerequisites
+
+Own branch `agent/ci-targets-20261105`, worktree `C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-ci-targets-20261105`, base `a751864a38fe755018b716f6b42e6964fcac890b`. Target path/branch were inspected and absent before creation.
+
+**Parent prerequisites:** independently review/integrate Windows Client version commit `696ed9c477904b5fd1ae415ad293b8f3c6463948` and Linux provenance commit `2f2211c79a3b0fc69e5bc55dab71a87cab1ae059` first. Local cherry-picks are `62c5a99` / `952cf32`. The new CI commit is separate and changes only new workflow/verification/config/tests/report files. Previously committed packaging, parent/server/Dart/assets and the Apple workflow remain untouched.
+
+Inspection found only [the Apple workflow](<../../.github/workflows/ios-compile.yml>) actually active; [the old CI template](<../ci/ci.yml.template>) is not a workflow. Existing release paths allow absent verification tools, warning-only Client artifact counts or historical mismatched Windows versions. This task does **not** change those historical publishing interfaces: [the new workflow](<../../.github/workflows/current-targets.yml>) uses mandatory independent gates and never calls publishing operations. Apple is explicitly deferred, not debugged.
+
+## Reviewed contract / workflow
+
+[Single reviewed matrix](<current-targets.json>): Android **5 required APKs**, Full ARM64 + ARMv7; Client ARM64 + ARMv7 + universal. ARM64 is mandatory for both. Standalone x86_64 and Full universal are explicitly optional/not required; 32-bit x86 APK is not invented. Client universal requires the supported Flutter/native ABI set ARM64/ARMv7/x86_64, not every possible AAR member. Ubuntu requires Full + Client DEB and tar (4); Windows Full + Client ZIP (2). Version/build derive from the exact staged pubspec, not `0.24.2` or a literal replacement.
+
+- Regular push/PR/manual checks run **hosted** Ubuntu 24.04 / Windows 2025 jobs, not permanently unregistered self-hosted labels. Flutter is pinned to locally validated **3.47.7**, Go to the owned module toolchain, Android SDK/build-tools 36 and NDK 30.0.16248370. GTK/SDK and PyYAML 6.0.2 setup is declared for ephemeral hosted runners only; none was installed on this Windows/Debian host.
+- Regular compile matrix builds **debug Full AND Client** for Android ARM64, Ubuntu and Windows. It inspects both real outputs/assets and writes `compileOnly=true`, `candidateArtifactsAccepted=false`, with native/server freshness flags. Android debug signing is explicitly **not a release credential or release acceptance**. No release key is generated for this lane.
+- Gates exercise existing Client tests, Linux actual-container provenance regressions, Dart tests, the exact exported production Windows update transaction script with mocked launches, and structured workflow/candidate regressions. The hosted workflow also runs pinned actual `actionlint@v1.7.7`, not text greps.
+- Release candidates require explicit `workflow_dispatch` + `signed_candidates=true` + `github.actor == github.repository_owner` and the `xio-release-candidates` environment. The environment must be configured by the owner with required reviewers; declaring its name is **not proof it is protected**. Organization-owned repos require a separately reviewed owner-actor policy; this personal-owner gate intentionally does not silently broaden access.
+- Four actual named Android secrets are required **before Gradle release compilation**: `XIO_ANDROID_KEYSTORE_BASE64`, `XIO_ANDROID_STORE_PASSWORD`, `XIO_ANDROID_KEY_ALIAS`, `XIO_ANDROID_KEY_PASSWORD`. [Material helper](<ci_signing_material.py>) never generates a key or prints values, refuses existing signing directories, emits private ASCII Java properties with Unicode escapes, and cleans only its exact verified owner-marked files. Missing inputs fail `NOT_READY`, with no debug-keystore fallback accepted.
+- Manual candidates build the reviewed matrix, including both Linux packaging paths and native Windows Full/Client packaging. The owned Windows Client stage's historical `OriginalFilename=XIO.exe` is corrected **only in that generated stage**, then exact PE version is stamped/read. No tracked packaging source is edited.
+- All uploads use `if-no-files-found: error`. More importantly a **separate mandatory complete-receipt guard** precedes upload: one surviving source JSON cannot mask a missing candidate receipt, missing Client output, skipped verification, missing package, or post-verification byte mutation. Every candidate package is rehashed before upload. Source/receipt and actual candidate packages are uploaded, never signing files.
+- Final `always()` result examines required lint/unit/compile and, when requested, candidate states. Skipped/failed/cancelled required jobs cannot be green release acceptance. Non-requested candidate jobs are explicitly `NOT_REQUESTED`, not accepted.
+
+## Provenance / identity gate
+
+[Verifier](<current_targets.py>) uses stdlib plus installed SDK inspection tools; no app/driver execution, installation, signing or publishing.
+
+1. Capture requires full immutable `git HEAD` SHA and clean **tracked** source, byte-identical Git checkout on Windows/Linux, exact staged Full server/archive/manifest/bootstrap/updater/l10n digests, pubspec/AAR/native reference hashes and native source fingerprint. Build files are trusted local inputs; this is not a signed external attestation or proof against a malicious runner/untracked build injection. CI explicitly starts with `checkout clean: true`, fixed source SHA and no persisted credentials.
+2. Current server archive member set/bytes are compared against the authoritative packager's **current** source list/canonicalization and native metadata pins, including VICI/cascade files and mirrors. Recipe derives from that packager, not a copied recipe28 constant. No untracked vendor-server binaries or historical release resource download is needed for this read-only check.
+3. Release verification requires unchanged captured source/matrix, fresh native source/AAR metadata and staged server sources. This applies to desktop Full too, because Full embeds server engines. Desktop helper/driver payload must equal explicit fresh **same-job native references** produced in the clean build. This does not independently prove arbitrary externally supplied helper binaries were compiled from the claimed source. The existing source fingerprint covers owned Go inputs; OpenVPN comparison uses staged owned native references, not a fresh independent C-source rebuild. Flutter AOT/engine/C-source derivation is not an external attestation.
+4. Exact required artifact set: reject zero, missing Full/Client/ABI, wrong version, unexpected/duplicate files. ZIP paths/assets are inspected without extraction; duplicate/case-colliding/linked/unsafe paths and Client server leakage fail.
+5. APK: installed `aapt`, `apksigner`, `zipalign` are mandatory. Exact application ID/label/versionCode/versionName/SDK; Client updater exclusion; signature v2 and exactly the reviewed public release certificate SHA256; exact supported ABI/library set, native ELF machine/load alignment, and existing allocated-section comparison against the captured Go/OpenVPN references. A filename, signer report or stale AAR alone cannot pass.
+6. Ubuntu: existing production provenance helper inspects actual DEB/tar bytes; additionally inspect DEB package/version/architecture, AMD64 ELF entry, required runtime/native files, and byte-exact same-job helper. No package installation.
+7. Windows: complete single branded root/runtime/helper/driver layout, exact Full/Client executable identity, AMD64 PE, **both fixed and string FileVersion/ProductVersion**, ProductName and OriginalFilename; exact same-job helper/driver bytes. No Authenticode, SAC/WDAC, real driver load or GUI acceptance is claimed.
+
+## Executed local validation
+
+Own evidence: [Windows suite](<../../.build-support/ci-targets-evidence/current-targets-windows.log>), [Debian suite](<../../.build-support/ci-targets-evidence/targets-debian.log>), [actionlint output](<../../.build-support/ci-targets-evidence/actionlint.log>), [workflow PowerShell AST inputs](<../../.build-support/ci-targets-evidence/workflow-pwsh.json>). Evidence is intentionally uncommitted.
+
+```powershell
+python -m py_compile tools/release/current_targets.py tools/release/ci_signing_material.py tools/release/test_current_targets.py tools/release/test_current_targets_yaml.py
+python -m unittest discover -s tools/release -p 'test_current_targets*.py' -v
+python -m unittest discover -s tooling/cross-platform -p test_linux_provenance.py -v
+python -m unittest discover -s client -p 'test*.py' -v
+git diff --check
+```
+
+- New regressions: **19 total; Windows 15 pass / 4 PyYAML skips**, Debian **19 pass**. Windows PyYAML was absent and not installed on the host. Workflow ephemeral runners explicitly install the pinned package. [Contract/parser tests](<test_current_targets.py>) exercise incomplete/wrong-version/duplicate sets, required content verifier invocation, stale/mutated source, absent SDK, wrong/missing certificate, actual ZIP byte drift/Client exclusion, stale PE fixed/strings/identity, absent Full/Client compile output, missing/incomplete/wrong-mode receipts, postverify package tampering/removal, absent secrets and foreign signing-directory preservation. Acceptance-orchestration/SDK/PE-parser mocks are labelled fixtures, not real signed candidate acceptance.
+- [Actual-YAML tests](<test_current_targets_yaml.py>) parse with `yaml.BaseLoader`, check typed policy/matrix/permissions/secret ordering/receipt guards, reject seven unsafe structured mutations, `bash -n` every actual bash body, and execute the **actual final workflow script** across success/failure/skipped/cancelled states. The final result uses explicit per-state rejection, not a `set -e`/AND-list assumption.
+- Existing Linux provenance suite: Windows **18 pass / 1 dpkg skip**, Debian **18 pass / 1 pwsh skip**, including genuine tiny dpkg Full/Client fixture containers. [Windows log](<../../.build-support/ci-targets-evidence/linux-windows.log>), [Debian log](<../../.build-support/ci-targets-evidence/linux-debian.log>).
+- Existing Client suite: Windows **22 pass / 4 skip**, Debian **25 pass / 1 skip**, including genuine resource-only PE fixture parsing on Debian. Cached real Client PE fixture was not supplied in this round. [Windows log](<../../.build-support/ci-targets-evidence/client-windows.log>), [Debian log](<../../.build-support/ci-targets-evidence/client-debian.log>).
+- Debian focused production generator tests: **35 pass / 1 public-ZIP fixture skip** on `/opt/flutter` 3.47.7; real generated script exported for the owned Windows fixture root. [Dart log](<../../.build-support/ci-targets-evidence/transaction-dart.log>). Transferred only source/assets to own `/srv/archives/agent-ci-targets-20261105`; `TMPDIR` stays there.
+
+```sh
+cd /srv/archives/agent-ci-targets-20261105/app
+TMPDIR=/srv/archives/agent-ci-targets-20261105 /opt/flutter/bin/flutter pub get --offline --enforce-lockfile
+TMPDIR=/srv/archives/agent-ci-targets-20261105 XIO_WINDOWS_SCRIPT_EXPORT=/srv/archives/agent-ci-targets-20261105/transaction-template.ps1 XIO_WINDOWS_TEST_ROOT=C:/Users/er-ka/Documents/deepseek-harness/xio_vpn/work/agent-ci-targets-20261105/.build-support/windows-transaction-fixture /opt/flutter/bin/flutter test --no-pub test/update_windows_test.dart
+```
+
+```powershell
+pwsh -NoProfile -File tools/test-windows-update.ps1 -TemplatePath .build-support/ci-targets-evidence/transaction-template.ps1 -Root 'C:/Users/er-ka/Documents/deepseek-harness/xio_vpn/work/agent-ci-targets-20261105/.build-support/windows-transaction-fixture' -ResultsPath .build-support/ci-targets-evidence/windows-transaction-results.json
+```
+
+Result: **10/10 actual production-script transaction mock scenarios pass**: launch failure, unconfirmed exit, timeout, wrong/stale ACK, ACK-removal failure, copy failure, backup conflict, stop failure, success. Rename/copy/delete transactions are real inside verified owned fixtures; process/launch/stop behavior is mocked. [Results](<../../.build-support/ci-targets-evidence/windows-transaction-results.json>), [log](<../../.build-support/ci-targets-evidence/windows-transaction.log>). No XIO binary started.
+
+Pinned validator installation was scoped to `/srv/archives/agent-ci-targets-20261105`: `GOBIN=.../bin GOPATH=.../go GOCACHE=.../go-cache GOTOOLCHAIN=local go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7` (Go1.24.4 compiler). Actual workflow `bin/actionlint -shellcheck= -pyflakes= .github/workflows/current-targets.yml` exits **0**. Optional shellcheck/pyflakes are deliberately not claimed; actual bash syntax and production final-state behavior were tested separately. All **3 actual PowerShell run bodies** parse with Windows `System.Management.Automation.Language.Parser.ParseInput`, no errors. All listed test/syntax commands exit0; expected negative cases assert failure.
+
+## Readiness / not verified
+
+[Observed base-input readiness](<../../.build-support/ci-targets-evidence/baseline-readiness.json>): native source fingerprint **does not match** existing native metadata, while AAR digest **does match** and staged server source/member checks pass. This is **NOT_READY for release** until parent integrates and rebuilds reviewed native source/AAR/server assets; the gate does not silently bless that mismatch. Capture flags can inform debug compile-only evidence; candidate acceptance is strict. Always capture again after integration.
+
+No remote dispatch/push/workflow execution, publication, release upload/replacement, token read/print or credential-scope modification; saved repo/read:user credential's workflow-write authority remains **unchecked** and is the parent's publication boundary. No system package installation on either host, final Android/Linux/Windows app rebuild, actual signing/key generation, APK/DEB install, native driver/GUI/device/VPN acceptance, security-policy change/bypass, production/VPS operation, Apple/iOS/macOS work or parent source mutation. Only focused Dart unit compilation and small synthetic native/container fixtures ran locally.
+
+Hosted provisioning/SDK availability and full platform compile/build/sign commands are declared but **not executed remotely or accepted yet**. Owner must review protected-environment reviewers, actually available named signing secrets, hosted toolchain availability, and publication authority before opting in. A workflow-lint/unit/compile green is never release, driver, GUI or physical-device acceptance. No signatures/runtime facts were invented to fill these gaps.

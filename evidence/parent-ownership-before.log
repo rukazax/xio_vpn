@@ -1,0 +1,80 @@
+test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) ...
+  test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='cascade', replacement='directory') ... FAIL
+  test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='cascade', replacement='symlink') ... FAIL
+  test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='catalog', replacement='directory') ... FAIL
+  test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='catalog', replacement='symlink') ... FAIL
+
+======================================================================
+FAIL: test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='cascade', replacement='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 305, in test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files
+    self.assertEqual(foreign_unlinks, [], 'rollback must not unlink through a replaced parent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/srv/archives/agent-native-shipping-2026[648 chars]onf'] != []
+
+First list contains 7 additional elements.
+First extra element 0:
+'/srv/archives/agent-native-shipping-20261105/tmp/tmpwtjq126z/managed/cascade/xio-cascade.service'
+
+Diff is 721 characters long. Set self.maxDiff to None to see it. : rollback must not unlink through a replaced parent
+
+======================================================================
+FAIL: test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='cascade', replacement='symlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 305, in test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files
+    self.assertEqual(foreign_unlinks, [], 'rollback must not unlink through a replaced parent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/srv/archives/agent-native-shipping-2026[648 chars]onf'] != []
+
+First list contains 7 additional elements.
+First extra element 0:
+'/srv/archives/agent-native-shipping-20261105/tmp/tmp31trfikh/managed/cascade/xio-cascade.service'
+
+Diff is 721 characters long. Set self.maxDiff to None to see it. : rollback must not unlink through a replaced parent
+
+======================================================================
+FAIL: test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='catalog', replacement='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 305, in test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files
+    self.assertEqual(foreign_unlinks, [], 'rollback must not unlink through a replaced parent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/srv/archives/agent-native-shipping-2026[545 chars].md'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/xio-catalog.timer'
+
++ []
+- ['/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/xio-catalog.timer',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/xio-catalog.service',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/whitelist-pins.json',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/lint_catalog.py',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/.catalog.py.update-9ddmp9zq',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp50e92anp/managed/catalog/README.md'] : rollback must not unlink through a replaced parent
+
+======================================================================
+FAIL: test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files (tools.test_native_shipping.NativeShippingTests.test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files) (dirname='catalog', replacement='symlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 305, in test_rollback_replaced_auxiliary_parent_preserves_foreign_and_displaced_files
+    self.assertEqual(foreign_unlinks, [], 'rollback must not unlink through a replaced parent')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['/srv/archives/agent-native-shipping-2026[347 chars].py'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'/srv/archives/agent-native-shipping-20261105/tmp/tmp223cwcm6/managed/catalog/xio-catalog.timer'
+
++ []
+- ['/srv/archives/agent-native-shipping-20261105/tmp/tmp223cwcm6/managed/catalog/xio-catalog.timer',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp223cwcm6/managed/catalog/xio-catalog.service',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp223cwcm6/managed/catalog/whitelist-pins.json',
+-  '/srv/archives/agent-native-shipping-20261105/tmp/tmp223cwcm6/managed/catalog/lint_catalog.py'] : rollback must not unlink through a replaced parent
+
+----------------------------------------------------------------------
+Ran 1 test in 8.543s
+
+FAILED (failures=4)

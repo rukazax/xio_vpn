@@ -11,12 +11,12 @@ build-windows-on-linux.py), поэтому версия в PE-ресурсе —
 PE и заменяет в нём
   * VS_FIXEDFILEINFO (FILEVERSION / PRODUCTVERSION — четыре 16-битных числа),
   * строки FileVersion / ProductVersion в StringFileInfo.
-Размер ресурса при этом не уменьшается: новый блок дополняется нулями до старого
-размера (или растёт в свободный хвост секции .rsrc, если места хватает).
+Размер выделенного ресурса сохраняется: новый блок дополняется нулями до старого
+размера. Рост за исходную явную границу запрещён: хвост .rsrc не свободное место.
 Windows ищет данные по Size из IMAGE_RESOURCE_DATA_ENTRY, а внутри блока — по
 wLength корневого узла, поэтому хвостовые нули безопасны.
 
-Если строка версии стала настолько длиннее, что в секции нет места, скрипт
+Если новая строка версии не помещается в исходный размер ресурса, скрипт
 честно падает с кодом 2 — тогда нужен раннер, собранный из Runner.rc
 (нативная сборка на Windows или `x86_64-w64-mingw32-g++` из
 `tooling/cross-platform/windows_runner.cpp`, см. docs/release-process.ru.md).
@@ -50,7 +50,7 @@ class PeError(RuntimeError):
 
 
 class NoRoomError(PeError):
-    """Новый блок версии не влезает в секцию .rsrc — нужна перелинковка."""
+    """Новый блок версии не влезает в исходный ресурс — нужна перелинковка."""
 
 
 # --- PE: заголовки и карта секций -------------------------------------------
@@ -340,26 +340,29 @@ def stamp_version(path: Path, version: str) -> dict:
     )
     if section is None:
         raise PeError("ресурс VERSIONINFO лежит вне сырых данных секции")
-    room = section.raw_pointer + section.raw_size - offset
+    if offset + leaf.size > min(len(data), section.raw_pointer + section.raw_size):
+        raise PeError("исходный ресурс VERSIONINFO выходит за сырые данные секции/файла")
+    # Only IMAGE_RESOURCE_DATA_ENTRY.Size proves an allocation. The rest of
+    # .rsrc can contain a live manifest/icon even when the version readback works.
+    room = leaf.size
     if len(blob) > room:
         raise NoRoomError(
-            f"новая версия {version} требует {len(blob)} Б, а в секции .rsrc под ресурс "
-            f"осталось {room} Б (было {leaf.size}) — нужен раннер, собранный из Runner.rc"
+            f"новая версия {version} требует {len(blob)} Б, исходный ресурс выделяет "
+            f"{room} Б — нужен раннер, собранный из Runner.rc"
         )
-    # IMAGE_RESOURCE_DATA_ENTRY.Size — единственное поле каталога, которое меняется.
+    # Find the data entry before any write; its explicit allocation is preserved.
     entry = next(
         (at for at in _data_entry_offsets(bytes(data), sections) if _u32(bytes(data), at) == leaf.rva),
         None,
     )
     if entry is None:
         raise PeError("не найден IMAGE_RESOURCE_DATA_ENTRY для VERSIONINFO")
-    # Хвост ресурса дополняется нулями только до СТАРОГО размера (или до нового,
-    # если блок вырос): за пределами ресурса в секции .rsrc лежат другие ресурсы,
-    # и трогать их нельзя.
-    written = max(leaf.size, len(blob))
+    # Pad only inside the original allocation, retaining its Size even after a
+    # shorter stamp so a subsequent packaging stamp has the same safe capacity.
+    written = leaf.size
     data[offset : offset + len(blob)] = blob
     data[offset + len(blob) : offset + written] = b"\0" * (written - len(blob))
-    struct.pack_into("<I", data, entry + 4, len(blob))
+    struct.pack_into("<I", data, entry + 4, written)
     path.write_bytes(bytes(data))
     result = read_version(path)
     if (result["FileVersion"] or "") != version:

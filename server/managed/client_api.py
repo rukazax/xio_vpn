@@ -163,6 +163,17 @@ def account_request(admin, envelope):
         cached = dict(previous['response'])
         cached.pop('configs', None)
         cached['configsUnavailable'] = True
+        # Readiness is transient, not part of durable profile/key identity. A
+        # replay must not turn an expired positive result into a fresh profile.
+        fresh = admin.public(deployment)
+        server = dict(cached['server'])
+        if 'nativeProfileReadiness' in fresh:
+            server['nativeProfileReadiness'] = fresh['nativeProfileReadiness']
+        else:
+            server.pop('nativeProfileReadiness', None)
+        if isinstance(server.get('rivet'), dict) and isinstance(fresh.get('rivet'), dict):
+            server['rivet'] = dict(server['rivet'], ipv6=fresh['rivet'].get('ipv6') is True)
+        cached['server'] = server
         return cached
     admin.authority(deployment, actor, 'add', req)
     assert len(operations) < 10000, 'Operation history limit reached'
@@ -173,7 +184,7 @@ def account_request(admin, envelope):
     # dictionary, stored access hashes, adminAccess, SSH data or other accounts.
     response = {'user': {'id': uid, 'slot': result['user']['slot']},
                 'server': {key: result['server'][key] for key in
-                           ['id', 'host', 'publicKeys', 'awg', 'rivet'] if key in result['server']},
+                           ['id', 'host', 'publicKeys', 'awg', 'rivet', 'nativeProfileReadiness'] if key in result['server']},
                 'configs': result.get('configs', {})}
     deployment = admin.load()
     # The completion receipt carries only routing metadata plus a delivery

@@ -113,11 +113,14 @@ def sandbox_prepare(d):
    target.unlink(missing_ok=True)
    if dropin.is_dir() and not any(dropin.iterdir()):dropin.rmdir()
   else:
+   # The stack configuration is installed only after AWG. Prefix the future path
+   # with '-' so the first start tolerates it being absent, then the real stack
+   # installer can create its own directory without a pre-existing-path refusal.
    # Only the live remount probe fails on these containers; a unit started from
    # a clean cgroup still gets a read-only /etc and /usr, so the drop-in keeps
    # ProtectSystem=full and names the two directories the services really write.
    dropin.mkdir(parents=True,exist_ok=True)
-   write(target,'[Service]\nProtectSystem=full\nReadWritePaths=/etc/xio-managed /etc/xio-stack\n',0o644)
+   write(target,'[Service]\nProtectSystem=full\nReadWritePaths=/etc/xio-managed -/etc/xio-stack\n',0o644)
  save(d)
  return d['sandboxMode']
 def firewall_prepare(d):
@@ -216,6 +219,13 @@ def _listed_rules(cmd,table):
   if len(fields)>2 and fields[0]=='-A':listed.setdefault(fields[1],[]).append(_rule_key(fields[2:]))
  return listed
 def rules(d,remove=False):
+ if remove:return _rules(d,True)
+ network=stack.network.dualstack()
+ network.reconcile_native(reason='awg-firewall-before')
+ try:return _rules(d)
+ finally:network.reconcile_native(reason='awg-firewall-after')
+
+def _rules(d,remove=False):
  if firewall_managed(d,remove):return
  outbound6=stack.network.dualstack().outbounds().get('ipv6',d['outbound'])
  # One PATH lookup per tool instead of one per rule.
@@ -450,10 +460,20 @@ def stats(d):
  save(d);return {'server':public(d),'users':[dict(id=k,**{a:b for a,b in v.items() if a!='stack'}) for k,v in d['users'].items()],'sampledAt':now,'statisticsNote':'Server counters; sampled every 60s. Unsampled traffic before a service crash may be lost.'}
 def public(d):
  # One route sample feeds both fields (capabilities.ipv6DefaultRoute == ipv6_ready()).
- capabilities=stack.network.dualstack().capabilities()
+ network=stack.network.dualstack()
+ capabilities=network.capabilities()
+ native=network.native_capabilities()
+ if native is not None:
+  desired=network.desired_native_families()
+  if desired is None:raise RuntimeError('Native cascade readiness has no family intent')
+  current=network.native_capabilities()
+  if current is None or any(current.get(key)!=native.get(key) for key in ('connectorId','revision')):
+   raise RuntimeError('Native cascade changed during readiness sampling')
+  native=dict(current,requiredFamilies=desired)
+ rivet_ipv6=native['rivet']['ipv6'] if native is not None else capabilities['ipv6DefaultRoute']
  protocols=d['protocols']+(['rivet-h3','rivet-s1'] if d.get('rivet') else [])+d.get('stack',{}).get('protocols',[])+(['tailscale'] if d.get('mesh') else [])
  if d.get('restrictedNetwork'):protocols=[p for p in protocols if p in ['xray','rivet-s1','cloak','awg','rivet-h3']]
- return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':capabilities,'protocols':protocols,**({'rivet':dict(d['rivet'],ipv6=capabilities['ipv6DefaultRoute'])} if d.get('rivet') else {})}
+ return {**{k:d[k] for k in ['id','host','publicKeys','awg']},'country':d.get('country',''),'platform':d.get('platform',{}),'recipeVersion':d.get('recipeVersion',13),'bundleSha256':d.get('bundleSha256',''),'restrictedNetwork':d.get('restrictedNetwork',False),'networkCapabilities':capabilities,'protocols':protocols,**({'nativeProfileReadiness':native} if native is not None else {}),**({'rivet':dict(d['rivet'],ipv6=rivet_ipv6)} if d.get('rivet') else {})}
 
 def valid_host(host):
  if not isinstance(host,str) or not host or host!=host.strip() or len(host)>253:return False
@@ -609,21 +629,65 @@ def mtproto_state(d):
  return {'installed':True,'host':host,'port':port,'secret':secret,
          'link':'tg://proxy?server=%s&port=%d&secret=%s'%(server,port,secret)}
 
+def decoded_peer_key(value):
+ # Compare backend identities, not Base64 spellings (unused padding bits may vary).
+ try:raw=base64.b64decode(value,validate=True) if isinstance(value,str) else b''
+ except ValueError:raw=b''
+ assert len(raw)==32 and raw!=b'\x00'*32,'Invalid public key'
+ return raw
+
+def peer_key_admission(d,incoming):
+ # Include revoked history: it must never become a second owner of the same peer.
+ # Existing material is inspected only, never normalized/deleted/rotated here.
+ seen=set()
+ for keys in [d['publicKeys'],*[u.get('keys',{}) for u in d['users'].values()]]:
+  assert isinstance(keys,dict),'Invalid public key registry'
+  for value in keys.values():
+   raw=decoded_peer_key(value)
+   assert raw not in seen,'Ambiguous public key registry; owner reconciliation required'
+   seen.add(raw)
+ result={}
+ for protocol,value in incoming.items():
+  raw=decoded_peer_key(value)
+  assert raw not in seen,'Duplicate or server public key'
+  seen.add(raw);result[protocol]=base64.b64encode(raw).decode('ascii')
+ return result
+
+def awg_profile_families(cascade=None,ipv6_only=False):
+ # dualstack validates native schema, identity and the bounded evidence TTL.
+ # A second sample binds family intent to the same connector revision, as public().
+ import dualstack as _ds
+ native=_ds.native_capabilities()
+ if native is not None:
+  if ipv6_only:raise RuntimeError('Native AWG profiles require both default captures')
+  desired=_ds.desired_native_families()
+  current=_ds.native_capabilities()
+  if desired is None or current is None or any(current.get(k)!=native.get(k) for k in ('connectorId','revision')):
+   raise RuntimeError('Native cascade changed during profile preflight')
+  families=desired['awg']
+  if not any(families.values()) or any(selected and not current['awg'][family] for family,selected in families.items()):
+   raise RuntimeError('Native AWG families are not ready')
+ else:
+  if cascade is None:cascade=_ds.cascade_status()
+  families={'ipv4':True,'ipv6':cascade['alive'] is True}
+ if ipv6_only:
+  if not families['ipv6']:raise RuntimeError('IPv6 AWG profile requires usable IPv6')
+  return {'ipv4':False,'ipv6':True}
+ return families
+
 def awg_client_config(d,user,cascade=None,ipv6_only=False):
  """Ready-to-import AmneziaWG profile for a device that has no XIO client."""
  awg=d['awg'];slot=user['slot'];host=d['host']
- if cascade is None:
-  import dualstack as _ds
-  cascade=_ds.cascade_status()
+ families=awg_profile_families(cascade,ipv6_only)
  host='[%s]'%host if ':' in host else host
  if ipv6_only:
   address='fd78:1::%x/64'%slot
   allowed='::/0'
-  dns='2620:fe::fe' if cascade['alive'] else '9.9.9.9'
+  dns='2620:fe::fe'
  else:
   address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
   allowed='0.0.0.0/0, ::/0'
-  dns='9.9.9.9, 2620:fe::fe' if cascade['alive'] else '9.9.9.9'
+  dns=', '.join(address for family,address in [('ipv4','9.9.9.9'),('ipv6','2620:fe::fe')] if families[family])
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = '+dns]
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:
   if key in awg:
@@ -631,6 +695,11 @@ def awg_client_config(d,user,cascade=None,ipv6_only=False):
  lines+=['MTU = 1280','','[Peer]','PublicKey = '+d['publicKeys']['awg'],'Endpoint = %s:51821'%host,
          'AllowedIPs = '+allowed,'PersistentKeepalive = 25','']
  return '\n'.join(lines)
+
+class _NativeCascadeRequestError(RuntimeError):
+ def __init__(self,code):
+  self.errorCode=code;self.outcomeUnknown=False
+  super().__init__({'OWNER_REQUIRED':'Native cascade requires the owner session','SERVER_IDENTITY':'Server identity changed; reopen setup','INVALID_REQUEST':'Invalid native cascade request'}[code])
 
 def dispatch(req,actor=None):
  action=req['action']
@@ -643,6 +712,17 @@ def dispatch(req,actor=None):
   assert actor is None,'Operation not permitted'
   return init(req)
  d=load()
+ if action=='cascade-native':
+  # Reject forced-command/delegated sessions and malformed envelopes before even
+  # importing the optional RPC/connector modules. Root/SSH identity is unchanged.
+  if actor is not None or 'SSH_ORIGINAL_COMMAND' in os.environ:raise _NativeCascadeRequestError('OWNER_REQUIRED')
+  if type(req.get('serverId')) is not str or not req['serverId'] or req['serverId']!=d['id']:raise _NativeCascadeRequestError('SERVER_IDENTITY')
+  operation=req.get('operation')
+  if type(operation) is not str or operation not in ('preflight','inspect','configure','reconcile','verify','remove'):raise _NativeCascadeRequestError('INVALID_REQUEST')
+  expected={'action','serverId','operation'}|({'configuration'} if operation=='configure' else {'confirmDirect'} if operation=='remove' else set())
+  if set(req)!=expected or (operation=='configure' and type(req['configuration']) is not dict) or (operation=='remove' and req['confirmDirect'] is not True):raise _NativeCascadeRequestError('INVALID_REQUEST')
+  import cascade_native_rpc
+  return cascade_native_rpc.dispatch(req,d,public=public,actor=actor)
  authority(d,actor,action,req)
  if action=='inspect':return {'server':public(d),'phase':d['phase']}
  # Local, read-only host fact: no deployment identity is involved, so the app may
@@ -650,6 +730,14 @@ def dispatch(req,actor=None):
  # admin must not receive the server-wide proxy secret.
  if action=='mtproto':return mtproto_state(d)
  assert req.get('serverId')==d['id'],'Server identity changed; reopen setup'
+ if action=='service':
+  # Normal owner CLI holds xio-managed.lock across load, identity and command.
+  assert actor is None and 'SSH_ORIGINAL_COMMAND' not in os.environ,'Operation not permitted'
+  assert set(req)=={'action','serverId','unit','verb'},'Invalid service request'
+  assert type(req['unit']) is str and req['unit'] in ('xio-rivet-entry','xio-rivet-gateway','xio-managed-awg','xio-stack','xio-ready'),'Invalid service unit'
+  assert type(req['verb']) is str and req['verb'] in ('start','stop','restart'),'Invalid service verb'
+  run('systemctl',req['verb'],req['unit'])
+  return {'service':{'serverId':d['id'],'unit':req['unit'],'verb':req['verb']}}
  if action=='catalog':return catalog_state()
  if action=='status':
   result=stats(d)
@@ -663,13 +751,11 @@ def dispatch(req,actor=None):
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
   # `public_key`, not `public`: a local named `public` shadowed the module-level
   # public() for the whole function and broke `inspect` (and a successful `add`).
-  public_key=req['publicKey'];raw=base64.b64decode(public_key,validate=True) if isinstance(public_key,str) else b''
-  assert len(raw)==32 and raw!=b'\x00'*32,'Invalid public key'
-  assert public_key!=d['publicKeys']['awg'],'Refusing the server key'
+  public_key=peer_key_admission(d,{'awg':req['publicKey']})['awg']
   if uid in d['users']:raise RuntimeError('User id already exists')
-  seen={base64.b64decode(v,validate=True) for u in d['users'].values() for v in u.get('keys',{}).values() if isinstance(v,str) and len(v)%4==0}
-  assert raw not in seen,'Duplicate key'
   used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
+  # Finish all fallible profile observations/rendering before registry or UAPI effects.
+  config=awg_client_config(d,{'slot':slot},ipv6_only=req.get('ipv6Only') is True)
   d['users'][uid]={'name':name.strip(),'slot':slot,'keys':{'awg':public_key},'revoked':False,
                    'createdAt':int(time.time()),'role':'user','userLimit':0,'createdBy':actor,'monthly':{},'transports':['awg']}
   try:
@@ -677,14 +763,13 @@ def dispatch(req,actor=None):
   except Exception:
    d['users'].pop(uid,None);save(d);raise
   return {'user':{'id':uid,'name':name.strip(),'slot':slot,'transports':['awg']},
-          'config':awg_client_config(d,d['users'][uid],ipv6_only=req.get('ipv6Only') is True)}
+          'config':config}
  if action=='add':
   name=req['name'];assert isinstance(name,str) and 0<len(name.strip())<=80,'Invalid name'
   uid=req['id'];assert re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
   keys=req['publicKeys'];assert set(keys)==set(d['protocols'])
-  for k in keys.values():assert isinstance(k,str) and len(base64.b64decode(k,validate=True))==32,'Invalid public key'
+  keys=peer_key_admission(d,keys)
   if uid in d['users']:raise RuntimeError('User id already exists')
-  assert not any(set(keys.values()) & set(u['keys'].values()) for u in d['users'].values()),'Duplicate key'
   used={u['slot'] for u in d['users'].values() if not u.get('revoked')};slot=next((i for i in range(2,255) if i not in used),None);assert slot,'User limit reached'
   admin=req.get('admin',False);limit=req.get('userLimit',0)
   assert isinstance(admin,bool) and type(limit) is int and 0<=limit<=250,'Invalid admin limit'
@@ -711,7 +796,10 @@ def dispatch(req,actor=None):
    apply(d);raise
   return {'user':dict(id=uid,**{k:v for k,v in d['users'][uid].items() if k!='stack'}),'server':public(d),'configs':configs}
  if action=='revoke':
-  stats(d);uid=req['id'];assert uid in d['users'],'Unknown user'
+  uid=req.get('id');assert type(uid) is str and re.fullmatch('[a-f0-9]{32}',uid),'Invalid user id'
+  assert uid in d['users'],'Unknown user'
+  peer_key_admission(d,{})
+  stats(d)
   targets=[uid]+[k for k,u in d['users'].items() if u.get('createdBy')==uid]
   for target in targets:
    if d['users'][target].get('revoked'):continue
@@ -747,5 +835,9 @@ if __name__=='__main__':
     raw=sys.stdin.buffer.read(32769);assert len(raw)<=32768,'Request too large'
     print(json.dumps({'ok':True,**dispatch(json.loads(raw),actor)}))
  except Exception as e:
-  # Only our explicit errors; subprocess errors never echo command input or keys.
-  print(json.dumps({'ok':False,'error':str(e) if isinstance(e,(AssertionError,RuntimeError)) else 'Server operation failed; inspect root-only install log'}));sys.exit(1)
+  # Typed native RPC failures expose only finite safe codes and sanitized text.
+  rpc_error=getattr(sys.modules.get('cascade_native_rpc'),'NativeCascadeRPCError',None)
+  if isinstance(e,_NativeCascadeRequestError) or (rpc_error is not None and isinstance(e,rpc_error)):
+   response={'ok':False,'error':str(e),'errorCode':e.errorCode,'outcomeUnknown':e.outcomeUnknown}
+  else:response={'ok':False,'error':str(e) if isinstance(e,(AssertionError,RuntimeError)) else 'Server operation failed; inspect root-only install log'}
+  print(json.dumps(response));sys.exit(1)

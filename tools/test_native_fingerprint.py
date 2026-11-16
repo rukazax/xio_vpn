@@ -32,16 +32,18 @@ class NativeFingerprintTests(unittest.TestCase):
         self.put("vendor/amneziawg-go/device/completion.go", b"package device\n")
 
     def legacy_digest(self):
-        module = self.root / "protocol/rivet"
-        files = [*module.rglob("*.go"), module / "go.mod", module / "go.sum"]
-        for name in ["anet", "cloak", "tailscale", "xray", "tun2socks"]:
-            files.extend(p for p in (self.root / "vendor" / name).rglob("*")
-                         if p.is_file() and not any(x in p.parts for x in [".git", "__pycache__"]))
+        # Explicit fixture order, not an implicit platform Path sort.
+        names = [
+            "protocol/rivet/go.mod",
+            "protocol/rivet/go.sum",
+            "protocol/rivet/main.go",
+            "vendor/anet/go.mod",
+            "vendor/cloak/LICENSE",
+        ]
         result = hashlib.sha256()
-        for path in sorted(files):
-            result.update(path.relative_to(self.root).as_posix().encode() + b"\0" + path.read_bytes())
+        for name in names:
+            result.update(name.encode() + b"\0" + (self.root / name).read_bytes())
         return result.hexdigest()
-
     def test_legacy_hash_unchanged_without_optional_awg(self):
         self.assertEqual(fingerprint(self.root), self.legacy_digest())
 

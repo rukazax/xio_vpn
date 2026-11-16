@@ -13,10 +13,49 @@ import 'credentials.dart';
 class DesktopEngine {
   static bool enabled = false;
   static Set<String> supported = {};
+
+  /// Canonical product-store identity for the elevated helper. A versioned
+  /// helper is launched only with this binding; without it, policy/activation
+  /// requests must fail closed instead of launching an unbound helper.
+  static String? storeIdentity;
+
+  /// Runtime build constant bound to the helper; never read from the document.
+  static bool? clientOnly;
   static const _daemonKey =
       'vpn0000000000000000000000000000000000000000000000000000000000000000';
+
+  /// Exact elevated-helper arguments. The store identity is mandatory here (not
+  /// inferred from a cached port) so a helper can reject receipt-free legacy and
+  /// scope its cooperating claim to this product store.
+  static List<String> helperArguments({
+    required String port,
+    required String tokenFile,
+  }) {
+    final identity = storeIdentity;
+    if (identity == null) {
+      throw const FormatException('Versioned helper needs a store identity');
+    }
+    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(identity)) {
+      throw const FormatException('Invalid store identity');
+    }
+    final buildClientOnly = clientOnly;
+    if (buildClientOnly == null) {
+      throw const FormatException('Versioned helper needs the client-only flag');
+    }
+    return [
+      '--http',
+      '127.0.0.1:$port',
+      '--token-file',
+      tokenFile,
+      '--store-identity=$identity',
+      '--client-only=$buildClientOnly',
+    ];
+  }
   static Map<String, String>? _worker;
+  // A failed/not-yet-completed vault read is not proof that no helper is live.
+  static bool _workerStateKnown = false;
   static Future<void>? _starting;
+  static int _connectionEpoch = 0;
   static String _hex(int n) => List.generate(
     n,
     (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
@@ -53,8 +92,10 @@ class DesktopEngine {
     }
     try {
       _worker = await CredentialVault.read(_daemonKey);
+      _workerStateKnown = true;
     } catch (_) {
       _worker = null;
+      _workerStateKnown = false;
     }
   }
 
@@ -66,8 +107,7 @@ class DesktopEngine {
   static HttpClient get _http {
     final cached = _client;
     if (cached != null) return cached;
-    final client = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 2);
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 2);
     client.findProxy = (_) => 'DIRECT';
     return _client = client;
   }
@@ -170,7 +210,7 @@ class DesktopEngine {
     if (Platform.isLinux) {
       await Process.run('/usr/bin/chmod', ['600', file.path]);
     }
-    final args = ['--http', '127.0.0.1:$port', '--token-file', file.path];
+    final args = helperArguments(port: '$port', tokenFile: file.path);
     Process? process;
     try {
       if (Platform.isLinux) {
@@ -197,6 +237,7 @@ class DesktopEngine {
         if (await _authenticate(candidate)) {
           await CredentialVault.write(_daemonKey, candidate);
           _worker = candidate;
+          _workerStateKnown = true;
           return;
         }
         if (code != null && code != 0) {
@@ -220,12 +261,24 @@ class DesktopEngine {
   static Future<dynamic> _rpc(
     String method, [
     Map<String, dynamic> extra = const {},
+    Map<String, dynamic> Function()? remainingRequest,
   ]) async {
+    remainingRequest
+        ?.call(); // Expired/revoked work cannot even begin authentication.
     final w = _worker;
-    if (w == null || !await _authenticate(w)) return {'active': false};
+    if (w == null) {
+      return {
+        'active': false,
+        if (method == 'status' && !_workerStateKnown) 'phase': 'unknown',
+      };
+    }
+    if (!await _authenticate(w)) {
+      return {'active': false, if (method == 'status') 'phase': 'unknown'};
+    }
+    final request = remainingRequest?.call() ?? extra;
     final response = await _json(
       Uri.http('127.0.0.1:${w['port']}', '/rpc'),
-      body: {'Method': method, ...extra},
+      body: {'Method': method, ...request},
       token: w['token'],
     );
     if (response['ok'] != true) {
@@ -239,9 +292,80 @@ class DesktopEngine {
     return response['value'];
   }
 
+  /// Versioned policy RPC. A missing/unreachable helper is an explicit failure,
+  /// never a silent `active:false` map and never a launch: changing settings must
+  /// not elevate merely to talk to a helper (WIRE-V1/V2).
+  static Future<dynamic> _policyRpc(
+    String method,
+    Map<String, dynamic> request,
+  ) async {
+    final w = _worker;
+    if (w == null) {
+      throw PlatformException(
+        code: 'POLICY_UNSUPPORTED',
+        message: 'No local helper is available for versioned policy',
+      );
+    }
+    if (!await _authenticate(w)) {
+      throw PlatformException(
+        code: 'POLICY_UNKNOWN',
+        message: 'The local helper identity could not be authenticated',
+      );
+    }
+    final response = await _json(
+      Uri.http('127.0.0.1:${w['port']}', '/rpc'),
+      body: {'Method': method, ...request},
+      token: w['token'],
+    );
+    if (response['ok'] != true) {
+      final error = response['error'];
+      final code = error is String && RegExp(r'^POLICY_[A-Z]+$').hasMatch(error)
+          ? error
+          : 'POLICY';
+      throw PlatformException(
+        code: code,
+        message: error is String ? error : 'The local helper refused the policy request.',
+      );
+    }
+    return response['value'];
+  }
+
+  /// The Go read-only policyState query accepts only the Method key. Validate
+  /// the exact internal query shape at the desktop boundary before projecting
+  /// it, so unknown/missing/bad payloads are rejected rather than stripped.
+  static void _requireStateQuery(Map<String, dynamic> a) {
+    const keys = {'version', 'instanceNonce'};
+    final version = a['version'];
+    final instance = a['instanceNonce'];
+    if (a.length != keys.length ||
+        !keys.containsAll(a.keys) ||
+        version is! int ||
+        version != 1 ||
+        instance is! String ||
+        instance.isEmpty) {
+      throw PlatformException(
+        code: 'POLICY_INVALID',
+        message: 'Invalid desktop policyState query shape',
+      );
+    }
+  }
+
   static Future<dynamic> invoke(String method, dynamic arguments) async {
     final a = Map<String, dynamic>.from(arguments as Map? ?? {});
     switch (method) {
+      case 'policyState':
+        _requireStateQuery(a);
+        // Exact Go read-only query contract: Method only, no extra keys.
+        return await _policyRpc(method, const <String, dynamic>{});
+      case 'policyCapabilities':
+      case 'policyValidate':
+      case 'policyBegin':
+      case 'policyCommit':
+      case 'policyAbort':
+      case 'policyReconcile':
+        // Exact lowerCamelCase identity fields are forwarded as the Go json tags
+        // define them; no transport is invented for policy.
+        return await _policyRpc(method, a);
       case 'supportedProtocols':
         return supported.toList();
       case 'saveConfig':
@@ -261,11 +385,40 @@ class DesktopEngine {
       case 'connectionBusy':
         return _starting != null;
       case 'disconnect':
-        if (_worker != null) await _rpc('disconnect');
+        _connectionEpoch++; // Revoke a connect still waiting on credentials/UAC/auth.
+        final cleanupClock = Stopwatch()..start();
+        final cleanupBudget = Duration(
+          milliseconds: (a['timeoutMillis'] as num?)?.toInt() ?? 30000,
+        );
+        if (_worker != null) {
+          await _rpc('disconnect', const {}, () {
+            final left = cleanupBudget - cleanupClock.elapsed;
+            if (left <= Duration.zero) {
+              throw TimeoutException('Connection cleanup deadline');
+            }
+            return {'TimeoutMillis': left.inMilliseconds.clamp(1, 30000)};
+          });
+        }
         return null;
       case 'connect':
+        final epoch = ++_connectionEpoch;
+        final clock = Stopwatch()..start();
+        final attempt = Duration(
+          milliseconds: (a['timeoutMillis'] as num?)?.toInt() ?? 15000,
+        );
+        final round = Duration(
+          milliseconds: (a['roundMillis'] as num?)?.toInt() ?? 30000,
+        );
+        void requireCurrent() {
+          if (epoch != _connectionEpoch ||
+              clock.elapsed >= attempt ||
+              clock.elapsed >= round) {
+            throw TimeoutException('Connection activation deadline');
+          }
+        }
         final id = a['id'] as String;
         final saved = await CredentialVault.read(configKey(id));
+        requireCurrent();
         if (saved == null) {
           throw PlatformException(
             code: 'CONFIG',
@@ -282,12 +435,31 @@ class DesktopEngine {
             message: 'This protocol has no desktop engine in this build.',
           );
         }
-        await _ensureWorker();
-        return await _rpc('connect', {
-          'ID': id,
-          'Protocol': protocol,
-          'Config': config,
-          'TimeoutMillis': a['timeoutMillis'] ?? 15000,
+        final left = attempt - clock.elapsed;
+        await _ensureWorker().timeout(left);
+        requireCurrent();
+        return await _rpc('connect', const {}, () {
+          requireCurrent();
+          return {
+            'ID': id,
+            'Protocol': protocol,
+            'Config': config,
+            'TimeoutMillis': (attempt - clock.elapsed).inMilliseconds.clamp(
+              1,
+              30000,
+            ),
+            'RoundMillis': (round - clock.elapsed).inMilliseconds.clamp(
+              1,
+              30000,
+            ),
+            'PolicyJSON': jsonEncode(
+              a['policy'] ?? {'mode': 'automatic', 'roundMillis': 30000},
+            ),
+            // Same six-field receipt as Android, encoded as one JSON string
+            // because the existing desktop connect request is capitalized.
+            if (a['policyReceipt'] != null)
+              'PolicyReceiptJSON': jsonEncode(a['policyReceipt']),
+          };
         });
       case 'sharingStatus':
         if (!Platform.isWindows) return {'supported': false, 'enabled': false};

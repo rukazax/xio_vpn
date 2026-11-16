@@ -14,7 +14,7 @@ package = importlib.util.module_from_spec(spec); spec.loader.exec_module(package
 
 def fixture(root):
     managed = root / 'server/managed'; (managed / 'xio_vici').mkdir(parents=True)
-    for name in ['dualstack.py','client_api.py','admin.py','stack.py','network_stack.py','mesh_stack.py','rivet-setup.py','update.py','readiness.py','xio-ready.service']:
+    for name in ['dualstack.py','client_api.py','admin.py','stack.py','network_stack.py','mesh_stack.py','rivet-setup.py','update.py','readiness.py','xio-ready.service','cascade_native.py','cascade_native_lifecycle.py','cascade_native_rpc.py']:
         (managed / name).write_text('RECIPE = %d\n' % package.RECIPE if name in ['admin.py','update.py'] else '# fixture\n')
     (managed / 'mesh-pins.json').write_text('{}')
     (managed / 'bootstrap.sh').write_bytes(b'set -eu\n')

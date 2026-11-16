@@ -41,7 +41,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 APP_NAME = "xio-webui"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 
 BASE_DIR = Path(__file__).resolve().parent
 TLS_DIR = BASE_DIR / "tls"
@@ -590,50 +590,783 @@ def run_command(argv, input_bytes=None, timeout=TIMEOUT_SYSTEMCTL):
     }
 
 
-def admin_call(action, payload, timeout=TIMEOUT_ADMIN):
-    """Вызов admin.py: действие в argv, JSON в stdin."""
-    if not os.path.isfile(ADMIN_PY):
-        return {"ok": False, "code": 502,
-                "error": "admin.py not found: %s" % ADMIN_PY,
-                "rc": 127, "data": None}
-    body = json.dumps(payload if payload is not None else {}, ensure_ascii=False).encode("utf-8")
-    res = run_command([sys.executable or "python3", ADMIN_PY, action], body, timeout)
-    parsed = None
-    if res["out"]:
+MAX_ADMIN_OUTPUT = 16 * 1024 * 1024
+ADMIN_ERRORS = {
+    'INVALID_REQUEST': 'Invalid request', 'SERVER_IDENTITY': 'Server identity changed; refresh the page',
+    'OWNER_REQUIRED': 'Owner access required', 'UNAVAILABLE': 'Managed admin unavailable',
+    'INVALID_RESULT': 'Invalid managed admin response', 'TIMEOUT': 'Operation timed out',
+    'OPERATION_FAILED': 'Operation failed; runtime effects may be partial',
+    'MODULE_UNAVAILABLE': 'Native module unavailable', 'PREFLIGHT_FAILED': 'Native observation unavailable',
+    'IO_FAILURE': 'Operation I/O failed',
+    'KEY_UNAVAILABLE': 'Pinned WireGuard key utility unavailable; no user creation was attempted',
+}
+
+
+def failure(code, error_code, unknown=False):
+    return {'schema': 1, 'ok': False, 'code': code, 'errorCode': error_code,
+            'error': ADMIN_ERRORS[error_code], 'outcomeUnknown': bool(unknown)}
+
+
+def valid_identity(value):
+    return type(value) is str and re.fullmatch(r'[A-Za-z0-9-]{1,80}', value) is not None
+
+
+def valid_uid(value):
+    return type(value) is str and re.fullmatch(r'[a-f0-9]{32}', value) is not None
+
+
+def strict_json(raw):
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            if key in result:
+                raise ValueError('duplicate key')
+            result[key] = value
+        return result
+    def constant(_):
+        raise ValueError('non-finite JSON')
+    def number(text):
+        value = float(text)
+        if value in (float('inf'), float('-inf')):
+            raise ValueError('non-finite JSON')
+        return value
+    result = json.loads(raw, object_pairs_hook=pairs, parse_constant=constant, parse_float=number)
+    pending, count = [(result, 0)], 0
+    while pending:
+        value, depth = pending.pop()
+        count += 1
+        if depth > 32 or count > 500000:
+            raise ValueError('JSON complexity limit')
+        if isinstance(value, dict):
+            pending.extend((item, depth + 1) for item in value.values())
+        elif isinstance(value, list):
+            pending.extend((item, depth + 1) for item in value)
+    return result
+
+
+def run_admin_command(argv, input_bytes, timeout):
+    """Bounded intact protocol capture, no stderr retention, one total deadline.
+
+    Admin children inherit a separate POSIX session. Killing that session on an
+    unknown result bounds pipe readers too; it is NOT a transactional rollback.
+    """
+    started = time.monotonic()
+    try:
+        proc = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.DEVNULL, env=SAFE_ENV, shell=False,
+                                start_new_session=(os.name == 'posix'))
+    except OSError:
+        return {'rc': 127, 'out': '', 'timeout': False, 'started': False}
+    output = bytearray()
+    done = threading.Event()
+    invalid = threading.Event()
+    def read():
         try:
-            parsed = json.loads(res["out"])
-        except ValueError:
-            parsed = None
-    if res["timeout"]:
-        return {"ok": False, "code": 504, "error": "admin.py %s: timeout" % action,
-                "rc": res["rc"], "data": parsed}
-    if res["rc"] != 0:
-        detail = _clip(res["err"] or res["out"], 600)
-        return {"ok": False, "code": 502,
-                "error": "admin.py %s failed (rc=%s): %s" % (action, res["rc"], detail),
-                "rc": res["rc"], "data": parsed}
-    if parsed is None:
-        return {"ok": False, "code": 502,
-                "error": "admin.py %s returned non-JSON output" % action,
-                "rc": res["rc"], "data": None}
-    return {"ok": True, "code": 200, "error": "", "rc": 0, "data": parsed}
+            while True:
+                chunk = proc.stdout.read1(8192)
+                if not chunk:
+                    break
+                if len(output) + len(chunk) > MAX_ADMIN_OUTPUT:
+                    invalid.set()
+                    break
+                output.extend(chunk)
+        except (OSError, ValueError):
+            invalid.set()
+        finally:
+            done.set()
+    def send():
+        try:
+            proc.stdin.write(input_bytes)
+            proc.stdin.close()
+        except (OSError, ValueError):
+            invalid.set()
+    reader = threading.Thread(target=read, daemon=True)
+    writer = threading.Thread(target=send, daemon=True)
+    reader.start(); writer.start()
+    expired = not done.wait(max(0, timeout - (time.monotonic() - started)))
+    if not expired and not invalid.is_set():
+        try:
+            proc.wait(timeout=max(0, timeout - (time.monotonic() - started)))
+        except subprocess.TimeoutExpired:
+            expired = True
+    if expired or invalid.is_set():
+        try:
+            if os.name == 'posix':
+                os.killpg(proc.pid, signal.SIGKILL)
+            else:
+                proc.kill()
+        except (OSError, ProcessLookupError):
+            pass
+        try:
+            proc.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+            pass
+    reader.join(timeout=1); writer.join(timeout=1)
+    if reader.is_alive() or writer.is_alive():
+        invalid.set()
+    if not reader.is_alive():
+        proc.stdout.close()
+    try:
+        text = output.decode('utf-8') if not invalid.is_set() and not expired else ''
+    except UnicodeDecodeError:
+        text = ''
+    return {'rc': proc.returncode, 'out': text, 'timeout': expired, 'started': True}
 
 
-def systemctl_action(verb, unit):
-    if verb not in SYSTEMCTL_VERBS:
-        return {"ok": False, "code": 400, "error": "unsupported verb"}
-    if unit not in UNITS and unit != CASCADE_UNIT:
-        return {"ok": False, "code": 400, "error": "unknown unit"}
-    res = run_command([SYSTEMCTL, verb, unit], None, TIMEOUT_SYSTEMCTL)
-    if res["timeout"]:
-        return {"ok": False, "code": 504,
-                "error": "systemctl %s %s: timeout" % (verb, unit), "rc": res["rc"]}
-    if res["rc"] != 0:
-        return {"ok": False, "code": 502,
-                "error": "systemctl %s %s failed (rc=%s): %s"
-                         % (verb, unit, res["rc"], _clip(res["err"], 400)),
-                "rc": res["rc"]}
-    return {"ok": True, "code": 200, "error": "", "rc": 0}
+def admin_call(action, payload, timeout=TIMEOUT_ADMIN):
+    """Fixed owner CLI: no argv action, flattened JSON envelope on stdin/stdout."""
+    fields = {'inspect': set(), 'status': {'serverId'},
+              'add': {'serverId', 'id', 'name', 'publicKeys', 'rivet', 'admin', 'userLimit'},
+              'revoke': {'serverId', 'id'}, 'service': {'serverId', 'unit', 'verb'},
+              'cascade-native': {'serverId', 'operation'}}
+    if action not in fields or type(payload) is not dict or set(payload) != fields[action]:
+        return failure(400, 'INVALID_REQUEST')
+    if action != 'inspect' and not valid_identity(payload.get('serverId')):
+        return failure(400, 'INVALID_REQUEST')
+    if action == 'revoke' and not valid_uid(payload.get('id')):
+        return failure(400, 'INVALID_REQUEST')
+    if action == 'add' and not valid_add_request(payload):
+        return failure(400, 'INVALID_REQUEST')
+    if action == 'service' and (payload.get('unit') not in UNITS or payload.get('verb') not in SYSTEMCTL_VERBS):
+        return failure(400, 'INVALID_REQUEST')
+    if action == 'cascade-native' and payload.get('operation') != 'inspect':
+        return failure(400, 'INVALID_REQUEST')
+    body = json.dumps(dict(payload, action=action), ensure_ascii=False, allow_nan=False).encode('utf-8')
+    if len(body) > 32768:
+        return failure(413, 'INVALID_REQUEST')
+    if not os.path.isfile(ADMIN_PY):
+        return failure(502, 'UNAVAILABLE')
+    mutation = action in ('add', 'revoke', 'service')
+    res = run_admin_command([sys.executable or 'python3', ADMIN_PY], body, timeout)
+    unknown = mutation and res.get('started', True)
+    if res.get('timeout'):
+        return failure(504, 'TIMEOUT', unknown)
+    try:
+        parsed = strict_json(res['out'])
+    except (ValueError, TypeError, RecursionError):
+        parsed = None
+    if type(parsed) is not dict or type(parsed.get('ok')) is not bool:
+        return failure(502, 'INVALID_RESULT', unknown)
+    if parsed['ok'] is False:
+        # Generic failures may follow partial effects. Only typed native errors
+        # carry a finite no-effects guarantee (this UI only inspects native).
+        code = parsed.get('errorCode') if action == 'cascade-native' else None
+        if type(code) is not str or code not in ('OWNER_REQUIRED', 'SERVER_IDENTITY', 'INVALID_REQUEST', 'MODULE_UNAVAILABLE', 'PREFLIGHT_FAILED', 'INVALID_RESULT', 'TIMEOUT', 'IO_FAILURE', 'OPERATION_FAILED'):
+            code = 'OPERATION_FAILED'
+        if action == 'cascade-native' and type(parsed.get('outcomeUnknown')) is bool:
+            unknown = parsed['outcomeUnknown']
+        if parsed.get('error') in ('Server identity changed', 'Server identity changed; reopen setup'):
+            return failure(409, 'SERVER_IDENTITY', unknown)
+        return failure(502, code, unknown)
+    if res['rc'] != 0:
+        return failure(502, 'INVALID_RESULT', unknown)
+    try:
+        if action in ('inspect', 'status', 'cascade-native'):
+            server = parsed['server']
+            if type(server) is not dict or not valid_identity(server.get('id')):
+                raise ValueError()
+            if action != 'inspect' and server['id'] != payload['serverId']:
+                # Positively observed identity conflict is not optional-module
+                # unavailability: build_state must discard the whole snapshot.
+                return failure(409, 'SERVER_IDENTITY', unknown)
+        if action == 'inspect':
+            if parsed.get('phase') not in ('ready', 'installing'):
+                raise ValueError()
+            data = {'server': project_server(server), 'phase': parsed['phase']}
+        elif action == 'status':
+            data = project_status(parsed)
+        elif action == 'cascade-native':
+            data = {'server': project_server(server), 'nativeCascade': project_native(parsed['nativeCascade'])}
+        elif action == 'add':
+            data = project_issuance_add(parsed, payload)
+        elif action == 'revoke':
+            if parsed.get('revoked') != payload['id']:
+                raise ValueError()
+            # The successful guarded admin operation belongs to this submitted
+            # identity, never a newly observed/current deployment.
+            data = {'revoked': payload['id'], 'serverId': payload['serverId']}
+        else:
+            if parsed.get('service') != {'unit': payload['unit'], 'verb': payload['verb'], 'serverId': payload['serverId']}:
+                raise ValueError()
+            data = {'service': parsed['service']}
+    except (KeyError, TypeError, ValueError, OverflowError):
+        return failure(502, 'INVALID_RESULT', unknown)
+    return {'schema': 1, 'ok': True, 'code': 200, 'outcomeUnknown': False, 'data': data}
+
+
+def project_server(value):
+    return {'id': value['id'],
+            'host': value.get('host') if type(value.get('host')) is str else None,
+            'recipeVersion': value.get('recipeVersion') if type(value.get('recipeVersion')) is int else None}
+
+
+def counter(value):
+    return value if type(value) is int and 0 <= value <= 9007199254740991 else None
+
+
+def project_status(value):
+    if type(value.get('users')) is not list or len(value['users']) > 10000:
+        raise ValueError()
+    users, seen = [], set()
+    total = {'rx': 0, 'tx': 0}
+    for user in value['users']:
+        if type(user) is not dict or not valid_uid(user.get('id')) or user['id'] in seen:
+            raise ValueError()
+        if type(user.get('name')) is not str or len(user['name']) > 80 or type(user.get('revoked')) is not bool:
+            raise ValueError()
+        seen.add(user['id'])
+        users.append({'id': user['id'], 'name': user['name'], 'revoked': user['revoked'],
+                      'role': user.get('role') if user.get('role') in ('user', 'admin') else 'unknown',
+                      'online': user.get('online') if type(user.get('online')) is bool else None,
+                      'status': 'revoked' if user['revoked'] else 'active'})
+        stats = user.get('stats')
+        for direction in total:
+            if type(stats) is not dict or not stats:
+                total[direction] = None
+                continue
+            for entry in stats.values():
+                n = counter(entry.get(direction)) if type(entry) is dict else None
+                if n is None or total[direction] is None:
+                    total[direction] = None
+                else:
+                    total[direction] = counter(total[direction] + n)
+    sampled = counter(value.get('sampledAt'))
+    if not sampled or sampled > time.time() + 5:
+        sampled = None
+        total = {'rx': None, 'tx': None}
+    return {'server': project_server(value['server']), 'users': users,
+            'sampledAt': sampled, 'traffic': total}
+
+
+def project_native(value):
+    if type(value) is not dict or type(value.get('schema')) is not int or value['schema'] != 1 or type(value.get('enabled')) is not bool:
+        raise ValueError()
+    if not value['enabled']:
+        return {'available': True, 'enabled': False}
+    phase = value.get('phase')
+    if phase not in ('prepared', 'applying', 'guarded', 'applied', 'preparation_failed', 'apply_failed', 'fail_closed', 'removing', 'removed'):
+        raise ValueError()
+    if type(value.get('infrastructureReady')) is not bool:
+        raise ValueError()
+    connector, revision = value.get('connectorId'), value.get('revision')
+    if type(connector) is not str or not re.fullmatch(r'[A-Za-z0-9_-]{1,128}', connector):
+        raise ValueError()
+    if not ((type(revision) is int and revision >= 0) or (type(revision) is str and re.fullmatch(r'[A-Za-z0-9_-]{1,128}', revision))):
+        raise ValueError()
+    result = {'available': True, 'enabled': True, 'phase': phase, 'connectorId': connector,
+              'revision': revision, 'infrastructureReady': value['infrastructureReady'],
+              'guardState': value.get('guardState') if value.get('guardState') in ('unknown', 'last_installed') else 'unknown',
+              'families': [], 'readiness': None}
+    config = value.get('config')
+    if type(config) is dict and type(config.get('innerFamilies')) is list:
+        result['families'] = [f for f in config['innerFamilies'] if f in ('ipv4', 'ipv6')]
+    caps = value.get('capabilities')
+    if type(caps) is dict:
+        try:
+            if type(caps.get('schema')) is not int or caps['schema'] != 1 or caps.get('enabled') is not True:
+                raise ValueError()
+            for key in ('observedAt', 'expiresAt'):
+                if type(caps.get(key)) is not str or not re.fullmatch(r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|\+00:00)', caps[key]):
+                    raise ValueError()
+            observed = datetime.datetime.fromisoformat(caps['observedAt'].replace('Z', '+00:00')).timestamp()
+            expires = datetime.datetime.fromisoformat(caps['expiresAt'].replace('Z', '+00:00')).timestamp()
+            now = time.time()
+            fresh = (observed <= now + 5 and now < expires and 0 < expires - observed <= 60 and now - observed <= 60
+                     and caps.get('connectorId') == connector and caps.get('revision') == revision
+                     and phase == 'applied' and value['infrastructureReady'])
+            readiness = {}
+            for protocol in ('awg', 'rivet'):
+                entry = caps[protocol]
+                if type(entry) is not dict or any(type(entry.get(f)) is not bool for f in ('ipv4', 'ipv6')):
+                    raise ValueError()
+                readiness[protocol] = {f: entry[f] and fresh for f in ('ipv4', 'ipv6')}
+            result['readiness'] = readiness
+            result['fresh'] = bool(fresh)
+        except (KeyError, TypeError, ValueError, AttributeError, OverflowError):
+            pass
+    return result
+
+
+# --------------------------------------------------------------------------
+# One-response client issuance. Private material exists only in this process
+# and in the final HTTP response; managed admin receives public peer keys.
+# --------------------------------------------------------------------------
+
+WG_CANDIDATES = ('/usr/bin/wg', '/usr/local/bin/wg', '/bin/wg')
+AWG_NUMERIC_KEYS = {'Jc', 'Jmin', 'Jmax', 'S1', 'S2', 'S3', 'S4'}
+AWG_RANGE_KEYS = {'H1', 'H2', 'H3', 'H4'}
+AWG_TEXT_KEYS = {'I1', 'I2', 'I3', 'I4', 'I5'}
+
+
+def valid_user_name(value):
+    return type(value) is str and 0 < len(value.strip()) <= 80
+
+
+def decode_base64_key(value, size=32, reject_zero=True):
+    if type(value) is not str:
+        raise ValueError('key type')
+    try:
+        raw = base64.b64decode(value, validate=True)
+    except (ValueError, TypeError):
+        raise ValueError('key encoding')
+    if len(raw) != size or base64.b64encode(raw).decode('ascii') != value:
+        raise ValueError('key encoding')
+    if reject_zero and raw == b'\x00' * size:
+        raise ValueError('zero key')
+    return raw
+
+
+def valid_add_request(payload):
+    if not valid_uid(payload.get('id')) or not valid_user_name(payload.get('name')):
+        return False
+    if payload.get('admin') is not False or type(payload.get('userLimit')) is not int \
+            or payload['userLimit'] != 0:
+        return False
+    keys = payload.get('publicKeys')
+    if type(keys) is not dict or set(keys) != {'wireguard', 'awg'}:
+        return False
+    try:
+        for protocol in ('wireguard', 'awg'):
+            decode_base64_key(keys[protocol])
+        rivet = payload.get('rivet')
+        if type(rivet) is not dict or set(rivet) != {'secret', 'entryToken'}:
+            return False
+        secret = decode_base64_key(rivet['secret'])
+        token = decode_base64_key(rivet['entryToken'])
+    except (KeyError, ValueError, TypeError):
+        return False
+    return secret != token
+
+
+def _pinned_wg():
+    for candidate in WG_CANDIDATES:
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
+class KeyUtilityUnavailable(Exception):
+    pass
+
+
+def generate_peer_key():
+    """WireGuard/X25519 via the installed pinned utility, never via disk/argv."""
+    executable = _pinned_wg()
+    if executable is None:
+        raise KeyUtilityUnavailable()
+    try:
+        private_result = run_admin_command([executable, 'genkey'], b'', 8)
+        if private_result.get('rc') != 0 or private_result.get('timeout') \
+                or not private_result.get('started'):
+            raise KeyUtilityUnavailable()
+        private = private_result.get('out', '').strip()
+        decode_base64_key(private)
+        public_result = run_admin_command(
+            [executable, 'pubkey'], (private + '\n').encode('ascii'), 8)
+        if public_result.get('rc') != 0 or public_result.get('timeout') \
+                or not public_result.get('started'):
+            raise KeyUtilityUnavailable()
+        public = public_result.get('out', '').strip()
+        decode_base64_key(public)
+    except (ValueError, TypeError, AttributeError):
+        raise KeyUtilityUnavailable()
+    if private == public:
+        raise KeyUtilityUnavailable()
+    return private, public
+
+
+def generate_issuance_material():
+    # Both keys are required by the actual managed add protocol, including on a
+    # restricted host where only AWG is exported for Android.
+    public, private = {}, {}
+    for protocol in ('wireguard', 'awg'):
+        private[protocol], public[protocol] = generate_peer_key()
+    return {
+        'id': secrets.token_hex(16),
+        'public': public,
+        'private': private,
+        'rivet': {
+            'secret': base64.b64encode(secrets.token_bytes(32)).decode('ascii'),
+            'entryToken': base64.b64encode(secrets.token_bytes(32)).decode('ascii'),
+        },
+    }
+
+
+def normalize_server_host(value):
+    """Python equivalent of app/lib/server_address.dart normalizeServerHost."""
+    if type(value) is not str:
+        raise ValueError('host type')
+    host = value.strip()
+    if not host or len(host) > 253 or '%' in host:
+        raise ValueError('host')
+    bracketed = host.startswith('[') or host.endswith(']')
+    if bracketed:
+        if not (host.startswith('[') and host.endswith(']')):
+            raise ValueError('host')
+        host = host[1:-1]
+    try:
+        family = socket.AF_INET6 if bracketed or ':' in host else socket.AF_INET
+        packed = socket.inet_pton(family, host)
+        return socket.inet_ntop(family, packed)
+    except OSError:
+        pass
+    if bracketed or ':' in host or re.fullmatch(r'[0-9.]+', host):
+        raise ValueError('host')
+    name = host[:-1] if host.endswith('.') else host
+    labels = name.split('.')
+    if not name or any(not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9-]{0,62}[A-Za-z0-9])?$', label)
+                       for label in labels):
+        raise ValueError('host')
+    return host
+
+
+def server_endpoint(host, port):
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise ValueError('port')
+    host = normalize_server_host(host)
+    return ('[%s]:%d' if ':' in host else '%s:%d') % (host, port)
+
+
+def project_awg_extensions(value):
+    if type(value) is not dict:
+        raise ValueError('awg')
+    result = {}
+    allowed = AWG_NUMERIC_KEYS | AWG_RANGE_KEYS | AWG_TEXT_KEYS
+    for key, raw in value.items():
+        if key not in allowed or type(raw) not in (str, int) or type(raw) is bool:
+            raise ValueError('awg extension')
+        text = str(raw).strip()
+        if '\x00' in text or '\r' in text or '\n' in text or len(text) > 8192:
+            raise ValueError('awg extension')
+        if key in AWG_NUMERIC_KEYS:
+            if not re.fullmatch(r'\d+', text):
+                raise ValueError('awg number')
+            number = int(text)
+            if number > (128 if key == 'Jc' else 1280):
+                raise ValueError('awg number')
+        elif key in AWG_RANGE_KEYS:
+            parts = text.split('-')
+            if len(parts) > 2 or any(not re.fullmatch(r'\d+', part) for part in parts):
+                raise ValueError('awg range')
+            numbers = [int(part) for part in parts]
+            if any(number > 4294967295 for number in numbers) \
+                    or len(numbers) == 2 and numbers[0] > numbers[1]:
+                raise ValueError('awg range')
+        result[key] = text
+    if int(result.get('Jmin', '0')) > int(result.get('Jmax', '1280')):
+        raise ValueError('awg J range')
+    return result
+
+
+def project_rivet_metadata(value):
+    if type(value) is not dict:
+        raise ValueError('rivet')
+    result = {
+        'serverName': normalize_server_host(value.get('serverName')),
+        'pin': value.get('pin'),
+        'gatewayId': value.get('gatewayId'),
+        'ipv6': value.get('ipv6') is True,
+    }
+    if value.get('ipv6') is not None and type(value.get('ipv6')) is not bool:
+        raise ValueError('rivet ipv6')
+    decode_base64_key(result['pin'], 32)
+    decode_base64_key(result['gatewayId'], 16)
+    if value.get('outerCA') is not None:
+        if type(value['outerCA']) is not str or len(value['outerCA']) > 8192:
+            raise ValueError('outer CA')
+        result['outerCA'] = value['outerCA']
+    return result
+
+
+def _readiness_time(value):
+    if type(value) is not str or not re.fullmatch(
+            r'\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|\+00:00)', value):
+        raise ValueError('readiness time')
+    parsed = datetime.datetime.fromisoformat(value.replace('Z', '+00:00'))
+    if parsed.utcoffset() != datetime.timedelta(0) \
+            or parsed.strftime('%Y-%m-%dT%H:%M:%S') != value[:19]:
+        raise ValueError('readiness time')
+    return parsed.timestamp()
+
+
+def project_native_readiness(value):
+    if type(value) is not dict or value.get('schema') != 1 or type(value.get('schema')) is bool \
+            or value.get('enabled') is not True:
+        raise ValueError('native readiness')
+    connector = value.get('connectorId')
+    revision = value.get('revision')
+    if type(connector) is not str or not connector or connector != connector.strip():
+        raise ValueError('native identity')
+    if type(revision) is bool or not (
+            type(revision) is int and revision >= 0
+            or type(revision) is str and bool(revision) and revision == revision.strip()):
+        raise ValueError('native revision')
+    observed = _readiness_time(value.get('observedAt'))
+    expires = _readiness_time(value.get('expiresAt'))
+    now = time.time()
+    if observed > now + 5 or expires <= now or expires <= observed \
+            or expires - observed > 60 or now - observed > 60:
+        raise ValueError('stale readiness')
+    entries, required = {}, {}
+    for protocol in ('awg', 'rivet'):
+        entry = value.get(protocol)
+        wanted = value.get('requiredFamilies', {}).get(protocol) \
+            if type(value.get('requiredFamilies')) is dict else None
+        if type(entry) is not dict or type(wanted) is not dict:
+            raise ValueError('native families')
+        for family in ('ipv4', 'ipv6'):
+            if type(entry.get(family)) is not bool or type(wanted.get(family)) is not bool:
+                raise ValueError('native family')
+            if wanted[family] and entry[family] is not True:
+                raise ValueError('native family down')
+        entries[protocol] = {family: entry[family] for family in ('ipv4', 'ipv6')}
+        required[protocol] = {family: wanted[family] for family in ('ipv4', 'ipv6')}
+    return {
+        'schema': 1, 'enabled': True, 'connectorId': connector, 'revision': revision,
+        'observedAt': value['observedAt'], 'expiresAt': value['expiresAt'],
+        'awg': entries['awg'], 'rivet': entries['rivet'], 'requiredFamilies': required,
+    }
+
+
+def project_issuance_server(value, expected_server_id):
+    if type(value) is not dict or value.get('id') != expected_server_id:
+        raise ValueError('issuance identity')
+    public_keys = value.get('publicKeys')
+    if type(public_keys) is not dict:
+        raise ValueError('public keys')
+    awg_public = public_keys.get('awg')
+    decode_base64_key(awg_public)
+    result = {
+        'id': expected_server_id,
+        'host': normalize_server_host(value.get('host')),
+        'publicKeys': {'awg': awg_public},
+        'awg': project_awg_extensions(value.get('awg')),
+    }
+    if value.get('rivet') is not None:
+        result['rivet'] = project_rivet_metadata(value['rivet'])
+    if 'nativeProfileReadiness' in value:
+        result['nativeProfileReadiness'] = project_native_readiness(value['nativeProfileReadiness'])
+    return result
+
+
+def _no_unsafe_xray(value):
+    if type(value) is dict:
+        for key, item in value.items():
+            lowered = str(key).lower()
+            if lowered.endswith('file') or lowered == 'allowinsecure' and item is not False \
+                    or lowered in {'sockopt', 'dialerproxy', 'proxysettings', 'downloadsettings', 'reverse'}:
+                raise ValueError('unsafe xray')
+            _no_unsafe_xray(item)
+    elif type(value) is list:
+        for item in value:
+            _no_unsafe_xray(item)
+
+
+def _valid_reality_key(value):
+    if type(value) is not str or not value or len(value) > 100 \
+            or not re.fullmatch(r'[A-Za-z0-9_=-]+', value):
+        raise ValueError('reality key')
+    try:
+        raw = base64.urlsafe_b64decode(value + '=' * (-len(value) % 4))
+    except ValueError:
+        raise ValueError('reality key')
+    if len(raw) != 32:
+        raise ValueError('reality key')
+
+
+def normalize_xray_profile(raw):
+    """Validate the actual stack.create VLESS JSON and return ExtendedProfile form."""
+    if type(raw) is not str or len(raw) > 65536 or '\x00' in raw:
+        raise ValueError('xray')
+    parsed = strict_json(raw)
+    if type(parsed) is not dict or set(parsed) != {'protocol', 'outbound'} \
+            or parsed.get('protocol') != 'xray' or type(parsed.get('outbound')) is not dict:
+        raise ValueError('xray envelope')
+    outbound = parsed['outbound']
+    if set(outbound) - {'protocol', 'settings', 'streamSettings', 'mux', 'tag'} \
+            or outbound.get('protocol') != 'vless':
+        raise ValueError('xray outbound')
+    _no_unsafe_xray(outbound)
+    settings = outbound.get('settings')
+    if type(settings) is not dict:
+        raise ValueError('xray settings')
+    servers = settings.get('vnext')
+    if type(servers) is not list or len(servers) != 1 or type(servers[0]) is not dict:
+        raise ValueError('xray vnext')
+    server = servers[0]
+    normalize_server_host(server.get('address'))
+    port = server.get('port')
+    if type(port) is bool or not re.fullmatch(r'\d+', str(port)) \
+            or not 1 <= int(str(port)) <= 65535:
+        raise ValueError('xray port')
+    users = server.get('users')
+    if type(users) is not list or len(users) != 1 or type(users[0]) is not dict:
+        raise ValueError('xray users')
+    user = users[0]
+    identifier = user.get('id')
+    if type(identifier) is not str or not re.fullmatch(
+            r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', identifier):
+        raise ValueError('xray UUID')
+    if user.get('encryption') != 'none':
+        raise ValueError('unsupported VLESS encryption')
+    stream = outbound.get('streamSettings', {})
+    if type(stream) is not dict or stream.get('network', 'tcp') not in {
+            'tcp', 'raw', 'ws', 'grpc', 'httpupgrade', 'xhttp', 'splithttp'}:
+        raise ValueError('xray transport')
+    security = stream.get('security', 'none')
+    if security not in ('tls', 'reality'):
+        raise ValueError('xray security')
+    if security == 'reality':
+        reality = stream.get('realitySettings')
+        if type(reality) is not dict:
+            raise ValueError('reality settings')
+        normalize_server_host(reality.get('serverName'))
+        _valid_reality_key(reality.get('publicKey', reality.get('password')))
+        if not re.fullmatch(r'(?:[0-9a-fA-F]{2}){0,8}', str(reality.get('shortId', ''))):
+            raise ValueError('shortId')
+    else:
+        tls = stream.get('tlsSettings', {})
+        if type(tls) is not dict:
+            raise ValueError('tls settings')
+        normalize_server_host(tls.get('serverName', server['address']))
+    outbound['tag'] = 'proxy'
+    return json.dumps({'protocol': 'xray', 'outbound': outbound},
+                      ensure_ascii=False, separators=(',', ':'), allow_nan=False)
+
+
+def project_issuance_add(parsed, payload):
+    user = parsed.get('user')
+    if type(user) is not dict or user.get('id') != payload['id'] \
+            or user.get('name') != payload['name'].strip() \
+            or type(user.get('slot')) is not int or type(user.get('slot')) is bool \
+            or not 2 <= user['slot'] <= 254 or user.get('revoked') is not False \
+            or user.get('role') != 'user':
+        raise ValueError('issued user')
+    server = project_issuance_server(parsed.get('server'), payload['serverId'])
+    if 'rivet' in server and user.get('rivet') is not True:
+        raise ValueError('missing issued RIVET identity')
+    configs = parsed.get('configs')
+    if type(configs) is not dict:
+        raise ValueError('issued configs')
+    projected = {}
+    # Removed/foreign transport configs are never forwarded. Current native
+    # cascade readiness intentionally excludes legacy proxy profiles, as in app.
+    if 'nativeProfileReadiness' not in server and 'xray' in configs:
+        projected['xray'] = normalize_xray_profile(configs['xray'])
+    return {
+        'user': {'id': payload['id'], 'name': payload['name'].strip(), 'slot': user['slot']},
+        'server': server,
+        'configs': projected,
+    }
+
+
+def profile_readiness(server, protocol):
+    if 'nativeProfileReadiness' not in server:
+        ipv6 = True if protocol == 'awg' else server.get('rivet', {}).get('ipv6') is True
+        return {'explicit': False, 'ipv4': True, 'ipv6': ipv6,
+                'selected': True, 'captureIpv4': True, 'captureIpv6': ipv6}
+    native = server['nativeProfileReadiness']
+    wanted = native['requiredFamilies'][protocol]
+    selected = wanted['ipv4'] or wanted['ipv6']
+    return {'explicit': True, 'ipv4': wanted['ipv4'], 'ipv6': wanted['ipv6'],
+            'selected': selected, 'captureIpv4': selected, 'captureIpv6': selected}
+
+
+def profile_dns(server, readiness):
+    if 'nativeProfileReadiness' in server:
+        values = [value for family, value in (('ipv4', '9.9.9.9'), ('ipv6', '2620:fe::fe'))
+                  if readiness[family]]
+        if not values:
+            raise ValueError('no DNS family')
+        return ', '.join(values)
+    if server.get('rivet', {}).get('ipv6') is True:
+        return '9.9.9.9, 2620:fe::fe'
+    return '9.9.9.9'
+
+
+def build_xio_profile(projected, material):
+    server, remote_user = projected['server'], projected['user']
+    if remote_user['id'] != material['id']:
+        raise ValueError('profile identity')
+    host, slot = server['host'], remote_user['slot']
+    configs = {}
+    awg_readiness = profile_readiness(server, 'awg')
+    rivet_readiness = profile_readiness(server, 'rivet')
+    if rivet_readiness['explicit'] and rivet_readiness['selected'] and 'rivet' not in server:
+        raise ValueError('selected RIVET is missing')
+    if awg_readiness['selected']:
+        addresses = [('10.78.0.%d/32' % slot) if awg_readiness['captureIpv4'] else None,
+                     ('fd78:1::%x/128' % slot) if awg_readiness['captureIpv6'] else None]
+        routes = ['0.0.0.0/0' if awg_readiness['captureIpv4'] else None,
+                  '::/0' if awg_readiness['captureIpv6'] else None]
+        extras = '\n'.join('%s = %s' % (key, value) for key, value in server['awg'].items())
+        # This is byte-for-byte the Android createUser/provisioningBundle layout.
+        configs['awg'] = (
+            '[Interface]\nPrivateKey = %s\nAddress = %s\nDNS = %s\nMTU = 1280\n%s\n\n'
+            '[Peer]\nPublicKey = %s\nEndpoint = %s\nAllowedIPs = %s\nPersistentKeepalive = 25\n'
+        ) % (material['private']['awg'], ', '.join(x for x in addresses if x),
+             profile_dns(server, awg_readiness), extras, server['publicKeys']['awg'],
+             server_endpoint(host, 51821), ', '.join(x for x in routes if x))
+    if 'rivet' in server and rivet_readiness['selected']:
+        meta = server['rivet']
+        for protocol in ('rivet-h3', 'rivet-s1'):
+            config = {
+                'protocol': protocol, 'endpoint': server_endpoint(host, 8443),
+                'serverName': meta['serverName'], 'pin': meta['pin'],
+                'gatewayId': meta['gatewayId'], 'id': material['id'],
+                'secret': material['rivet']['secret'],
+                'entryToken': material['rivet']['entryToken'],
+                'ip': '10.79.0.%d' % slot,
+            }
+            if rivet_readiness['ipv6']:
+                config['ip6'] = 'fd79:1::%x' % slot
+            if 'outerCA' in meta:
+                config['outerCA'] = meta['outerCA']
+            configs[protocol] = json.dumps(config, ensure_ascii=False,
+                                           separators=(',', ':'), allow_nan=False)
+    if 'nativeProfileReadiness' not in server:
+        configs.update(projected['configs'])
+    if not configs:
+        raise ValueError('no selected native transport')
+    if any(len(value) > 65536 for value in configs.values()):
+        raise ValueError('profile size')
+    document = {'schema': 1, 'name': remote_user['name'], 'userId': material['id'],
+                'serverId': server['id'], 'configs': configs}
+    encoded = base64.urlsafe_b64encode(json.dumps(
+        document, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8')).decode('ascii')
+    profile = 'xio://' + encoded
+    if len(profile) > 200000:
+        raise ValueError('profile size')
+    return profile
+
+
+def issue_user(payload):
+    if type(payload) is not dict or set(payload) != {'expectedServerId', 'name'} \
+            or not valid_identity(payload.get('expectedServerId')) \
+            or not valid_user_name(payload.get('name')):
+        return failure(400, 'INVALID_REQUEST')
+    try:
+        material = generate_issuance_material()
+    except KeyUtilityUnavailable:
+        return failure(503, 'KEY_UNAVAILABLE')
+    name = payload['name'].strip()
+    request = {
+        'serverId': payload['expectedServerId'], 'id': material['id'], 'name': name,
+        'publicKeys': material['public'], 'rivet': material['rivet'],
+        'admin': False, 'userLimit': 0,
+    }
+    result = admin_call('add', request)
+    if not result['ok']:
+        return result
+    try:
+        profile = build_xio_profile(result['data'], material)
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError):
+        # An add may already have succeeded. Never compensate blindly or pretend
+        # that a different fresh profile belongs to the same remote user.
+        return failure(502, 'INVALID_RESULT', unknown=True)
+    material.clear()
+    return {'schema': 1, 'ok': True, 'code': 200, 'outcomeUnknown': False,
+            'data': {'uid': request['id'], 'profile': profile}}
 
 
 _units_cache = {"ts": 0.0, "data": None}
@@ -656,7 +1389,7 @@ def unit_states(use_cache=True):
         info = {"unit": unit, "active": "unknown", "sub": "unknown",
                 "enabled": "unknown", "description": "", "error": ""}
         if res["rc"] != 0:
-            info["error"] = _clip(res["err"], 200) or "systemctl rc=%s" % res["rc"]
+            info["error"] = "service observation unavailable"
         else:
             for line in res["out"].splitlines():
                 key, _, value = line.partition("=")
@@ -675,189 +1408,49 @@ def unit_states(use_cache=True):
     return rows
 
 
-def read_deployment():
-    path = Path(DEPLOYMENT_FILE)
-    try:
-        if not path.is_file() or path.stat().st_size > 256 * 1024:
-            return {}
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
-    except (OSError, ValueError) as exc:
-        log("deployment.json not readable: %s" % exc.__class__.__name__, "WARN")
-        return {}
-
-
-def _walk_find(obj, keys, depth=0):
-    """Ищет первое значение по набору ключей в произвольном JSON."""
-    if depth > 6 or not isinstance(obj, (dict, list)):
-        return None
-    items = obj.items() if isinstance(obj, dict) else enumerate(obj)
-    for key, value in items:
-        if isinstance(key, str) and key.lower() in keys and isinstance(value, (str, int, float)):
-            return value
-    for _, value in (obj.items() if isinstance(obj, dict) else enumerate(obj)):
-        found = _walk_find(value, keys, depth + 1)
-        if found is not None:
-            return found
-    return None
-
-
-def _collect_users(*sources):
-    users = []
-    seen = set()
-    for src in sources:
-        if not isinstance(src, dict):
-            continue
-        raw = None
-        for key in ("users", "clients", "peers", "user_list"):
-            if isinstance(src.get(key), (list, dict)):
-                raw = src[key]
-                break
-        if raw is None:
-            continue
-        seq = raw.values() if isinstance(raw, dict) else raw
-        for item in seq:
-            if isinstance(item, str) and item.strip():
-                name = item.strip()
-                entry = {"name": name, "status": "unknown", "detail": ""}
-            elif isinstance(item, dict):
-                name = None
-                for key in ("name", "username", "user", "login", "common_name", "cn"):
-                    if isinstance(item.get(key), str) and item.get(key).strip():
-                        name = item[key].strip()
-                        break
-                if not name:
-                    continue
-                entry = {
-                    "name": name,
-                    "status": str(item.get("status") or item.get("state") or "active"),
-                    "detail": str(item.get("note") or item.get("comment") or
-                                  item.get("created") or ""),
-                }
-            else:
-                continue
-            if entry["name"] in seen:
-                continue
-            seen.add(entry["name"])
-            users.append(entry)
-    users.sort(key=lambda u: u["name"].lower())
-    return users
-
-
-def _collect_whitelists(*sources):
-    out = []
-    for src in sources:
-        for key in ("whitelists", "whitelist", "allowlist", "allowlists", "routes"):
-            if isinstance(src, dict) and isinstance(src.get(key), (list, dict)):
-                raw = src[key]
-                seq = raw.items() if isinstance(raw, dict) else [(None, v) for v in raw]
-                for name, value in seq:
-                    if isinstance(value, (list, tuple)):
-                        items_ = [str(v) for v in value][:100]
-                        out.append({"name": str(name or key), "items": items_})
-                    elif isinstance(value, str):
-                        out.append({"name": str(name or key), "items": [value]})
-                break
-    return out[:12]
-
-
-def _traffic_from(*sources):
-    keys = {"rx_bytes", "tx_bytes", "received", "sent", "traffic", "bytes_in",
-            "bytes_out", "rx", "tx", "total_bytes", "traffic_total"}
-    for src in sources:
-        if not isinstance(src, dict):
-            continue
-        for key in ("traffic", "traffic_total", "counters", "stats"):
-            cand = src.get(key)
-            if isinstance(cand, dict):
-                result = {}
-                for out_key, names in (
-                    ("rx", ("rx", "rx_bytes", "received", "bytes_in", "download")),
-                    ("tx", ("tx", "tx_bytes", "sent", "bytes_out", "upload")),
-                ):
-                    for name in names:
-                        if isinstance(cand.get(name), (int, float)):
-                            result[out_key] = int(cand[name])
-                            break
-                if result:
-                    return result
-    value = _walk_find({"sources": sources}, keys)
-    return None
-
-
 def build_state():
-    deployment = read_deployment()
-    admin_status = admin_call("status", {})
-    admin_inspect = admin_call("inspect", {})
-
-    sources = []
-    for res in (admin_status, admin_inspect):
-        if res.get("ok") and isinstance(res.get("data"), dict):
-            sources.append(res["data"])
-
-    role = None
-    for src in sources + [deployment]:
-        if isinstance(src, dict):
-            for key in ("cascade_role", "role", "cascade", "node_role", "mode"):
-                value = src.get(key)
-                if isinstance(value, str) and value.strip():
-                    role = value.strip()
-                    break
-        if role:
-            break
-
-    version = None
-    for src in sources + [deployment]:
-        if isinstance(src, dict):
-            for key in ("version", "xio_version", "release", "build"):
-                value = src.get(key)
-                if isinstance(value, (str, int, float)) and str(value).strip():
-                    version = str(value).strip()
-                    break
-        if version:
-            break
-
-    services = unit_states()
-    gateway_active = any(s["unit"] == CASCADE_UNIT and s["active"] == "active"
-                         for s in services)
-    listed = _collect_users(*sources)
-    admin_users = bool(listed)
-
+    inspected = admin_call("inspect", {})
+    status = None
+    native = {'available': False, 'enabled': None}
+    identity = None
     warnings = []
-    if not admin_status.get("ok"):
-        warnings.append("admin.py status: %s" % admin_status.get("error"))
-    if not admin_inspect.get("ok"):
-        warnings.append("admin.py inspect: %s" % admin_inspect.get("error"))
-    if not deployment:
-        warnings.append("deployment.json недоступен или пуст")
-
-    return {
-        "ok": True,
-        "app": APP_NAME,
-        "app_version": APP_VERSION,
-        "time": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "csrf": TOKENS.csrf,
-        "server": {
-            "hostname": socket.gethostname(),
-            "role": role or "неизвестна",
-            "version": version or "неизвестна",
-            "deployment_present": bool(deployment),
-            "cert_fingerprint": cert_fingerprint(),
-            "admin_present": os.path.isfile(ADMIN_PY),
-            "uptime_seconds": _read_uptime(),
-        },
-        "services": services,
-        "users": listed,
-        "users_source": "admin.py inspect" if admin_users else "нет данных",
-        "cascade": {
-            "role": role or "неизвестна",
-            "enabled": gateway_active,
-            "unit": CASCADE_UNIT,
-        },
-        "traffic": _traffic_from(*sources) or {},
-        "whitelists": _collect_whitelists(*sources),
-        "warnings": warnings,
-    }
+    server = {'hostname': socket.gethostname(), 'id': None, 'role': 'unknown',
+              'version': None, 'cert_fingerprint': cert_fingerprint(),
+              'admin_present': os.path.isfile(ADMIN_PY), 'uptime_seconds': _read_uptime()}
+    if inspected['ok']:
+        identity = inspected['data']['server']['id']
+        server.update(inspected['data']['server'])
+        server['phase'] = inspected['data']['phase']
+        server['version'] = server.get('recipeVersion')
+        result = admin_call('status', {'serverId': identity})
+        if result['ok']:
+            status = result['data']
+            observed = admin_call('cascade-native', {'serverId': identity, 'operation': 'inspect'})
+            if observed['ok']:
+                native = observed['data']['nativeCascade']
+            else:
+                warnings.append(observed['error'])
+                if observed.get('errorCode') == 'SERVER_IDENTITY':
+                    status = None
+        else:
+            warnings.append(result['error'])
+    else:
+        warnings.append(inspected['error'])
+    available = status is not None
+    # An identity discovered by inspect is not a usable mutation context after
+    # failed/mixed status observations. Do not fall back to deployment secrets.
+    if not available:
+        server['id'] = None
+    services = unit_states()
+    gateway = next((s['active'] for s in services if s['unit'] == CASCADE_UNIT), 'unknown')
+    return {'schema': 1, 'ok': True, 'app': APP_NAME, 'app_version': APP_VERSION,
+            'csrf': TOKENS.csrf, 'server': server, 'managedAvailable': available,
+            'services': services, 'users': status['users'] if available else None,
+            'users_source': 'admin.py status' if available else 'unavailable',
+            'sampledAt': status['sampledAt'] if available else None,
+            'traffic': status['traffic'] if available else {'rx': None, 'tx': None},
+            'cascade': {'kind': 'legacy-rivet-gateway', 'state': gateway, 'unit': CASCADE_UNIT},
+            'nativeCascade': native, 'whitelists': [], 'warnings': warnings}
 
 
 def _read_uptime():
@@ -1039,8 +1632,8 @@ class Handler(BaseHTTPRequestHandler):
             if ctype not in ("application/json", ""):
                 return self._error(HTTPStatus.UNSUPPORTED_MEDIA_TYPE, "application/json required")
             try:
-                payload = json.loads(raw.decode("utf-8"))
-            except (ValueError, UnicodeDecodeError):
+                payload = strict_json(raw.decode("utf-8"))
+            except (ValueError, UnicodeDecodeError, RecursionError):
                 return self._error(HTTPStatus.BAD_REQUEST, "invalid JSON")
             if not isinstance(payload, dict):
                 return self._error(HTTPStatus.BAD_REQUEST, "JSON object expected")
@@ -1070,9 +1663,9 @@ class Handler(BaseHTTPRequestHandler):
         action, arg = route
         started = time.time()
         if action == "service":
-            result = self._do_service(arg)
+            result = self._do_service(arg, payload)
         elif action == "cascade":
-            result = self._do_cascade(arg)
+            result = self._do_cascade(arg, payload)
         elif action == "user_add":
             result = self._do_user_add(payload)
         else:
@@ -1082,40 +1675,28 @@ class Handler(BaseHTTPRequestHandler):
                int((time.time() - started) * 1000)))
         return self._json(result.get("code", 500), result)
 
-    def _do_service(self, verb):
-        if verb not in SYSTEMCTL_VERBS:
-            return {"ok": False, "code": 400, "error": "unsupported action"}
-        unit = (self.headers.get("X-XIO-Unit") or "").strip()
-        if unit not in UNITS:
-            return {"ok": False, "code": 400, "error": "unknown unit"}
-        return systemctl_action(verb, unit)
+    def _do_service(self, verb, payload):
+        if type(payload) is not dict or set(payload) != {'expectedServerId'}:
+            return failure(400, 'INVALID_REQUEST')
+        unit = self.headers.get('X-XIO-Unit')
+        return admin_call('service', {'serverId': payload['expectedServerId'],
+                                     'unit': unit, 'verb': verb})
 
-    def _do_cascade(self, verb):
-        if verb not in CASCADE_VERBS:
-            return {"ok": False, "code": 400, "error": "unsupported action"}
-        cmd = "start" if verb == "enable" else "stop"
-        result = systemctl_action(cmd, CASCADE_UNIT)
-        result["unit"] = CASCADE_UNIT
-        result["cascade_enabled"] = (verb == "enable") and result["ok"]
-        return result
+    def _do_cascade(self, verb, payload):
+        # Backwards-compatible endpoint name, explicitly legacy gateway only.
+        if verb not in CASCADE_VERBS or type(payload) is not dict or set(payload) != {'expectedServerId'}:
+            return failure(400, 'INVALID_REQUEST')
+        return admin_call('service', {'serverId': payload['expectedServerId'],
+                                     'unit': CASCADE_UNIT,
+                                     'verb': 'start' if verb == 'enable' else 'stop'})
 
     def _do_user_add(self, payload):
-        name = payload.get("name") or payload.get("username")
-        name = str(name).strip() if name is not None else ""
-        if not USER_RE.match(name):
-            return {"ok": False, "code": 400, "error": "invalid user name"}
-        body = {"username": name}
-        note = payload.get("note")
-        if isinstance(note, str) and note.strip():
-            body["note"] = note.strip()[:200]
-        return admin_call("add", body)
+        return issue_user(payload)
 
     def _do_user_revoke(self, payload):
-        name = payload.get("name") or payload.get("username")
-        name = str(name).strip() if name is not None else ""
-        if not USER_RE.match(name):
-            return {"ok": False, "code": 400, "error": "invalid user name"}
-        return admin_call("revoke", {"username": name})
+        if type(payload) is not dict or set(payload) != {'expectedServerId', 'id'}:
+            return failure(400, 'INVALID_REQUEST')
+        return admin_call('revoke', {'serverId': payload['expectedServerId'], 'id': payload['id']})
 
     # ---- прочие методы ----
 

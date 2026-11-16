@@ -1,0 +1,193 @@
+{
+  "kind": "TEST-FIXTURE-NOT-A-RELEASE",
+  "note": "Real canonical native3/bootstrap/update bytes, other sources and pinned binaries are unit fixtures; no production pin override.",
+  "fixtureInstallerSha256": "afee0f4e3cbedb65348d81b23c51a7c77f237f29c74e05161a61f2e215b0a056",
+  "manifest": {
+    "schema": 1,
+    "recipeVersion": 28,
+    "sha256": "afee0f4e3cbedb65348d81b23c51a7c77f237f29c74e05161a61f2e215b0a056",
+    "bootstrapSha256": "2509ff6458de94c691e679c1a9af79e7b7f4b3d740d2e6e64dfba9ca35a7733d",
+    "updateSha256": "931dd576aafa9e89c36959572db207e9e5561a75e61d0d8410fd126b0c99495f",
+    "artifacts": {
+      "xio-admin.py": "e55029e41773b227e65cf04b590cc67a074d770206295758e9a8676385d47123",
+      "xio-stack.py": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "xio-network-stack.py": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "xio-mesh-stack.py": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mesh-pins.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "xio-bootstrap.sh": "2509ff6458de94c691e679c1a9af79e7b7f4b3d740d2e6e64dfba9ca35a7733d",
+      "xio-server-update.py": "931dd576aafa9e89c36959572db207e9e5561a75e61d0d8410fd126b0c99495f"
+    }
+  },
+  "members": [
+    {
+      "name": "dualstack.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "client_api.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "admin.py",
+      "sha256": "e55029e41773b227e65cf04b590cc67a074d770206295758e9a8676385d47123",
+      "mode": "0o600"
+    },
+    {
+      "name": "stack.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "network_stack.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "mesh_stack.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "mesh-pins.json",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "mode": "0o600"
+    },
+    {
+      "name": "rivet-setup.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "readiness.py",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "xio-ready.service",
+      "sha256": "faa5b4816800b8cbe1595e5533fe36c53f396c0c26a3a876dd3e4085232348a1",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade_native.py",
+      "sha256": "e16b9f63262caa9bb01a7a1e7602afa2010092baaad4d33e1bf2f3690c7c52b4",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade_native_lifecycle.py",
+      "sha256": "ab43499fb0f5e4b2ed211dbccb7bcf42d94b1646317c47bf90346939ca8ca257",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade_native_rpc.py",
+      "sha256": "dd52ff878ad8f6372737aa4c55b872bc4922b8961e27d34f3cdb0909180066d7",
+      "mode": "0o600"
+    },
+    {
+      "name": "xio_vici/LICENSE",
+      "sha256": "9ec76c9e5ee12c9dcd4e0c283997e02aa4ff3bf2e39d31def1f65ada5a74b308",
+      "mode": "0o600"
+    },
+    {
+      "name": "xio_vici/__init__.py",
+      "sha256": "f33752245eed291d523430ef68c019796e308778f10825d468fc8ccbcb16cee3",
+      "mode": "0o600"
+    },
+    {
+      "name": "xio-peer.py",
+      "sha256": "7ccd9122c228bfa93076c7e324b58886ca8aa63609a1e96097c189a4d18913cc",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/xio-cascade-tunnel.sh",
+      "sha256": "39fef44524089a52ec5ebca3ea804b16b8f6b5026ebe2d1646668667dd892553",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/xio-cascade.service",
+      "sha256": "4f4766bc4db7712bc1b3c7e3c1ba48107d06fd4eef103d73108d6e0c9a193ca3",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/xio-cascade-exit.sh",
+      "sha256": "724c69d07302112dd489cbb187638f2122b7e6550dce3fe3627c24426cd54d4e",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/xio-cascade-exit.service",
+      "sha256": "8a1922dba9182cdd9509e7c011acd637d6cbc038ddab1e97d37042b992440860",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/README.md",
+      "sha256": "9a525d210f607b785afc7fbb09e34eed827aed8489c1130ab197522d978c57f7",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/99-xio-cascade.conf",
+      "sha256": "7e3e43d5651489d28f09b0f18174921bc364574638f3ca306cb2db00182826fb",
+      "mode": "0o600"
+    },
+    {
+      "name": "cascade/xio-awg-uapi.conf",
+      "sha256": "34d4b7866b138b484f01df5d9f324e518c2877004e95dce153e398fc1c835acf",
+      "mode": "0o600"
+    },
+    {
+      "name": "catalog/catalog.py",
+      "sha256": "5ca9613b707feb6ba5cdcc9e913a516b734ff21c725ad5dca08b0bf83f4b3e55",
+      "mode": "0o600"
+    },
+    {
+      "name": "catalog/lint_catalog.py",
+      "sha256": "5ca9613b707feb6ba5cdcc9e913a516b734ff21c725ad5dca08b0bf83f4b3e55",
+      "mode": "0o600"
+    },
+    {
+      "name": "catalog/whitelist-pins.json",
+      "sha256": "5ca9613b707feb6ba5cdcc9e913a516b734ff21c725ad5dca08b0bf83f4b3e55",
+      "mode": "0o600"
+    },
+    {
+      "name": "catalog/README.md",
+      "sha256": "5ca9613b707feb6ba5cdcc9e913a516b734ff21c725ad5dca08b0bf83f4b3e55",
+      "mode": "0o600"
+    },
+    {
+      "name": "catalog/xio-catalog.service",
+      "sha256": "5ca9613b707feb6ba5cdcc9e913a516b734ff21c725ad5dca08b0bf83f4b3e55",
+      "mode": "0o600"
+    },
+    {
+      "name": "catalog/xio-catalog.timer",
+      "sha256": "5ca9613b707feb6ba5cdcc9e913a516b734ff21c725ad5dca08b0bf83f4b3e55",
+      "mode": "0o600"
+    },
+    {
+      "name": "xraygateway",
+      "sha256": "db0732979e162cdbdfa1fe0655341255e876f33c02ce34a9601a8e16194cc141",
+      "mode": "0o755"
+    },
+    {
+      "name": "cloak",
+      "sha256": "92e0752be0fcbed703476b87576803564a3f2c32ab3cc666a71709af345bfc39",
+      "mode": "0o755"
+    },
+    {
+      "name": "amneziawg-go",
+      "sha256": "160842e4ca825c8d441879c2d7024e03830dc0230c15bc2ad5a642cf600553b2",
+      "mode": "0o755"
+    },
+    {
+      "name": "rivet",
+      "sha256": "378067be54806da48ef5bcb7bc5096bfbe5deb97b7c2d7c098e83d0fc14e1185",
+      "mode": "0o755"
+    }
+  ],
+  "nativeSourceSha256": {
+    "cascade_native.py": "e16b9f63262caa9bb01a7a1e7602afa2010092baaad4d33e1bf2f3690c7c52b4",
+    "cascade_native_lifecycle.py": "ab43499fb0f5e4b2ed211dbccb7bcf42d94b1646317c47bf90346939ca8ca257",
+    "cascade_native_rpc.py": "dd52ff878ad8f6372737aa4c55b872bc4922b8961e27d34f3cdb0909180066d7"
+  }
+}

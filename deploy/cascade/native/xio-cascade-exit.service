@@ -1,0 +1,13 @@
+[Unit]
+Description=XIO cascade exit (SSH TUN endpoint and NAT for cascade clients)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/xio-cascade-exit-up.sh
+ExecStop=/usr/local/sbin/xio-cascade-exit-down.sh
+
+[Install]
+WantedBy=multi-user.target

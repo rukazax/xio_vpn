@@ -1,0 +1,42 @@
+[
+  {
+    "path": "server/managed/cascade_native.py",
+    "bytes": 52297,
+    "sha256": "c3c8922fcec2344dfebcc596a6059ece2224eb5c61a1a3e772a598eda7dfb3b3"
+  },
+  {
+    "path": "server/managed/cascade_native_rpc.py",
+    "bytes": 19248,
+    "sha256": "04779e10ee7ecf40833702e31773044b6490182a7b242da57290672cbac5f711"
+  },
+  {
+    "path": "server/managed/dualstack.py",
+    "bytes": 28441,
+    "sha256": "43705842a1cc7e51616a8dfef0b97c84df4c3c2860430e672ece579e1ae87667"
+  },
+  {
+    "path": "server/managed/test_cascade_native.py",
+    "bytes": 17080,
+    "sha256": "6a56d631ef1b9042dcf7508e35ff9a5f865f38aa23692edc1a89bfce3067e835"
+  },
+  {
+    "path": "server/managed/test_cascade_native_review.py",
+    "bytes": 13593,
+    "sha256": "d69acdc531c861ee5573660d9a93794940884ad70e70d09ee6b165b1c72c5590"
+  },
+  {
+    "path": "server/managed/test_native_integration_boundary.py",
+    "bytes": 11020,
+    "sha256": "ee02a964fab6d6b71571ec3d51d142f8d545a9066aa69bf15c37f2971ae40d3f"
+  },
+  {
+    "path": "app/lib/native_profile_readiness.dart",
+    "bytes": 3621,
+    "sha256": "710226a795bc03afa5e981ad69ec185302a0a8daf0dd349dcc6180a0d486da6f"
+  },
+  {
+    "path": "app/test/native_profile_readiness_test.dart",
+    "bytes": 13619,
+    "sha256": "f047b301e7321bb58ed90e72ed8616df7413a00ed56e3dcc3bd4366c0fc6f89f"
+  }
+]

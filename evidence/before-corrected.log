@@ -1,0 +1,232 @@
+test_bootstrap_installs_all_three_without_executing_them_or_activating_units (tools.test_native_shipping.NativeShippingTests.test_bootstrap_installs_all_three_without_executing_them_or_activating_units) ... FAIL
+test_generated_installer_archive_exact_native_bytes_modes_and_manifest (tools.test_native_shipping.NativeShippingTests.test_generated_installer_archive_exact_native_bytes_modes_and_manifest) ... ERROR
+test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) ...
+  test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at=None) ... FAIL
+  test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at='cascade_native.py') ... FAIL
+  test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at='cascade_native_lifecycle.py') ... FAIL
+  test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at='cascade_native_rpc.py') ... FAIL
+test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) ...
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='missing') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='directory') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='symlink') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='linked-parent') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='missing') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='directory') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='symlink') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='linked-parent') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='missing') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='directory') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='symlink') ... FAIL
+  test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='linked-parent') ... FAIL
+test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) ...
+  test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) (missing='cascade_native.py') ... FAIL
+  test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) (missing='cascade_native_lifecycle.py') ... FAIL
+  test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) (missing='cascade_native_rpc.py') ... FAIL
+
+======================================================================
+ERROR: test_generated_installer_archive_exact_native_bytes_modes_and_manifest (tools.test_native_shipping.NativeShippingTests.test_generated_installer_archive_exact_native_bytes_modes_and_manifest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 70, in test_generated_installer_archive_exact_native_bytes_modes_and_manifest
+    member = archive.getmember(name)
+  File "/usr/lib/python3.13/tarfile.py", line 2090, in getmember
+    raise KeyError("filename %r not found" % name)
+KeyError: "filename 'cascade_native.py' not found"
+
+======================================================================
+FAIL: test_bootstrap_installs_all_three_without_executing_them_or_activating_units (tools.test_native_shipping.NativeShippingTests.test_bootstrap_installs_all_three_without_executing_them_or_activating_units)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 102, in test_bootstrap_installs_all_three_without_executing_them_or_activating_units
+    block = bootstrap_block()
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 43, in bootstrap_block
+    raise AssertionError('bootstrap native-runtime safety/install block missing')
+AssertionError: bootstrap native-runtime safety/install block missing
+
+======================================================================
+FAIL: test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 181, in test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last
+    self.assertEqual((update.LIB / name).read_bytes(), (ROOT / 'server/managed' / name).read_bytes().replace(b'\r\n', b'\n'))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'# previous native runtime\n' != b'#!/usr/bin/env python3\n"""Opt-in native L[55269 chars]1)\n'
+
+======================================================================
+FAIL: test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at='cascade_native.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 172, in test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last
+    with self.assertRaisesRegex(RuntimeError, 'injected failure'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at='cascade_native_lifecycle.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 172, in test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last
+    with self.assertRaisesRegex(RuntimeError, 'injected failure'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last (tools.test_native_shipping.NativeShippingTests.test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last) (fail_at='cascade_native_rpc.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 172, in test_generated_runtime_projection_transactions_native_and_legacy_extras_state_last
+    with self.assertRaisesRegex(RuntimeError, 'injected failure'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='symlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native.py', kind='linked-parent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='symlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_lifecycle.py', kind='linked-parent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='directory')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='symlink')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_missing_directory_and_linked_native_sources_fail_without_stale_fallback (tools.test_native_shipping.NativeShippingTests.test_missing_directory_and_linked_native_sources_fail_without_stale_fallback) (name='cascade_native_rpc.py', kind='linked-parent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 95, in test_missing_directory_and_linked_native_sources_fail_without_stale_fallback
+    with patch.object(package, 'AWG_SHA256', pin), self.assertRaisesRegex(RuntimeError, 'required managed source'):
+                                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: RuntimeError not raised
+
+======================================================================
+FAIL: test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) (missing='cascade_native.py')
+----------------------------------------------------------------------
+RuntimeError: maintenance reached before completeness
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 148, in test_update_missing_each_native_module_rejects_before_maintenance_or_writes
+    with self.assertRaisesRegex(RuntimeError, 'Incomplete update archive'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "Incomplete update archive" does not match "maintenance reached before completeness"
+
+======================================================================
+FAIL: test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) (missing='cascade_native_lifecycle.py')
+----------------------------------------------------------------------
+RuntimeError: maintenance reached before completeness
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 148, in test_update_missing_each_native_module_rejects_before_maintenance_or_writes
+    with self.assertRaisesRegex(RuntimeError, 'Incomplete update archive'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "Incomplete update archive" does not match "maintenance reached before completeness"
+
+======================================================================
+FAIL: test_update_missing_each_native_module_rejects_before_maintenance_or_writes (tools.test_native_shipping.NativeShippingTests.test_update_missing_each_native_module_rejects_before_maintenance_or_writes) (missing='cascade_native_rpc.py')
+----------------------------------------------------------------------
+RuntimeError: maintenance reached before completeness
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 148, in test_update_missing_each_native_module_rejects_before_maintenance_or_writes
+    with self.assertRaisesRegex(RuntimeError, 'Incomplete update archive'):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "Incomplete update archive" does not match "maintenance reached before completeness"
+
+----------------------------------------------------------------------
+Ran 5 tests in 10.397s
+
+FAILED (failures=20, errors=1)

@@ -25,13 +25,15 @@ class VpnTileService : TileService() {
     private fun refreshState() {
         Engine.initialize(this)
         Engine.worker.execute {
+            val token=Engine.publicationToken()
             val up = Engine.isUp()
             Handler(mainLooper).post {
-                if (live !== this) return@post
+                if (live !== this || token!=Engine.publicationToken()) return@post
+                val publishUp=up && Engine.acceptsUpPublication(token)
                 qsTile?.apply {
                     label = "XIO VPN"
-                    state = if (up) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-                    if (Build.VERSION.SDK_INT >= 29) subtitle = L10n.text(this@VpnTileService, if (up) "Интерфейс активен" else "Отключено")
+                    state = if (publishUp) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+                    if (Build.VERSION.SDK_INT >= 29) subtitle = L10n.text(this@VpnTileService, if (publishUp) "Интерфейс активен" else "Отключено")
                     updateTile()
                 }
             }

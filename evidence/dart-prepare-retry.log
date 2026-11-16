@@ -1,0 +1,18 @@
+Warning: Package resolution error when reading "analysis_options.yaml" file for "lib/native_profile_readiness.dart":
+Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/srv/archives/agent-native-finalize-20261105/source/app/analysis_options.yaml".
+Warning: Package resolution error when reading "analysis_options.yaml" file for "test/native_profile_readiness_test.dart":
+Failed to resolve package URI "package:flutter_lints/flutter.yaml" in include at "/srv/archives/agent-native-finalize-20261105/source/app/analysis_options.yaml".
+Formatted test/native_profile_readiness_test.dart
+Formatted 2 files (1 changed) in 0.04 seconds.
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.

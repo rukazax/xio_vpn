@@ -18,6 +18,8 @@ final _import = RegExp(
   multiLine: true,
 );
 final _export = RegExp(r'''^export\s+['"]([^'"]+)['"]''', multiLine: true);
+final _part = RegExp(r'''^part\s+['"]([^'"]+)['"]''', multiLine: true);
+final _partOf = RegExp(r'''^part\s+of\s+''', multiLine: true);
 final _declaration = RegExp(
   r'^(?:abstract\s+|final\s+|sealed\s+|base\s+|interface\s+)*'
   r'(?:class|enum|mixin|typedef|extension)\s+([A-Za-z_]\w*)',
@@ -60,12 +62,34 @@ Set<String> declaredNames(String source) {
   return names;
 }
 
-/// Names visible through [file], following `export` directives.
+/// Part files declared by [file], resolved relative to the library.
+List<File> partsOf(File file, Directory lib) => [
+  for (final match in _part.allMatches(file.readAsStringSync()))
+    _resolve(match[1]!, file, lib),
+];
+
+/// Source text of the library plus its declared parts. A library's imports are
+/// used by its parts too; scanning only the library text is library-unaware.
+String libraryBody(File file, Directory lib) {
+  final buffer = StringBuffer(file.readAsStringSync());
+  for (final part in partsOf(file, lib)) {
+    if (part.existsSync()) {
+      buffer.write('\n');
+      buffer.write(part.readAsStringSync());
+    }
+  }
+  return buffer.toString();
+}
+
+/// Names visible through [file], following `export` directives and its parts.
 Set<String> visibleNames(File file, Directory lib, [Set<String>? seen]) {
   seen ??= <String>{};
   if (!file.existsSync() || !seen.add(file.path)) return <String>{};
   final source = file.readAsStringSync();
   final names = declaredNames(source);
+  for (final part in partsOf(file, lib)) {
+    if (part.existsSync()) names.addAll(declaredNames(part.readAsStringSync()));
+  }
   for (final match in _export.allMatches(source)) {
     names.addAll(visibleNames(_resolve(match[1]!, file, lib), lib, seen));
   }
@@ -84,7 +108,8 @@ List<String> deadImports(Directory root, Directory lib) {
   for (final file in root.listSync(recursive: true).whereType<File>()) {
     if (!file.path.endsWith('.dart')) continue;
     final text = file.readAsStringSync();
-    final body = text.replaceAll(_import, '');
+    if (_partOf.hasMatch(text)) continue; // parts cannot own imports
+    final body = libraryBody(file, lib).replaceAll(_import, '');
     for (final match in _import.allMatches(text)) {
       final target = match[1]!;
       final prefix = match[2];
@@ -105,7 +130,7 @@ List<String> deadImports(Directory root, Directory lib) {
         problems.add('$where: imported "$target" does not resolve');
         continue;
       }
-      if (_extension.hasMatch(resolved.readAsStringSync())) continue;
+      if (_extension.hasMatch(libraryBody(resolved, lib))) continue;
       var names = visibleNames(resolved, lib);
       if (shown != null) {
         final listed = shown
@@ -166,4 +191,74 @@ void main() {
     final problems = deadImports(Directory('${root.path}/test'), lib);
     expect(problems, hasLength(2), reason: problems.join('\n'));
   });
-}
+
+  test('a library import used by its declared part is not dead', () {
+    final root = Directory.systemTemp.createTempSync('xio-part-used-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final lib = Directory('${root.path}/lib')..createSync(recursive: true);
+    File('${lib.path}/target.dart').writeAsStringSync(
+      'class Target { const Target(); }\n',
+    );
+    File('${lib.path}/library.dart').writeAsStringSync(
+      "import 'target.dart';\npart 'part.dart';\n",
+    );
+    File('${lib.path}/part.dart').writeAsStringSync(
+      "part of 'library.dart';\nTarget make() => const Target();\n",
+    );
+    expect(deadImports(Directory(root.path), lib), isEmpty);
+  });
+
+  test('a genuinely unused import remains dead with parts present', () {
+    final root = Directory.systemTemp.createTempSync('xio-part-dead-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final lib = Directory('${root.path}/lib')..createSync(recursive: true);
+    File('${lib.path}/target.dart').writeAsStringSync(
+      'class Target { const Target(); }\n',
+    );
+    File('${lib.path}/library.dart').writeAsStringSync(
+      "import 'target.dart';\npart 'part.dart';\n",
+    );
+    File('${lib.path}/part.dart').writeAsStringSync(
+      "part of 'library.dart';\nclass Other {}\n",
+    );
+    final problems = deadImports(Directory(root.path), lib);
+    expect(problems, hasLength(1), reason: problems.join('\n'));
+    expect(problems.single, contains('target.dart'));
+  });
+
+  test('a prefix used only in a part counts as used', () {
+    final root = Directory.systemTemp.createTempSync('xio-part-prefix-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final lib = Directory('${root.path}/lib')..createSync(recursive: true);
+    File('${lib.path}/target.dart').writeAsStringSync(
+      'class Target { const Target(); }\n',
+    );
+    File('${lib.path}/library.dart').writeAsStringSync(
+      "import 'target.dart' as t;\npart 'part.dart';\n",
+    );
+    File('${lib.path}/part.dart').writeAsStringSync(
+      "part of 'library.dart';\nt.Target make() => const t.Target();\n",
+    );
+    expect(deadImports(Directory(root.path), lib), isEmpty);
+  });
+
+  test('unrelated-file use does not rescue a dead library import', () {
+    final root = Directory.systemTemp.createTempSync('xio-part-unrelated-');
+    addTearDown(() => root.deleteSync(recursive: true));
+    final lib = Directory('${root.path}/lib')..createSync(recursive: true);
+    File('${lib.path}/target.dart').writeAsStringSync(
+      'class Target { const Target(); }\n',
+    );
+    File('${lib.path}/library.dart').writeAsStringSync(
+      "import 'target.dart';\npart 'part.dart';\n",
+    );
+    File('${lib.path}/part.dart').writeAsStringSync(
+      "part of 'library.dart';\nclass Other {}\n",
+    );
+    File('${lib.path}/unrelated.dart').writeAsStringSync(
+      "import 'target.dart';\nTarget use() => const Target();\n",
+    );
+    final problems = deadImports(Directory(root.path), lib);
+    expect(problems, hasLength(1), reason: problems.join('\n'));
+    expect(problems.single, contains('library.dart'));
+  });}

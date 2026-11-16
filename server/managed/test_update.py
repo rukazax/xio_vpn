@@ -15,7 +15,8 @@ def archive(extra=None):
     stream = io.BytesIO()
     with tarfile.open(fileobj=stream, mode='w:gz') as tar:
         for name in ['admin.py', 'stack.py', 'network_stack.py', 'mesh_stack.py',
-                     'mesh-pins.json', 'rivet-setup.py', 'dualstack.py', 'client_api.py', *update.RUNTIMES]:
+                     'mesh-pins.json', 'rivet-setup.py', 'dualstack.py', 'client_api.py',
+                     'cascade_native.py', 'cascade_native_lifecycle.py', 'cascade_native_rpc.py', *update.RUNTIMES]:
             content = b'# new runtime\n' if name.endswith('.py') else b'new-runtime'
             info = tarfile.TarInfo(name)
             info.size = len(content)

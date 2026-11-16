@@ -1,6 +1,7 @@
 import 'account_access.dart';
 import 'credentials.dart';
 import 'server_address.dart';
+import 'native_profile_readiness.dart';
 
 import 'package:dartssh2/dartssh2.dart';
 
@@ -44,11 +45,7 @@ class ServerRelease {
                 !RegExp(r'^[a-f0-9]{64}$').hasMatch(bootstrap)))) {
       throw const FormatException('Некорректный манифест серверного релиза');
     }
-    return ServerRelease(
-      recipe,
-      sha,
-      bootstrapSha256: bootstrap as String?,
-    );
+    return ServerRelease(recipe, sha, bootstrapSha256: bootstrap as String?);
   }
 
   void verifyBootstrap(String script) {
@@ -138,6 +135,11 @@ class ManagedService {
   ManagedService(this.ssh, {AssetBundle? assets})
     : assets = assets ?? rootBundle;
 
+  /// Verification boundary kept separate so tests can hold the digest pending
+  /// without depending on isolate scheduling or touching a real SSH server.
+  Future<void> verifyUpdateArchive(ServerRelease release, List<int> bytes) =>
+      release.verifyArchiveOffThread(bytes);
+
   /// Only an owner with a previously verified SSH identity may update an
   /// existing installation. Delegated users cannot replace server executables.
   Future<void> ensureUpdated(AppStore store, ManagedServer server) async {
@@ -168,7 +170,7 @@ class ManagedService {
       archive.offsetInBytes,
       archive.lengthInBytes,
     );
-    local.verifyArchiveOffThread(archiveBytes);
+    await verifyUpdateArchive(local, archiveBytes);
     final program = await assets.loadString('assets/xio-server-update.py');
     String quoted(String value) => "'${value.replaceAll("'", "'\\''")}'";
     if (store.status.active || store.busy || store.serverMaintenance) return;
@@ -176,7 +178,7 @@ class ManagedService {
     store.changed();
     try {
       await store.saveNativePlan();
-      final bytes = await ssh.executeInput(
+      final bytes = await _stdoutOnEitherExit(
         'python3 -c ${quoted(program)} ${quoted(local.sha256)} ${quoted(server.id)}',
         archiveBytes,
         timeout: const Duration(minutes: 12),
@@ -219,11 +221,46 @@ class ManagedService {
     }
   }
 
+  /// Runs [ssh.executeInput] and returns stdout even for a non-zero exit, so a
+  /// structured JSON error body printed to stdout is still decoded deliberately
+  /// by the caller. A non-zero exit that printed nothing is rethrown, preserving
+  /// the earlier failure for commands that only log server-side; stderr is never
+  /// surfaced.
+  Future<List<int>> _stdoutOnEitherExit(
+    String command,
+    List<int> input, {
+    required Duration timeout,
+  }) async {
+    try {
+      return await ssh.executeInput(command, input, timeout: timeout);
+    } on SshCommandFailure catch (failure) {
+      if (failure.stdoutBytes.isEmpty) {
+        throw StateError('Операция сервера завершилась ошибкой');
+      }
+      return failure.stdoutBytes;
+    }
+  }
+
+  /// Runs a command whose output is redirected to server-side logs. A non-zero
+  /// exit surfaces as the same generic failure callers previously received;
+  /// stderr is never echoed.
+  Future<void> _runLoggable(
+    String command,
+    List<int> input, {
+    Duration timeout = const Duration(minutes: 6),
+  }) async {
+    try {
+      await ssh.executeInput(command, input, timeout: timeout);
+    } on SshCommandFailure {
+      throw StateError('Операция сервера завершилась ошибкой');
+    }
+  }
+
   Future<Map<String, dynamic>> command(
     Map<String, dynamic> request, {
     Duration timeout = const Duration(minutes: 6),
   }) async {
-    final bytes = await ssh.executeInput(
+    final bytes = await _stdoutOnEitherExit(
       'python3 /usr/local/lib/xio-managed/admin.py',
       utf8.encode(jsonEncode(request)),
       timeout: timeout,
@@ -396,7 +433,7 @@ class ManagedService {
     await ssh.upload(archivePath, archiveBytes);
     // Sizes are re-checked on the host: an SFTP write that returned early would
     // otherwise only show up as an opaque digest failure.
-    await ssh.executeInput(
+    await _runLoggable(
       "{ [ \"\$(wc -c < '$scriptPath')\" = '${utf8.encode(bootstrap).length}' ] || "
       "{ echo 'bootstrap upload truncated' >&2; exit 3; }; "
       "[ \"\$(wc -c < '$archivePath')\" = '${archiveBytes.length}' ] || "
@@ -446,6 +483,8 @@ class ManagedService {
     if (name.trim().isEmpty || name.trim().length > 80) {
       throw const FormatException('Имя: от 1 до 80 символов');
     }
+    // Snapshot/validate before generating identity, keys or remote mutations.
+    final dns = validateDnsServers(store.dnsServers);
     final random = Random.secure();
     final uid = List.generate(
       16,
@@ -475,60 +514,84 @@ class ManagedService {
       if (managementKey != null) 'adminPublicKey': managementKey.$2,
       'serverId': server.id,
     });
-    final remote = Map<String, dynamic>.from(response['server']);
-    final slot = response['user']['slot'] as int;
-    final configs = <String, String>{};
-    for (final p in ['wireguard', 'awg']) {
-      if (p == 'wireguard') continue;
-      final subnet = p == 'awg' ? 78 : 77;
-      final v6 = p == 'awg' ? 'fd78:1' : 'fd77:1';
-      final extras = p == 'awg'
-          ? (remote['awg'] as Map).entries
-                .map((e) => '${e.key} = ${e.value}')
-                .join('\n')
-          : '';
-      final endpoint = serverEndpoint(
-        server.publicHost,
-        p == 'awg' ? 51821 : 51820,
-      );
-      configs[p] =
-          '[Interface]\nPrivateKey = ${private[p]}\nAddress = 10.$subnet.0.$slot/32, $v6::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(remote, store.dnsServers)}\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $endpoint\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
-    }
-    if (remote['rivet'] is Map) {
-      final meta = Map<String, dynamic>.from(remote['rivet']);
-      for (final protocol in rivetProtocols) {
-        configs[protocol] = jsonEncode({
-          'protocol': protocol,
-          'endpoint': serverEndpoint(server.publicHost, 8443),
-          'serverName': meta['serverName'],
-          'pin': meta['pin'],
-          'gatewayId': meta['gatewayId'],
-          'id': uid,
-          'secret': deviceSecret,
-          'entryToken': entryToken,
-          'ip': '10.79.0.$slot',
-          if (meta['ipv6'] == true) 'ip6': 'fd79:1::${slot.toRadixString(16)}',
-          if (meta['outerCA'] != null) 'outerCA': meta['outerCA'],
-        });
-      }
-    }
-    for (final e in Map<String, dynamic>.from(
-      response['configs'] ?? {},
-    ).entries) {
-      if (['xray', 'cloak'].contains(e.key)) {
-        final value = e.value;
-        if (value is! String) {
-          throw const FormatException('Некорректный профиль сервера');
-        }
-        final parsed = ExtendedProfile.parse(value);
-        if (parsed.protocol != e.key) {
-          throw const FormatException('Протокол не совпадает с конфигурацией');
-        }
-        configs[e.key] = parsed.encoded;
-      }
-    }
     late final ManagedUser user;
     try {
+      final remote = Map<String, dynamic>.from(response['server']);
+      final slot = response['user']['slot'] as int;
+      final configs = <String, String>{};
+      final awgFamilies = NativeProfileReadiness.forProtocol(remote, 'awg');
+      final rivetFamilies = NativeProfileReadiness.forProtocol(remote, 'rivet');
+      if (rivetFamilies.explicit &&
+          rivetFamilies.selected &&
+          remote['rivet'] is! Map) {
+        throw const FormatException(
+          'Selected native RIVET transport is missing',
+        );
+      }
+      for (final p in ['wireguard', 'awg']) {
+        if (p == 'wireguard' || !awgFamilies.selected) continue;
+        final subnet = p == 'awg' ? 78 : 77;
+        final v6 = p == 'awg' ? 'fd78:1' : 'fd77:1';
+        final extras = p == 'awg'
+            ? (remote['awg'] as Map).entries
+                  .map((e) => '${e.key} = ${e.value}')
+                  .join('\n')
+            : '';
+        final endpoint = serverEndpoint(
+          server.publicHost,
+          p == 'awg' ? 51821 : 51820,
+        );
+        final addresses = [
+          if (awgFamilies.captureIpv4) '10.$subnet.0.$slot/32',
+          if (awgFamilies.captureIpv6) '$v6::${slot.toRadixString(16)}/128',
+        ].join(', ');
+        final routes = [
+          if (awgFamilies.captureIpv4) '0.0.0.0/0',
+          if (awgFamilies.captureIpv6) '::/0',
+        ].join(', ');
+        configs[p] =
+            '[Interface]\nPrivateKey = ${private[p]}\nAddress = $addresses\nDNS = ${managedDnsServers(remote, dns)}\nMTU = 1280\n$extras\n\n[Peer]\nPublicKey = ${remote['publicKeys'][p]}\nEndpoint = $endpoint\nAllowedIPs = $routes\nPersistentKeepalive = 25\n';
+      }
+      if (remote['rivet'] is Map && rivetFamilies.selected) {
+        final meta = Map<String, dynamic>.from(remote['rivet']);
+        for (final protocol in rivetProtocols) {
+          configs[protocol] = jsonEncode({
+            'protocol': protocol,
+            'endpoint': serverEndpoint(server.publicHost, 8443),
+            'serverName': meta['serverName'],
+            'pin': meta['pin'],
+            'gatewayId': meta['gatewayId'],
+            'id': uid,
+            'secret': deviceSecret,
+            'entryToken': entryToken,
+            'ip': '10.79.0.$slot',
+            if (rivetFamilies.ipv6) 'ip6': 'fd79:1::${slot.toRadixString(16)}',
+            if (meta['outerCA'] != null) 'outerCA': meta['outerCA'],
+          });
+        }
+      }
+      for (final e in Map<String, dynamic>.from(
+        response['configs'] ?? {},
+      ).entries) {
+        // These proxy services are not attached to the native L3 connector.
+        if (remote.containsKey('nativeProfileReadiness')) continue;
+        if (['xray'].contains(e.key)) {
+          final value = e.value;
+          if (value is! String) {
+            throw const FormatException('Некорректный профиль сервера');
+          }
+          final parsed = ExtendedProfile.parse(value);
+          if (parsed.protocol != e.key) {
+            throw const FormatException(
+              'Протокол не совпадает с конфигурацией',
+            );
+          }
+          configs[e.key] = parsed.encoded;
+        }
+      }
+      if (remote.containsKey('nativeProfileReadiness') && configs.isEmpty) {
+        throw StateError('No selected native cascade transport is ready');
+      }
       // The server response is authenticated transport input, not a trusted
       // config: validate every generated profile before storing or exporting it.
       for (final p in configs.keys) {
@@ -665,13 +728,13 @@ class ManagedService {
       'mesh-pins.json': 'assets/mesh-pins.json',
     }.entries) {
       final asset = await assets.load(entry.value);
-      await ssh.executeInput(
+      await _runLoggable(
         'set -eu\numask 077\ntest "\$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1\ncat > /usr/local/lib/xio-managed/${entry.key}.next\nmv /usr/local/lib/xio-managed/${entry.key}.next /usr/local/lib/xio-managed/${entry.key}\n',
         asset.buffer.asUint8List(asset.offsetInBytes, asset.lengthInBytes),
       );
     }
     final networkScript = await assets.load('assets/xio-network-stack.py');
-    await ssh.executeInput(
+    await _runLoggable(
       r'''set -eu
 umask 077
 test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1
@@ -684,7 +747,7 @@ mv /usr/local/lib/xio-managed/network_stack.py.next /usr/local/lib/xio-managed/n
       ),
     );
     final stackScript = await assets.load('assets/xio-stack.py');
-    await ssh.executeInput(
+    await _runLoggable(
       r'''set -eu
 umask 077
 test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1
@@ -697,7 +760,7 @@ mv /usr/local/lib/xio-managed/stack.py.next /usr/local/lib/xio-managed/stack.py
       ),
     );
     final script = await assets.load('assets/xio-admin.py');
-    await ssh.executeInput(r'''set -eu
+    await _runLoggable(r'''set -eu
 umask 077
 test "$(cat /usr/local/lib/xio-managed/.owner)" = xio-managed-v1
 cat > /usr/local/lib/xio-managed/admin.py.next

@@ -20,7 +20,11 @@ import 'package:flutter/services.dart';
 
 import 'cascade_probe.dart';
 import 'cascade_ui.dart';
+import 'client_policy.dart';
+import 'connection_mode_ui.dart';
 import 'core.dart';
+import 'store_mode_source.dart';
+import 'store_writer_owner.dart';
 import 'workspace_ui.dart';
 
 extension XioColors on BuildContext {
@@ -40,10 +44,8 @@ Future<void> main() async {
       ('RIVET transports and Go dependencies', 'RIVET-native.txt'),
       ('Xray core', 'Xray-MPL-2.0.txt'),
       ('Mozilla CA subset: GTS R1/R3/R4 and SSL.com ECC', 'Xray-MPL-2.0.txt'),
-      ('Cloak', 'Cloak-GPL-3.0.txt'),
       ('XIO original code - GPL-3.0-only', 'XIO-GPL-3.0.txt'),
       ('Tailscale', 'Tailscale-BSD.txt'),
-      ('OpenVPN 3 (MPL-2.0 alternative)', 'OpenVPN-MPL-2.0.txt'),
       ('MbedTLS', 'MbedTLS-license.txt'),
       ('Asio', 'Asio-license.txt'),
       ('fmt', 'Fmt-license.txt'),
@@ -64,7 +66,20 @@ Future<void> main() async {
   });
   await AppLanguages.load();
   final store = AppStore()..enforceConsent = true;
-  native.setMethodCallHandler((call) async {
+  // Cooperating product-store ownership is bound by the controller lifecycle,
+  // not inferred from a struct: a second same-path controller is refused before
+  // it can write behind the first one.
+  if (Platform.isLinux || Platform.isWindows) {
+    try {
+      final directory = await applicationDirectory();
+      store.attachProductWriter(
+        await ProductStoreWriterOwner.acquire(directory),
+      );
+      DesktopEngine.clientOnly = clientOnlyBuild;
+    } catch (error) {
+      store.markProductWriterUnavailable(error);
+    }
+  }  native.setMethodCallHandler((call) async {
     if (call.method == 'requestUpdates') onUpdateRequest?.call();
     if (call.method == 'requestConnect' && store.ready) {
       if (await native.invokeMethod<bool>('consumeConnectRequest') == true) {
@@ -73,7 +88,11 @@ Future<void> main() async {
     }
   });
   automaticUpdatesEnabled = true;
-  runApp(XioApp(store: store, requireConsent: true));
+  // The real product-store adapter, installed for the whole controller
+  // lifetime: the mode control is never hidden behind a null source in a
+  // production entry point.
+  final modeSource = StoreConnectionModeSource(store);
+  runApp(XioApp(store: store, modeSource: modeSource, requireConsent: true));
   final statistics = StartupStatistics();
   void refreshAfterConsent() {
     if (store.ready && store.consentReady) unawaited(statistics.run(store));
@@ -86,7 +105,17 @@ Future<void> main() async {
 class XioApp extends StatelessWidget {
   final AppStore store;
   final bool requireConsent;
-  const XioApp({super.key, required this.store, this.requireConsent = false});
+
+  /// Durable connection-mode seam forwarded to the connection settings. Null
+  /// while the core Store mode API is unavailable in this build: the settings
+  /// then omit the control instead of showing one that cannot persist.
+  final ConnectionModeSource? modeSource;
+  const XioApp({
+    super.key,
+    required this.store,
+    this.requireConsent = false,
+    this.modeSource,
+  });
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<int>(
     valueListenable: AppLanguages.revision,
@@ -106,14 +135,20 @@ class XioApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         CascadeScreen.routeName: (_) => CascadeScreen(
           healthProbe: (bridge) => CascadeSshProbe(store: store).check(bridge),
+          onHealth: (health) => store.setCascadeHealth(
+            ok: health.isAlive,
+            pingMs: health.latencyMs,
+            exitIpv6: health.egressIpv6 ?? '',
+            checkedAt: health.checkedAt.toIso8601String(),
+          ),
         ),
       },
       home: requireConsent
           ? FirstRunGate(
               store: store,
-              child: WorkspaceShell(store: store),
+              child: WorkspaceShell(store: store, modeSource: modeSource),
             )
-          : WorkspaceShell(store: store),
+          : WorkspaceShell(store: store, modeSource: modeSource),
     ),
   );
 }

@@ -1,4 +1,5 @@
 import 'account_access.dart';
+import 'native_profile_readiness.dart';
 import 'client_policy.dart';
 import 'server_address.dart';
 
@@ -35,10 +36,6 @@ const int maxDnsServers = 2;
 /// it stays the default and an upgrade keeps the same DNS.
 const List<String> defaultDnsServers = ['9.9.9.9', '2620:fe::fe'];
 
-final _dnsHostname = RegExp(
-  r'^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$',
-);
-
 bool _isIpLiteral(String value) {
   if (!RegExp(r'^[0-9a-fA-F:.]+$').hasMatch(value)) return false;
   try {
@@ -59,10 +56,9 @@ bool isIpv4Literal(String value) {
   return !trimmed.contains(':') && _isIpLiteral(trimmed);
 }
 
-/// Validates one resolver address: IPv4, IPv6 or a domain name.
-///
-/// Ports, schemes, credentials and paths are rejected: a resolver address is
-/// written into a profile line, not into a URL.
+/// Plain AWG DNS must match the native desktop parser: a non-mapped unicast
+/// IPv4/IPv6 literal, including private/ULA addresses (not public-only).
+/// Never resolves hostnames or bootstraps an encrypted resolver transport.
 String validateDnsServer(String input) {
   final raw = input.trim();
   if (raw.isEmpty) {
@@ -71,20 +67,34 @@ String validateDnsServer(String input) {
   if (raw.length > 253) {
     throw const FormatException('Адрес DNS-сервера слишком длинный');
   }
-  if (_isIpLiteral(raw)) return raw;
-  if (raw.contains(':') ||
-      raw.contains('/') ||
-      raw.contains('@') ||
-      raw.contains('?') ||
-      raw.contains('#')) {
-    throw const FormatException(
-      'DNS: IPv4, IPv6 или домен — без порта, схемы и пути',
-    );
+  if (_isIpLiteral(raw)) {
+    final address = InternetAddress(raw);
+    final bytes = address.rawAddress;
+    final mapped =
+        bytes.length == 16 &&
+        bytes.take(10).every((b) => b == 0) &&
+        bytes[10] == 255 &&
+        bytes[11] == 255;
+    final broadcast = bytes.length == 4 && bytes.every((b) => b == 255);
+    // Match native fe80::/10 and 169.254.0.0/16, not SDK isLinkLocal masks.
+    final linkLocal = bytes.length == 16
+        ? bytes[0] == 0xfe && (bytes[1] & 0xc0) == 0x80
+        : bytes[0] == 169 && bytes[1] == 254;
+    // netip.ParseAddr rejects noncanonical IPv4 spelling such as 01.2.3.4.
+    final canonicalV4 = bytes.length != 4 || raw == bytes.join('.');
+    if (canonicalV4 &&
+        !mapped &&
+        !broadcast &&
+        bytes.any((b) => b != 0) &&
+        !address.isLoopback &&
+        !linkLocal &&
+        !address.isMulticast) {
+      return raw;
+    }
   }
-  if (!_dnsHostname.hasMatch(raw)) {
-    throw const FormatException('DNS: некорректный адрес');
-  }
-  return raw.toLowerCase();
+  throw const FormatException(
+    'DNS: укажите IPv4 или IPv6 — без домена, порта, схемы и пути',
+  );
 }
 
 /// Validates the selected set: at most two addresses, no duplicates.
@@ -139,10 +149,26 @@ String managedDnsServers(
 ]) {
   final rivet = server['rivet'];
   final ipv6 = rivet is Map && rivet['ipv6'] == true;
-  final chosen = <String>[
-    for (final value in selection ?? defaultDnsServers)
-      if (value.trim().isNotEmpty) value.trim(),
-  ];
+  // Reject the whole invalid selection before family filtering; never silently
+  // drop a hostname/bad address and switch to a different resolver.
+  final chosen = validateDnsServers(selection ?? defaultDnsServers);
+  if (server.containsKey('nativeProfileReadiness')) {
+    final readiness = NativeProfileReadiness.forProtocol(server, 'awg');
+    final usable = [
+      for (final value in chosen)
+        if (isIpv6Literal(value)
+            ? readiness.ipv6
+            : isIpv4Literal(value)
+            ? readiness.ipv4
+            : readiness.selected)
+          value,
+    ];
+    if (usable.isEmpty) {
+      throw StateError('Configured DNS has no ready native cascade family');
+    }
+    // Never substitute a different resolver for the user's selection.
+    return usable.join(', ');
+  }
   final usable = ipv6
       ? chosen
       : [
@@ -334,7 +360,6 @@ class UserBundle {
       configs.removeWhere(
         (key, _) => const {
           'wireguard',
-          'openvpn',
           'ikev2',
           'shadowsocks',
           'tailscale',
@@ -343,7 +368,7 @@ class UserBundle {
       if (configs.isEmpty ||
           configs.keys.any(
             (p) =>
-                !['awg', 'rivet-h3', 'rivet-s1', 'xray', 'cloak'].contains(p),
+                !['awg', 'rivet-h3', 'rivet-s1', 'xray'].contains(p),
           ) ||
           configs.values.any((v) => v.length > 65536)) {
         throw const FormatException('Invalid protocols');

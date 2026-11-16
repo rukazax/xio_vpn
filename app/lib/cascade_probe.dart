@@ -108,6 +108,13 @@ class CascadeSshProbe {
         error.message,
         latencyMs: clock.elapsedMilliseconds,
       );
+    } on SshCommandFailure catch (failure) {
+      // The healthcheck crashed instead of printing its JSON verdict; surface
+      // the failure signal without echoing remote stderr.
+      return CascadeHealth.failure(
+        'Проверка каскада завершилась ошибкой (код ${failure.exitCode})',
+        latencyMs: clock.elapsedMilliseconds,
+      );
     } on FormatException catch (error) {
       return CascadeHealth.failure(
         error.message,

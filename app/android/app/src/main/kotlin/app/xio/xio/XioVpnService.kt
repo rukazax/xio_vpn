@@ -17,8 +17,8 @@ class XioVpnService : GoBackend.VpnService() {
         @Volatile private var instance: XioVpnService? = null
         private val lifecycle = Object()
         // Engine.worker waits for stopSelf completion before another activation.
-        fun awaitStopped() {
-            val deadline = android.os.SystemClock.elapsedRealtime() + 5000
+        fun awaitStopped(timeoutMillis:Long=5000) {
+            val deadline = android.os.SystemClock.elapsedRealtime() + timeoutMillis.coerceIn(0,5000)
             synchronized(lifecycle) {
                 while (instance != null) {
                     val remaining = deadline - android.os.SystemClock.elapsedRealtime()
@@ -27,8 +27,8 @@ class XioVpnService : GoBackend.VpnService() {
                 }
             }
         }
-        fun awaitCreated(): XioVpnService {
-            val deadline=android.os.SystemClock.elapsedRealtime()+5000
+        fun awaitCreated(timeoutMillis:Long=5000): XioVpnService {
+            val deadline=android.os.SystemClock.elapsedRealtime()+timeoutMillis.coerceIn(0,5000)
             synchronized(lifecycle) { while(instance==null){val left=deadline-android.os.SystemClock.elapsedRealtime();check(left>0);lifecycle.wait(left)};return instance!! }
         }
         private const val CHANNEL = "xio.vpn"
@@ -42,11 +42,13 @@ class XioVpnService : GoBackend.VpnService() {
                 }
             }
         }
-        fun stateChanged(up: Boolean) {
+        fun stateChanged(up: Boolean, token:Long) {
             Handler(Looper.getMainLooper()).post {
+                if(token!=Engine.publicationToken())return@post
                 instance?.let { service ->
-                    service.isUp = up
-                    if (up) service.getSystemService(NotificationManager::class.java).notify(ID, service.notification(true))
+                    val publishUp=up && Engine.acceptsUpPublication(token)
+                    service.isUp = publishUp
+                    if (publishUp) service.getSystemService(NotificationManager::class.java).notify(ID, service.notification(true))
                     else service.stopForeground(STOP_FOREGROUND_REMOVE)
                 }
             }
@@ -59,14 +61,30 @@ class XioVpnService : GoBackend.VpnService() {
         override fun run(){
             if(instance!==this@XioVpnService)return
             if (!BuildConfig.CLIENT_ONLY) VpnSharing.schedule(this@XioVpnService)
-            if(RivetBackend.established){
-                val value=RivetBackend.status();val key=value.optString("phase")+value.optString("protocol")
-                if(key!=lastRivetPhase){lastRivetPhase=key;Engine.worker.execute{
+            // Never run JNI/status on the UI thread; enqueue at most one sample.
+            Engine.worker.execute {
+                if(instance!==this@XioVpnService)return@execute
+                if(RivetBackend.established){
+                    val token=Engine.publicationToken()
                     val status=Engine.status()
-                    phaseHandler.post {if(instance===this@XioVpnService)getSystemService(NotificationManager::class.java).notify(ID,notification(true,if(status["phase"]=="reconnecting")"Повторное подключение…" else null))}
-                }}
+                    phaseHandler.post {
+                        if(instance===this@XioVpnService && token==Engine.publicationToken()) {
+                            val key=status["phase"].toString()+status["protocol"].toString()
+                            if(key!=lastRivetPhase){
+                                lastRivetPhase=key
+                                val publishUp=status["active"]==true && Engine.acceptsUpPublication(token)
+                                isUp=publishUp
+                                val text=if(status["recoveryPending"]==true)"Повторное подключение…" else if(!publishUp)"Не удалось подключиться. Проверьте сервер и разрешение VPN в XIO." else null
+                                getSystemService(NotificationManager::class.java).notify(ID,notification(publishUp,text))
+                            }
+                        }
+                    }
+                    VpnTileService.refresh(this@XioVpnService)
+                }
+                phaseHandler.post {
+                    if(instance===this@XioVpnService)phaseHandler.postDelayed(this,if(RivetBackend.established)2000L else 15000L)
+                }
             }
-            phaseHandler.postDelayed(this,if(RivetBackend.established)2000L else 15000L)
         }
     }
     private var isUp = false
@@ -109,12 +127,15 @@ class XioVpnService : GoBackend.VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         if (intent?.action == DISCONNECT) {
+            Engine.revokePublication()
+            Engine.revokeLogicalPolicy()
             Engine.initialize(this)
+            isUp=false
             Engine.worker.execute {
                 try { Engine.disconnect() } catch (_: Exception) { Handler(mainLooper).post { stopSelf() } }
             }
         }
-        if((intent==null || intent.action=="android.net.VpnService") && getSharedPreferences("xio",0).getString("connectionPlan",null)!=null) {
+        if((intent==null || intent.action=="android.net.VpnService") && PolicyEnvelopes.autonomous(this)) {
             startForegroundService(Intent(this,VpnControlService::class.java).setAction("app.xio.RECONNECT"))
         }
         return START_STICKY
@@ -124,7 +145,9 @@ class XioVpnService : GoBackend.VpnService() {
         super.onTaskRemoved(rootIntent)
     }
     override fun onRevoke() {
-        getSharedPreferences("xio",0).edit().putBoolean("vpnWanted",false).commit()
+        Engine.revokePublication()
+        Engine.revokeLogicalPolicy()
+        isUp=false
         Engine.worker.execute { try {Engine.disconnect()} catch(_:Exception) {} }
         super.onRevoke()
     }

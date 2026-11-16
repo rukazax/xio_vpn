@@ -1,0 +1,17 @@
+test_actual_full_generated_archive_unpacks_every_member (tools.test_native_shipping.NativeShippingTests.test_actual_full_generated_archive_unpacks_every_member) ... ERROR
+
+======================================================================
+ERROR: test_actual_full_generated_archive_unpacks_every_member (tools.test_native_shipping.NativeShippingTests.test_actual_full_generated_archive_unpacks_every_member)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/srv/archives/agent-native-shipping-20261105/src/tools/test_native_shipping.py", line 190, in test_actual_full_generated_archive_unpacks_every_member
+    update.unpack(self.raw, stage, self.manifest['sha256'])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/archives/agent-native-shipping-20261105/src/server/managed/update.py", line 146, in unpack
+    raise RuntimeError('Invalid update archive entry')
+RuntimeError: Invalid update archive entry
+
+----------------------------------------------------------------------
+Ran 1 test in 0.066s
+
+FAILED (errors=1)

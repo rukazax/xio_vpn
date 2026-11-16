@@ -1,0 +1,14 @@
+test_crlf_and_lf_sources_produce_the_same_archive (tools.test_package_server.PackageGuardTests.test_crlf_and_lf_sources_produce_the_same_archive)
+Windows checkouts use CRLF; Linux CI uses LF. The archive must not depend on that. ... ok
+test_deterministic_fixture_archive_members_mirrors_and_manifest (tools.test_package_server.PackageGuardTests.test_deterministic_fixture_archive_members_mirrors_and_manifest) ... ok
+test_each_pinned_input_and_native_source_digest_is_required (tools.test_package_server.PackageGuardTests.test_each_pinned_input_and_native_source_digest_is_required) ... ok
+test_every_bootstrap_move_is_shipped_in_the_archive (tools.test_package_server.PackageGuardTests.test_every_bootstrap_move_is_shipped_in_the_archive)
+bootstrap.sh extracts the archive and moves each file out of it. ... ok
+test_missing_inputs_refuse_before_any_output_write (tools.test_package_server.PackageGuardTests.test_missing_inputs_refuse_before_any_output_write) ... ok
+test_real_canonical_recipe_constants_match_without_importing_or_packaging (tools.test_package_server.PackageGuardTests.test_real_canonical_recipe_constants_match_without_importing_or_packaging) ... ok
+test_recipe_coherence_and_check_mode_never_write (tools.test_package_server.PackageGuardTests.test_recipe_coherence_and_check_mode_never_write) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.529s
+
+OK

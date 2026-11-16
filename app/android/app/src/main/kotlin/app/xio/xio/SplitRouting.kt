@@ -16,6 +16,9 @@ class RoutingException(message: String) : Exception(message)
 /** One local policy for both engines and every activation entry point. */
 class SplitRouting(private val context: Context) {
     private val file = AtomicFile(File(context.noBackupFilesDir, "split-routing.json"))
+    private val gate = synchronized(gates) {
+        gates.getOrPut(file.baseFile.absolutePath) { RoutingResolutionGate { android.os.SystemClock.elapsedRealtime() } }
+    }
 
     /**
      * Правила приложений, IP/CIDR и домены. [resolved] — адреса, полученные
@@ -28,6 +31,7 @@ class SplitRouting(private val context: Context) {
         val networks: List<String> = emptyList(),
         val domains: List<String> = emptyList(),
         val resolved: List<String> = emptyList(),
+        val revision: String = "",
     ) {
         fun map(): Map<String, Any> = mapOf(
             "mode" to mode,
@@ -35,13 +39,16 @@ class SplitRouting(private val context: Context) {
             "networks" to networks,
             "domains" to domains,
             "resolved" to resolved,
+            "revision" to revision,
         )
 
         /** Сети для правил: введённые IP плюс адреса доменов. */
         fun routes(): List<String> = (networks + resolved).distinct()
     }
 
-    fun read(): Policy {
+    fun read(): Policy = synchronized(gate) { readLocked() }
+
+    private fun readLocked(): Policy {
         if (!file.baseFile.exists() && !File(file.baseFile.path + ".bak").exists()) return Policy("all", emptyList())
         try {
             val json = file.openRead().use { JSONObject(it.readBytes().toString(Charsets.UTF_8)) }
@@ -57,7 +64,7 @@ class SplitRouting(private val context: Context) {
                 (0 until domains.length()).map { domains.getString(it) },
                 (0 until resolved.length()).map { resolved.getString(it) },
                 stored = true,
-            )
+            ).copy(revision = json.optString("revision", ""))
         } catch (_: Exception) {
             throw RoutingException("Не удалось прочитать правила. Откройте раздельное туннелирование и сохраните их заново.")
         }
@@ -121,6 +128,7 @@ class SplitRouting(private val context: Context) {
     private fun write(policy: Policy) {
         val json = JSONObject()
             .put("schema", 1)
+            .put("revision", policy.revision)
             .put("mode", policy.mode)
             .put("packages", JSONArray(policy.packages))
             .put("networks", JSONArray(policy.networks))
@@ -133,31 +141,60 @@ class SplitRouting(private val context: Context) {
         } catch (e: Exception) { file.failWrite(stream); throw e }
     }
 
-    fun save(mode: String, packages: List<String>, networks: List<String>, domains: List<String> = emptyList()): Policy {
-        // Правка правил сбрасывает разрешённые адреса: они принадлежат старому
-        // списку доменов и не должны попасть в новые маршруты.
+    fun save(mode: String, packages: List<String>, networks: List<String>, domains: List<String> = emptyList()): Policy = synchronized(gate) {
         val policy = validate(mode, packages, networks, domains, emptyList())
+            .copy(revision = java.util.UUID.randomUUID().toString())
         requireInstalled(policy)
         write(policy)
-        return policy
+        gate.invalidate()
+        policy
     }
 
-    /** Адреса, полученные разрешением доменов в приложении (замена целиком). */
-    fun saveResolved(addresses: List<String>): Policy {
-        val current = read()
-        // Политика принимает 128 сетей вместе с введёнными вручную IP:
-        // лишние адреса отбрасываем, иначе построение маршрутов упадёт.
-        val budget = (MAX_NETWORKS - current.networks.size).coerceAtLeast(0)
-        val resolved = if (current.mode.startsWith("ip")) {
-            try { IpRoutes.normalize(addresses.take(budget)) }
+    /** Snapshot and lease are one atomic observation. A legacy file gets a
+     * persistent unique revision before any new resolution can be published. */
+    fun beginResolution(lease: String, resolutionId: String?): Map<String, Any> = synchronized(gate) {
+        if (!Regex("^[a-zA-Z0-9-]{1,100}$").matches(lease)) throw RoutingException("Invalid routing lease")
+        var policy = readLocked()
+        if (policy.revision.isEmpty()) {
+            policy = policy.copy(revision = java.util.UUID.randomUUID().toString())
+            write(policy)
+        }
+        val resolution = gate.begin(policy.revision, lease, resolutionId)
+        policy.map() + mapOf("lease" to lease, "resolutionId" to resolution.id, "reuseAllowed" to resolution.reuseAllowed)
+    }
+
+    fun cancelResolution(revision: String, lease: String) = synchronized(gate) {
+        gate.cancel(revision, lease) // Obsolete cleanup cannot revoke a new owner.
+    }
+
+    /** No legacy unversioned write is accepted, even a clear: a stale empty
+     * write can erase a newer domain policy just as a stale nonempty one can. */
+    fun saveResolved(addresses: List<String>, revision: String, lease: String, validForMillis: Long, resolutionId: String): Policy = synchronized(gate) {
+        val current = readLocked()
+        if (revision.isEmpty() || lease.isEmpty() || current.revision != revision)
+            throw RoutingException("Routing policy changed; resolve again")
+        if (validForMillis !in 1..600_000) throw RoutingException("Invalid routing DNS lifetime")
+        if (addresses.size > 96) throw RoutingException("Too many resolved addresses")
+        val resolved = try { IpRoutes.normalize(addresses) }
             catch (_: Exception) { throw RoutingException("Некорректные адреса доменов") }
-        } else emptyList()
+        if (resolved.size + current.networks.size > MAX_NETWORKS ||
+            (current.domains.isNotEmpty() && resolved.isEmpty()) ||
+            (current.domains.isEmpty() && resolved.isNotEmpty()))
+            throw RoutingException("Routing domain policy is incomplete")
         val policy = current.copy(resolved = resolved)
-        write(policy)
-        return policy
+        try { gate.commit(revision, lease, validForMillis, resolutionId) { write(policy) } }
+        catch (e: IllegalStateException) { throw RoutingException(e.message ?: "Routing resolution superseded") }
+        policy
+    }
+
+    private fun requireResolved(policy: Policy) = synchronized(gate) {
+        if (policy.revision != readLocked().revision ||
+            (policy.domains.isNotEmpty() && !gate.ready(policy.revision)))
+            throw RoutingException("Откройте приложение и разрешите домены заново")
     }
 
     fun apply(config: Config, policy: Policy = read()): Config {
+        requireResolved(policy)
         requireInstalled(policy)
         // Imported per-app fields cannot silently override the visible UI policy.
         if (config.`interface`.includedApplications.isNotEmpty() || config.`interface`.excludedApplications.isNotEmpty())
@@ -179,7 +216,7 @@ class SplitRouting(private val context: Context) {
     }
 
     fun applyNative(builder: android.net.VpnService.Builder) {
-        val policy=read(); requireInstalled(policy)
+        val policy=read(); requireResolved(policy); requireInstalled(policy)
         for(name in policy.packages) {
             if(policy.mode=="include") builder.addAllowedApplication(name)
             if(policy.mode=="exclude") builder.addDisallowedApplication(name)
@@ -205,6 +242,7 @@ class SplitRouting(private val context: Context) {
     }
 
     private companion object {
+        val gates = mutableMapOf<String, RoutingResolutionGate>()
         val MODES = listOf("all", "include", "exclude", "ipInclude", "ipExclude")
         val APP_MODES = listOf("include", "exclude")
         val PACKAGE = Regex("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)*")

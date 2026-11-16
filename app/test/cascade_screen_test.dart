@@ -117,15 +117,15 @@ void main() {
     }
   });
 
-  testWidgets('locked cascade shows the paid-feature banner and lock overlay', (
+  testWidgets('cascade is open by default and shows no paid overlay', (
     tester,
   ) async {
     await tester.pumpWidget(_host(const CascadeScreen()));
     await tester.pump();
     expect(tester.takeException(), isNull);
-    expect(find.text(CascadeFeatureGate.bannerText), findsOneWidget);
-    expect(find.text('Платная функция'), findsOneWidget);
-    // The AppBar action is the only button that requests activation.
+    // Каскад бесплатный: замка и плашки «Платная функция» быть не должно.
+    expect(find.text('Платная функция'), findsNothing);
+    expect(find.text(CascadeFeatureGate.bannerText), findsNothing);
     expect(find.byTooltip(CascadeFeatureGate.bannerText), findsOneWidget);
   });
 
@@ -226,7 +226,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(
-      find.text('Защищённый туннель только IPv6 · проверено'),
+      find.text('Каскад активен'),
       findsOneWidget,
     );
     expect(find.text('842 мс'), findsOneWidget);
@@ -237,7 +237,7 @@ void main() {
     // No delayed fake stages: five seconds later the real answer is unchanged.
     await tester.pump(const Duration(seconds: 5));
     expect(
-      find.text('Защищённый туннель только IPv6 · проверено'),
+      find.text('Каскад активен'),
       findsOneWidget,
     );
     expect(find.text('842 мс'), findsOneWidget);
@@ -267,7 +267,7 @@ void main() {
       expect(find.text('Причина'), findsOneWidget);
       expect(find.text('1203 мс'), findsOneWidget);
       // The real egress address was never confirmed, so it is not invented.
-      expect(find.text('Выходной IPv6'), findsOneWidget);
+      expect(find.text('Выходной IP'), findsOneWidget);
       expect(find.text('—'), findsWidgets);
     },
   );
@@ -349,19 +349,17 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  test(
-    'feature gate stays closed until a real subscription is wired',
-    () async {
-      expect(CascadeFeatureGate.enabled, isFalse);
-      expect(await CascadeFeatureGate.instance.requestActivation(), isFalse);
-      expect(CascadeFeatureGate.bannerText, isNotEmpty);
-      expect(CascadeFeatureGate.notConnectedMessage, isNotEmpty);
-      const free = CascadeSubscription();
-      expect(free.entitled, isFalse);
-      final paid = free.copyWith(entitled: true, planLabel: 'XIO Cascade');
-      expect(paid.entitled, isTrue);
-      expect(paid.copyWith().planLabel, 'XIO Cascade');
-      expect(paid.copyWith(entitled: false).entitled, isFalse);
-    },
+  test('cascade is a free feature with no billing gate', () async {
+    expect(CascadeFeatureGate.enabled, isTrue);
+    expect(await CascadeFeatureGate.instance.requestActivation(), isTrue);
+    expect(CascadeFeatureGate.bannerText, isNotEmpty);
+    expect(CascadeFeatureGate.notConnectedMessage, isNotEmpty);
+    const free = CascadeSubscription();
+    expect(free.entitled, isTrue);
+    final custom = free.copyWith(entitled: true, planLabel: 'XIO Cascade');
+    expect(custom.entitled, isTrue);
+    expect(custom.copyWith().planLabel, 'XIO Cascade');
+    expect(custom.copyWith(entitled: false).entitled, isFalse);
+  },
   );
 }

@@ -1,4 +1,82 @@
 # XIO changes / Изменения
+
+## 0.24.3+5020 — 17.11.2026
+
+### Каскад телефон → VPS РФ → зарубежный VPS
+
+- Главная страница показывает каскад с флагами стран: устройство, bridge и exit,
+  фактический выходной IP и страну выхода.
+- Проверка каскада с телефона: если SSH-сервер не сохранён, приложение честно
+  проверяет фактический выходной адрес через `api.ipify.org` и сохраняет его.
+- Новые поля профиля `cascadeExitIp`, `cascadeBridgeCountry`, `cascadeExitCountry`
+  (Android `DurableDocument` допускает их в документе).
+- Восстановление режима подключения: кнопка «Повторить согласование» больше не
+  скрывается, пока сохранение считается незавершённым.
+- Мобильный профиль: MTU 1280 и DNS 9.9.9.9 для каскада; на bridge добавлен
+  MSS-clamp в сторону телефона.
+
+### Серверная часть
+
+- `deploy/cascade/native/` — идемпотентные скрипты и systemd-юниты:
+  SSH TUN между bridge и exit, SNAT клиентов на bridge, NAT44/NAT66 на exit,
+  IPv4 и IPv6, MSS-clamp, автозапуск и восстановление SSH-туннеля.
+- Проверено на живых серверах: bridge `81.177.142.37` (RU), exit
+  `103.102.135.124` (FR); выходной адрес телефона — `103.102.135.124`.
+
+## Не выпущено — Android: первый коннект и согласование плана / Unreleased — Android first connect and plan reconciliation
+
+RU: исправлена цепочка, из-за которой свежий Android-клиент не подключался к профилю веб-панели.
+Reconcile на Android отправлял `expectedGeneration = null`, хотя READY-журнал требует точную
+generation; теперь generation берётся из нативного READY-состояния. Нативный
+`DurableDocument` не принимал четыре поля каскада (`cascadeHealthOk`, `cascadeHealthPingMs`,
+`cascadeExitIpv6`, `cascadeCheckedAt`) — добавлены в optional-allowlist и в policy-фикстуры.
+Первый коннект после импорта больше не уходит в легаси-путь без плана: при доступной policy
+capability план согласуется до активации, даже если in-memory флаг версии ещё не выставлен.
+Приоритет Android по умолчанию переведён с Xray на AmneziaWG: полный профиль подключается
+с первого нажатия, RIVET/Xray остаются резервом. Проверено на POCO X6 5G (Android 16):
+чистый импорт профиля `Telefon KA`, туннель `10.78.0.2`, handshake на сервере, выходной IP
+`81.177.142.37`, смена Wi-Fi ↔ LTE без разрыва, полный `flutter test` — 1138 passed, 23 skipped.
+[Подробности](docs/ANDROID-VALIDATION-20261117.md).
+
+EN: fixed the chain that kept a fresh Android client from connecting to a web-panel profile.
+Android reconcile sent `expectedGeneration = null` while the READY journal requires the exact
+generation; it now comes from the native READY state. Native `DurableDocument` rejected four
+cascade fields (`cascadeHealthOk`, `cascadeHealthPingMs`, `cascadeExitIpv6`, `cascadeCheckedAt`);
+they are now in the optional allowlist and in the policy fixtures. The first connect after import
+no longer takes the planless legacy path: when the policy capability is available, the plan is
+reconciled before activation even if the in-memory versioned flag has not been set yet. Android's
+default priority moved from Xray to AmneziaWG: a full profile connects on the first tap, with
+RIVET/Xray kept as fallbacks. Verified on a POCO X6 5G (Android 16): clean import of the
+`Telefon KA` profile, `10.78.0.2` tunnel, server handshake, egress IP `81.177.142.37`, Wi-Fi ↔ LTE
+switching without a drop, full `flutter test` — 1138 passed, 23 skipped.
+[Details](docs/ANDROID-VALIDATION-20261117.md).
+
+## Не выпущено — каскад бесплатный, OpenVPN/Cloak удалён / Unreleased — free cascade, OpenVPN/Cloak removed
+
+RU: каскад больше не платный: `CascadeFeatureGate.enabled` всегда true, `CascadeSubscription`
+по умолчанию `entitled: true`, плашки «Платная функция» в 13 каталогах заменены, `cascadeUnlocked`
+включается по умолчанию, а экран каскада не требует активации. На главном экране появилась схема
+подключённого каскада: устройство → bridge → exit, итог последней реальной SSH-проверки, отклик
+и выходной IPv6; итог сохраняется в профиле (`cascadeHealthOk`, `cascadeHealthPingMs`,
+`cascadeExitIpv6`, `cascadeCheckedAt`), тап открывает полный экран. Из клиента удалён транспорт
+OpenVPN/Cloak: убран из каталога `protocols`, `nativeProtocols`, `universalProtocolIds`,
+`restrictedNetworkProtocols`, расширенного импорта (`extendedProtocols`), лицензий и UI-имён;
+профиль с контейнером `amnezia-openvpn-cloak` теперь отклоняется целиком, а не импортируется
+частично. Формат капсулы выдачи намеренно не менялся: старые капсулы остаются читаемыми, новые
+с этим транспортом не выпускаются.
+
+EN: the cascade is no longer paid: `CascadeFeatureGate.enabled` is always true,
+`CascadeSubscription` defaults to `entitled: true`, the paid-feature banners in 13 catalogues are
+replaced, `cascadeUnlocked` defaults to enabled and the cascade screen needs no activation. The home
+screen now shows the connected cascade scheme — device → bridge → exit, the result of the last real
+SSH check, latency and egress IPv6 — persisted in the profile (`cascadeHealthOk`,
+`cascadeHealthPingMs`, `cascadeExitIpv6`, `cascadeCheckedAt`); tapping opens the full screen.
+OpenVPN/Cloak is removed from the client: dropped from `protocols`, `nativeProtocols`,
+`universalProtocolIds`, `restrictedNetworkProtocols`, the extended importer (`extendedProtocols`),
+licences and UI names; a profile with an `amnezia-openvpn-cloak` container is now rejected as a
+whole instead of being partially imported. The issuance capsule format is deliberately unchanged:
+old capsules stay readable, new ones are never issued with this transport.
+
 ## Не выпущено — изменённые исходники AWG в git
 
 RU: чистый клон больше не требует «магии». `vendor/amneziawg-go` (fork `amnezia-vpn/amneziawg-go` v3.1.20260814 с XIO-патчем активации) и `vendor/amneziawg` (Android-мост с готовыми `jniLibs`) теперь обычные файлы в git — не сабмодули и не LFS. Сабмодуль отклонён: апстрим не содержит XIO-патча (`device/activation_endpoint.go`, `device/observation.go` и правки в `device/{device,peer,receive,noise-protocol}.go`), который обязателен для `protocol/rivet`, а `git archive` не включает содержимое сабмодулей и ломал бы архивы исходников. `.gitignore` правок не потребовал — этих путей там не было. `python3 tools/package-server.py --check` теперь упирается только в артефакты `vendor-server/*`, которые создаёт `tools/build-rivet.py`.

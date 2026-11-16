@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.24.2+5019
+version: 0.24.3+5020
 
 environment:
   sdk: ^3.13.5
@@ -38,6 +38,9 @@ dependencies:
   dartssh2: 4.1.0
   cryptography: ^2.9.0
   crypto: ^3.0.7
+  # Direct pin for the owner-issuance capsule codec; the same version is a
+  # transitive dependency of dartssh2, so this adds no new package to the lock.
+  pinenacl: 0.6.0
   ffi: 2.2.0
   archive: ^4.5.2
 

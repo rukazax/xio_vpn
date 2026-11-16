@@ -66,12 +66,31 @@ class AppBehaviorSettings extends StatelessWidget {
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           value: store.allowScreenshots,
-          onChanged: (v) =>
-              _saveGuard(context, () => store.setAllowScreenshots(v)),
+          onChanged: store.screenSecuritySupported && !store.screenSecurityBusy
+              ? (v) => _saveGuard(context, () => store.setAllowScreenshots(v))
+              : null,
           title: const LText('Разрешить скриншоты'),
-          subtitle: const LText(
-            'По умолчанию выключено: экраны с ключами, профилями и SSH-доступом защищены от снятия скриншота и записи экрана. Включение снимает защиту со всего приложения.',
-          ),
+          subtitle: !store.screenSecuritySupported
+              ? const LText(
+                  'На этой платформе приложение не блокирует снимки и запись экрана.',
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LText(
+                      !store.screenSecurityPreferenceKnown
+                          ? 'Сохранение разрешения не подтверждено. Повторите выбор.'
+                          : store.screenSecurityEnabled == null
+                          ? 'Состояние флага Android не подтверждено.'
+                          : store.screenSecurityEnabled!
+                          ? 'Android подтвердил включение FLAG_SECURE.'
+                          : 'Android подтвердил отключение FLAG_SECURE.',
+                    ),
+                    const LText(
+                      'Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.',
+                    ),
+                  ],
+                ),
         ),
       ],
     ),
@@ -120,6 +139,16 @@ class _DnsSettingsPageState extends State<DnsSettingsPage> {
         : '',
   );
   String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      validateDnsServers(widget.store.dnsServers);
+    } on FormatException catch (e) {
+      error = e.message.toString();
+    }
+  }
 
   @override
   void dispose() {
@@ -199,7 +228,7 @@ class _DnsSettingsPageState extends State<DnsSettingsPage> {
                 ),
                 title: const LText('Свои'),
                 subtitle: const LText(
-                  'До двух адресов: IPv4, IPv6 или домен. Без порта и схемы.',
+                  'До двух unicast-адресов IPv4 или IPv6, включая частные. Без домена, порта и схемы.',
                 ),
                 onTap: () => setState(() {
                   preset = customDnsPreset;
@@ -243,7 +272,7 @@ class _DnsSettingsPageState extends State<DnsSettingsPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
                   child: Text(
-                    error!,
+                    tr(context, error!),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),

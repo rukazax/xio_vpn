@@ -1,4 +1,4 @@
-/// Экран «Каскад» — платная двухсерверная схема XIO.
+/// Экран «Каскад» — бесплатная двухсерверная схема XIO.
 ///
 /// Устройство (IPv4) → bridge-сервер (IPv4) → exit-сервер (только IPv6).
 ///
@@ -28,9 +28,8 @@
 ///
 /// ## Что осталось (заглушки)
 ///
-/// 1. **Реальная подписка** — `CascadeFeatureGate`: `enabled` всегда false,
-///    `requestActivation()` всегда false. Нужны проверка чека/подписочного
-///    сервера, состояние `CascadeSubscription.entitled` и снятие замка.
+/// 1. **Доступ** — биллинга нет: `CascadeFeatureGate.enabled` всегда true,
+///    каскад бесплатный и включён по умолчанию.
 /// 2. **Выбор серверов** — станции bridge/exit захардкожены в
 ///    `CascadeRoute.idle()` / `cascadeRouteFromAddresses()`; нужен список
 ///    стран, выбор exit-сервера только с IPv6 и сохранение выбора в
@@ -76,6 +75,8 @@ class CascadeScreen extends StatefulWidget {
     this.unlocked = false,
     this.onUnlock,
     this.healthProbe,
+    this.egressProbe,
+    this.onHealth,
   });
 
   /// Имя маршрута для `Navigator.pushNamed`.
@@ -110,6 +111,14 @@ class CascadeScreen extends StatefulWidget {
   /// Реальная проверка каскада по SSH. `null` — в этой сборке проверка
   /// недоступна, и экран честно сообщит об этом вместо анимации.
   final CascadeHealthProbe? healthProbe;
+
+  /// Проверка фактического выхода с телефона (без SSH). Используется, когда
+  /// SSH-проверка недоступна: адрес выхода подтверждает сам каскад.
+  final Future<String?> Function()? egressProbe;
+
+  /// Результат последней проверки для главного экрана: схема и статус
+  /// подключённого каскада переживают закрытие этого экрана.
+  final void Function(CascadeHealth health)? onHealth;
 
   @override
   State<CascadeScreen> createState() => _CascadeScreenState();
@@ -227,13 +236,38 @@ class _CascadeScreenState extends State<CascadeScreen>
     }
     final probe = widget.healthProbe;
     if (probe == null) {
+      final egress = widget.egressProbe;
+      if (egress == null) {
+        setState(() {
+          _health = CascadeHealth.failure(
+            'Проверка недоступна: в этой сборке нет SSH-доступа к серверу',
+          );
+          _route = _routeFromHealth(_health!);
+        });
+        _syncAnimation();
+        return;
+      }
       setState(() {
-        _health = CascadeHealth.failure(
-          'Проверка недоступна: в этой сборке нет SSH-доступа к серверу',
+        _busy = true;
+        _route = _route.copyWith(
+          stage: CascadeStage.deviceToBridge,
+          clearPing: true,
+          updatedAt: DateTime.now(),
         );
-        _route = _routeFromHealth(_health!);
       });
       _syncAnimation();
+      try {
+        final address = await egress();
+        if (!mounted) return;
+        _finish(
+          address == null
+              ? CascadeHealth.failure('Не удалось получить выходной адрес')
+              : CascadeHealth.egress(address),
+        );
+      } catch (_) {
+        if (!mounted) return;
+        _finish(CascadeHealth.failure('Не удалось получить выходной адрес'));
+      }
       return;
     }
     setState(() {
@@ -271,6 +305,19 @@ class _CascadeScreenState extends State<CascadeScreen>
       if (identical(_deadline, deadline)) _deadline = null;
     }
     if (!mounted || !_busy || generation != _checkGeneration) return;
+    // SSH-проверка могла не найти управляемый сервер (телефонный профиль).
+    // Тогда честный признак каскада — фактический выходной адрес с телефона.
+    if (!health.isAlive && widget.egressProbe != null) {
+      try {
+        final address = await widget.egressProbe!();
+        if (address != null && mounted && _busy && generation == _checkGeneration) {
+          health = CascadeHealth.egress(address);
+        }
+      } catch (_) {
+        // Оставляем исходную причину SSH-проверки.
+      }
+    }
+    if (!mounted || !_busy || generation != _checkGeneration) return;
     _finish(health);
   }
 
@@ -284,6 +331,7 @@ class _CascadeScreenState extends State<CascadeScreen>
       _route = _routeFromHealth(health);
     });
     _syncAnimation();
+    widget.onHealth?.call(health);
   }
 
   /// Переносит вердикт healthcheck-а в схему и блок статуса.
@@ -752,7 +800,7 @@ class _CascadeScreenState extends State<CascadeScreen>
     final health = _health;
     final latency = _route.pingMs;
     final reason = health?.reason;
-    final egress = health?.egressIpv6;
+    final egress = health?.egressIp ?? health?.egressIpv6;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -776,7 +824,7 @@ class _CascadeScreenState extends State<CascadeScreen>
               child: _statusLine(
                 context,
                 Icons.public,
-                'Выходной IPv6',
+                'Выходной IP',
                 egress ?? '—',
                 valueColor: egress == null
                     ? null
@@ -924,9 +972,7 @@ class _CascadeScreenState extends State<CascadeScreen>
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  subscription.entitled
-                      ? 'Каскад доступен: устройство → bridge → exit (IPv6)'
-                      : 'Подписка откроет второй сервер и exit только по IPv6',
+                  'Каскад доступен: устройство → bridge → exit (IPv6)',
                   maxLines: 1,
                   softWrap: false,
                   style: theme.textTheme.bodySmall?.copyWith(

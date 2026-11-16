@@ -1,8 +1,19 @@
 """Fingerprint all owned Go inputs, including the small upstream compatibility forks."""
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath
 import hashlib
 
-def fingerprint(root: Path):
+
+def canonical_relative_key(relative: PurePath):
+    """Case-sensitive relative POSIX component tuple.
+
+    PurePosixPath normalizes separators without case-folding or joining the
+    components into one string. This preserves legacy POSIX Path ordering while
+    avoiding Windows Path case-folding.
+    """
+    return PurePosixPath(relative.as_posix()).parts
+
+
+def _collect(root: Path):
     module=root/'protocol/rivet'
     files=[*module.rglob('*.go'),module/'go.mod',module/'go.sum']
     for name in ['anet','cloak','tailscale','xray','tun2socks','amneziawg-go']:
@@ -19,10 +30,19 @@ def fingerprint(root: Path):
             if not mod.is_file() or not any(line.strip() == 'module github.com/amnezia-vpn/amneziawg-go/v3' for line in mod.read_text(encoding='utf-8').splitlines()):
                 raise RuntimeError('Missing or foreign AWG source module refused')
         files.extend(p for p in fork.rglob('*') if p.is_file() and not any(x in p.parts for x in ['.git','__pycache__']))
+    return files
+
+
+def _digest(root: Path, files):
     source=hashlib.sha256()
-    for path in sorted(files):
+    for path in sorted(files, key=lambda p: canonical_relative_key(p.relative_to(root))):
         source.update(path.relative_to(root).as_posix().encode()+b'\0'+path.read_bytes())
     return source.hexdigest()
+
+
+def fingerprint(root: Path):
+    root=Path(root)
+    return _digest(root, _collect(root))
 
 if __name__ == '__main__':
     import argparse

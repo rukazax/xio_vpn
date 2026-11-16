@@ -66,6 +66,20 @@ if [ -n "${XIO_EXPECTED_ARCHIVE_SHA256:-}" ]; then
 else
   tar -xzf - -C "$tmp"
 fi
+# Ship importable native support only. Lifecycle units belong to explicit opt-in;
+# copying these modules must not execute them or activate any native role.
+# >>> native-runtime >>>
+for module in cascade_native.py cascade_native_lifecycle.py cascade_native_rpc.py; do
+ [ -f "$tmp/$module" ] && [ ! -L "$tmp/$module" ] || { echo 'Incomplete or unsafe native runtime; installation refused' >&2; exit 1; }
+ [ ! -L "$lib/$module" ] && { [ ! -e "$lib/$module" ] || [ -f "$lib/$module" ]; } || { echo 'Unsafe native runtime destination; installation refused' >&2; exit 1; }
+done
+# Validate ALL three before replacing any runtime. Each same-filesystem move is
+# atomic, matching the existing managed-runtime install contract below.
+for module in cascade_native.py cascade_native_lifecycle.py cascade_native_rpc.py; do
+ chmod 600 "$tmp/$module"
+ mv -f "$tmp/$module" "$lib/$module"
+done
+# <<< native-runtime <<<
 chmod 700 "$tmp/amneziawg-go"
 mv "$tmp/admin.py" "$lib/admin.py"
 mv "$tmp/client_api.py" "$lib/client_api.py"

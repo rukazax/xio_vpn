@@ -8,7 +8,6 @@ void main() {
       'rivet-s1',
       'rivet-h3',
       'awg',
-      'cloak',
     });
     for (final value in [
       'tailscale',

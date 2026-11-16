@@ -46,7 +46,8 @@ object OpenVpnBackend {
  fun resolve(service:XioVpnService,host:String):String = PhysicalNetwork.resolve(service,host)
  fun connect(service:XioVpnService,id:String,raw:String,timeout:Long){
   var phase="validate"
-  validate(raw);require(timeout>0);val j=JSONObject(raw);val c=Client(service);client=c
+  val token=Engine.publicationToken();Engine.requireActivation(token)
+  validate(raw);require(timeout>0);val j=JSONObject(raw);val c=Client(service,token);client=c
   val cfg=ClientAPI_Config();cfg.content=j.getString("config");cfg.tunPersist=true;cfg.compressionMode="no";cfg.connTimeout=((timeout+999)/1000).toInt();cfg.guiVersion="XIO";cfg.googleDnsFallback=false
   try{
    phase="evaluate";val eval=c.eval_config(cfg);check(!eval.error){"OpenVPN profile rejected"}
@@ -61,10 +62,11 @@ object OpenVpnBackend {
    phase="connect"
    thread=Thread({try{val result=c.connect();if(result.error){android.util.Log.w("XIO/OpenVPN",result.status);c.failed=true}}catch(_:Exception){c.failed=true}finally{secure=false;c.ready.countDown()}},"XIO-OpenVPN").also{it.start()}
    check(c.ready.await(timeout,TimeUnit.MILLISECONDS)&&!c.failed&&established&&secure){"OpenVPN connection failed"}
-   service.getSharedPreferences("xio",0).edit().putString("activeId",id).putBoolean("vpnWanted",true).commit();XioVpnService.stateChanged(true)
+   Engine.requireActivation(token)
+   service.getSharedPreferences("xio",0).edit().putString("activeId",id).putBoolean("vpnWanted",true).commit();XioVpnService.stateChanged(true,token)
   }catch(e:Exception){android.util.Log.w("XIO/OpenVPN",phase+" "+e.javaClass.simpleName);stop();throw e}finally{cfg.delete()}
  }
- private class Client(val service:XioVpnService):ClientAPI_OpenVPNClient(){
+ private class Client(val service:XioVpnService,val token:Long):ClientAPI_OpenVPNClient(){
   val ready=CountDownLatch(1);@Volatile var failed=false
   var builder:VpnService.Builder?=null
   var dns=false;var ipv6=false
@@ -88,13 +90,16 @@ object OpenVpnBackend {
    if(!dns)builder!!.addDnsServer("9.9.9.9")
    if(!ipv6)builder!!.addAddress("fd00:7869:6f::2",128)
    SplitRouting(service).applyNative(builder!!)
-   val p=builder!!.establish()?:return -1;established=true;return p.detachFd()
+   if(!Engine.acceptsUpPublication(token))return -1
+   val p=builder!!.establish()?:return -1
+   if(!Engine.acceptsUpPublication(token)){p.close();return -1}
+   established=true;return p.detachFd()
   }
   override fun tun_builder_persist()=true
   override fun tun_builder_teardown(disconnect:Boolean){if(disconnect)established=false}
   override fun event(event:ClientAPI_Event){
    android.util.Log.i("XIO/OpenVPN",event.name)
-   if(event.name=="CONNECTED"){secure=true;handshake=System.currentTimeMillis();ready.countDown()}
+   if(event.name=="CONNECTED" && Engine.acceptsUpPublication(token)){secure=true;handshake=System.currentTimeMillis();ready.countDown()}
    if(event.name in listOf("RECONNECTING","DISCONNECTED"))secure=false
    if(event.fatal){failed=true;secure=false;ready.countDown()}
   }

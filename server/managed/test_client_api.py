@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('account_api', Path(__file__).with_name('client_api.py'))
 api = importlib.util.module_from_spec(spec)
@@ -31,6 +32,10 @@ class FakeAdmin:
         return json.loads((self.root / 'state').read_text())
     def save(self, value):
         (self.root / 'state').write_text(json.dumps(value))
+    def public(self, deployment):
+        return dict({'id': 'server', 'host': 'example.org', 'publicKeys': {}, 'awg': {},
+                     'rootPrivateKey': 'MUST_NOT_LEAK', 'users': deployment['users']},
+                    **getattr(self, 'transient', {}))
     def dispatch(self, req, actor):
         self.calls += 1
         d = self.load()
@@ -43,8 +48,7 @@ class FakeAdmin:
         d['users'][req['id']] = {'name': req['name'], 'createdBy': actor, 'slot': 4}
         self.save(d)
         return {'user': {'id': req['id'], 'slot': 4, 'private': 'MUST_NOT_LEAK'},
-                'server': {'id': 'server', 'host': 'example.org', 'publicKeys': {}, 'awg': {},
-                           'rootPrivateKey': 'MUST_NOT_LEAK', 'users': d['users']}, 'configs': {}}
+                'server': self.public(d), 'configs': {}}
     def request(self, request, token='a' * 64):
         with (self.root / 'lock').open('a') as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
@@ -123,6 +127,35 @@ class ClientApiTests(unittest.TestCase):
         self.assertEqual([r['id'] for r in result['children']], ['b' * 32])
         self.assertNotIn('clientApiTokenHash', json.dumps(result))
         self.admin.request(create('c' * 32))
+    def test_replay_refreshes_only_transient_readiness_never_keys_or_durable_operation(self):
+        self.admin.transient={'nativeProfileReadiness':{'schema':1,'enabled':True,'awg':{'ipv4':True,'ipv6':True}},
+                              'rivet':{'pin':'original-pin','ipv6':True}}
+        result=self.admin.request(create())
+        self.assertIn('nativeProfileReadiness',result['server'])
+        durable=copy.deepcopy(self.admin.load())
+        self.admin.transient={'nativeProfileReadiness':{'schema':1,'enabled':True,'awg':{'ipv4':False,'ipv6':False}},
+                              'rivet':{'pin':'must-not-replace','ipv6':False}}
+        replay=self.admin.request(create())
+        self.assertFalse(replay['server']['nativeProfileReadiness']['awg']['ipv4'])
+        self.assertFalse(replay['server']['rivet']['ipv6'])
+        self.assertEqual(replay['server']['rivet']['pin'],'original-pin')
+        self.assertEqual(replay['server']['publicKeys'],result['server']['publicKeys'])
+        self.assertEqual(replay['user'],result['user'])
+        self.assertEqual(self.admin.load(),durable)
+        self.assertNotIn('MUST_NOT_LEAK',json.dumps(replay))
+        self.admin.transient={}
+        disabled=self.admin.request(create())
+        self.assertNotIn('nativeProfileReadiness',disabled['server'])
+        self.assertEqual(self.admin.load(),durable)
+
+    def test_replay_readiness_error_never_replays_expired_positive(self):
+        self.admin.request(create())
+        durable=copy.deepcopy(self.admin.load())
+        with patch.object(self.admin,'public',side_effect=RuntimeError('connector unavailable')):
+            with self.assertRaisesRegex(RuntimeError,'connector unavailable'):self.admin.request(create())
+        self.assertEqual(self.admin.load(),durable)
+        self.assertEqual(self.admin.calls,1)
+
     def test_cached_creation_does_not_restore_revoked_child(self):
         self.admin.request(create())
         self.admin.request({'action': 'revoke', 'serverId': 'server', 'id': 'b' * 32})

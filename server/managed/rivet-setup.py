@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Owned RIVET installation; entry and gateway are separate unprivileged users."""
-import json,subprocess,shutil,sys,ipaddress,time,shlex,re
+import importlib.util,json,subprocess,shutil,sys,ipaddress,time,shlex,re
 from pathlib import Path
 ROOT=Path('/etc/xio-rivet'); LIB=Path('/usr/local/lib/xio-rivet'); RECEIPT=ROOT/'install-receipt.json'
 def valid_name(name):
@@ -67,8 +67,29 @@ def outbound_device():
   usable=[r for r in routes if re.fullmatch(r'[A-Za-z0-9_.-]{1,15}',r.get('dev','')) and r.get('type','unicast')=='unicast']
   if usable:return min(usable,key=lambda r:r.get('metric',0))['dev']
  raise RuntimeError('No IPv4 or IPv6 default route')
+def reconcile_native(reason):
+ # Source checkout and installed RIVET runtime have different sibling layouts.
+ path=Path(__file__).with_name('dualstack.py')
+ if not path.is_file():path=Path('/usr/local/lib/xio-managed/dualstack.py')
+ if not path.is_file():
+  if Path('/etc/xio-managed/cascade-native').exists():raise RuntimeError('Native cascade configured but managed hooks are missing')
+  return
+ spec=importlib.util.spec_from_file_location('xio_rivet_native_hooks',path)
+ network=importlib.util.module_from_spec(spec);spec.loader.exec_module(network)
+ if reason.endswith('-after') and network.desired_native_families() is not None:
+  # The gateway TUN may have been recreated. Provision its owned IPv6 gateway
+  # independently of the host main default, then reconcile after base rules.
+  network.apply()
+ else:network.reconcile_native(reason=reason)
+
 def main():
  action=sys.argv[1];binary=str(LIB/'rivet')
+ if action in ('install','network'):reconcile_native('rivet-'+action+'-before')
+ try:return _main(action,binary)
+ finally:
+  if action in ('install','network'):reconcile_native('rivet-'+action+'-after')
+
+def _main(action,binary):
  if action=='install':
   req=json.loads(sys.stdin.read(65537));assert len(json.dumps(req))<=65536
   if RECEIPT.exists():

@@ -2,7 +2,6 @@
   "schema": 1,
   "requiredProtocols": [
     "awg",
-    "cloak",
     "rivet-h3",
     "rivet-s1",
     "xray"
@@ -12,7 +11,6 @@
     "android": {
       "nativeDeclared": [
         "awg",
-        "cloak",
         "rivet-h3",
         "rivet-s1",
         "xray"
@@ -27,9 +25,7 @@
         "rivet-s1",
         "xray"
       ],
-      "missingNative": [
-        "cloak"
-      ],
+      "missingNative": [],
       "nativeAllProtocolsAccepted": false
     },
     "ubuntu": {
@@ -39,9 +35,7 @@
         "rivet-s1",
         "xray"
       ],
-      "missingNative": [
-        "cloak"
-      ],
+      "missingNative": [],
       "nativeAllProtocolsAccepted": false
     },
     "ios": {
@@ -51,7 +45,6 @@
       ],
       "missingNative": [
         "awg",
-        "cloak",
         "xray"
       ],
       "nativeAllProtocolsAccepted": false

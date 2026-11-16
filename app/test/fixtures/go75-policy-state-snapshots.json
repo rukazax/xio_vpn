@@ -1,0 +1,139 @@
+{
+  "cases": {
+    "blocked_after_commit": {
+      "capabilities": {
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": true,
+        "planSchema": 2,
+        "resourceClaimed": true,
+        "resourceState": "owned",
+        "state": "blocked",
+        "validation": 1,
+        "version": 1
+      },
+      "state": {
+        "casGeneration": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "clientOnly": false,
+        "error": "resource_owned",
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": true,
+        "pendingTransaction": null,
+        "planSchema": 2,
+        "resourceClaimed": true,
+        "resourceState": "owned",
+        "state": "blocked",
+        "storeIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "validation": 1,
+        "version": 1
+      }
+    },
+    "busy_capability": {
+      "capabilities": {
+        "busy": true,
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "planSchema": 2,
+        "resourceState": "unknown",
+        "state": "pending",
+        "validation": 1,
+        "version": 1
+      }
+    },
+    "fresh_blocked": {
+      "capabilities": {
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": false,
+        "planSchema": 2,
+        "resourceClaimed": false,
+        "resourceState": "unknown",
+        "state": "blocked",
+        "validation": 1,
+        "version": 1
+      },
+      "state": {
+        "clientOnly": null,
+        "error": "",
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": false,
+        "pendingTransaction": null,
+        "planSchema": 2,
+        "resourceClaimed": false,
+        "resourceState": "unknown",
+        "state": "blocked",
+        "storeIdentity": "",
+        "validation": 1,
+        "version": 1
+      }
+    },
+    "pending": {
+      "capabilities": {
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": true,
+        "planSchema": 2,
+        "resourceClaimed": true,
+        "resourceState": "clean",
+        "state": "pending",
+        "validation": 1,
+        "version": 1
+      },
+      "state": {
+        "casGeneration": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "clientOnly": false,
+        "error": "",
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": true,
+        "pendingTransaction": "11111111111111111111111111111111",
+        "planSchema": 2,
+        "resourceClaimed": true,
+        "resourceState": "clean",
+        "state": "pending",
+        "storeIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "validation": 1,
+        "version": 1
+      }
+    },
+    "ready": {
+      "capabilities": {
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": true,
+        "planSchema": 2,
+        "resourceClaimed": true,
+        "resourceState": "clean",
+        "state": "ready",
+        "validation": 1,
+        "version": 1
+      },
+      "state": {
+        "casGeneration": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "clientOnly": false,
+        "error": "",
+        "instanceNonce": "cccccccccccccccccccccccccccccccc",
+        "launchBound": true,
+        "pendingTransaction": null,
+        "planSchema": 2,
+        "receipt": {
+          "controllerNonce": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "instanceNonce": "cccccccccccccccccccccccccccccccc",
+          "planGeneration": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "storeIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "transactionId": "dddddddddddddddddddddddddddddddd",
+          "version": 1
+        },
+        "resourceClaimed": true,
+        "resourceState": "clean",
+        "state": "ready",
+        "storeIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "validation": 1,
+        "version": 1
+      }
+    }
+  },
+  "identities": {
+    "controllerNonce": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "instanceNonce": "cccccccccccccccccccccccccccccccc",
+    "planGeneration": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "storeIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "transactionId": "dddddddddddddddddddddddddddddddd"
+  },
+  "note": "Actual values returned by the exact 75ca97b Go methods; each capabilities/state map is the `value` member of the existing {ok:true,value:...} envelope. Synthetic nonces only, no secrets.",
+  "schema": 1
+}

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/sys/windows"
-	firewall "xio.local/rivet/internal/xiofirewall"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 	"math/bits"
 	"net"
@@ -19,6 +18,7 @@ import (
 	"sync"
 	"time"
 	"unsafe"
+	firewall "xio.local/rivet/internal/xiofirewall"
 )
 
 const firewallRule = "XIO-019-IPv6-block" // Keep the owned-receipt namespace across upgrades.
@@ -166,6 +166,8 @@ func betterEndpointRoute(a, b routeChoice) bool {
 }
 
 type networkState struct {
+	setup                *setupLease
+	lookup               physicalLookup
 	lock                 windows.Handle
 	physical4, physical6 physicalRoute
 	table4, table6       []routeChoice
@@ -179,11 +181,72 @@ type networkState struct {
 	ops                  *windowsNetworkOps
 }
 
-func (n *networkState) api() *windowsNetworkOps {
+func (n *networkState) rawAPI() *windowsNetworkOps {
 	if n.ops != nil {
 		return n.ops
 	}
 	return &nativeWindowsNetworkOps
+}
+
+// Each native call is a separately admitted in-flight operation. Native IP/WFP
+// APIs have no context cancellation; never release their owner while they run.
+func (n *networkState) api() *windowsNetworkOps {
+	a := n.rawAPI()
+	if n.setup == nil {
+		return a
+	}
+	b := *a
+	b.interfaceByName = func(name string) (v *net.Interface, e error) {
+		e = n.setup.effect(func() error { v, e = a.interfaceByName(name); return e })
+		return
+	}
+	b.luidFromIndex = func(i uint32) (v winipcfg.LUID, e error) {
+		e = n.setup.effect(func() error { v, e = a.luidFromIndex(i); return e })
+		return
+	}
+	b.addresses = func(l winipcfg.LUID, f winipcfg.AddressFamily, p []netip.Prefix) error {
+		return n.setup.effect(func() error { return a.addresses(l, f, p) })
+	}
+	b.settings = func(l winipcfg.LUID, f winipcfg.AddressFamily, m int) error {
+		return n.setup.effect(func() error { return a.settings(l, f, m) })
+	}
+	b.dns = func(l winipcfg.LUID, f winipcfg.AddressFamily, p []netip.Addr) error {
+		return n.setup.effect(func() error { return a.dns(l, f, p) })
+	}
+	b.route = func(l winipcfg.LUID, p netip.Prefix, d netip.Addr) (v *winipcfg.MibIPforwardRow2, e error) {
+		e = n.setup.effect(func() error { v, e = a.route(l, p, d); return e })
+		return
+	}
+	b.addRoute = func(l winipcfg.LUID, p netip.Prefix, d netip.Addr, m uint32) error {
+		return n.setup.effect(func() error { return a.addRoute(l, p, d, m) })
+	}
+	b.enableFirewall = func(l uint64, r bool, p []netip.Addr) error {
+		return n.setup.effect(func() error { return a.enableFirewall(l, r, p) })
+	}
+	b.table = func(f winipcfg.AddressFamily) (v []winipcfg.MibIPforwardRow2, e error) {
+		e = n.setup.effect(func() error { v, e = a.table(f); return e })
+		return
+	}
+	b.ifTable = func() (v []winipcfg.MibIfRow2, e error) {
+		e = n.setup.effect(func() error { v, e = a.ifTable(); return e })
+		return
+	}
+	b.ifMetric = func(l winipcfg.LUID, f winipcfg.AddressFamily) (v uint32, e error) {
+		e = n.setup.effect(func() error { v, e = a.ifMetric(l, f); return e })
+		return
+	}
+	b.family = func(h windows.Handle) (v int, e error) {
+		e = n.setup.effect(func() error { v, e = a.family(h); return e })
+		return
+	}
+	b.getsockname = func(h windows.Handle) (v windows.Sockaddr, e error) {
+		e = n.setup.effect(func() error { v, e = a.getsockname(h); return e })
+		return
+	}
+	b.setsockopt = func(h windows.Handle, l, o, v int) error {
+		return n.setup.effect(func() error { return a.setsockopt(h, l, o, v) })
+	}
+	return &b
 }
 func (n *networkState) physicalFor(a netip.Addr) physicalRoute {
 	if a.Is6() {
@@ -194,7 +257,14 @@ func (n *networkState) physicalFor(a netip.Addr) physicalRoute {
 
 func isAdmin() bool          { return windows.GetCurrentProcessToken().IsElevated() }
 func platformFwmark() string { return "" }
-func prepareNetwork() (*networkState, error) {
+func prepareNetwork(leases ...*setupLease) (*networkState, error) {
+	var setup *setupLease
+	if len(leases) > 0 {
+		setup = leases[0]
+	}
+	if err := setup.check(); err != nil {
+		return nil, err
+	}
 	base := filepath.Join(os.Getenv("ProgramData"), "XIO")
 	if e := os.MkdirAll(base, 0700); e != nil {
 		return nil, e
@@ -215,7 +285,7 @@ func prepareNetwork() (*networkState, error) {
 	if e != nil {
 		return nil, errors.New("another XIO tunnel is active")
 	}
-	n := &networkState{lock: h, cache: map[string]string{}, journal: filepath.Join(base, "firewall.receipt")}
+	n := &networkState{setup: setup, lock: h, cache: map[string]string{}, journal: filepath.Join(base, "firewall.receipt")}
 	if e := cleanupLegacyFirewall(n.journal, removeOwnedFirewall); e != nil {
 		windows.CloseHandle(h)
 		return nil, e
@@ -226,7 +296,7 @@ func prepareNetwork() (*networkState, error) {
 			n.close()
 		}
 	}()
-	if _, e := net.InterfaceByName(deviceName); e == nil {
+	if _, e := n.api().interfaceByName(deviceName); e == nil {
 		return nil, errors.New("the XIO interface already exists")
 	}
 	ifaces, e := n.api().ifTable()
@@ -239,7 +309,7 @@ func prepareNetwork() (*networkState, error) {
 	}
 	var fallback4, fallback6 []winipcfg.MibIPforwardRow2
 	for _, family := range []winipcfg.AddressFamily{windows.AF_INET, windows.AF_INET6} {
-		rows, e := winipcfg.GetIPForwardTable2(family)
+		rows, e := n.api().table(family)
 		if e != nil {
 			continue
 		}
@@ -283,7 +353,10 @@ func prepareNetwork() (*networkState, error) {
 		if physical.luid == 0 {
 			continue
 		}
-		servers, _ := physical.luid.DNS()
+		var servers []netip.Addr
+		if err := setup.effect(func() error { servers, _ = physical.luid.DNS(); return nil }); err != nil {
+			return nil, err
+		}
 		for _, a := range servers {
 			a = a.Unmap()
 			if a.IsLoopback() || a.IsUnspecified() || n.physicalFor(a).luid == 0 {
@@ -528,6 +601,19 @@ func (n *networkState) DescribeRoute(address string) string {
 	return fmt.Sprintf("%s ifIndex=%d luid=%d nextHop=%s", family, route.index, route.luid, route.gateway)
 }
 func (n *networkState) Resolve(host string) string {
+	return n.ResolveContext(context.Background(), host)
+}
+func (n *networkState) ResolveContext(parent context.Context, host string) string {
+	ctx, done, err := n.setup.admit(4 * time.Second)
+	if err != nil {
+		return ""
+	}
+	defer done()
+	if parent.Err() != nil {
+		return ""
+	}
+	stop := context.AfterFunc(parent, done)
+	defer stop()
 	if a, e := netip.ParseAddr(host); e == nil {
 		a = a.Unmap()
 		if _, ok := n.routeFor(a); !ok {
@@ -547,11 +633,15 @@ func (n *networkState) Resolve(host string) string {
 	if blocked {
 		return ""
 	}
-	v = reachableAddresses(resolvePhysical(host, n.resolvers, n.ProtectAddr), len(n.table4) > 0, len(n.table6) > 0)
+	lookup := n.lookup
+	if lookup == nil {
+		lookup = protectedLookup(n.ProtectAddr)
+	}
+	v = reachableAddresses(resolvePhysicalContext(ctx, host, n.resolvers, setupLookup(n.setup, lookup)), len(n.table4) > 0, len(n.table6) > 0)
 	if v != "" {
-		n.mu.Lock()
-		n.cache[host] = v
-		n.mu.Unlock()
+		if err := n.setup.publish(func() { n.mu.Lock(); n.cache[host] = v; n.mu.Unlock() }); err != nil {
+			return ""
+		}
 	}
 	return v
 }
@@ -604,6 +694,16 @@ func (n *networkState) add(luid winipcfg.LUID, dest netip.Prefix, next netip.Add
 	return nil
 }
 
+// validLegacyFirewallReceipt is the single owned-receipt format shared by the
+// setup cleanup path and the read-only startup evidence adapter.
+func validLegacyFirewallReceipt(name string) bool {
+	if len(name) != len(firewallRule)+17 || !strings.HasPrefix(name, firewallRule+"-") {
+		return false
+	}
+	_, err := hex.DecodeString(name[len(firewallRule)+1:])
+	return err == nil
+}
+
 // Accept only the old random owned-rule namespace. A failed removal keeps the
 // receipt for retry; verified absence is success. Dynamic WFP needs no receipt.
 func cleanupLegacyFirewall(path string, remove func(string) error) error {
@@ -615,10 +715,7 @@ func cleanupLegacyFirewall(path string, remove func(string) error) error {
 		return err
 	}
 	name := string(b)
-	if len(name) != len(firewallRule)+17 || !strings.HasPrefix(name, firewallRule+"-") {
-		return errors.New("invalid owned firewall receipt")
-	}
-	if _, err = hex.DecodeString(name[len(firewallRule)+1:]); err != nil {
+	if !validLegacyFirewallReceipt(name) {
 		return errors.New("invalid owned firewall receipt")
 	}
 	if err = remove(name); err != nil {
@@ -691,11 +788,11 @@ func (n *networkState) configure(p Profile) error {
 }
 func (n *networkState) close() {
 	for i := len(n.routes) - 1; i >= 0; i-- {
-		_ = n.api().deleteRoute(n.routes[i])
+		_ = n.rawAPI().deleteRoute(n.routes[i])
 	}
 	n.routes = nil
 	if n.firewall {
-		n.api().disableFirewall()
+		n.rawAPI().disableFirewall()
 		n.mu.Lock()
 		n.firewall = false
 		n.mu.Unlock()
@@ -705,4 +802,3 @@ func (n *networkState) close() {
 		n.lock = 0
 	}
 }
-

@@ -1,0 +1,2 @@
+# Payload SHA256s are byte-exact and must remain portable across Windows/Linux.
+* text eol=lf

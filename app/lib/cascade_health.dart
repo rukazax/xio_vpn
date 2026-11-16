@@ -77,6 +77,7 @@ class CascadeHealth {
     this.runtime = '',
     this.exitHost,
     this.egressIpv6,
+    this.egressIp,
     this.error,
     this.checks = const <CascadeHealthCheck>[],
   });
@@ -87,6 +88,14 @@ class CascadeHealth {
     checkedAt: now ?? DateTime.now(),
     error: 'Каскад не настроен: укажите bridge и exit',
   );
+
+  /// Положительный вердикт по фактическому выходному адресу с телефона.
+  factory CascadeHealth.egress(String address, {DateTime? now}) =>
+      CascadeHealth(
+        verdict: CascadeHealthVerdict.ok,
+        checkedAt: now ?? DateTime.now(),
+        egressIp: address,
+      );
 
   /// Проверка не состоялась (нет сервера, SSH, таймаут, мусор вместо JSON).
   factory CascadeHealth.failure(
@@ -101,6 +110,11 @@ class CascadeHealth {
   );
 
   final CascadeHealthVerdict verdict;
+
+  /// Каскад признан живым: туннель есть, выходной IPv6 получен.
+  bool get isAlive =>
+      verdict == CascadeHealthVerdict.ok ||
+      verdict == CascadeHealthVerdict.degraded;
 
   /// Когда проверка завершилась (локальное время).
   final DateTime checkedAt;
@@ -119,6 +133,9 @@ class CascadeHealth {
 
   /// Реальный выходной IPv6 (тот, что видит внешний сервис), если известен.
   final String? egressIpv6;
+
+  /// Реальный выходной IPv4/IPv6, полученный с телефона через каскад.
+  final String? egressIp;
 
   /// Причина отказа/замечания — текст для пользователя.
   final String? error;
@@ -152,6 +169,7 @@ class CascadeHealth {
       runtime: runtime,
       exitHost: exitHost,
       egressIpv6: egressIpv6,
+      egressIp: egressIp,
       error: message,
       checks: [
         ...checks,
@@ -241,7 +259,7 @@ class CascadeHealth {
   String caption() {
     switch (verdict) {
       case CascadeHealthVerdict.ok:
-        return 'Защищённый туннель только IPv6 · проверено';
+        return 'Каскад активен';
       case CascadeHealthVerdict.degraded:
         return 'Каскад жив с замечаниями · ${_short(reason)}';
       case CascadeHealthVerdict.unconfigured:

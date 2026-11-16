@@ -6,7 +6,7 @@ r=Path(__file__).resolve().parents[1];p=argparse.ArgumentParser();p.add_argument
 android=(r/'app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt').read_text()
 desktop=(r/'protocol/rivet/internal/desktop/runtime.go').read_text()
 ios=(r/'app/ios/Runner/XIOEngine.swift').read_text()
-required={'awg','rivet-h3','rivet-s1','xray','cloak'}
+required={'awg','rivet-h3','rivet-s1','xray'}
 def quoted(s):return set(re.findall(r'"([a-z0-9-]+)"',s))
 sets={'android':quoted(re.search(r'"supportedProtocols".*?listOf\((.*?)\)',android).group(1)),'windows':quoted(re.search(r'var Protocols = \[\]string\{(.*?)\}',desktop).group(1)),'ubuntu':quoted(re.search(r'var Protocols = \[\]string\{(.*?)\}',desktop).group(1)),'ios':quoted(re.search(r'case "supportedProtocols": result\(\[(.*?)\]\)',ios).group(1))}
 # Keep the Dart capability registry tied to actual native declarations.

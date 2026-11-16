@@ -131,21 +131,26 @@ void main() {
     });
   });
 
-  group('Подписка (заглушка)', () {
-    test('по умолчанию подписки нет', () {
+  group('Каскад бесплатный', () {
+    test('по умолчанию доступен', () {
       const subscription = CascadeSubscription();
-      expect(subscription.entitled, isFalse);
-      expect(subscription.planLabel, 'Подписка не подключена');
+      expect(subscription.entitled, isTrue);
+      expect(subscription.planLabel, 'Бесплатно · без подписки');
     });
 
-    test('CascadeFeatureGate выключен', () {
-      expect(CascadeFeatureGate.enabled, isFalse);
+    test('CascadeFeatureGate включён', () {
+      expect(CascadeFeatureGate.enabled, isTrue);
       expect(CascadeFeatureGate.instance, isA<CascadeFeatureGate>());
     });
 
-    test('requestActivation() возвращает false', () async {
+    test('requestActivation() возвращает true', () async {
       const gate = CascadeFeatureGate();
-      expect(await gate.requestActivation(), isFalse);
+      expect(await gate.requestActivation(), isTrue);
+    });
+
+    test('в текстах нет упоминания оплаты', () {
+      expect(CascadeFeatureGate.bannerText.toLowerCase(), isNot(contains('требуется подписка')));
+      expect(CascadeFeatureGate.notConnectedMessage.toLowerCase(), isNot(contains('подписка ещё')));
     });
   });
 }

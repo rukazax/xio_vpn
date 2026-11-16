@@ -69,14 +69,14 @@ func AttachPacketFlow(sink PacketSink) error {
 		return net.ErrClosed
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	if s.closed || s.session == nil || s.tun != nil {
+		s.mu.Unlock()
 		return net.ErrClosed
 	}
 	s.pipe = newPacketPipe(sink)
 	s.tun = s.pipe
-	go s.readTun()
-	go s.monitor()
+	s.mu.Unlock()
+	s.startIO()
 	return nil
 }
 func PacketInput(packet []byte) bool {

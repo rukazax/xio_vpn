@@ -1,6 +1,17 @@
 import java.util.Properties
 import java.util.Base64
 import org.gradle.api.tasks.compile.JavaCompile
+import java.util.zip.ZipFile
+import java.io.File
+import java.nio.file.FileVisitOption
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.EnumSet
+
 
 plugins {
     id("com.android.application")
@@ -12,6 +23,152 @@ val clientOnly = (project.findProperty("dart-defines") as String?).orEmpty().spl
     runCatching { String(Base64.getDecoder().decode(it)) == "XIO_CLIENT_ONLY=true" }.getOrDefault(false)
 }
 
+// Registered once per variant so the task container is not mutated from inside
+// another task's configureEach (Gradle forbids that). The strip runs on the
+// Flutter asset output after compileFlutterBuild<Variant> and before the merge
+// task that copies it into the APK, because merge/compress snapshot their input
+// file lists and deleting merged files afterwards breaks their work actions.
+//
+// Symlink safety: a lexical prefix check is not containment. The payload and
+// every ancestor under the build root must be real, non-symlink directories;
+// the payload must canonicalise under the canonical build root; a NOFOLLOW
+// prescan rejects every symlink (and non-regular file) before anything is
+// deleted; each deletion rechecks the file and its parent's real path. Any
+// linked root/ancestor/entry fails closed and leaves the tree untouched.
+fun Project.registerClientAssetStrip(variant: String, keep: Set<String>): TaskProvider<Task> =
+    tasks.register("stripClientOnly${variant}Assets") {
+        dependsOn("compileFlutterBuild${variant}")
+        outputs.upToDateWhen { false }
+        doLast {
+            val root = layout.buildDirectory.get().asFile.absoluteFile
+            val rootPath = root.toPath().normalize()
+            if (Files.isSymbolicLink(rootPath)) {
+                throw GradleException("XIO client-only: build root is a symlink, refusing: $rootPath")
+            }
+            val buildReal = try {
+                rootPath.toRealPath()
+            } catch (failure: java.io.IOException) {
+                throw GradleException("XIO client-only: build root cannot be resolved: $rootPath", failure)
+            }
+            val payload = rootPath.resolve("intermediates/flutter/${variant.lowercase()}/flutter_assets/assets").normalize()
+            if (!payload.startsWith(rootPath)) {
+                throw GradleException("XIO client-only: payload path escapes the build root: $payload")
+            }
+            var cursor = rootPath
+            for (component in rootPath.relativize(payload)) {
+                cursor = cursor.resolve(component)
+                if (Files.isSymbolicLink(cursor)) {
+                    throw GradleException("XIO client-only: linked path component in payload: $cursor")
+                }
+                if (!Files.isDirectory(cursor, LinkOption.NOFOLLOW_LINKS)) {
+                    throw GradleException("XIO client-only: Flutter asset payload path missing or not a real directory: $cursor")
+                }
+            }
+            val payloadReal = try {
+                payload.toRealPath()
+            } catch (failure: java.io.IOException) {
+                throw GradleException("XIO client-only: payload cannot be resolved: $payload", failure)
+            }
+            if (payloadReal != buildReal.resolve(rootPath.relativize(payload)).normalize()) {
+                throw GradleException("XIO client-only: payload canonical path is not the build path: $payloadReal")
+            }
+
+            val filesToDelete = ArrayList<Path>()
+            val directories = ArrayList<Path>()
+            try {
+                Files.walkFileTree(
+                    payload,
+                    EnumSet.noneOf(FileVisitOption::class.java),
+                    Int.MAX_VALUE,
+                    object : SimpleFileVisitor<Path>() {
+                        override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+                            if (attrs.isSymbolicLink || Files.isSymbolicLink(dir)) {
+                                throw GradleException("XIO client-only: linked directory in payload: $dir")
+                            }
+                            if (dir != payload) directories.add(dir)
+                            return FileVisitResult.CONTINUE
+                        }
+
+                        override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+                            if (attrs.isSymbolicLink || Files.isSymbolicLink(file)) {
+                                throw GradleException("XIO client-only: linked entry in payload: $file")
+                            }
+                            if (!attrs.isRegularFile) {
+                                throw GradleException("XIO client-only: non-regular entry in payload: $file")
+                            }
+                            val top = payload.relativize(file).toString()
+                                .replace(File.separatorChar, '/').substringBefore('/')
+                            if (top !in keep) filesToDelete.add(file)
+                            return FileVisitResult.CONTINUE
+                        }
+
+                        override fun visitFileFailed(file: Path, failure: java.io.IOException): FileVisitResult {
+                            throw GradleException("XIO client-only: cannot inspect payload entry: $file", failure)
+                        }
+                    },
+                )
+            } catch (failure: GradleException) {
+                throw failure
+            } catch (failure: java.io.IOException) {
+                throw GradleException("XIO client-only: payload prescan failed; nothing deleted", failure)
+            }
+
+            keep.forEach { top ->
+                val keepPath = payload.resolve(top)
+                if (Files.isSymbolicLink(keepPath) || !Files.isDirectory(keepPath, LinkOption.NOFOLLOW_LINKS)) {
+                    throw GradleException("XIO client-only: essential asset '$top' missing or linked in $payload; nothing deleted")
+                }
+            }
+
+            var removedBytes = 0L
+            var removedFiles = 0
+            filesToDelete.forEach { file ->
+                val parentReal = try {
+                    file.parent.toRealPath()
+                } catch (failure: java.io.IOException) {
+                    throw GradleException("XIO client-only: payload parent cannot be resolved: ${file.parent}", failure)
+                }
+                if (!parentReal.startsWith(payloadReal)) {
+                    throw GradleException("XIO client-only: refusing to delete outside the canonical payload: $file")
+                }
+                if (Files.isSymbolicLink(file) || !Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) {
+                    throw GradleException("XIO client-only: payload entry changed to a link/non-regular file: $file")
+                }
+                val size = try { Files.size(file) } catch (failure: java.io.IOException) { throw GradleException("XIO client-only: cannot size $file", failure) }
+                try {
+                    Files.delete(file)
+                } catch (failure: java.io.IOException) {
+                    throw GradleException("XIO client-only: cannot delete payload file: $file", failure)
+                }
+                removedBytes += size
+                removedFiles++
+            }
+            directories.sortedByDescending { it.nameCount }.forEach { directory ->
+                val top = payload.relativize(directory).toString()
+                    .replace(File.separatorChar, '/').substringBefore('/')
+                if (top in keep) return@forEach
+                if (Files.isSymbolicLink(directory)) {
+                    throw GradleException("XIO client-only: directory changed to a link: $directory")
+                }
+                val empty = try {
+                    Files.list(directory).use { entries -> !entries.findAny().isPresent }
+                } catch (failure: java.io.IOException) {
+                    throw GradleException("XIO client-only: cannot inspect directory: $directory", failure)
+                }
+                if (empty) {
+                    try {
+                        Files.delete(directory)
+                    } catch (failure: java.io.IOException) {
+                        throw GradleException("XIO client-only: cannot delete empty directory: $directory", failure)
+                    }
+                }
+            }
+            logger.lifecycle(
+                "XIO client-only: dropped $removedFiles server payload files " +
+                    "(${removedBytes / 1048576} MiB) from Flutter asset output for $variant"
+            )
+        }
+    }
 android {
     buildFeatures { buildConfig = true }
     namespace = "app.xio.xio"
@@ -119,39 +276,69 @@ tasks.withType<JavaCompile>().configureEach {
 // --dart-define=XIO_CLIENT_ONLY=true` equally lean, so the ballast cannot come
 // back through the manual path. The keep-list is the contract client/verify.py
 // enforces on the produced APK.
+//
+// Ordering: a merge-task doLast can run before AGP writes its merged output, and
+// deleting files inside compress/package actions breaks their already-snapshotted
+// inputs. For each compress task this block registers a matching strip task that
+// depends only on that variant's merge task; compression then depends on the
+// strip. The strip resolves payload roots from the actual intermediates tree
+// (never a case-sensitive variant name), deletes only inside the owned build
+// directory, and fails closed if a payload root or an essential keep-list top is
+// missing. A package doLast verifies the APK itself.
 if (clientOnly) {
     val keepAssetTops = setOf("help", "licenses", "l10n", "security", "fonts")
-    val mergedAssetsRoot = layout.buildDirectory
-    tasks.matching {
-        it.name.startsWith("merge") && it.name.endsWith("Assets") &&
-            !it.name.contains("UnitTest") && !it.name.contains("AndroidTest")
-    }.configureEach {
-        val assetsRoot = mergedAssetsRoot.dir("intermediates/assets")
+    val payloadPrefix = "assets/flutter_assets/assets/"
+
+    val stripDebugAssets = project.registerClientAssetStrip("Debug", keepAssetTops)
+    val stripReleaseAssets = project.registerClientAssetStrip("Release", keepAssetTops)
+    tasks.matching { it.name == "mergeDebugAssets" }.configureEach { dependsOn(stripDebugAssets) }
+    tasks.matching { it.name == "mergeReleaseAssets" }.configureEach { dependsOn(stripReleaseAssets) }
+    tasks.matching { it.name == "packageDebug" || it.name == "packageRelease" }.configureEach {
         doLast {
-            val variant = name.removePrefix("merge").removeSuffix("Assets")
-            val flutterAssets = assetsRoot.get().asFile.resolve(variant)
-            if (!flutterAssets.isDirectory) return@doLast
-            val payload = flutterAssets.walkTopDown().firstOrNull { it.isDirectory && it.name == "assets" }
-                ?: return@doLast
-            var removedBytes = 0L
-            var removedFiles = 0
-            payload.walkTopDown().toList()
-                .filter { it.isFile }
-                .forEach { file ->
-                    val top = file.relativeTo(payload).invariantSeparatorsPath.substringBefore('/')
-                    if (top !in keepAssetTops) {
-                        removedBytes += file.length()
-                        if (file.delete()) removedFiles++
+            // Verify only the APK(s) this package task produced for the current
+            // variant. Never scan outputs/flutter-apk: that directory can hold a
+            // stale Full copy from an earlier build (CA2). A missing primary
+            // artifact fails closed instead of validating an old fallback.
+            val variant = name.removePrefix("package").lowercase()
+            val apkRoot = layout.buildDirectory.get().asFile.absoluteFile
+            val primaryDir = apkRoot.resolve("outputs/apk/$variant")
+            val apks = LinkedHashSet<File>()
+            outputs.files.files
+                .filter { it.isFile && it.name.endsWith(".apk") }
+                .filter { it.toPath().toAbsolutePath().normalize().startsWith(primaryDir.toPath().toAbsolutePath().normalize()) }
+                .forEach { apks.add(it) }
+            if (primaryDir.isDirectory) {
+                primaryDir.walkTopDown()
+                    .filter { it.isFile && it.name.endsWith(".apk") }
+                    .forEach { apks.add(it) }
+            }
+            check(apks.isNotEmpty()) {
+                "XIO client-only: package '$name' produced no APK under $primaryDir; " +
+                    "refusing to validate a stale fallback artifact"
+            }
+            apks.forEach { apk ->
+                val entries = mutableListOf<String>()
+                ZipFile(apk).use { zip ->
+                    val iterator = zip.entries()
+                    while (iterator.hasMoreElements()) entries.add(iterator.nextElement().name)
+                }
+                val offenders = entries.filter { it.startsWith(payloadPrefix) }
+                    .map { it.removePrefix(payloadPrefix).substringBefore('/') }
+                    .filter { it !in keepAssetTops }
+                    .distinct()
+                check(offenders.isEmpty()) {
+                    "XIO client-only APK ${apk.name} still contains server payload tops: $offenders"
+                }
+                keepAssetTops.forEach { top ->
+                    check(entries.any { it.startsWith(payloadPrefix + top + "/") }) {
+                        "XIO client-only APK ${apk.name} is missing essential asset '$top'"
                     }
                 }
-            logger.lifecycle(
-                "XIO client-only: dropped $removedFiles server payload files " +
-                    "(${removedBytes / 1048576} MiB) from the $variant asset merge"
-            )
+                logger.lifecycle("XIO client-only: verified lean APK ${apk.name} (${entries.size} entries)")
+            }
         }
     }
 }
-
 // A release without MAIN/LAUNCHER installs successfully but has no app icon.
 // Validate the native declarations even when icons were not regenerated.
 val verifyLauncherAliases by tasks.registering {

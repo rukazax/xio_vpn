@@ -73,7 +73,7 @@ for sysctl_key in net.ipv4.ip_forward net.ipv6.conf.all.forwarding; do
 done
 
 # IPv6 внутри контейнера нужен exit-роли для транспорта туннеля.
-if [ "$ROLE" = "exit" ]; then
+if [ "$ROLE" = "exit" ] || [ "$ROLE" = "bridge" ]; then
     if ! ip -6 addr show scope global 2>/dev/null | grep -q 'inet6'; then
         log "warning: внутри контейнера нет глобального IPv6 — проверьте сеть docker/podman и IPv6 на хосте"
     fi
@@ -86,7 +86,7 @@ cleanup() {
     trap - TERM INT EXIT
     for iface in $UP_IFACES; do
         log "опускаю $iface"
-        wg-quick down "$iface" >/dev/null 2>&1 || true
+        wg-quick down "$DATA_DIR/$iface.conf" >/dev/null 2>&1 || true
     done
     exit $status
 }
@@ -104,7 +104,7 @@ bring_up() {
     if wg-quick up "$conf"; then
         UP_IFACES="$UP_IFACES $iface"
     else
-        log "не удалось поднять $iface (см. вывод выше)"
+        log "не удалось поднять $iface: requires kernel WireGuard support; wireguard-go/TUN-only fallback is NOT bundled. No host module/package changes are attempted."
         return 1
     fi
 }

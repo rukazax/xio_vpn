@@ -1,0 +1,46 @@
+00:00 +0: loading /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart
+00:00 +0: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: absent metadata preserves native legacy behavior
+00:00 +1: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: policy-only IPv6 readiness issues IPv6 despite no host default field
+00:00 +2: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: explicit IPv4-only overrides old IPv6 flag and resolver
+00:00 +3: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: explicit IPv6-only requires no IPv4 exit and retains RIVET identity
+00:00 +4: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: unselected transport and unsupported proxy configs are omitted
+00:00 +5: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: requested dual-family is never downgraded or recovered via legacy true
+00:00 +6: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: selected RIVET metadata cannot silently disappear
+00:00 +7: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: stale malformed missing and non-boolean metadata fail closed
+00:00 +8: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: readiness enforces 60-second age and TTL with five-second skew
+00:00 +9: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: oversized or old evidence fails issuance, not proxy/direct fallback
+00:00 +10: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: UTC and revision compatibility remain strict and compatible
+00:00 +11: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: owner issuance uses policy-only readiness and excludes proxy bypass
+00:00 +12: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: owner issuance failure compensates newly registered identity
+00:00 +13: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=false retains intent
+00:00 +14: /srv/archives/agent-native-finalize-20261105/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=true retains intent
+00:01 +15: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: targets use canonical literal exit and exact verified identities
+00:01 +16: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: no same installation or guessed exit target
+00:01 +17: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: endpoint family never guesses supported inner egress
+00:01 +18: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: explicit family and safe physical egress map required
+00:01 +19: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: intent snapshots cannot drift with caller collections
+00:01 +20: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: public plan stable roundtrip and set-order-independent identity
+00:01 +21: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: journal plan rejects unknown fields/modes/families/schema
+00:01 +22: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: configuration hashes match the real Python connector normalizer
+00:01 +23: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: RFC7748 keys restore and recover exact secret material
+00:01 +24: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: generated keys are distinct, canonical and recoverable
+00:01 +25: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: corrupt vault records reject without echoing private data
+00:01 +26: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: paired configs move keys both ways and use hop-snat for overlapping full nodes
+00:01 +27: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_plan_test.dart: ordinary plan/public config serialization never contains tunnel secrets
+00:02 +28: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: keys persist before open returns and restart reuses exactly the same intent
+00:02 +29: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: parallel instances cannot overwrite each others first key material
+00:02 +30: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: write is awaited and failed persistence never admits a returned intent
+00:02 +31: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: missing write readback fails and reordered maps remain valid
+00:02 +32: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: unknown remote outcomes preserve operation identity keys and pending action
+00:02 +33: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: stale caller cannot roll journal backwards or replace newer state
+00:03 +34: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: corrupt private record never regenerates or prints private contents
+00:03 +35: /srv/archives/agent-native-finalize-20261105/source/app/test/native_cascade_journal_test.dart: different target/configuration cannot be resumed under the old identity
+00:03 +36: /srv/archives/agent-native-finalize-20261105/source/app/test/delegation_test.dart: management key is standard Ed25519 and signs using the matching public key
+00:03 +37: /srv/archives/agent-native-finalize-20261105/source/app/test/delegation_test.dart: delegated bundle transports restricted key but never a root password
+00:07 +38: /srv/archives/agent-native-finalize-20261105/source/app/test/managed_models_test.dart: bundle round trip carries both protocol keys without SSH credentials
+00:07 +39: /srv/archives/agent-native-finalize-20261105/source/app/test/managed_models_test.dart: invalid imported bundle cannot erase remotely discovered user metadata
+00:07 +40: /srv/archives/agent-native-finalize-20261105/source/app/test/managed_models_test.dart: check site normalization rejects credentials and non HTTPS schemes
+00:07 +41: /srv/archives/agent-native-finalize-20261105/source/app/test/managed_models_test.dart: settings and management metadata survive restart without private configs
+00:07 +42: /srv/archives/agent-native-finalize-20261105/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:09 +43: /srv/archives/agent-native-finalize-20261105/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:10 +44: All tests passed!

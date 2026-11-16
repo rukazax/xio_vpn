@@ -12,6 +12,8 @@ const clientDisclosureRu = '''XIO Client использует Android VpnService
 
 Раздельное туннелирование позволяет направлять через VPN только выбранные приложения либо исключать их; отдельно доступны правила IP/CIDR. Исключённый трафик идёт напрямую. Доменные правила не поддерживаются. Системная блокировка трафика без VPN может запретить обход. При переключении серверов старый туннель сначала отключается: в этот промежуток защита VPN отсутствует, если не включена системная блокировка. Приложение не обещает обход любых блокировок или анонимность.
 
+Android запускает окно с FLAG_SECURE; глобальная настройка «Разрешить скриншоты» может отключить этот флаг. Настройки различают сохранённое разрешение и подтверждение нативного запроса флага окна. Это не гарантия защиты от root, обхода ОС или захвата экрана, а также внешней камеры. В Windows и Linux блокировка снимков и записи экрана не реализована.
+
 Перед первым подключением Android отдельно запросит разрешение VPN. Если вы не согласны, закройте приложение без подтверждения.''';
 
 const clientDisclosureEn = '''XIO Client privacy policy
@@ -23,7 +25,7 @@ VpnService encrypts selected traffic to the chosen endpoint. Its operator may ob
 
 An explicitly issued account API token can check quota, create and revoke only its own subclients through the selected server HTTPS API with a pinned certificate. The token and unfinished operation are stored encrypted locally. Child exports contain only that child’s VPN keys; parent capability and SSH/root/admin keys are excluded. Subclient records also remain on the server.
 
-This build has no VPS deployment or administration, SSH, VPN sharing, endpoint geolocation, background release checks, advertising or analytics SDK, or automatic crash reporting. A system document picker imports files without broad storage access. Launchable application names are read locally for routing selection and are not sent to the developer. Android FLAG_SECURE blocks application screenshots.
+This build has no VPS deployment or administration, SSH, VPN sharing, endpoint geolocation, background release checks, advertising or analytics SDK, or automatic crash reporting. A system document picker imports files without broad storage access. Launchable application names are read locally for routing selection and are not sent to the developer. Android starts with FLAG_SECURE requested; the global “Allow screenshots” preference can disable it. Settings distinguish the saved preference from acknowledgement of the native window-flag request. This is not proof against root, OS/capture bypass or an external camera. Windows and Linux do not implement screenshot or recording blocking.
 
 Data remains until profiles are removed, application data is cleared or the application is uninstalled. Local deletion does not remove a server or revoke its credentials. The server operator controls access and server-side processing. Support contact is voluntary; never send passwords or private keys. Android separately requests VPN permission; a new connection requires consent.
 ''';

@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "android": {
+    "full": ["arm64-v8a", "armeabi-v7a"],
+    "client": ["arm64-v8a", "armeabi-v7a", "universal"]
+  },
+  "optionalNotRequired": {"full": ["x86_64", "universal"], "client": ["x86_64"]},
+  "certificateSha256": "e4e81b12ec90709133f5d2be4c4071ab83c55a764aa54dbfc7dce5b2bffc9671",
+  "ubuntu": {"full": ["deb", "tar.gz"], "client": ["deb", "tar.gz"]},
+  "windows": {"full": ["zip"], "client": ["zip"]}
+}

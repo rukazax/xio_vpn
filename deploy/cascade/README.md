@@ -1,135 +1,157 @@
-# XIO Cascade — последовательная двухсерверная схема
+# XIO standalone cascade backend
 
-Состояние: **черновик deploy-скриптов, в бою не проверялся** (см. «Что не проверено»).
+## Scope and integration boundary
 
-## Схема
+This payload configures **standalone kernel WireGuard containers**, not the native
+XIO RIVET/AWG stack. Existing native profiles, devices and keys are **not** peers
+on container `wg1`. Do not install a second tunnel expecting a native profile to
+change routes. Native ingress attachment/reconciliation requires separate design
+and app/VPS acceptance; this payload does not implement it.
 
-```
- устройство            bridge (IPv4)                         exit (только IPv6)
- 10.202.0.x  ──UDP──▶   [ wg1 ] приём устройств
-                        [ wg0 ] ── защищённый туннель ──▶    [ wg0 ] ──▶ IPv6-интернет
- fd42:201::x            NAT44 для «прямого» трафика          NAT66 / NAT46
-                        split-tunneling: nft-сет xio_whitelist4
-```
+No admin.py/web/gateway server is bundled. Legacy `--web-port` is accepted as
+metadata only; no TCP web port is published. The legacy native helper scripts in
+this directory are included for provenance/completeness, but are NOT executed by
+the container installer and are not an automatic integration path.
 
-- **bridge** — единственная точка, куда подключается устройство. У него есть IPv4,
-  он держит постоянный туннель до exit (UDP поверх IPv6) и решает, что отправить
-  в туннель, а что выпустить напрямую.
-- **exit** — сервер без IPv4. Принимает только туннель и выпускает трафик в IPv6-мир.
-- Обе роли живут **в контейнере** (docker/podman): отдельная сеть, `--cap-add NET_ADMIN`,
-  `/dev/net/tun`, наружу открыты только нужные порты. Остальной софт сервера не затрагивается.
-- Состояние и конфиги — в `./data/` рядом со скриптами, монтируются в контейнер томом.
+## Address families and routing
 
-Почему не в host-network: изоляция nft-правил и маршрутов, чтобы cascade не ломал
-чужие iptables/nft на сервере. Цена — трафик устройств проходит через docker NAT.
+- `cascade-install.sh --role exit|both --exit-family ipv4|ipv6` selects the required
+  exit source/transport address family. Default `ipv6` preserves compatibility.
+- Bridge accepts only a strict bare literal `--exit-host`: IPv4 `host:port`, IPv6
+  `[host]:port`. URLs, zones, CIDRs, brackets, malformed addresses, loopback,
+  unspecified, multicast, link-local and mapped IPv6 are rejected before effects.
+- `--routing split` is the legacy bridge default. Only IPv4 destinations in
+  `xio_whitelist4` use exit; other IPv4 traffic uses direct bridge NAT44.
+- `--routing all` sends **all forwarded wg1 IPv4 traffic** through exit. It does
+  not change the host's default route or the tunnel's transport route. A forward
+  drop prevents direct fallback/leak from wg1. IPv6 clients always use exit in
+  both modes. IPv6 tunnel/client AllowedIPs and reverse routes are registered.
+- Exit uses real **NAT44** when an IPv4 egress route/source exists. IPv6 transport
+  to a dual-stack exit can also NAT44. Route detection is **not Internet proof**.
+  Native IPv6 egress uses NAT66; no NAT46, NAT64 or CLAT is invented.
+- **IPv6-only exit cannot provide IPv4 Internet.** Renderer warns, reports
+  `ipv4_egress: false`, and explicitly drops IPv4 arriving from wg0. Do not select
+  it for all-IPv4 operation. Exit/both `--routing all` fails before writes if no
+  IPv4 egress route exists. A separately installed bridge cannot infer remote
+  capability from its transport address; the operator/frontend must gate that
+  choice on exit capability and actual egress tests. All-IPv4 requires an exit
+  with proven IPv4 egress.
+- Container network is created with `--ipv6` and private ULA subnet
+  `fd42:ca5c:ade::/64`. Existing IPv4-only cascade networks fail, not silently
+  reused. Docker/Podman and host must provide working IPv6 routing/NAT and DNS.
+  ULA allocation alone is NOT evidence of public IPv6 connectivity.
 
-## Требования
+Tunnel addresses: `10.201.0.1/24`, `fd42:200::1/64` (exit), `.2`/`::2`
+(bridge). Device network: `10.202.0.0/24`, `fd42:201::/64`; gateway `.1`/`::1`.
+MTU is conservatively 1280. Client addresses are registered explicitly.
 
-- Debian/Ubuntu, root, ядро с WireGuard (5.6+) и модулем `tun`.
-- docker (или podman) с запущенным демоном; `curl`; `sha256sum` (coreutils).
-- exit: **глобальный IPv6** на хосте/в контейнере, входящий UDP `<port>` (по умолчанию 9443).
-- bridge: IPv4, входящий UDP `<client-port>` (51820) для устройств и TCP `<web-port>`
-  (8443) для web/admin entry; исходящий UDP до `[exit]:<port>`.
-- На exit должен быть разрешён исходящий IPv6 в мир (проверяется healthcheck-ом).
-- Порты на хосте: exit — `9443/udp`; bridge — `51820/udp` + `8443/tcp`.
-  Внутри контейнера entry слушает `*:8443`, gateway — `127.0.0.1:17443`.
+## Requirements / unsupported hosts
 
-## Установка
+Linux root; Python 3 stdlib; Bash; existing functional Docker/Podman; **kernel
+WireGuard**. No packages are installed on the host. Dockerfile installs container
+userspace dependencies when the operator builds it. Its Debian tag and apt
+packages are not a reproducible/pinned image supply chain; the payload hash pins
+scripts, not future OS package bytes. No image was published by this work.
+
+TUN-only VPS without kernel WireGuard is **unsupported**: wireguard-tools does not
+supply wireguard-go. The entrypoint fails clearly; no host module/package change
+or unpinned fallback binary download is attempted. Containers use isolated
+network namespaces and NET_ADMIN, never privileged or host networking.
+
+## Trusted complete-payload bootstrap
+
+`tools/cascade_payload.py` produces deterministic `app/assets/xio-cascade.tar.gz`
+and `app/assets/xio-cascade-release.json` from exact LF deploy bytes. The archive
+contains every deploy dependency plus an embedded per-file SHA256 manifest; the
+release JSON records archive SHA, size, per-file SHA, and source-tree digest.
+There is no self-referential commit hash. The frontend must pin an immutable
+bundle URL plus the resulting archive SHA; this repository does not publish it.
+
+The bootstrap **itself must be trusted/pinned** (for example bundled in the app).
+Do not fetch mutable-main shell code and call that authenticated bootstrapping.
 
 ```bash
-# 1) exit (IPv6-сервер)
-sudo ./cascade-install.sh --role exit --port 9443
-#    в выводе появятся "pubkey" и "fingerprint" — их надо передать на bridge
-
-# 2) bridge (IPv4-сервер)
-sudo ./cascade-install.sh --role bridge \
-    --exit-host 2a01:4f8:1:2::10 --exit-pubkey <b64> \
-    --exit-fingerprint sha256:<...>        # необязательно, но рекомендуется
-#    в выводе будет "pubkey" bridge — зарегистрируйте его на exit:
-sudo ./cascade-exit-setup.sh --add-peer <bridge-pubkey> \
-    --allowed-ips 10.201.0.2/32,10.202.0.0/24
-
-# либо одной командой (скачивает установщик, проверяет sha256, пишет лог):
-curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh \
-  | sudo bash -s -- --unattended --sha256 <hex> --role bridge --exit-host 2a01:4f8::10 --exit-pubkey <b64>
+# Run a separately trusted bootstrap, not curl | bash:
+sudo bash terminal-install.sh \
+  --bundle-url https://trusted.example/immutable/xio-cascade.tar.gz \
+  --sha256 <release-archive-sha256> --data-dir /var/lib/xio-cascade \
+  --unattended -- --role bridge --exit-host 203.0.113.7 \
+  --exit-pubkey <REAL-exit-public-key> --routing all
 ```
 
-Устройство подключается к bridge: `[bridge-ipv4]:51820/udp`, адрес из `10.202.0.0/24`
-(и `fd42:201::/64` для IPv6), тот же PresharedKey, если задан `--token-file`.
+HTTPS-only including redirects, explicit nonzero hash, bounded archive,
+private owned temp directory, strict regular-file member allowlist, all dependency
+hashes verified before **any payload execution**. No unpinned bypass. Arguments
+are arrays: paths with spaces are preserved. Cleanup only removes its own original
+temp inode, never a symlink/replacement. Caller-owned temporary files are untouched.
 
-Проверка: `sudo ./cascade-healthcheck.sh --role bridge|exit|both` → JSON `{"ok": true,...}`,
-код выхода 0/1.
+State defaults to **`/var/lib/xio-cascade`**, never the disposable payload folder.
+Bootstrap requires explicit `--data-dir`. Helpers are copied to its persistent
+`payload` subdirectory before bootstrap cleanup. Installer options use separated
+`--option value` syntax. Unsafe path newlines/colon/comma are rejected. Automatic
+host whitelist timers are deliberately not installed by this bounded interface;
+run the included whitelist updater manually for split mode, with explicit state
+and config paths. Legacy updater's own optional host timer mode is outside this
+installer/test scope.
 
-## Белые списки (split-tunneling) — только на bridge
+## Two-way peering (manual across two physical servers)
+
+1. On exit, install `--role exit --exit-family ipv4 --data-dir /var/lib/xio-cascade`.
+   Record its **public** key/fingerprint from state/output. Exit has no bridge peer
+   yet and is NOT ready for end-to-end traffic.
+2. On bridge, install `--role bridge --exit-host <exit-literal>` with the REAL exit
+   public key, optional `--exit-fingerprint sha256:<hex>`, and `--routing all`.
+   Record the bridge's public key. Never substitute the app/native profile key.
+3. On exit, register that bridge key and reload the container, preserving its port,
+   family, PSK and data path:
+   ```bash
+   sudo bash /var/lib/xio-cascade/payload/cascade-exit-setup.sh \
+     --data-dir /var/lib/xio-cascade/exit --exit-family ipv4 --port 9443 \
+     --add-peer <REAL-bridge-public-key>
+   sudo docker restart xio-cascade-exit
+   ```
+   Default reverse AllowedIPs include bridge tunnel IPv4/IPv6 **and both device
+   subnets**. Public keys with `/` are stored under hash filenames, never paths.
+4. Register a standalone device key on bridge, then reload bridge:
+   ```bash
+   sudo bash /var/lib/xio-cascade/payload/cascade-bridge-setup.sh \
+     --data-dir /var/lib/xio-cascade/bridge --exit-host <exit-literal> \
+     --exit-pubkey <REAL-exit-public-key> --routing all \
+     --add-client <REAL-device-public-key> --client-ip 10.202.0.10 \
+     --client-ip6 fd42:201::10
+   sudo docker restart xio-cascade-bridge
+   ```
+   Configure that separate WireGuard client with its private key, assigned IPv4/
+   IPv6, bridge public key, bridge IPv4 endpoint:51820, and desired AllowedIPs.
+   Existing native XIO profiles do NOT perform this step automatically.
+
+The same `--token-file` on both sides derives/stores the same PSK without logging
+its contents. Omitted token reuses persisted PSK. `--role both` registers generated
+keys in both configs for a laboratory single-host setup; it is NOT remote SSH
+orchestration and its public endpoint still needs a working reachability path.
+`--peer-pubkey` allows explicit bridge registration during exit installation.
+Subsequent installer runs need `--recreate` to replace existing containers.
+
+## Validation and limits of evidence
 
 ```bash
-sudo ./whitelist-update.sh --dry-run                 # скачать и посмотреть, не применять
-sudo ./whitelist-update.sh --config ./data/whitelists.conf
-sudo ./whitelist-update.sh --install-timer            # Sun 04:17, systemd timer или cron.d
-sudo ./whitelist-update.sh --rollback                 # вернуть предыдущий набор
+python3 tools/cascade_payload.py --check
+python3 tools/test_cascade_payload.py
+# Optional actual kernel proof, ONLY in fresh private mount+network namespaces:
+unshare --mount --net --fork python3 tools/cascade_netns_proof.py
+# Infrastructure diagnostic, never native-app acceptance:
+sudo bash /var/lib/xio-cascade/payload/cascade-healthcheck.sh \
+  --data-dir /var/lib/xio-cascade --role both
 ```
 
-- Источники — в `whitelists.conf` (URL построчно). Домены разворачиваются в IPv4 через `getent`.
-- Собирается nft-сет `inet xio_cascade xio_whitelist4`; правила в `nft-bridge.sh` помечают
-  пакеты к этим адресам и отправляют их в таблицу 200 → `default dev wg0` → exit.
-- Всё остальное идёт напрямую (NAT44 на bridge).
-- Замена **атомарная**: `flush set` + `add element` в одной транзакции `nft -f`;
-  промежуточного пустого сета не бывает. Предыдущая версия — `whitelist-previous.nft`.
-- Весь IPv6 от устройств уходит в туннель всегда (у bridge нет IPv6-аплинка).
+Config/bootstrap tests use isolated temporary files and mocked ip/wg/runtime/curl.
+They do not establish real egress. Kernel/netns proof, if run, uses isolated
+synthetic peers/addresses; it is not Internet/VPS/app proof. Healthcheck validates
+family-correct container transport/peering and exit HTTP egress independently; it
+does not equate a running container or a route with native client acceptance.
 
-## Откат
-
-1. **Таймер списков:** `whitelist-update.sh --remove-timer`.
-2. **Белые списки:** `whitelist-update.sh --rollback` (или удалить сет/правила:
-   `docker exec -it xio-cascade-bridge nft delete table inet xio_cascade`).
-3. **Контейнеры:** `docker rm -f xio-cascade-bridge xio-cascade-exit`
-   (данные в `./data/` остаются; повторная установка их переиспользует).
-4. **Полный откат:** удалить `./data/`, контейнеры и сеть
-   `docker network rm xio-cascade`; образ — `docker rmi xio-cascade:local`.
-5. Удаление peer-а на exit: `cascade-exit-setup.sh --remove-peer <pubkey>` + перезапуск контейнера.
-
-## Безопасность
-
-- Приватные ключи и PresharedKey лежат в `./data/` с правами 600 (каталог 700),
-  в логи и в JSON-сводки **не попадают** — только публичные ключи и отпечаток.
-- `--token-file`: произвольный секрет приводится к валидному 32-байтному PSK
-  (sha256 → base64) одинаково на обеих сторонах; поддерживается и готовый wg-ключ.
-- `--exit-fingerprint` пинит личность exit (`sha256` от IPv6+порт+pubkey):
-  несовпадение — установка bridge прерывается.
-- Контейнеры получают только `NET_ADMIN`, `/dev/net/tun` и нужные порты,
-  без `--privileged` и без host-network.
-- `terminal-install.sh` скачивает установщик по HTTPS, проверяет sha256 **до** запуска,
-  требует root и пишет лог в `/var/log/xio-cascade-install.log` (600).
-- В bash-скриптах нет `eval`, все переменные в кавычках, внешние команды проверяются
-  через `command -v`, временные каталоги убираются по `trap`.
-- Остаточные риски: root в контейнере = root на хосте при побеге из namespace;
-  компрометация bridge = доступ к туннелю; списки из интернета — недоверенные данные.
-
-## Что не проверено / не реализовано
-
-- **Скрипты не запускались ни на одном сервере**: нет живой пары IPv4+IPv6,
-  поэтому проверен только синтаксис bash и логика ветвлений.
-- **NAT46 на exit** (`ip saddr 10.202.0.0/24 snat ip6 to <exit-v6>`) зависит от ядра
-  и версии nftables; при неподдержке exit пишет предупреждение, IPv4-клиенты
-  остаются без выхода — нужен реальный тест.
-- **Aвтоматическая регистрация ключа bridge на exit** не сделана: шаг `--add-peer`
-  выполняется вручную (в `--role both` — автоматически).
-- **Домены в белых списках** разворачиваются в IPv4 на момент обновления; CDN меняет
-  адреса, поэтому между запусками таймера часть доменов может «протухнуть».
-  Кэш DNS и маршрутизация по именам (dnsmasq/ipset) не реализованы.
-- **xio-server (`admin.py`, entry 8443, gateway 17443) в образ не входит**: контейнер
-  даёт туннель и правила, а серверный пакет `xio-server-<version>.tar.gz` нужно
-  ставить отдельно; web-адрес в сводке — предполагаемое место entry, не проверено.
-- Не реализованы: ротация ключей, ограничение числа устройств, метрики/Prometheus,
-  IPv6-белые списки (сет `xio_whitelist6`), проверка MTU/фрагментации на реальном
-  мобильном канале, CI-тесты (shellcheck/`bash -n`) в репозитории.
-
-## Режим «вариант 2»: IPv6 — через exit, IPv4 — напрямую
-
-Скрипт xio-cascade-awg-firewall.sh ставит на bridge явные правила для AWG-клиентов:
-- IPv6: xioawg0 -> tun0 + NAT66 d78:1::/64 -> tun0;
-- IPv4: xioawg0 -> публичный интерфейс + NAT44 10.78.0.0/24;
-- защитный DROP для остальных выходов и автоподъём правил через xio-cascade-fw.service.
-
-Ограничение режима: сайты, доступные только по IPv4, идут через bridge (в РФ режутся), а не через exit — для них нужен exit с публичным IPv4 и NAT64/NAT44.
-
+No production server, host route/firewall/service, GitHub release, publication or
+main branch merge is performed by these tests. Real Docker build, dual-stack
+container egress, native ingress attachment, two real VPS peers, external exit IP,
+DNS, UDP/firewall behavior, restart/reconnect, MTU, Android/iOS/desktop full-tunnel
+and leak checks remain separate acceptance work.

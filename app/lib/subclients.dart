@@ -8,6 +8,7 @@ import 'package:cryptography/cryptography.dart';
 import 'account_access.dart';
 import 'core.dart';
 import 'server_address.dart';
+import 'native_profile_readiness.dart';
 
 class SubclientApi {
   final AccountAccess access;
@@ -131,6 +132,8 @@ class Subclients {
     if (store.busy || store.status.active) {
       throw StateError('Сначала отключите VPN');
     }
+    // Invalid legacy settings must not create/replace pending keys or send add.
+    final dns = validateDnsServers(store.dnsServers);
     final record = await _record();
     Map<String, dynamic> pending;
     if (record['pending'] != null) {
@@ -172,13 +175,24 @@ class Subclients {
     }
     final request = Map<String, dynamic>.from(pending['request']);
     final response = await _api(record).call(request);
-    final bundle = provisioningBundle(
-      response,
-      request,
-      Map<String, String>.from(pending['private']),
-      user.serverId,
-      dns: store.dnsServers,
-    );
+    late final UserBundle bundle;
+    try {
+      bundle = provisioningBundle(
+        response,
+        request,
+        Map<String, String>.from(pending['private']),
+        user.serverId,
+        dns: dns,
+      );
+    } catch (_) {
+      // A known create response that cannot produce the requested profile is
+      // compensated. If revoke/save has an unknown outcome, keep the durable
+      // operation and original keys for explicit reconciliation, never re-add.
+      await _api(record).call({'action': 'revoke', 'id': request['id']});
+      record.remove('pending');
+      await _save(record);
+      rethrow;
+    }
     final existing = store.users
         .where((u) => u.id == bundle.userId && u.serverId == bundle.serverId)
         .firstOrNull;
@@ -230,13 +244,30 @@ UserBundle provisioningBundle(
   final host = normalizeServerHost(rawHost);
   final slot = remoteUser['slot'] as int;
   final configs = <String, String>{};
+  final awgFamilies = NativeProfileReadiness.forProtocol(server, 'awg');
+  final rivetFamilies = NativeProfileReadiness.forProtocol(server, 'rivet');
+  if (rivetFamilies.explicit &&
+      rivetFamilies.selected &&
+      server['rivet'] is! Map) {
+    throw const FormatException('Selected native RIVET transport is missing');
+  }
   final extensions = (server['awg'] as Map).entries
       .map((e) => '${e.key} = ${e.value}')
       .join('\n');
-  configs['awg'] =
-      '[Interface]\nPrivateKey = ${private['awg']}\nAddress = 10.78.0.$slot/32, fd78:1::${slot.toRadixString(16)}/128\nDNS = ${managedDnsServers(server, dns)}\nMTU = 1280\n$extensions\n\n[Peer]\nPublicKey = ${server['publicKeys']['awg']}\nEndpoint = ${serverEndpoint(host, 51821)}\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n';
-  WireGuardProfile.parse(configs['awg']!, amnezia: true);
-  if (server['rivet'] is Map) {
+  if (awgFamilies.selected) {
+    final addresses = [
+      if (awgFamilies.captureIpv4) '10.78.0.$slot/32',
+      if (awgFamilies.captureIpv6) 'fd78:1::${slot.toRadixString(16)}/128',
+    ].join(', ');
+    final routes = [
+      if (awgFamilies.captureIpv4) '0.0.0.0/0',
+      if (awgFamilies.captureIpv6) '::/0',
+    ].join(', ');
+    configs['awg'] =
+        '[Interface]\nPrivateKey = ${private['awg']}\nAddress = $addresses\nDNS = ${managedDnsServers(server, dns)}\nMTU = 1280\n$extensions\n\n[Peer]\nPublicKey = ${server['publicKeys']['awg']}\nEndpoint = ${serverEndpoint(host, 51821)}\nAllowedIPs = $routes\nPersistentKeepalive = 25\n';
+    WireGuardProfile.parse(configs['awg']!, amnezia: true);
+  }
+  if (server['rivet'] is Map && rivetFamilies.selected) {
     final meta = Map<String, dynamic>.from(server['rivet']);
     for (final protocol in rivetProtocols) {
       final config = jsonEncode({
@@ -249,7 +280,7 @@ UserBundle provisioningBundle(
         'secret': request['rivet']['secret'],
         'entryToken': request['rivet']['entryToken'],
         'ip': '10.79.0.$slot',
-        if (meta['ipv6'] == true) 'ip6': 'fd79:1::${slot.toRadixString(16)}',
+        if (rivetFamilies.ipv6) 'ip6': 'fd79:1::${slot.toRadixString(16)}',
         if (meta['outerCA'] != null) 'outerCA': meta['outerCA'],
       });
       configs[protocol] = RivetProfile.parse(config).encoded;
@@ -258,7 +289,8 @@ UserBundle provisioningBundle(
   for (final e in Map<String, dynamic>.from(
     response['configs'] ?? {},
   ).entries) {
-    if (!{'xray', 'cloak'}.contains(e.key) || e.value is! String) {
+    if (server.containsKey('nativeProfileReadiness')) continue;
+    if (!{'xray'}.contains(e.key) || e.value is! String) {
       throw const FormatException('Неожиданный профиль');
     }
     final parsed = ExtendedProfile.parse(e.value);
@@ -266,6 +298,9 @@ UserBundle provisioningBundle(
       throw const FormatException('Протокол не совпадает');
     }
     configs[e.key] = parsed.encoded;
+  }
+  if (server.containsKey('nativeProfileReadiness') && configs.isEmpty) {
+    throw StateError('No selected native cascade transport is ready');
   }
   return UserBundle(request['name'], request['id'], serverId, configs);
 }

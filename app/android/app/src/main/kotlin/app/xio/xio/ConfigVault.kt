@@ -3,6 +3,8 @@ package app.xio.xio
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.system.Os
+import android.system.OsConstants
 import java.io.File
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -34,8 +36,23 @@ class ConfigVault(private val context: Context) {
         cipher.updateAAD(id.toByteArray())
         val file = secretFile(id)
         val temp = File(file.path + ".tmp")
-        temp.outputStream().use { out -> out.write(cipher.iv.size); out.write(cipher.iv); out.write(cipher.doFinal(raw.toByteArray())) }
+        temp.outputStream().use { out ->
+            out.write(cipher.iv.size); out.write(cipher.iv); out.write(cipher.doFinal(raw.toByteArray()))
+            // Return to Dart only after the encrypted intent reaches storage.
+            // A remote mutation must not precede its resumable key journal.
+            out.flush()
+            out.fd.sync()
+        }
         check(temp.renameTo(file))
+        // Persist newly created vault/no_backup directory links as well.
+        for (parent in listOf(file.parentFile!!, noBackupFilesDir,
+                noBackupFilesDir.parentFile!!).distinctBy { it.absolutePath }) {
+            val directory = Os.open(parent.absolutePath, OsConstants.O_RDONLY, 0)
+            try {
+                check(OsConstants.S_ISDIR(Os.fstat(directory).st_mode))
+                Os.fsync(directory)
+            } finally { Os.close(directory) }
+        }
     }
     fun readSecret(id: String): String {
         val bytes = secretFile(id).readBytes()

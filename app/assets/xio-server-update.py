@@ -5,6 +5,7 @@ The SSH peer and archive SHA256 are authenticated by the installed app. This
 script never downloads code, runs package managers, regenerates keys or changes
 ports. New schema migrations must explicitly extend and test this transaction.
 """
+import errno
 import fcntl
 import hashlib
 import io
@@ -140,9 +141,13 @@ def unpack(raw, destination, expected):
         for member in archive:
             name = member.name
             path = Path(name)
+            # Match the complete installer producer: these exact auxiliary roots
+            # are staged/transactional LIB copies only, never installed or executed
+            # as host services, sysctl settings, or cascade roles by this updater.
             if (not member.isfile() or path.is_absolute() or '..' in path.parts
+                    or name != path.as_posix() or not path.parts
                     or name in names or len(path.parts) > 2
-                    or len(path.parts) == 2 and path.parts[0] != 'xio_vici'):
+                    or len(path.parts) == 2 and path.parts[0] not in {'xio_vici', 'catalog', 'cascade'}):
                 raise RuntimeError('Invalid update archive entry')
             names.add(name)
             total += member.size
@@ -152,8 +157,11 @@ def unpack(raw, destination, expected):
             target.parent.mkdir(exist_ok=True)
             with archive.extractfile(member) as source, target.open('wb') as out:
                 shutil.copyfileobj(source, out)
+        # Completeness minimum, NOT a whitelist: optional flat runtimes remain valid.
+        # Check before maintenance; all staged members join the existing transaction.
         required = {'admin.py', 'stack.py', 'network_stack.py', 'mesh_stack.py',
-                    'mesh-pins.json', 'rivet-setup.py', 'dualstack.py', 'client_api.py', *RUNTIMES}
+                    'mesh-pins.json', 'rivet-setup.py', 'dualstack.py', 'client_api.py',
+                    'cascade_native.py', 'cascade_native_lifecycle.py', 'cascade_native_rpc.py', *RUNTIMES}
         if not required.issubset(names):
             raise RuntimeError('Incomplete update archive')
     for source in destination.rglob('*.py'):
@@ -236,8 +244,32 @@ def update(raw, expected, server_id):
             migration_targets.append(RIVET_ROOT / 'public.json')
         if legacy_network:
             migration_targets += [STACK_CONFIG, WG_CONFIG, *NETWORK_CONFIGS]
+        parent_guards = {}
+
+        def check_parents(target, record=False, allow_missing=False):
+            # Inspect root -> leaf with lstat, so a replaced/symlinked ancestor
+            # is rejected before inspecting or mutating anything beneath it.
+            for directory in reversed((target.parent, *target.parent.parents)):
+                try:
+                    info = directory.lstat()
+                except FileNotFoundError:
+                    if allow_missing:
+                        return  # A missing auxiliary directory is recorded after mkdir.
+                    raise RuntimeError('Managed parent disappeared: ' + directory.name) from None
+                identity = (info.st_dev, info.st_ino)
+                if not stat.S_ISDIR(info.st_mode):
+                    raise RuntimeError('Unsafe managed parent: ' + directory.name)
+                previous = parent_guards.get(directory)
+                if previous is not None and previous != identity:
+                    raise RuntimeError('Managed parent identity changed: ' + directory.name)
+                if previous is None and not record:
+                    raise RuntimeError('Unrecorded managed parent: ' + directory.name)
+                if record:
+                    parent_guards[directory] = identity
+
         # All destination ownership/link checks precede service stops and writes.
         for target in [*migration_targets, *[t for _, t, _ in targets]]:
+            check_parents(target, record=True, allow_missing=True)
             regular(target, missing=True)
             if target.exists() and target not in guards:
                 guards[target] = snapshot(target)
@@ -252,11 +284,13 @@ def update(raw, expected, server_id):
         verify(guards)
         (work / 'hashes-before.json').write_text(json.dumps({str(p): v['sha256'] for p, v in guards.items()}))
         backups = []
+        created_directories = []
         network = ipv6_transaction_module(stage)
         network_plan = None
         committed = False
 
         def backup(target):
+            check_parents(target, record=True)
             previous = work / ('backup-' + str(len(backups)))
             existed = target.exists()
             if existed:
@@ -298,7 +332,11 @@ def update(raw, expected, server_id):
             # Runtime backups share the same transaction. Never touch private keys,
             # certificates, delegated SSH keys or provider addresses/routes.
             for source, target, mode in targets:
-                target.parent.mkdir(exist_ok=True)
+                if not target.parent.exists():
+                    # No exist_ok: a concurrent creator does not become our directory.
+                    target.parent.mkdir(mode=0o700)
+                    info = target.parent.stat()
+                    created_directories.append((target.parent, info.st_dev, info.st_ino))
                 backup(target)
                 atomic(source, target, mode)
             if network_units:
@@ -337,11 +375,16 @@ def update(raw, expected, server_id):
         finally:
             if not committed:
                 try:
+                    # Preflight every rollback parent before ANY file restore or
+                    # unlink: directory cleanup checks alone would be too late.
+                    for target, _, _ in backups:
+                        check_parents(target)
                     for unit in active:
                         if command('systemctl', 'stop', unit, check=False).returncode:
                             raise RuntimeError('Cannot stop new service before IPv6 rollback')
                     deferred_network_runtime = []
                     for target, previous, existed in reversed(backups):
+                        check_parents(target)
                         if network_plan is not None and target == LIB / 'dualstack.py':
                             deferred_network_runtime.append((target, previous, existed))
                             continue
@@ -350,7 +393,21 @@ def update(raw, expected, server_id):
                                 raise RuntimeError('Rollback backup integrity check failed')
                             atomic(previous, target, previous.stat().st_mode & 0o777)
                         else:
+                            regular(target, missing=True)
                             target.unlink(missing_ok=True)
+                    for directory, device, inode in reversed(created_directories):
+                        try:
+                            check_parents(directory)
+                            info = directory.lstat()
+                            if not stat.S_ISDIR(info.st_mode) or (info.st_dev, info.st_ino) != (device, inode):
+                                raise RuntimeError('Rollback directory identity changed: ' + directory.name)
+                            directory.rmdir()  # Only our still-empty directory; never recurse.
+                        except FileNotFoundError:
+                            pass
+                        except OSError as error:
+                            if error.errno != errno.ENOTEMPTY:
+                                raise
+                            # Foreign files/edits inside a new directory must survive.
                     if network_units:
                         command('systemctl', 'daemon-reload')
                     try:
@@ -368,13 +425,19 @@ def update(raw, expected, server_id):
                         if network_plan is not None:
                             network.delta_rollback(network_plan)
                         for target, previous, existed in deferred_network_runtime:
+                            check_parents(target)
                             if existed:
                                 if snapshot(previous)['sha256'] != guards[target]['sha256']:
                                     raise RuntimeError('Rollback network runtime backup hash mismatch')
                                 atomic(previous, target, previous.stat().st_mode & 0o777)
                             else:
+                                regular(target, missing=True)
                                 target.unlink(missing_ok=True)
                 except Exception:
+                    # Retain ownership evidence too; this is owner recovery, not
+                    # a claim that a displaced deployment was fully rolled back.
+                    (work / 'parent-identities.json').write_text(json.dumps(
+                        {str(p): list(identity) for p, identity in parent_guards.items()}))
                     recovery = Path(tempfile.mkdtemp(prefix='.update-recovery-', dir=LIB.parent))
                     shutil.copytree(work, recovery / 'backup')
                     fence = DUAL_RECEIPT.with_name('.dualstack-update.json')

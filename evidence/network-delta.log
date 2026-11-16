@@ -1,0 +1,11 @@
+test_foreign_receipt_race_or_bad_snapshot_refuses_before_kernel_deletion (server.managed.test_network_delta.DeltaTests.test_foreign_receipt_race_or_bad_snapshot_refuses_before_kernel_deletion) ... ok
+test_missing_kernel_rule_already_in_old_receipt_is_still_a_new_effect (server.managed.test_network_delta.DeltaTests.test_missing_kernel_rule_already_in_old_receipt_is_still_a_new_effect) ... ok
+test_new_and_existing_receipt_rollback_preserve_preexisting_kernel_state (server.managed.test_network_delta.DeltaTests.test_new_and_existing_receipt_rollback_preserve_preexisting_kernel_state) ... ok
+test_success_commit_retains_new_owned_effects_and_removes_only_fence (server.managed.test_network_delta.DeltaTests.test_success_commit_retains_new_owned_effects_and_removes_only_fence) ... ok
+test_updater_bad_network_snapshot_or_receipt_race_retains_recovery (server.managed.test_network_delta.DeltaTests.test_updater_bad_network_snapshot_or_receipt_race_retains_recovery) ... ok
+test_updater_start_failure_restores_network_before_old_service_restart_and_keys (server.managed.test_network_delta.DeltaTests.test_updater_start_failure_restores_network_before_old_service_restart_and_keys) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 33.428s
+
+OK

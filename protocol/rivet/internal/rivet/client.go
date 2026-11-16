@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"sync"
 	"syscall"
 	"time"
 
@@ -101,7 +102,38 @@ func outerTLSConfig(c ClientConfig) (*tls.Config, error) {
 	return config, nil
 }
 
-func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, timeout time.Duration) (session *Session, err error) {
+// A CONNECT request context may only govern opening its HTTP/3 stream, not the
+// subsequent response read. Revoke the actual owned carrier, not just its ctx.
+// Establishment cancellation detaches only after authentication succeeds; the
+// retained lifetime watcher remains until explicit release.
+type carrierCancellation struct {
+	setup, lifetime         context.Context
+	stopSetup, stopLifetime func() bool
+	close                   func()
+}
+
+func watchCarrierCancellation(setup, lifetime context.Context, closeCarrier func()) *carrierCancellation {
+	closeOnce := sync.OnceFunc(closeCarrier)
+	return &carrierCancellation{setup: setup, lifetime: lifetime, close: closeOnce,
+		stopSetup: context.AfterFunc(setup, closeOnce), stopLifetime: context.AfterFunc(lifetime, closeOnce)}
+}
+func (c *carrierCancellation) accept() bool {
+	return c.stopSetup() && c.setup.Err() == nil && c.lifetime.Err() == nil
+}
+func (c *carrierCancellation) release() {
+	c.stopSetup()
+	c.stopLifetime()
+	c.close()
+}
+
+// DialWithTimeout preserves the legacy context-as-lifetime API.
+func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, timeout time.Duration) (*Session, error) {
+	return DialWithLifetime(ctx, ctx, c, protect, timeout)
+}
+
+// DialWithLifetime separates the revocable establishment lease from the retained
+// carrier lifetime. Canceling a successful attempt must not kill its session.
+func DialWithLifetime(lifetime, establishment context.Context, c ClientConfig, protect Protector, timeout time.Duration) (session *Session, err error) {
 	if timeout <= 0 {
 		return nil, context.DeadlineExceeded
 	}
@@ -118,7 +150,9 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 	if net.ParseIP(host) == nil {
 		return nil, errors.New("rivet: endpoint must be resolved before dialing")
 	}
-	hs, cancel := context.WithTimeout(ctx, min(timeout, 10*time.Second))
+	hs, cancel := context.WithTimeout(establishment, min(timeout, 10*time.Second))
+	stopLifetime := context.AfterFunc(lifetime, cancel)
+	defer stopLifetime()
 	defer cancel()
 	var s *Session
 	defer func() {
@@ -152,7 +186,9 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 			return nil, fmt.Errorf("rivet: carrier rejected: %w", e)
 		}
 		ws.SetReadLimit(65536)
-		raw := websocket.NetConn(ctx, ws, websocket.MessageBinary)
+		raw := websocket.NetConn(lifetime, ws, websocket.MessageBinary)
+		stopSetup := context.AfterFunc(hs, func() { raw.Close() })
+		defer stopSetup()
 		inner := tls.Client(raw, InnerTLS(c.Pin))
 		authDeadline, _ := hs.Deadline()
 		inner.SetDeadline(authDeadline)
@@ -164,6 +200,9 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 		s = NewSession(inner, inner.ConnectionState(), 1, nil, func() { raw.Close(); transport.CloseIdleConnections() })
 		if e = s.ClientAuth(c); e != nil {
 			return nil, e
+		}
+		if !stopSetup() || hs.Err() != nil || lifetime.Err() != nil {
+			return nil, context.Canceled
 		}
 		inner.SetDeadline(time.Time{})
 	} else {
@@ -194,19 +233,26 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 		}
 		h3 := &http3.Transport{EnableDatagrams: true}
 		hc := h3.NewClientConn(outer)
-		life, lifeCancel := context.WithCancel(ctx)
-		stop := context.AfterFunc(hs, lifeCancel)
-		defer stop()
-		template, e := uritemplate.New("https://" + authority + "/.well-known/masque/udp/{target_host}/{target_port}/")
-		if e != nil {
+		life, lifeCancel := context.WithCancel(lifetime)
+		carrier := watchCarrierCancellation(hs, lifetime, func() {
 			lifeCancel()
 			outer.CloseWithError(0, "closed")
+			ot.Close()
+			packet.Close()
+		})
+		defer func() {
+			if err != nil {
+				carrier.release()
+			}
+		}()
+		template, e := uritemplate.New("https://" + authority + "/.well-known/masque/udp/{target_host}/{target_port}/")
+		if e != nil {
+			carrier.release()
 			return nil, e
 		}
 		req, e := masque.NewRequest(life, template, "127.0.0.1:7444")
 		if e != nil {
-			lifeCancel()
-			outer.CloseWithError(0, "closed")
+			carrier.release()
 			return nil, e
 		}
 		req.Header().Set("Authorization", "Bearer "+c.EntryToken)
@@ -215,8 +261,7 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 			if response != nil && response.Body != nil {
 				response.Body.Close()
 			}
-			lifeCancel()
-			outer.CloseWithError(0, "closed")
+			carrier.release()
 			return nil, e
 		}
 		it := &quic.Transport{Conn: proxied}
@@ -224,8 +269,7 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 		if e != nil {
 			it.Close()
 			proxied.Close()
-			lifeCancel()
-			outer.CloseWithError(0, "closed")
+			carrier.release()
 			return nil, e
 		}
 		stream, e := inner.OpenStreamSync(hs)
@@ -233,8 +277,7 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 			inner.CloseWithError(0, "closed")
 			it.Close()
 			proxied.Close()
-			lifeCancel()
-			outer.CloseWithError(0, "closed")
+			carrier.release()
 			return nil, e
 		}
 		authDeadline, _ := hs.Deadline()
@@ -244,24 +287,22 @@ func DialWithTimeout(ctx context.Context, c ClientConfig, protect Protector, tim
 			inner.CloseWithError(0, "closed")
 			it.Close()
 			proxied.Close()
-			lifeCancel()
-			outer.CloseWithError(0, "closed")
+			carrier.release()
 			return nil, e
 		}
 		s = NewSession(stream, inner.ConnectionState().TLS, 0, inner, func() {
 			inner.CloseWithError(0, "closed")
 			it.Close()
 			proxied.Close()
-			lifeCancel()
-			outer.CloseWithError(0, "closed")
-			ot.Close()
-			packet.Close()
+			carrier.release()
 		})
 		if e = s.ClientAuth(c); e != nil {
 			return nil, e
 		}
+		if !carrier.accept() {
+			return nil, context.Canceled
+		}
 		stream.SetDeadline(time.Time{})
-		stop()
 	}
 	s.StartMaintenance()
 	return s, nil

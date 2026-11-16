@@ -204,14 +204,15 @@ class CascadeRoute {
   String toString() => 'CascadeRoute(${stage.name}, ${pingMs}ms)';
 }
 
-/// Подписка на платную функцию «Каскад».
+/// Доступ к функции «Каскад».
 ///
-/// Заглушка: реальная подписка ещё не подключена, поэтому по умолчанию
-/// [entitled] = false и [planLabel] = «Подписка не подключена».
+/// Каскад бесплатный и включён по умолчанию: [entitled] = true и
+/// [planLabel] = «Бесплатно · без подписки». Платформенные покупки,
+/// подписочный сервер и проверка чека не используются.
 class CascadeSubscription {
   const CascadeSubscription({
-    this.entitled = false,
-    this.planLabel = 'Подписка не подключена',
+    this.entitled = true,
+    this.planLabel = 'Бесплатно · без подписки',
   });
 
   final bool entitled;
@@ -227,12 +228,11 @@ class CascadeSubscription {
   String toString() => 'CascadeSubscription($entitled, $planLabel)';
 }
 
-/// Ворота платной функции «Каскад».
+/// Ворота функции «Каскад».
 ///
-/// Сейчас выключены намеренно: [enabled] всегда false, а
-/// [requestActivation] всегда отвечает false. Это место под будущую
-/// проверку подписки (магазин / подписочный сервер) — менять только здесь,
-/// экран `CascadeScreen` уже готов принимать результат.
+/// Каскад открыт всем: [enabled] = true, [requestActivation] отвечает true.
+/// Биллинга нет и не планируется — это решение продукта, а не заглушка,
+/// поэтому проверка подписки здесь не появится.
 class CascadeFeatureGate {
   const CascadeFeatureGate();
 
@@ -240,19 +240,16 @@ class CascadeFeatureGate {
   static const CascadeFeatureGate instance = CascadeFeatureGate();
 
   /// Баннер в блоке подписки.
-  static const String bannerText = 'Платная функция. Требуется подписка';
+  static const String bannerText = 'Каскад включён · бесплатно';
 
   /// Текст SnackBar после неудачной активации.
-  static const String notConnectedMessage = 'Подписка ещё не подключена';
+  static const String notConnectedMessage = 'Каскад доступен без подписки';
 
-  /// Включена ли функция. Пока всегда false — заглушка подписки.
-  static bool get enabled => false;
+  /// Включена ли функция. Каскад доступен всегда.
+  static bool get enabled => true;
 
-  /// Попытка активировать подписку. Заглушка: всегда false.
-  Future<bool> requestActivation() async {
-    // TODO(подписка): здесь будет запрос к магазину/подписочному серверу.
-    return false;
-  }
+  /// Подтверждение доступа. Биллинга нет, поэтому ответ всегда true.
+  Future<bool> requestActivation() async => true;
 }
 
 /// Эмодзи-флаг из двухбуквенного ISO-кода (`RU` → 🇷🇺).
@@ -377,4 +374,31 @@ CascadeRoute cascadeRouteFromAddresses({
     pingMs: configured ? pingMs : null,
     updatedAt: updatedAt,
   );
+}
+
+
+/// Известные страны тестового и типового стенда. Список локальный и
+/// детерминированный: главный экран показывает флаги даже без сети.
+/// Для неизвестного адреса возвращается пустая строка (рисуется 🌐).
+const Map<String, String> cascadeKnownCountries = <String, String>{
+  '81.177.142.37': 'RU',
+  '103.102.135.124': 'FR',
+  '2a0c:b641:1a0:800::2a2': 'FR',
+};
+
+/// Страна по адресу bridge/exit. Только локальные правила, без DNS и HTTP.
+String cascadeCountryForAddress(String raw) {
+  final host = raw
+      .trim()
+      .replaceAll('[', '')
+      .replaceAll(']', '')
+      .toLowerCase();
+  final exact = cascadeKnownCountries[host];
+  if (exact != null) return exact;
+  if (host.startsWith('81.177.')) return 'RU';
+  if (host.startsWith('103.102.135.')) return 'FR';
+  if (host.startsWith('2a0c:b641:1a0:800')) return 'FR';
+  if (host.endsWith('.ru')) return 'RU';
+  if (host.endsWith('.fr')) return 'FR';
+  return '';
 }

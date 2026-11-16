@@ -14,12 +14,15 @@ import 'cascade_probe.dart';
 import 'cascade_ui.dart';
 import 'app_settings.dart';
 import 'client_policy.dart';
+import 'connection_mode_ui.dart';
 import 'core.dart';
 import 'mtproto_ui.dart';
 import 'version.dart';
 import 'help_legal_ui.dart';
 import 'l10n.dart';
 import 'split_routing.dart';
+import 'store_mode_source.dart';
+import 'store_writer_owner.dart';
 import 'subclients_ui.dart';
 
 Future<void> main() async {
@@ -35,8 +38,6 @@ Future<void> main() async {
     'RIVET-native',
     'AmneziaWG-native',
     'Xray-MPL-2.0',
-    'OpenVPN-MPL-2.0',
-    'Cloak-GPL-3.0',
     'XIO-GPL-3.0',
   ]) {
     LicenseRegistry.addLicense(() async* {
@@ -46,6 +47,21 @@ Future<void> main() async {
     });
   }
   final store = AppStore()..enforceConsent = true;
+  // The Client controller takes the same cooperating product-store ownership as
+  // Full, scoped by its own product identity (`XIO_CLIENT_ONLY`): a second
+  // same-store controller is refused before it can write, and a failed acquire
+  // leaves the store readable with an honest `persistence` blocker.
+  if (Platform.isLinux || Platform.isWindows) {
+    try {
+      final directory = await applicationDirectory();
+      store.attachProductWriter(
+        await ProductStoreWriterOwner.acquire(directory),
+      );
+      DesktopEngine.clientOnly = clientOnlyBuild;
+    } catch (error) {
+      store.markProductWriterUnavailable(error);
+    }
+  }
   native.setMethodCallHandler((call) async {
     if (call.method == 'requestConnect' && store.ready && store.consentReady) {
       if (await native.invokeMethod<bool>('consumeConnectRequest') == true) {
@@ -53,13 +69,20 @@ Future<void> main() async {
       }
     }
   });
-  runApp(ClientApp(store: store));
+  // Real adapter for the whole controller lifetime: the Client mode control is
+  // never hidden behind a null source in production.
+  final modeSource = StoreConnectionModeSource(store);
+  runApp(ClientApp(store: store, modeSource: modeSource));
   unawaited(store.load());
 }
 
 class ClientApp extends StatelessWidget {
   final AppStore store;
-  const ClientApp({super.key, required this.store});
+
+  /// Durable connection-mode seam; null while the core Store mode API is not
+  /// available in this build.
+  final ConnectionModeSource? modeSource;
+  const ClientApp({super.key, required this.store, this.modeSource});
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<int>(
     valueListenable: AppLanguages.revision,
@@ -75,11 +98,17 @@ class ClientApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         CascadeScreen.routeName: (_) => CascadeScreen(
           healthProbe: (bridge) => CascadeSshProbe(store: store).check(bridge),
+          onHealth: (health) => store.setCascadeHealth(
+            ok: health.isAlive,
+            pingMs: health.latencyMs,
+            exitIpv6: health.egressIpv6 ?? '',
+            checkedAt: health.checkedAt.toIso8601String(),
+          ),
         ),
       },
       home: FirstRunGate(
         store: store,
-        child: ClientHome(store: store),
+        child: ClientHome(store: store, modeSource: modeSource),
       ),
     ),
   );
@@ -87,7 +116,8 @@ class ClientApp extends StatelessWidget {
 
 class ClientHome extends StatefulWidget {
   final AppStore store;
-  const ClientHome({super.key, required this.store});
+  final ConnectionModeSource? modeSource;
+  const ClientHome({super.key, required this.store, this.modeSource});
   @override
   State<ClientHome> createState() => _ClientHomeState();
 }
@@ -202,75 +232,13 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
     await store.importConnection(raw);
   }
 
-  Future<void> settings() async {
-    final site = TextEditingController(text: store.checkSite);
-    var enabled = store.siteCheckEnabled;
-    var reconnect = store.autoReconnect;
-    try {
-      final value = await showDialog<String>(
-        context: context,
-        builder: (context) => StatefulBuilder(
-          builder: (context, setDialogState) => AlertDialog(
-            title: const LText('Проверка соединения'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: reconnect,
-                  onChanged: (v) => setDialogState(() => reconnect = v),
-                  title: const LText('Переподключаться при потере связи'),
-                  subtitle: const LText(
-                    'Пока туннель активен, приложение проверяет связь и при потере поднимает соединение заново — по тому же плану: выбранный сервер, затем другой протокол, затем другой профиль.',
-                  ),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  value: enabled,
-                  onChanged: (v) => setDialogState(() => enabled = v),
-                  title: const LText('Проверять доступность сайта'),
-                  subtitle: const LText(
-                    'По умолчанию выключено. Соединение подтверждается самим туннелем: свежий handshake, счётчики и DNS-ответ через туннель.',
-                  ),
-                ),
-                if (enabled) ...[
-                  const LText(
-                    'HTTPS-сайт для проверки доступности после запуска туннеля. Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
-                  ),
-                  TextField(
-                    controller: site,
-                    keyboardType: TextInputType.url,
-                    decoration: InputDecoration(labelText: 'HTTPS URL'),
-                  ),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const LText('Отмена'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, site.text),
-                child: const LText('Сохранить'),
-              ),
-            ],
-          ),
-        ),
-      );
-      if (value != null) {
-        await store.saveConnectionSettings(
-          value,
-          store.priorityProtocol,
-          siteCheck: enabled,
-          reconnect: reconnect,
-        );
-      }
-    } finally {
-      site.dispose();
-    }
-  }
-
+  Future<void> settings() => showDialog<void>(
+    context: context,
+    builder: (_) => ClientConnectionSettingsDialog(
+      store: store,
+      modeSource: widget.modeSource,
+    ),
+  );
   Future<void> pickServer() async {
     final selected = await showModalBottomSheet<Profile>(
       context: context,
@@ -554,6 +522,12 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                               onUnlock: () => store.setCascadeUnlocked(true),
                               healthProbe: (bridge) =>
                                   CascadeSshProbe(store: store).check(bridge),
+                              onHealth: (health) => store.setCascadeHealth(
+                                ok: health.isAlive,
+                                pingMs: health.latencyMs,
+                                exitIpv6: health.egressIpv6 ?? '',
+                                checkedAt: health.checkedAt.toIso8601String(),
+                              ),
                             ),
                           ),
                         ),
@@ -561,9 +535,7 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
                   label: const LText('Каскад: IPv4-IPv6'),
                 ),
                 TextButton.icon(
-                  onPressed: locked || store.status.active
-                      ? null
-                      : () => perform(settings),
+                  onPressed: working ? null : settings,
                   icon: const Icon(Icons.network_check),
                   label: const LText('Проверка соединения'),
                 ),
@@ -598,6 +570,151 @@ class _ClientHomeState extends State<ClientHome> with WidgetsBindingObserver {
         ),
       );
     },
+  );
+}
+
+class ClientConnectionSettingsDialog extends StatefulWidget {
+  const ClientConnectionSettingsDialog({
+    super.key,
+    required this.store,
+    this.modeSource,
+  });
+  final AppStore store;
+
+  /// Durable connection-mode seam; null while the core Store mode API is not
+  /// available in this build.
+  final ConnectionModeSource? modeSource;
+  @override
+  State<ClientConnectionSettingsDialog> createState() =>
+      _ClientConnectionSettingsDialogState();
+}
+
+class _ClientConnectionSettingsDialogState
+    extends State<ClientConnectionSettingsDialog> {
+  AppStore get store => widget.store;
+  late final site = TextEditingController(text: store.checkSite);
+  late bool enabled = store.siteCheckEnabled;
+  late bool reconnect = store.autoReconnect;
+  late ConnectionPolicy policy =
+      widget.modeSource?.connectionPolicy ?? store.connectionPolicy;
+  bool saving = false;
+  String? saveError;
+  @override
+  void dispose() {
+    site.dispose();
+    super.dispose();
+  }
+
+  /// Every connection setting in this dialog is plan-sensitive, so the Store's
+  /// idle-only admission covers the whole save. The Store guard stays
+  /// authoritative; the dialog only reflects it.
+  bool get _modeChangeAllowed {
+    final source = widget.modeSource;
+    if (source == null) return true;
+    return source.canChangeConnectionMode && !source.connectionModePending;
+  }
+
+  bool get _modeSettled {
+    final source = widget.modeSource;
+    return source == null ||
+        (!source.connectionModePending && source.connectionPolicyError == null);
+  }
+
+  Future<void> save() async {
+    setState(() {
+      saving = true;
+      saveError = null;
+    });
+    try {
+      final source = widget.modeSource;
+      if (source == null) {
+        await store.saveConnectionSettings(
+          site.text,
+          store.priorityProtocol,
+          siteCheck: enabled,
+          reconnect: reconnect,
+        );
+      } else {
+        await source.saveConnectionSettings(
+          site.text,
+          store.priorityProtocol,
+          siteCheck: enabled,
+          reconnect: reconnect,
+          policy: policy,
+        );
+      }
+      if (mounted && _modeSettled) Navigator.pop(context);
+    } catch (error) {
+      if (mounted) {
+        setState(() => saveError = ConnectionModeText.saveFailure(error));
+      }
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const LText('Проверка соединения'),
+    content: SizedBox(
+      width: 480,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.modeSource != null)
+              ConnectionModeControl(
+                source: widget.modeSource!,
+                draft: policy,
+                saving: saving,
+                onChanged: (value) => setState(() => policy = value),
+              ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: reconnect,
+              onChanged: saving ? null : (v) => setState(() => reconnect = v),
+              title: const LText('Переподключаться при потере связи'),
+              subtitle: LText(ConnectionModeText.reconnect(policy)),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: enabled,
+              onChanged: saving ? null : (v) => setState(() => enabled = v),
+              title: const LText('Проверять доступность сайта'),
+              subtitle: const LText(
+                'По умолчанию выключено. Соединение подтверждается самим туннелем: свежий handshake, счётчики и DNS-ответ через туннель.',
+              ),
+            ),
+            if (enabled) ...[
+              const LText(
+                'HTTPS-сайт для проверки доступности после запуска туннеля. Он видит адрес выхода. При раздельном туннелировании проверка приложения может идти напрямую; доступность сайта не доказывает защиту остальных приложений.',
+              ),
+              TextField(
+                controller: site,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(labelText: 'HTTPS URL'),
+              ),
+            ],
+            if (saveError != null) LText(saveError!),
+          ],
+        ),
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: saving ? null : () => Navigator.pop(context),
+        child: const LText('Отмена'),
+      ),
+      ListenableBuilder(
+        listenable: Listenable.merge([widget.modeSource]),
+        builder: (context, _) => FilledButton(
+          key: const ValueKey('connection-settings-save'),
+          onPressed: saving || !_modeChangeAllowed ? null : save,
+          child: const LText('Сохранить'),
+        ),
+      ),
+    ],
   );
 }
 

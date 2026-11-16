@@ -8,6 +8,19 @@ import 'package:crypto/crypto.dart' as hashing;
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/services.dart';
 
+/// Desktop account records retain their existing state+SHA256 filenames.
+/// Mobile account access uses its own channel, not the credential channel.
+void validateCredentialId(String id, {required bool desktop}) {
+  final pattern = desktop
+      ? RegExp(r'^(?:ssh|vpn|state)[a-f0-9]{64}$')
+      : RegExp(r'^(?:ssh|vpn)[a-f0-9]{64}$');
+  final match = pattern.firstMatch(id);
+  // Check the complete length as well: `$` may match before a final newline.
+  if (match == null || match.end != id.length) {
+    throw const FormatException('Invalid credential id');
+  }
+}
+
 /// Secrets never enter profiles.json, diagnostics or ordinary user bundles.
 class CredentialVault {
   static const channel = MethodChannel('app.xio/engine');
@@ -57,6 +70,7 @@ class CredentialVault {
   }
 
   static Future<Map<String, String>?> read(String id) async {
+    validateCredentialId(id, desktop: !Platform.isAndroid && !Platform.isIOS);
     String? text;
     if (Platform.isAndroid || Platform.isIOS) {
       text = await channel.invokeMethod<String>('credentialRead', {'id': id});
@@ -69,9 +83,7 @@ class CredentialVault {
   }
 
   static Future<void> write(String id, Map<String, String> value) async {
-    if (!RegExp(r'^(?:ssh|vpn)[a-f0-9]{64}$').hasMatch(id)) {
-      throw const FormatException('Invalid credential id');
-    }
+    validateCredentialId(id, desktop: !Platform.isAndroid && !Platform.isIOS);
     final raw = jsonEncode(value);
     if (Platform.isAndroid || Platform.isIOS) {
       await channel.invokeMethod<void>('credentialWrite', {
@@ -94,6 +106,7 @@ class CredentialVault {
   }
 
   static Future<void> delete(String id) async {
+    validateCredentialId(id, desktop: !Platform.isAndroid && !Platform.isIOS);
     if (Platform.isAndroid || Platform.isIOS) {
       await channel.invokeMethod<void>('credentialDelete', {'id': id});
       return;

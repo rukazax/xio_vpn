@@ -22,10 +22,88 @@ object Engine {
     @Volatile var backgroundBusy = false
     var kind = "awg"
     var lastConnectMillis=0L
+    @Volatile var cleanupIncomplete = false
+        private set
+    @Volatile private var ownedRoundId: String? = null
+    @Volatile private var operationBudget: ConnectionBudget? = null
+    @Volatile private var activationRevoked = false
+    private val publication = PublicationLease()
+    fun registerConnect(budget:ConnectionBudget) = publication.register(budget)
+    fun releaseConnect(budget:ConnectionBudget) = publication.release(budget)
+    fun publicationToken() = publication.token()
+    fun acceptsUpPublication(token:Long) = publication.accepts(token) && ConnectionBudget.canPublishUp(cleanupIncomplete,activationRevoked,operationBudget,token,publicationToken())
+    /** Synchronous DOWN fence only: no JNI, fsync, status, TUN or teardown here. */
+    /**
+     * Synchronous DOWN activation fence only: no JNI, fsync, journal, status,
+     * TUN or teardown here. Each DOWN caller also calls [revokeLogicalPolicy]
+     * AFTER releasing every publication monitor.
+     */
+    fun revokePublication(roundId: String? = null) {
+        synchronized(publication) {
+            if(roundId != null && ownedRoundId != roundId) return
+            publication.revoke()
+            activationRevoked = true
+            cleanupIncomplete = true
+            operationBudget?.cancel()
+        }
+    }
+    /**
+     * Logical journal revocation plus physical settlement. Must run with NO
+     * publication monitor held: the journal lane acquires that monitor, so
+     * entering the journal while holding it would invert the lock order.
+     */
+    fun revokeLogicalPolicy() {
+        PolicyBridge.revokeLogical()
+        worker.execute { PolicyBridge.reconcileBlocked() }
+    }
+    fun cancelConnect(roundId: String? = null, expectedBudget:ConnectionBudget? = null):Long? {
+        var globalDown = false
+        val token=synchronized(publication) {
+            if(roundId != null && ownedRoundId != roundId) return null
+            if(roundId == null) revokePublication()
+            if(roundId == null) globalDown = true
+            if(roundId != null) {
+                // Child failure is not DOWN. Match the exact child before any JNI cancel.
+                if(!publication.retire(roundId,expectedBudget))return null
+                activationRevoked=true;cleanupIncomplete=true
+                operationBudget?.cancel()
+            }
+            publication.reserveCancellation()
+            publication.token()
+        }
+        // Journal revocation only after the publication monitor is released.
+        if(globalDown) revokeLogicalPolicy()
+        try {
+            if(kind == "awg") backend.cancelPendingHandshake()
+            if(kind.startsWith("rivet-")) Mobile.cancelConnect()
+        } finally { publication.finishCancellation() }
+        return token
+    }
+    // Called only by the serialized worker: obsolete failure must not tear down a successor.
+    fun disconnectOwned(roundId:String,expectedBudget:ConnectionBudget,budget:ConnectionBudget) {
+        if(ownedRoundId==roundId && publication.owns(roundId,expectedBudget))disconnect(budget)
+    }
+    fun retireRound(roundId:String,budget:ConnectionBudget,expectedBudget:ConnectionBudget) {
+        worker.execute {
+            try { disconnectOwned(roundId,expectedBudget,budget) }catch(_:Exception) { /* Reservation stays incomplete. */ }
+        }
+    }
     /** Protocol the active rivet id was last reconciled against, so the vault
      *  is not decrypted on every status poll. */
     @Volatile var reconciledProtocol: String? = null
-    fun isUp()=OpenVpnBackend.established || XrayBackend.established || RivetBackend.established || backend.getState(tunnel)==Tunnel.State.UP
+    fun acceptsUpPublication() = acceptsUpPublication(publicationToken())
+    fun hasPublicationOwner() = ownedRoundId != null && acceptsUpPublication()
+    fun requireActivation(token:Long=publicationToken()) {
+        synchronized(publication) {
+            check(acceptsUpPublication(token)) { "VPN activation revoked" }
+            operationBudget?.remainingMillis()
+        } // The admitted native call can be in flight; revocation never joins it here.
+    }
+    fun isUp(known: org.json.JSONObject? = null): Boolean {
+        if(!acceptsUpPublication()) return false
+        if(kind.startsWith("rivet-")) return RivetBackend.established && (known ?: RivetBackend.status()).optBoolean("active")
+        return OpenVpnBackend.established || XrayBackend.established || backend.getState(tunnel)==Tunnel.State.UP
+    }
     /** [known] reuses a status JSON already read by the caller: the rivet
      *  backend would otherwise be asked twice per poll. */
     fun handshake(known: org.json.JSONObject? = null):Long {
@@ -40,10 +118,10 @@ object Engine {
         if(prefs.contains("activeId"))prefs.edit().remove("activeId").commit()
     }
     fun status():Map<String,Any?> {
-        val prefs=app.getSharedPreferences("xio",0);val up=isUp()
+        val prefs=app.getSharedPreferences("xio",0);val known=if(kind.startsWith("rivet-"))RivetBackend.status() else null;val up=isUp(known)
         if(kind=="xray"||kind=="cloak"){val v=if(kind=="cloak")OpenVpnBackend.status() else XrayBackend.status();if(!up)clearActiveId(prefs);return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to v.optLong("rx"),"tx" to v.optLong("tx"),"handshake" to handshake(v),"protocol" to kind)}
         if(kind.startsWith("rivet-")){
-            val value=RivetBackend.status();val actual=value.optString("protocol",kind);kind=actual
+            val value=known!!;val actual=value.optString("protocol",kind);kind=actual
             if(up&&actual!=reconciledProtocol){
                 // One decrypt per negotiated protocol, not one per poll.
                 reconciledProtocol=actual
@@ -51,60 +129,96 @@ object Engine {
                 if(oldId!=null){try{
                     val old=org.json.JSONObject(ConfigVault(app).readSecret(oldId))
                     if(old.optString("protocol")!=actual){
-                        val ids=org.json.JSONObject(prefs.getString("connectionPlan","{}")!!).optJSONArray("ids")
-                        if(ids!=null)for(i in 0 until ids.length()){
-                            val candidate=ids.getString(i);if(!candidate.startsWith("rv"))continue
+                        val candidates=PolicyBridge.candidateIds()
+                        if(candidates!=null)for(candidate in candidates){
+                            if(!candidate.startsWith("rv"))continue
                             val cfg=org.json.JSONObject(ConfigVault(app).readSecret(candidate))
                             if(cfg.optString("id")==old.optString("id")&&cfg.optString("protocol")==actual){prefs.edit().putString("activeId",candidate).commit();break}
                         }
                     }
                 }catch(_:Exception){}}
             }
-            if(!up){reconciledProtocol=null;clearActiveId(prefs)}
-            return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to value.optLong("rx"),"tx" to value.optLong("tx"),"handshake" to handshake(value),"protocol" to actual,"phase" to value.optString("phase"))
+            if(!up && !value.optBoolean("recoveryPending") && !value.optBoolean("cleanupPending")){reconciledProtocol=null;clearActiveId(prefs)}
+            return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to value.optLong("rx"),"tx" to value.optLong("tx"),"handshake" to handshake(value),"protocol" to actual,"phase" to value.optString("phase"),"recoveryPending" to value.optBoolean("recoveryPending"),"recoveryId" to value.optLong("recoveryId").toString(),"recoveryRemainingMillis" to value.optLong("recoveryRemainingMillis"),"cleanupPending" to (cleanupIncomplete || value.optBoolean("cleanupPending")),"interfaceUp" to value.optBoolean("interfaceUp"))
         }
         if(!up)clearActiveId(prefs)
         val stats=if(up)backend.getStatistics(tunnel) else null
         return mapOf("active" to up,"id" to prefs.getString("activeId",null),"rx" to stats?.totalRx(),"tx" to stats?.totalTx(),"handshake" to if(up)handshake() else null,"protocol" to kind)
     }
     val worker = Executors.newSingleThreadExecutor()
-    val tunnel = object : Tunnel {
+    private fun activationTunnel(token:Long) = object : Tunnel {
         override fun getName() = "xio0"
         override fun onStateChange(state: Tunnel.State) {
+            if(!publication.accepts(token))return
             if (state == Tunnel.State.DOWN) { reconciledProtocol=null; clearActiveId(app.getSharedPreferences("xio", 0)) }
-            XioVpnService.stateChanged(state == Tunnel.State.UP)
+            XioVpnService.stateChanged(state == Tunnel.State.UP && acceptsUpPublication(token),token)
             VpnTileService.refresh(app)
         }
     }
+    @Volatile var tunnel:Tunnel=activationTunnel(publicationToken())
+        private set
     @Synchronized fun initialize(context: android.content.Context) {
         app = context.applicationContext
         GoBackend.setVpnServiceClass(XioVpnService::class.java)
         if (!::backend.isInitialized) backend = GoBackend(app)
+        PolicyBridge.initialize(app)
     }
-    fun disconnect() {
+    /**
+     * The versioned policy reservation is a distinct identity from every epoch
+     * above. These wrappers keep the gate's monitor short: only flags/tickets.
+     */
+    fun policyReserve(transactionId:String) {
+        synchronized(publication) {
+            try { publication.reservePolicy(transactionId) }
+            catch(e:Exception) { throw PolicyFailure(PolicyFailure.BUSY, e.message ?: "Policy publication is busy") }
+        }
+    }
+    fun policyRevoke(transactionId:String) { synchronized(publication){ publication.revokePolicy(transactionId) } }
+    fun policyRelease(transactionId:String) { synchronized(publication){ publication.releasePolicy(transactionId) } }
+    fun policyAdmissionOpen():Boolean = synchronized(publication){ publication.admissionOpen() }
+    fun requirePolicyAdmissionOpen() = synchronized(publication) {
+        if(!publication.admissionOpen()) throw PolicyFailure(PolicyFailure.BUSY, "Connection policy publication or settings write in progress")
+    }
+    /** Config save/delete and routingSave fence READY admission before their IO. */
+    fun beginConfigMutation():Long = synchronized(publication){ publication.beginConfigMutation() }
+    fun endConfigMutation(token:Long) { synchronized(publication){ publication.endConfigMutation(token) } }
+    @Volatile private var admittedSite:String?=null
+    @Volatile private var admittedSiteCheck=false
+    /** Site policy of the plan actually admitted for this activation; never a default. */
+    fun capturedSite():String = admittedSite ?: error("No admitted site policy")
+    fun capturedSiteCheck():Boolean = admittedSiteCheck
+    fun disconnect(budget: ConnectionBudget? = null) {
+        // Serialized candidate cleanup invalidates callbacks, not the parent round.
+        synchronized(publication) {
+            publication.invalidate()
+            operationBudget?.cancel()
+            cleanupIncomplete=true;activationRevoked=true
+        }
         app.getSharedPreferences("xio",0).edit().putBoolean("vpnWanted",false).commit()
         reconciledProtocol=null
         OpenVpnBackend.stop()
         XrayBackend.stop()
-        if(kind.startsWith("rivet-") || RivetBackend.established) RivetBackend.stop()
+        if(kind.startsWith("rivet-") || RivetBackend.established) RivetBackend.stop((budget?.cleanupMillis() ?: 5000L).coerceIn(1,30000))
         backend.setState(tunnel, Tunnel.State.DOWN, null)
         if (!BuildConfig.CLIENT_ONLY) VpnSharing.schedule(app,true)
         app.stopService(Intent(app,XioVpnService::class.java))
-        XioVpnService.awaitStopped()
+        XioVpnService.awaitStopped((budget?.cleanupMillis() ?: 5000L).coerceAtMost(5000))
+        cleanupIncomplete=false;activationRevoked=false;ownedRoundId=null
         clearActiveId(app.getSharedPreferences("xio", 0))
     }
     private fun vpnNetworks(): Set<android.net.Network> {
         val cm=app.getSystemService(android.net.ConnectivityManager::class.java)
         return cm.allNetworks.filter{cm.getNetworkCapabilities(it)?.hasTransport(android.net.NetworkCapabilities.TRANSPORT_VPN)==true}.toSet()
     }
-    private fun awaitNetworkReady(previous:Set<android.net.Network>,started:Long) {
+    private fun awaitNetworkReady(previous:Set<android.net.Network>,budget:ConnectionBudget) {
+        budget.remainingMillis()
         val policy=SplitRouting(app).read()
         val usesVpn=when(policy.mode){"include"->policy.packages.contains(app.packageName);"exclude"->!policy.packages.contains(app.packageName);else->true}
         if(!usesVpn)return // The visible split policy intentionally excludes this app.
         val cm=app.getSystemService(android.net.ConnectivityManager::class.java)
-        val budget=org.json.JSONObject(app.getSharedPreferences("xio",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-        val waiting=android.os.SystemClock.elapsedRealtime();val deadline=minOf(started+budget,waiting+5000L)
+        val waiting=android.os.SystemClock.elapsedRealtime();val deadline=waiting+minOf(budget.remainingMillis(),5000L)
         while(android.os.SystemClock.elapsedRealtime()<deadline){
+            budget.remainingMillis()
             val current=vpnNetworks()-previous
             if(current.any{cm.getLinkProperties(it)?.interfaceName!=null&&(policy.mode.startsWith("ip")||cm.activeNetwork==it)}){
                 android.util.Log.i("XIO/Network","VPN route ready in "+(android.os.SystemClock.elapsedRealtime()-waiting)+"ms");return
@@ -113,46 +227,74 @@ object Engine {
         }
         error("VPN network not ready")
     }
-    fun connect(id: String, allowExistingService: Boolean = false) {
+    fun connect(id: String, allowExistingService: Boolean = false,
+        budget: ConnectionBudget = ConnectionBudget(15000, android.os.SystemClock::elapsedRealtime),
+        policyJSON: String = "{\"mode\":\"automatic\",\"roundMillis\":30000}",
+        roundId: String = "legacy-${android.os.SystemClock.elapsedRealtime()}",
+        admissionToken: Long = publication.admissionToken(),
+        policyReceipt: Map<String,Any?>? = null):Long {
+        check(!cleanupIncomplete && publication.idle()) { "VPN cleanup incomplete" }
+        budget.remainingMillis()
+        ConnectionBudget.mode(org.json.JSONObject(policyJSON).getString("mode"))
         check(app.getSharedPreferences("xio",0).getString("consentRevision",null)=="2026-10-18") { "Open XIO and review VPN disclosure" }
         check(!isUp())
+        // Admission BEFORE Mobile.stopWithTimeout and every other effect: validate
+        // the attachment, then re-derive digests/routing/priority/selection from
+        // the actual stored state. A missing receipt after versioned ownership
+        // began is POLICY_UNSUPPORTED, never a legacy automatic fallback.
+        requirePolicyAdmissionOpen()
+        val admission = PolicyBridge.requireAdmission(app, policyReceipt, id)
+        requirePolicyAdmissionOpen()
+        admittedSite = admission.site
+        admittedSiteCheck = admission.siteCheckEnabled
+        val frozenPolicy = admission.policyJson()
+        // Retire a failed/recovering RIVET owner before ANY replacement protocol.
+        try { Mobile.stopWithTimeout(budget.remainingMillis()) }
+        catch(e:Exception) { cleanupIncomplete=true;throw ConnectionBudget.CleanupIncomplete(e) }
+        val publicationToken=synchronized(publication) {
+            check(!cleanupIncomplete && publication.idle()) { "VPN cleanup incomplete" }
+            val token=publication.begin(admissionToken,budget,roundId)
+            ownedRoundId=roundId;activationRevoked=false;operationBudget=budget
+            token
+        }
+        try {
         reconciledProtocol=null
         val started=android.os.SystemClock.elapsedRealtime()
         val previousNetworks=vpnNetworks()
-        if(!allowExistingService) XioVpnService.awaitStopped()
+        if(!allowExistingService) XioVpnService.awaitStopped(minOf(5000,budget.remainingMillis()))
         val raw=ConfigVault(app).readSecret(id)
         if(id.startsWith("ck")){
             kind="cloak"
             app.startForegroundService(Intent(app,XioVpnService::class.java))
-            val service=XioVpnService.awaitCreated()
-            val budget=org.json.JSONObject(app.getSharedPreferences("xio",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-            OpenVpnBackend.connect(service,id,raw,budget-(android.os.SystemClock.elapsedRealtime()-started))
-            awaitNetworkReady(previousNetworks,started)
+            val service=XioVpnService.awaitCreated(minOf(5000,budget.remainingMillis()))
+            OpenVpnBackend.connect(service,id,raw,budget.remainingMillis())
+            awaitNetworkReady(previousNetworks,budget)
+            budget.remainingMillis()
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return
+            VpnTileService.refresh(app);return publicationToken
         }
         if(id.startsWith("xr")){
             kind="xray"
             require(org.json.JSONObject(raw).getString("protocol")==kind)
             app.startForegroundService(Intent(app,XioVpnService::class.java))
-            val service=XioVpnService.awaitCreated()
-            val budget=org.json.JSONObject(app.getSharedPreferences("xio",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-            XrayBackend.connect(service,id,raw,budget-(android.os.SystemClock.elapsedRealtime()-started))
-            awaitNetworkReady(previousNetworks,started)
+            val service=XioVpnService.awaitCreated(minOf(5000,budget.remainingMillis()))
+            XrayBackend.connect(service,id,raw,budget.remainingMillis())
+            awaitNetworkReady(previousNetworks,budget)
+            budget.remainingMillis()
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return
+            VpnTileService.refresh(app);return publicationToken
         }
         if(id.startsWith("rvh")||id.startsWith("rvs")){
             val cfg=org.json.JSONObject(raw);kind=cfg.getString("protocol")
             require(kind==if(id.startsWith("rvh"))"rivet-h3" else "rivet-s1")
             app.startForegroundService(Intent(app,XioVpnService::class.java))
-            val service=XioVpnService.awaitCreated()
-            val budget=org.json.JSONObject(app.getSharedPreferences("xio",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-            val left=budget-(android.os.SystemClock.elapsedRealtime()-started);check(left>0)
-            RivetBackend.connect(service,id,raw,left)
-            awaitNetworkReady(previousNetworks,started)
+            val service=XioVpnService.awaitCreated(minOf(5000,budget.remainingMillis()))
+            val left=budget.remainingMillis();check(left>0)
+            RivetBackend.connect(service,id,raw,left,frozenPolicy)
+            awaitNetworkReady(previousNetworks,budget)
+            budget.remainingMillis()
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return
+            VpnTileService.refresh(app);return publicationToken
         }
         val config = Config.parse(ByteArrayInputStream(raw.toByteArray()))
         require(id.startsWith("awg"));kind = "awg"
@@ -160,21 +302,56 @@ object Engine {
         val policy = routing.read()
         val effective = routing.apply(config, policy)
         backend.setAllowUnroutedFamilies(policy.mode.startsWith("ip"))
-        val budget=org.json.JSONObject(app.getSharedPreferences("xio",0).getString("connectionPlan","{}")!!).optInt("timeoutSeconds",15).coerceIn(5,60)*1000L
-        val remaining=budget-(android.os.SystemClock.elapsedRealtime()-started);check(remaining>0){"Connection deadline"}
+        val remaining=budget.remainingMillis();check(remaining>0){"Connection deadline"}
         backend.setEndpointResolutionTimeoutMillis(remaining)
+        requireActivation(publicationToken)
+        tunnel=activationTunnel(publicationToken)
         backend.setState(tunnel, Tunnel.State.UP, effective)
+        budget.remainingMillis()
+        check(!activationRevoked)
         app.getSharedPreferences("xio",0).edit().putBoolean("vpnWanted",true).commit()
         app.getSharedPreferences("xio", 0).edit().putString("activeId", id).commit()
-        awaitNetworkReady(previousNetworks,started)
+        awaitNetworkReady(previousNetworks,budget)
+            budget.remainingMillis()
         lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
+        } catch(e:Exception) { cancelConnect(roundId,budget);throw e }
+        finally { if(operationBudget === budget) operationBudget=null;releaseConnect(budget) }
+        return publicationToken
     }
 
 }
 
 class MainActivity : FlutterActivity() {
-    private var pending: MethodChannel.Result? = null
-    private var pendingId: String? = null
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        // Secure before Flutter renders or reads the persisted global opt-in.
+        // Each new Activity starts secure; Dart reapplies the owner's choice.
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        super.onCreate(savedInstanceState)
+    }
+    private data class ConnectRequest(val id:String,val callback:MethodChannel.Result,
+        val budget:ConnectionBudget,val round:ConnectionBudget,val policy:String,val roundId:String,
+        val policyReceipt:Map<String,Any?>?=null,
+        val admissionToken:Long=Engine.registerConnect(round),
+        val delivered:java.util.concurrent.atomic.AtomicBoolean=java.util.concurrent.atomic.AtomicBoolean())
+    private var pending: ConnectRequest? = null
+    private var activeRequest: ConnectRequest? = null
+    override fun onDestroy() {
+        activeRequest?.let {expire(it,"CANCELLED")}
+        super.onDestroy()
+    }
+    private var permissionOutstanding=false
+    private var notificationOutstanding=false
+    private val deadlines=android.os.Handler(android.os.Looper.getMainLooper())
+    private fun expire(request:ConnectRequest,code:String="TIMEOUT") {
+        if(!request.delivered.compareAndSet(false,true))return
+        request.budget.cancel()
+        Engine.releaseConnect(request.round)
+        if(pending === request)pending=null
+        if(activeRequest === request)activeRequest=null
+        Engine.cancelConnect(request.roundId,request.budget)
+        Engine.retireRound(request.roundId,request.round,request.budget)
+        request.callback.error(code,"Connection round ended",null)
+    }
     private var pendingFile: MethodChannel.Result? = null
     private lateinit var engineChannel: MethodChannel
     private val prefs by lazy { getSharedPreferences("xio", MODE_PRIVATE) }
@@ -184,9 +361,15 @@ class MainActivity : FlutterActivity() {
         Engine.initialize(this)
         engineChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "app.xio/engine")
         engineChannel.setMethodCallHandler { call, result ->
-            if(call.method=="disconnect" && Engine.kind=="awg") Engine.backend.cancelPendingHandshake()
+            if(call.method=="disconnect") {
+                val id=call.argument<String>("roundId")
+                activeRequest?.let { if(id==null || id.startsWith("disconnect-") || id==it.roundId)expire(it,"CANCELLED") }
+                Engine.cancelConnect(if(id?.startsWith("disconnect-")==true)null else id)
+            }
             if (BuildConfig.CLIENT_ONLY && call.method in setOf(
                 "sharingStatus", "sharingSet", "credentialRead", "credentialWrite", "credentialDelete",
+                "issuanceJournalLeasePath", "issuanceJournalRead", "issuanceJournalWrite",
+                "issuanceJournalSeal", "issuanceJournalOpen", "issuanceJournalProvision",
                 "prepareUpdateInstall", "consumeUpdateRequest", "updateAbi", "scheduleUpdateCheck",
                 "installUpdate", "shareBundle", "shareApplication", "openSupportLink"
             )) {
@@ -194,10 +377,10 @@ class MainActivity : FlutterActivity() {
                 return@setMethodCallHandler
             }
             when (call.method) {
-                "supportedProtocols" -> result.success(listOf("awg","rivet-h3","rivet-s1","xray","cloak"))
+                "supportedProtocols" -> result.success(listOf("awg","rivet-h3","rivet-s1","xray"))
                 "sharingStatus" -> result.success(VpnSharing.status(this))
                 "sharingSet" -> Engine.worker.execute { try { val value=VpnSharing.set(this,call.argument<Boolean>("enabled")==true,call.argument<String>("interface")?:"");runOnUiThread{result.success(value)} } catch(e:Exception){runOnUiThread{result.error("SHARING",e.message?:"Не удалось настроить раздачу",null)}} }
-                "connectionBusy" -> result.success(Engine.backgroundBusy)
+                "connectionBusy" -> result.success(Engine.backgroundBusy || activeRequest!=null || pending!=null || permissionOutstanding || notificationOutstanding || !Engine.policyAdmissionOpen())
                 "getAppIcon" -> result.success(AppIcons.current(this))
                 "setAppIcon" -> {
                     try { AppIcons.select(this, call.arguments as String); result.success(null) }
@@ -314,17 +497,39 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
                 "connect" -> {
-                    if (pending != null) { result.error("BUSY", "Ожидается разрешение VPN", null); return@setMethodCallHandler }
+                    if (activeRequest != null || pending != null || permissionOutstanding || notificationOutstanding) { result.error("BUSY", "Ожидается разрешение VPN", null); return@setMethodCallHandler }
                     val id = call.argument<String>("id") ?: ""
-                    pending = result; pendingId = id
+                    val total=(call.argument<Number>("roundMillis")?.toLong() ?: 30000L).coerceIn(1,30000)
+                    val round=ConnectionBudget(total,android.os.SystemClock::elapsedRealtime)
+                    val budget=round.cap((call.argument<Number>("timeoutMillis")?.toLong() ?: 15000L).coerceIn(1,30000))
+                    val policy=org.json.JSONObject(call.argument<Map<String,Any?>>("policy") ?: mapOf("mode" to "automatic","roundMillis" to 30000))
+                    try { ConnectionBudget.mode(policy.getString("mode"));require(policy.optLong("roundMillis",30000) in 1..30000) }
+                    catch(e:Exception){result.error("POLICY","Unsupported connection policy",null);return@setMethodCallHandler}
+                    val request=try {
+                        ConnectRequest(id,result,budget,round,policy.toString(),
+                            call.argument<String>("roundId") ?: "activity-${android.os.SystemClock.elapsedRealtime()}",
+                            policyReceipt = call.argument<Map<String,Any?>>("policyReceipt"))
+                    } catch(e:Exception) {
+                        // A publication reservation or a settings write owns admission.
+                        result.error("POLICY_BUSY","Connection policy is being updated",null);return@setMethodCallHandler
+                    }
+                    pending = request
+                    activeRequest = request
+                    deadlines.postDelayed({expire(request)},budget.remainingMillis())
                     if (android.os.Build.VERSION.SDK_INT >= 33 &&
                         checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED &&
                         !prefs.getBoolean("notificationAsked", false)) {
                         prefs.edit().putBoolean("notificationAsked", true).apply()
+                        notificationOutstanding=true
                         requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 872)
                     } else preparePendingVpn()
                 }
-                else -> Engine.worker.execute {
+                else -> {
+                    // Config save/delete and routingSave fence READY admission
+                    // synchronously, before their IO is queued.
+                    val fence = if (call.method in setOf("saveConfig","deleteConfig","routingSave"))
+                        Engine.beginConfigMutation() else 0L
+                    Engine.worker.execute {
                     try {
                         val value: Any? = when (call.method) {
                             "setConsent" -> {
@@ -351,9 +556,22 @@ class MainActivity : FlutterActivity() {
                             }
                             // Домены разрешаются в приложении; адреса приходят
                             // отдельным вызовом и заменяют предыдущий набор.
+                            "routingBegin" -> SplitRouting(this)
+                                .beginResolution(call.argument<String>("lease") ?: "", call.argument<String>("resolutionId"))
+                            "routingCancel" -> {
+                                SplitRouting(this).cancelResolution(
+                                    call.argument<String>("revision") ?: "",
+                                    call.argument<String>("lease") ?: "",
+                                ); null
+                            }
                             "routingResolved" -> SplitRouting(this)
-                                .saveResolved(call.argument<List<String>>("networks") ?: emptyList())
-                                .map()
+                                .saveResolved(
+                                    call.argument<List<String>>("networks") ?: emptyList(),
+                                    call.argument<String>("revision") ?: "",
+                                    call.argument<String>("lease") ?: "",
+                                    call.argument<Number>("validForMillis")?.toLong() ?: 0,
+                                    call.argument<String>("resolutionId") ?: "",
+                                ).map()
                             "dataDirectory" -> filesDir.absolutePath
                             "saveConfig" -> {
                                 val id = call.argument<String>("id")!!
@@ -375,6 +593,32 @@ class MainActivity : FlutterActivity() {
                                 val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
                                 ConfigVault(this).delete(id);null
                             }
+                            "issuanceJournalLeasePath" -> IssuanceVault(this).leasePath()
+                            "issuanceJournalProvision" -> { IssuanceVault(this).provision(); null }
+                            "issuanceJournalRead" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                IssuanceVault(this).read(id)
+                            }
+                            "issuanceJournalWrite" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                val value=call.argument<ByteArray>("value")!!
+                                require(value.size<=1024*1024)
+                                IssuanceVault(this).write(id,value); null
+                            }
+                            "issuanceJournalSeal" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                val aad=call.argument<ByteArray>("aad")!!
+                                val value=call.argument<ByteArray>("value")!!
+                                require(value.size<=512*1024)
+                                IssuanceVault(this).seal(id,aad,value)
+                            }
+                            "issuanceJournalOpen" -> {
+                                val id=call.argument<String>("id")!!; require(Regex("^state[a-f0-9]{64}$").matches(id))
+                                val aad=call.argument<ByteArray>("aad")!!
+                                val value=call.argument<ByteArray>("value")!!
+                                require(value.size<=1024*1024)
+                                IssuanceVault(this).open(id,aad,value)
+                            }
                             "credentialRead" -> {
                                 val id = call.argument<String>("id")!!
                                 if (ConfigVault(this).contains(id)) ConfigVault(this).readSecret(id) else null
@@ -390,7 +634,21 @@ class MainActivity : FlutterActivity() {
                             "saveConnectionPlan" -> {
                                 val raw = call.arguments as String
                                 require(raw.length <= 32768)
-                                prefs.edit().putString("connectionPlan", raw).commit(); null
+                                // The pre-envelope raw plan is only a migration source
+                                // for a validated legacy-automatic plan. It is never an
+                                // admission authority once the versioned envelope exists.
+                                val parsed = StrictJson.asObject(StrictJson.parse(raw), "connectionPlan")
+                                val schema = parsed["schema"]
+                                if (schema != null && StrictJson.integer(schema, "schema") == PolicyPlan.SCHEMA.toLong()) {
+                                    // A dual-writing app still goes through policyBegin/Commit;
+                                    // keep the mirror non-authoritative and never read it.
+                                    PolicyPlan.parse(parsed, "connectionPlanMirror")
+                                    prefs.edit().putString("connectionPlanMirror", raw).apply()
+                                } else {
+                                    LegacyPlan.parseExactStored(raw)
+                                    prefs.edit().putString("connectionPlan", raw).apply()
+                                }
+                                null
                             }
                             "readConfig" -> {
                                 val id=call.argument<String>("id")!!
@@ -404,45 +662,90 @@ class MainActivity : FlutterActivity() {
                             }
                             "activeId" -> prefs.getString("activeId", null)
                             "disconnect" -> {
-                                Engine.disconnect(); null
+                                val timeout=(call.argument<Number>("timeoutMillis")?.toLong() ?: 30000L).coerceIn(1,30000)
+                                Engine.disconnect(ConnectionBudget(timeout,android.os.SystemClock::elapsedRealtime)); null
                             }
                             "status" -> Engine.status()
+                            "policyCapabilities" -> PolicyBridge.capabilities()
+                            "policyState" -> PolicyBridge.state()
+                            "policyBegin" -> PolicyBridge.begin(policyArguments(call.arguments))
+                            "policyCommit" -> PolicyBridge.commit(policyArguments(call.arguments))
+                            "policyReconcile" -> PolicyBridge.reconcile(policyArguments(call.arguments))
+                            "policyAbort" -> PolicyBridge.abort(policyArguments(call.arguments))
                             else -> throw UnsupportedOperationException("Unknown method")
                         }
                         runOnUiThread { result.success(value) }
                     } catch (e: Exception) {
-                        runOnUiThread { result.error("ENGINE", if (e is RoutingException) e.message else "Не удалось выполнить операцию VPN", null) }
+                        android.util.Log.w("XIO/Engine", call.method + " failed: " + (e.message ?: e.javaClass.simpleName), e)
+                        runOnUiThread {
+                            result.error(
+                                if (e is PolicyFailure) e.code else "ENGINE",
+                                if (e is PolicyFailure) e.message ?: "Connection policy operation failed"
+                                else if (e is RoutingException) e.message
+                                else "Не удалось выполнить операцию VPN",
+                                null,
+                            )
+                        }
+                    } finally {
+                        if (fence != 0L) Engine.endConfigMutation(fence)
+                    }
+                }
+            }
+        }
+        }
+    }
+    private fun connect(request: ConnectRequest) {
+        Engine.worker.execute {
+            try {
+                request.budget.remainingMillis()
+                val publicationToken=Engine.connect(request.id,budget=request.budget,policyJSON=request.policy,roundId=request.roundId,admissionToken=request.admissionToken,policyReceipt=request.policyReceipt)
+                request.budget.remainingMillis()
+                runOnUiThread {
+                    if(request.budget.availableMillis()==0L || !Engine.acceptsUpPublication(publicationToken))expire(request)
+                    else if(request.delivered.compareAndSet(false,true)) {
+                        Engine.releaseConnect(request.round)
+                        if(activeRequest===request)activeRequest=null
+                        request.callback.success(mapOf("connectMillis" to Engine.lastConnectMillis,"policyMode" to org.json.JSONObject(request.policy).getString("mode")))
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("XIO/Engine", "connect failed: " + (e.message ?: e.javaClass.simpleName), e)
+                Engine.cancelConnect(request.roundId,request.budget)
+                var cleanup=false
+                try { Engine.disconnectOwned(request.roundId,request.budget,request.round) } catch(_:Exception) { cleanup=true }
+                runOnUiThread {
+                    if(request.delivered.compareAndSet(false,true)) {
+                        Engine.releaseConnect(request.round)
+                        if(activeRequest===request)activeRequest=null
+                        request.callback.error(
+                            if(cleanup)"CLEANUP" else if(e is PolicyFailure)e.code else if(e is RoutingException)"ROUTING" else "VPN",
+                            if(e is PolicyFailure)e.message ?: "Connection policy rejected this attempt" else if(e is RoutingException)e.message else "Не удалось запустить VPN-движок",
+                            null)
                     }
                 }
             }
         }
     }
-    private fun connect(id: String, result: MethodChannel.Result) {
-        Engine.worker.execute {
-            try {
-                Engine.connect(id)
-                runOnUiThread { result.success(mapOf("connectMillis" to Engine.lastConnectMillis)) }
-            } catch (e: Exception) {
-                runOnUiThread { result.error(if (e is RoutingException) "ROUTING" else "VPN", if (e is RoutingException) e.message else "Не удалось запустить VPN-движок", null) }
-            }
-        }
-    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun policyArguments(arguments: Any?): Map<String, Any?> =
+        arguments as? Map<String, Any?> ?: emptyMap()
 
     private fun preparePendingVpn() {
-        val id=pendingId?:return
+        val request=pending?:return
+        try { request.budget.remainingMillis() } catch(_:Exception){expire(request);return}
         val intent=VpnService.prepare(this)
         if (intent != null) {
+            permissionOutstanding=true
             @Suppress("DEPRECATION") startActivityForResult(intent, 871)
         } else {
-            val callback = pending ?: return
-            val id = pendingId ?: ""
-            pending = null; pendingId = null
-            connect(id, callback)
+            pending=null
+            connect(request)
         }
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 872 && pending != null) preparePendingVpn()
+        if (requestCode == 872) { notificationOutstanding=false;if(pending!=null)preparePendingVpn() }
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -484,11 +787,18 @@ class MainActivity : FlutterActivity() {
             } catch (_: Exception) { callback.error("IMPORT", "Не удалось прочитать профиль", null) }
         }
         if (requestCode == 871) {
-            val callback = pending ?: return
-            val id = pendingId ?: ""
-            pending = null; pendingId = null
-            if (resultCode == Activity.RESULT_OK) connect(id, callback)
-            else callback.error("DENIED", "Разрешение VPN не предоставлено", null)
+            permissionOutstanding=false
+            val request = pending ?: return
+            pending = null
+            if (resultCode == Activity.RESULT_OK) {
+                try {request.budget.remainingMillis();connect(request)}catch(_:Exception){expire(request)}
+            } else if(request.delivered.compareAndSet(false,true)) {
+                if(activeRequest===request)activeRequest=null
+                request.budget.cancel()
+                Engine.releaseConnect(request.round)
+                request.callback.error("DENIED", "Разрешение VPN не предоставлено", null)
+            }
         }
     }
 }
+

@@ -9,11 +9,10 @@ const rivetProtocols = ['rivet-h3', 'rivet-s1'];
 const restrictedNetworkProtocols = [
   'xray',
   'rivet-s1',
-  'cloak',
   'awg',
   'rivet-h3',
 ];
-const nativeProtocols = ['xray', 'rivet-s1', 'cloak', 'awg', 'rivet-h3'];
+const nativeProtocols = ['xray', 'rivet-s1', 'awg', 'rivet-h3'];
 Set<String> availableAndroidProtocols = nativeProtocols.toSet();
 
 /// Client material only. Secrets are passed to the encrypted native vault.

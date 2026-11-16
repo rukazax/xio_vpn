@@ -1,0 +1,17 @@
+[Unit]
+Description=XIO cascade bridge (client -> RU -> foreign exit over SSH TUN)
+After=network-online.target xio-managed-awg.service
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/xio-cascade/bridge.env
+ExecStartPre=/usr/local/sbin/xio-cascade-bridge-up.sh
+ExecStart=/usr/bin/ssh -N -w 0:0 -i /root/.ssh/xio_cascade -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o TCPKeepAlive=yes -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=accept-new -o BatchMode=yes root@${XIO_CASCADE_EXIT_HOST}
+ExecStopPost=/usr/local/sbin/xio-cascade-bridge-down.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

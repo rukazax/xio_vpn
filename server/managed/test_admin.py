@@ -166,9 +166,13 @@ class CatalogTests(unittest.TestCase):
     m.catalog_state()
 
 class StaticAwgTests(unittest.TestCase):
+ def setUp(self):
+  # Explicit absent-native/legacy-down fixture; never probe the test host.
+  for name,value in [('native_capabilities',None),('cascade_status',{'alive':False})]:
+   mocked=patch('dualstack.'+name,return_value=value);mocked.start();self.addCleanup(mocked.stop)
  def deployment(self):
   return {'owner':m.OWNER,'id':'srv','host':'203.0.113.9','phase':'ready','protocols':['wireguard','awg'],
-          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
+          'users':{},'publicKeys':{'awg':'WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo='},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
           'H1':1,'H2':2,'H3':3,'H4':4}}
  def test_add_awg_returns_profile_and_marks_transport(self):
   d=self.deployment(); saved={}
@@ -177,7 +181,7 @@ class StaticAwgTests(unittest.TestCase):
   user=answer['user']; self.assertEqual(user['transports'],['awg']); self.assertEqual(user['slot'],2)
   conf=answer['config']
   self.assertIn('Endpoint = 203.0.113.9:51821',conf)
-  self.assertIn('PublicKey = SERVERPUBKEY',conf)
+  self.assertIn('PublicKey = WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo=',conf)
   self.assertIn('Jc = 4',conf)
   self.assertIn('MTU = 1280',conf)
   self.assertNotIn('S3 =',conf)  # not present in this deployment, so not invented
@@ -191,11 +195,12 @@ class StaticAwgTests(unittest.TestCase):
     m.dispatch({'action':'add-awg','serverId':'srv','name':'router','id':'b'*32,'publicKey':'AAAA'})
 
 class StaticAwgGuardTests(unittest.TestCase):
+ setUp=StaticAwgTests.setUp
  KEY='AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE='
  ZERO='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
  def deployment(self):
   return {'owner':m.OWNER,'id':'srv','host':'2001:db8::1','phase':'ready','protocols':['wireguard','awg'],
-          'users':{},'publicKeys':{'awg':'SERVERPUBKEY'},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
+          'users':{},'publicKeys':{'awg':'WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo='},'awg':{'Jc':4,'Jmin':40,'Jmax':70,'S1':32,'S2':40,
           'H1':1,'H2':2,'H3':3,'H4':4}}
  def dispatch(self,d,**extra):
   request={'action':'add-awg','serverId':'srv','name':'router','id':'a'*32,'publicKey':self.KEY}
@@ -218,7 +223,7 @@ class StaticAwgGuardTests(unittest.TestCase):
   d=self.deployment()
   with patch.object(m,'load',return_value=d),patch.object(m,'save',return_value=None),patch.object(m,'apply',return_value=None):
    with self.assertRaises(AssertionError): self.dispatch(d,publicKey=self.ZERO)
-   with self.assertRaises(AssertionError): self.dispatch(d,publicKey='SERVERPUBKEY')
+   with self.assertRaises(AssertionError): self.dispatch(d,publicKey='WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo=')
 
  def test_static_peer_does_not_appear_in_wireguard_config(self):
   d=self.deployment()
@@ -308,6 +313,7 @@ class DispatchScopeTests(unittest.TestCase):
   capabilities={'outboundByFamily':{'ipv4':'eth0'},'ipv4DefaultRoute':True,'ipv6DefaultRoute':False}
   with patch.object(m,'load',return_value=d),patch.object(m,'stack') as st:
    st.network.dualstack.return_value.capabilities.return_value=capabilities
+   st.network.dualstack.return_value.native_capabilities.return_value=None
    answer=m.dispatch({'action':'inspect','serverId':'srv'})
   self.assertEqual(answer['phase'],'ready')
   self.assertEqual(answer['server']['id'],'srv')
@@ -322,13 +328,22 @@ class SandboxPolicyTests(unittest.TestCase):
   written={}
   with patch.object(m,'sandbox_supported',return_value=False), \
        patch.object(m,'write',side_effect=lambda path,text,mode=0o600: written.update({'path':path,'text':text,'mode':mode})), \
-       patch.object(m,'save',return_value=None):
+       patch.object(m,'save',return_value=None), patch.object(m.Path,'mkdir',autospec=True):
    mode=m.sandbox_prepare(d)
   self.assertEqual(mode,'compat')
   self.assertIn('ProtectSystem=full',written['text'])
-  self.assertIn('ReadWritePaths=/etc/xio-managed /etc/xio-stack',written['text'])
+  self.assertIn('ReadWritePaths=/etc/xio-managed -/etc/xio-stack',written['text'])
   self.assertNotIn('ProtectSystem=no',written['text'])
   self.assertEqual(written['mode'],0o644,'unit drop-ins must stay readable by systemd')
+
+ def test_compat_does_not_precreate_stack_owner_directory(self):
+  # stack.install() reserves /etc/xio-stack for its own ownership receipt.
+  with patch.object(m,'sandbox_supported',return_value=False), \
+       patch.object(m,'write'), patch.object(m,'save'), \
+       patch.object(m.Path,'mkdir',autospec=True) as mkdir:
+   m.sandbox_prepare({})
+  self.assertFalse(any(call.args and call.args[0] == m.Path('/etc/xio-stack')
+                       for call in mkdir.call_args_list))
 
  def test_strict_hosts_drop_the_override(self):
   with patch.object(m,'sandbox_supported',return_value=True), patch.object(m,'save',return_value=None):

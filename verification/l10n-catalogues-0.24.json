@@ -1,0 +1,118 @@
+{
+  "catalogues": [
+    {
+      "language": "ru",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "d33725ee9c1328794d292f5775a3f080745c0bde727ab3d447a51254722bfdf6"
+    },
+    {
+      "language": "en",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "af58914df958a446438d9560f9497abf7bb2e4cdb83506bd99505bae3e4d700d"
+    },
+    {
+      "language": "de",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "c3a85e91b6d3d8679936b777b1632285cb309aada90d215d94927808cc69ff9d"
+    },
+    {
+      "language": "es",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "c674200fb53842b775df30f565945fe3d7d1681b4a7a82ffe69ca999b7460198"
+    },
+    {
+      "language": "fr",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "97df7b9b9260ee6561b2e0523747e2052e4c7cd6f1b245f9bb48d6af31d73c07"
+    },
+    {
+      "language": "it",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "1d61f0b7f9277cc4cff5ec27eba756859a453408cfe59555286cf65ff2ecf341"
+    },
+    {
+      "language": "pt",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "fecd4f930f557a0a5130ec4b17c317c451a6674d9f7723aff806c2b65a32c372"
+    },
+    {
+      "language": "zh",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "24f96df930e3b1b66ede83eed04b50bc5aa255e8ab490cd94444cbf8d13d80e2"
+    },
+    {
+      "language": "ja",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "67706f13fa5ef57b656ecf7b4c6bb7201cf3ad4b1304365a5b1c335133d33a4e"
+    },
+    {
+      "language": "ko",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "aa32788fc399074acd4f7eb8670df4cc217595dfcd8d493fa97f91c7031673cd"
+    },
+    {
+      "language": "tr",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "c7171775007f97ccd0eb9cab3ec10ec9b756f8da2f476267b4309e53014df5c9"
+    },
+    {
+      "language": "hi",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "6e1952325a95c84edf76e8ee2048f260e42203ef684c501b8d0401023af702f1"
+    },
+    {
+      "language": "ar",
+      "messages": 799,
+      "placeholdersValid": true,
+      "bundledGlyphCoverage": true,
+      "sha256": "312c560d0cdb517474543551d11af4359ccbadb9a5684784fbe6611c37b8426a"
+    }
+  ],
+  "fontFiles": [
+    {
+      "file": "NotoSans-Regular.ttf",
+      "bytes": 512672,
+      "sha256": "89c3c497f618fdaa0b2d1e98fef93582f28c71debd2c4a8cdf41f190ced2909d"
+    },
+    {
+      "file": "NotoSansArabic-Regular.ttf",
+      "bytes": 240456,
+      "sha256": "ceea25b464a656dc3b26849bab9356740401af62aedf1bfa8b7f0d9b75925b1b"
+    },
+    {
+      "file": "NotoSansCJKsc-Regular.otf",
+      "bytes": 7535252,
+      "sha256": "3ab4aff4d614686cb359ed94dabbbb0dddd66c37566fbb212f571cbdaeaad478"
+    },
+    {
+      "file": "NotoSansDevanagari-Regular.ttf",
+      "bytes": 219212,
+      "sha256": "385e78e6359a9d88a0f243d53b1209d7548361ba2194e2b9ec779bcaa7e8949d"
+    }
+  ],
+  "note": "Structural checks and glyph coverage do not establish native-speaker translation quality."
+}
