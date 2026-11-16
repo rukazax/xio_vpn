@@ -238,7 +238,8 @@ flowchart LR
 - three stations: device → bridge → exit, with country flags from the ISO code;
 - state lines: grey — idle, yellow — connecting or degraded, green — active, red — failed;
 - ping, update time, a "Reconnect" button;
-- a "Paid feature. Subscription required" plate and an "Activate" button.
+- country flags and the real egress IP with its country; there is no subscription or "Paid
+  feature" plate in 0.24.3 — the cascade is free.
 
 The layout is deliberately `Column` + `Expanded`, with no `ListView`/`ScrollView`: a large system
 font must not push elements off screen. This was checked on a POCO X6 5G (Android 16): all
@@ -391,10 +392,12 @@ does not exist, and "should work" does not count.
   not re-run.
 - **Ubuntu GUI**: 0.23.0 did not create a window; 0.24.0 packages are built but the GUI was not
   re-verified live. The tunnel works through `libexec/xio-tunnel` and needs `systemd-resolved`.
-- **Cascade**: no real traffic through two servers; the subscription is a stub
-  (`CascadeFeatureGate.enabled == false`) and server pooling is a stub (`CascadeServerPool`).
-- **The web panel and the terminal bootstrap** never ran on a live server with systemd and
-  `admin.py` — only `py_compile`, certificate generation and response codes were checked locally.
+- **Cascade**: verified on the live pair `81.177.142.37` → `103.102.135.124` (SSH TUN, IPv4 +
+  IPv6 egress, 69.3 Mbit/s with BBR). Limits are in the
+  [README](../README.md#cascade-two-servers-ipv4--ipv6); server pooling is still a stub
+  (`CascadeServerPool`).
+- **The web panel** is deployed and answers on a live server (`https://79e.ru/xio/`, health 1.1.0);
+  the terminal bootstrap was not re-run in this pass.
 - **Windows ICS sharing** was not validated on a live host.
 - **iOS** is not built: no Mac/Xcode/iPhone and no IPA.
 - **Next to another VPN** XIO does not work: the `/1` routes conflict.

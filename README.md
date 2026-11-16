@@ -154,8 +154,8 @@ flowchart LR
   CLOAK --> FW
   FW --> NET
 
-  ENG -.->|"with a subscription"| CASCADE
-  CASCADE -.->|"IPv6 only"| NET
+  ENG -.->|"free"| CASCADE
+  CASCADE -.->|"IPv4 + IPv6"| NET
   WEB -->|"systemctl + admin.py"| UNITS
 ```
 
@@ -369,68 +369,91 @@ Verified on a VPS with global IPv6 `2a0c:b641:1a0:800::2a2`: the client receives
 
 ## Cascade: two servers, IPv4 → IPv6
 
-A paid feature (subscription stub for now): the device reaches **bridge** over IPv4, the bridge
-keeps a protected **IPv6-only** tunnel to an **exit** server, and traffic leaves from an IPv6-only
-network.
+The cascade is free: no subscription, no account. The device reaches **bridge** over AmneziaWG
+(IPv4), the bridge keeps an **SSH TUN** to **exit**, and the exit serves traffic to the internet
+over IPv4 and IPv6. This exact scheme was deployed and verified on 17 Nov 2026 on the live pair
+`81.177.142.37` (RU) → `103.102.135.124` (FR).
 
 ![Cascade route](docs/landing/cascade-route.en.svg)
 
 ```mermaid
 flowchart LR
-  A[Phone / PC<br/>IPv4] -->|XIO TLS / QUIC| B[Bridge<br/>IPv4]
-  B -->|protected tunnel<br/>IPv6 only| C[Exit<br/>IPv6-only]
-  C --> D((Internet))
+  A[Phone<br/>AmneziaWG, IPv4] -->|UDP 51821| B[Bridge<br/>IPv4]
+  B -->|SSH TUN<br/>10.250.0.1 ⇄ 10.250.0.2| C[Exit<br/>IPv4 + IPv6]
+  C --> D((Internet<br/>IPv4 / IPv6))
 ```
 
-**What the app shows.** One screen, no scrolling, entirely inside the phone screen
-(`app/lib/cascade_ui.dart`):
+**What the app shows in 0.24.3.** The main-screen card and the Cascade screen report the same
+state:
 
-- three stations — device → bridge → exit — with country flags from the ISO code;
-- state lines: grey idle, yellow connecting or degraded, green active, red failed;
-- a status block — "Latency", "Egress IPv6", "Updated" — and a "Check cascade" button that
-  really probes the bridge over SSH (up to 15 s) and reports whether the tunnel is alive, the
-  measured response time, the real egress IPv6 and the failure reason;
-- a "Paid feature. Subscription required" plate and an "Activate" button.
+- three stations — 🇷🇺 device → 🇷🇺 bridge → 🇫🇷 exit — with addresses and country flags;
+- the real egress: `103.102.135.124 FR` for IPv4 plus the exit's global IPv6;
+- "Cascade active" only while the tunnel is actually up, not just because addresses are saved;
+- "Check cascade": with a saved SSH server it really probes the bridge; without one it honestly
+  asks `api.ipify.org` for the actual egress and stores the address and country. No demo timers,
+  no fake latency.
 
-| Cascade screen with configured addresses | "Cascade servers" dialog |
-|---|---|
-| ![Cascade: device, bridge 81.177.142.37, exit 2a0c:b641:1a0:800::2a2](docs/screenshots/cascade-configured.png) | ![Cascade servers dialog: two fields and the install command](docs/screenshots/cascade-servers-dialog.png) |
+Real POCO X6 captures, not mockups:
 
-After "Check cascade" the same screen shows the result of the check: latency, the egress IPv6
-and the time the server answered.
+| Main screen with cascade flags | IPv4 egress | IPv6 egress |
+|---|---|---|
+| ![Main: 🇷🇺 device → 🇷🇺 bridge → 🇫🇷 exit, egress 103.102.135.124 FR](docs/screenshots/android-cascade-flags-20261117.png) | ![api.ipify.org returns 103.102.135.124](docs/screenshots/android-cascade-egress-ipv4-20261117.png) | ![api6.ipify.org returns 2a0c:b641:1a0:800::2a2](docs/screenshots/android-cascade-egress-ipv6-20261117.png) |
 
-![Cascade screen after "Check cascade": green stations and lines, 214 ms latency, egress IPv6 2a0c:b641:1a0:800::2a2, "IPv6-only protected tunnel · verified"](docs/screenshots/cascade-health.png)
+**Installing on live servers — `deploy/cascade/native/`.** Native scripts and systemd units,
+not a Docker container; they are idempotent, and `systemctl restart` recreates the rules without
+duplicating them.
 
-These are real renders of the screen produced by a widget test
-([docs/screenshots/README.md](docs/screenshots/README.md), section 1), not mockups. The frame
-shows the subscription plate in its active state even though the subscription itself is still a
-stub (`CascadeFeatureGate.enabled == false`).
+1. **Exit** (`103.102.135.124`): put `xio-cascade-exit-{up,down}.sh` into `/usr/local/sbin/` and
+   `xio-cascade-exit.service` into `/etc/systemd/system/`, then
+   `systemctl enable --now xio-cascade-exit`. The unit brings up `tun0` `10.250.0.2/30` and
+   `fd78:2::2/64`, forwarding and NAT44/NAT66.
+2. **Bridge** (`81.177.142.37`): install its scripts and unit the same way, write
+   `XIO_CASCADE_EXIT_HOST=103.102.135.124` to `/etc/xio-cascade/bridge.env`, then
+   `systemctl enable --now xio-cascade-bridge`. The unit keeps `ssh -N -w 0:0` to the exit and
+   restarts on failure.
+3. **SSH trust** once: `PermitTunnel yes` on the exit; the bridge key `/root/.ssh/xio_cascade`
+   added to the exit's `authorized_keys`.
 
-**One command on the server:**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/rukazax/xio_vpn/main/deploy/cascade/terminal-install.sh \
-  | sudo bash -s -- --role bridge --exit-host <ipv6-exit>
-```
-
-The script downloads the installer over HTTPS, verifies sha256 **before** running it, requires root
-and logs to `/var/log/xio-cascade-install.log` (mode 600). Roles: `bridge`, `exit`, `both`. From the
-app the cascade is enabled by the "Enable cascade (subscription)" checkbox in the server setup form;
-it passes `--enable-cascade` and the usual SSH flow takes over.
+Measured on that pair: `ping 10.250.0.1` from the exit — 50.8 ms; 20 MiB through `tun0` —
+2.309 s (**69.3 Mbit/s**) with BBR on the bridge, `tcp_mtu_probing=1` and 16 MiB buffers;
+without BBR the same pair collapsed to 1.5 Mbit/s at ≈8 % loss. Commands and numbers:
+[docs/CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-RU-FR-20261117.md).
 
 | What | Where |
 |---|---|
-| Installer (bridge/exit/both, container) | `deploy/cascade/` |
-| Terminal install | `deploy/cascade/terminal-install.sh` |
+| Verified native scripts and units | `deploy/cascade/native/` |
+| Container installer for bridge/exit/both (earlier path) | `deploy/cascade/`, `deploy/cascade/terminal-install.sh` |
 | Health check | `deploy/cascade/cascade-healthcheck.sh` → `/var/lib/xio-cascade/health.json` |
 | Whitelists on the bridge | `deploy/cascade/whitelist-update.sh`, weekly timer |
 | Server web UI (TLS + token) | `server/webui/` |
 | Full description and diagram | [docs/cascade/README.md](docs/cascade/README.md) |
 
-> **What is not verified:** real traffic through two servers. The test bridge (81.177.142.37) has no
-> global IPv6, so the bridge → exit tunnel (2a0c:b641:1a0:800::2a2) cannot physically be raised. The
-> scripts were checked for bash syntax and branching logic, never on a live server pair. The
-> subscription is a stub: `CascadeFeatureGate.enabled == false`.
+**Your own cascade servers.** On the Cascade screen the **DNS** icon opens a dialog:
+
+| Field | What to enter | Validation |
+|---|---|---|
+| **Bridge** | IPv4 or domain, e.g. `81.177.142.37` | rejects schemes, ports, IPv6 and "999.1.1.1" |
+| **Exit** | IPv6 literal, e.g. `2a0c:b641:1a0:800::2a2` (brackets allowed) | rejects IPv4, DNS names and garbage |
+
+The addresses are stored in the profile, the stations show them, and the dialog offers a ready
+install command. In the verified pair the exit is set by IPv4 in `bridge.env` because the SSH TUN
+runs over IPv4; the app dialog currently accepts only an IPv6 literal in the Exit field. That is
+a UI limitation, not a server-side one.
+
+**Honest cascade limits:**
+
+- there is no single button that installs the cascade on both servers; the bridge and the exit
+  are separate steps, although both script sets are in the repository;
+- updating or reinstalling the APK breaks the saved native receipt: a clean install, profile
+  import and connection work, but after a reinstall the app may report
+  "saved plan could not be reconciled";
+- the SSH TUN is TCP-over-TCP: it survives on BBR, and BBR is enabled on the bridge but not on
+  the exit (kernel without `tcp_bbr`); one path, no backup;
+- WireGuard between the servers did not come up for data: the handshake succeeds but transport
+  packets are lost, which is why the SSH TUN was chosen;
+- the mobile profile uses `9.9.9.9` for DNS and the queries go through the cascade;
+- Yandex Browser on the test phone renders a blank page while the tunnel works; Chrome works.
+  This is browser behaviour, not the cascade.
 
 ## Install a server
 
@@ -673,8 +696,8 @@ flowchart LR
 
 ## FAQ
 
-**Is XIO a subscription VPN?** No. It is software you run on your own VPS. The only paid piece is
-the cascade, and its subscription is still a stub.
+**Is XIO a subscription VPN?** No. It is software you run on your own VPS. The cascade is free
+too: no subscription, no billing, no third-party account.
 
 **Do I need root?** Not for the VPN itself. Root is needed for VPN sharing on Android.
 
@@ -714,9 +737,12 @@ different jobs.
   through `libexec/xio-tunnel` and needs `systemd-resolved`.
 - **A full tunnel on Linux cuts off the local network:** while the tunnel is up the machine stops
   answering SSH from the LAN, because all unmarked IPv4 goes into the tunnel.
-- **Cascade:** no real traffic through two servers; the subscription and server pooling are stubs.
-- **The web panel and the terminal bootstrap** never ran on a live server with systemd and
-  `admin.py` — only `py_compile`, certificate generation and response codes were checked locally.
+- **Cascade:** verified on the live pair `81.177.142.37` → `103.102.135.124` (SSH TUN, IPv4 +
+  IPv6 egress, 69.3 Mbit/s with BBR). Limits: no one-button install on both servers, TCP-over-TCP
+  without a backup path, the native receipt breaks when the APK is reinstalled; see the Cascade
+  section for details.
+- **The web panel** is deployed and answers on a live server (`https://79e.ru/xio/`, health 1.1.0);
+  the terminal bootstrap was not re-run in this pass.
 - **Windows ICS sharing** was not validated on a live host.
 - **IPv6 must be routed by the provider.** XIO configures addressing, forwarding and NAT66 on its own
   interfaces, but cannot make an upstream announce or route a prefix. DNS64/NAT64 are not provided.

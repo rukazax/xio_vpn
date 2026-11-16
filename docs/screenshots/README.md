@@ -71,10 +71,10 @@ XIO_CAPTURE_IMAGES=1 flutter test test/screenshots
 - `routing-domains.png` снят высоким кадром (360×1180 логических, 1080×3540 px): форма
   маршрутизации длиннее экрана телефона, и в обычный кадр попал бы только её верх — без поля
   доменов, ради которого кадр и снят. На телефоне форма прокручивается, содержимое то же;
-- плашка подписки на `cascade-configured.png` — состояние «подписка активна»
-  (`CascadeSubscription(entitled: true, planLabel: 'XIO Cascade')`). Сама подписка пока
-  заглушка: `CascadeFeatureGate.enabled == false`, поэтому кнопка «Активировать» в кадре
-  ничего не включает;
+- кадры `cascade-configured.png`, `cascade-health.png` и `cascade-servers-dialog.png` —
+  рендеры 0.24.1: в них ещё видна плашка подписки (`CascadeFeatureGate.enabled == false`
+  на тот момент). В 0.24.3 каскад бесплатный, плашки нет, а актуальные реальные снимки —
+  `android-cascade-*-20261117.png`;
 - кнопка «Проверить каскад» в этих кадрах настоящая: она заблокирована на время запроса и
   опрашивает bridge по SSH (`CascadeSshProbe`, тайм-аут 15 с). В widget-тесте SSH заменить
   нечем, поэтому `cascade-health.png` подставляет в `healthProbe` заранее известный
