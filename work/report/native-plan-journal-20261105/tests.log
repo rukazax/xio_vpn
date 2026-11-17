@@ -1,0 +1,111 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart
+00:00 +0: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: targets use canonical literal exit and exact verified identities
+00:00 +1: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: no same installation or guessed exit target
+00:00 +2: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: endpoint family never guesses supported inner egress
+00:00 +3: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: explicit family and safe physical egress map required
+00:00 +4: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: intent snapshots cannot drift with caller collections
+00:00 +5: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: public plan stable roundtrip and set-order-independent identity
+00:00 +6: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: journal plan rejects unknown fields/modes/families/schema
+00:00 +7: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: configuration hashes match the real Python connector normalizer
+00:00 +8: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: RFC7748 keys restore and recover exact secret material
+00:00 +9: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: generated keys are distinct, canonical and recoverable
+00:00 +10: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: corrupt vault records reject without echoing private data
+00:00 +11: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: paired configs move keys both ways and use hop-snat for overlapping full nodes
+00:00 +12: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_plan_test.dart: ordinary plan/public config serialization never contains tunnel secrets
+00:00 +13: loading /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart
+00:01 +13: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: keys persist before open returns and restart reuses exactly the same intent
+00:01 +14: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: parallel instances cannot overwrite each others first key material
+00:02 +15: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: write is awaited and failed persistence never admits a returned intent
+00:02 +16: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: missing write readback fails and reordered maps remain valid
+00:02 +17: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: unknown remote outcomes preserve operation identity keys and pending action
+00:02 +18: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: stale caller cannot roll journal backwards or replace newer state
+00:02 +19: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: corrupt private record never regenerates or prints private contents
+00:02 +20: /srv/archives/snapshots/native-plan-20261105/app/test/native_cascade_journal_test.dart: different target/configuration cannot be resumed under the old identity
+00:02 +21: loading /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart
+00:03 +21: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "::::"
+00:03 +22: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal ":::"
+00:03 +23: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:::2"
+00:03 +24: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:2:3"
+00:03 +25: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1::2::3"
+00:03 +26: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "[::::]"
+00:03 +27: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8:1:2:3:4:5:6:7"
+00:03 +28: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:2:3:4:5:6:7:8::"
+00:03 +29: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal ":1:2:3:4:5:6:7"
+00:03 +30: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:2:3:4:5:6:7:"
+00:03 +31: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8::zz"
+00:03 +32: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "fe80::1%eth0"
+00:03 +33: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "[fe80::1%25eth0]"
+00:03 +34: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "[2001:db8::1]:9443"
+00:03 +35: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8::1/64"
+00:03 +36: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001: db8::1"
+00:03 +37: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8::1\n;id"
+00:03 +38: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "[192.0.2.1]"
+00:03 +39: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "01.2.3.4"
+00:03 +40: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.02.3.4"
+00:03 +41: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "256.2.3.4"
+00:03 +42: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.-1"
+00:03 +43: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.+1"
+00:03 +44: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3"
+00:03 +45: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.4.5"
+00:03 +46: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "0x7f.0.0.1"
+00:03 +47: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "2130706433"
+00:03 +48: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.4:9443"
+00:03 +49: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.4/24"
+00:03 +50: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "exit.example"
+00:03 +51: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "https://exit.example"
+00:03 +52: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "[::1"
+00:03 +53: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal "::1]"
+00:03 +54: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit rejects malformed literal ""
+00:03 +55: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: valid IPv6 spellings normalize to one identity, no DNS
+00:03 +56: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: bridge rejects legacy IPv4 aliases and invalid DNS label lengths
+00:03 +57: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: IPv4 exit persists; malformed replacements cannot mutate saved route
+00:03 +58: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: IPv4 exit is a configured route, not a successful healthcheck
+00:03 +59: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: probe target must be unique and exact, never guessed
+00:03 +60: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: positive health must confirm the configured exit identity
+00:03 +61: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: exit binding never upgrades a previous failure
+00:03 +62: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: screen refuses positive verdict for unconfirmed exit 192.0.2.2
+00:05 +63: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: screen refuses positive verdict for unconfirmed exit null
+00:05 +64: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: late prior success cannot finish a new poll or cancel its deadline
+00:05 +65: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 1:::2
+00:05 +66: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 1::2::3
+00:05 +67: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from ::::
+00:05 +68: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 20:41:07
+00:05 +69: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 1:2:3:4:5:6:7:8:9:0:1:2:3:4:5:6:7
+00:05 +70: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from fe80::1%eth0
+00:05 +71: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from bad2001::1host
+00:05 +72: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_identity_test.dart: egress extracts a complete IPv6 token from human detail
+00:05 +73: loading /srv/archives/snapshots/native-plan-20261105/app/test/cascade_servers_test.dart
+00:06 +73: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_servers_test.dart: Серверы каскада: валидация bridge принимает IPv4 и домен, отвергает мусор
+00:06 +74: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_servers_test.dart: Серверы каскада: валидация exit принимает literal IPv4 и IPv6
+00:06 +75: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_servers_test.dart: Серверы каскада: валидация маршрут из адресов: настроен и не настроен
+00:06 +76: /srv/archives/snapshots/native-plan-20261105/app/test/cascade_servers_test.dart: Серверы каскада: валидация полу-настроенный маршрут не считается активным
+00:06 +77: loading /srv/archives/snapshots/native-plan-20261105/app/test/managed_update_verification_test.dart
+00:08 +77: /srv/archives/snapshots/native-plan-20261105/app/test/managed_update_verification_test.dart: update awaits digest and advances only after acceptance
+00:08 +78: /srv/archives/snapshots/native-plan-20261105/app/test/managed_update_verification_test.dart: update awaits digest and returns mismatch without side effects
+00:08 +79: /srv/archives/snapshots/native-plan-20261105/app/test/managed_update_verification_test.dart: default service returns real digest mismatch before updater load
+00:08 +80: loading /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart
+00:10 +80: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: server release manifest binds the exact archive bytes
+00:10 +81: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install uploads the manifest-matched archive and bootstrap verbatim
+00:10 +82: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: a stale or corrupted archive is refused before any upload
+00:10 +83: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host fr-host.fr, not SSH proxy
+00:10 +84: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host xn--bcher-kva.example, not SSH proxy
+00:11 +85: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host XN--BCHER-KVA.example, not SSH proxy
+00:11 +86: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 198.51.100.42, not SSH proxy
+00:11 +87: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 2001:db8::42, not SSH proxy
+00:11 +88: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host [2001:db8::42], not SSH proxy
+00:11 +89: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: malformed hosts perform no inspect, upload, init or store write
+00:11 +90: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: a ready installation is reused without uploading the old bundle
+00:11 +91: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: a different explicit host on a ready server is refused before upload
+00:11 +92: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: an incomplete installation is a hard stop before upload
+00:11 +93: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: a fresh init mismatch never registers a different VPN host
+00:11 +94: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: a malicious server AWG extension is rejected and the user revoked
+00:12 +95: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: password is released only after the host key gate accepts
+00:12 +96: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: client factory wires pin verification before password release
+00:12 +97: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: a pinned host rejects a different key before the password
+00:12 +98: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: case and trailing-dot aliases share one host-key pin
+00:12 +99: /srv/archives/snapshots/native-plan-20261105/app/test/install_domain_security_test.dart: DNS resolution keeps a Punycode name, never substitutes an address
+00:12 +100: All tests passed!

@@ -1,0 +1,23 @@
+
+UTC 2026-11-05T21:45:43Z COMMAND: flutter --no-version-check pub get --offline
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+EXIT=0
+
+UTC 2026-11-05T21:45:52Z COMMAND: flutter --no-version-check analyze --no-pub lib/managed_models.dart lib/app_settings.dart lib/core.dart lib/managed_service.dart lib/subclients.dart test/dns_contract_test.dart test/app_settings_test.dart
+Analyzing 7 items...                                            
+
+   info • Use the null-aware marker '?' rather than a null check via an 'if'. Try using '?' • test/dns_contract_test.dart:167:11 • use_null_aware_elements
+
+1 issue found. (ran in 23.1s)
+EXIT=1

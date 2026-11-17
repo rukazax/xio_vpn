@@ -17,14 +17,17 @@ function snapshot(id='A') {
 }
 async function setup(storage=new Map([['xio_token','fixture']]), pathname='/') {
   class Element {
-    constructor(attrs={}) { this.attrs=attrs;this.listeners={};this.value='';this.hidden=false;this.disabled=false;this.innerHTML='';this.textContent=''; }
+    constructor(attrs={}) { this.attrs=attrs;this.listeners={};this.value='';this.hidden=false;this.disabled=false;this.innerHTML='';this.textContent='';this.clicks=0;this.href='';this.download=''; }
     getAttribute(k){return this.attrs[k] ?? null;}
     setAttribute(k,v){this.attrs[k]=String(v);}
     removeAttribute(k){delete this.attrs[k];}
     addEventListener(k,fn){this.listeners[k]=fn;}
     focus(){}
+    select(){}
+    click(){this.clicks++;if(this.listeners.click)this.listeners.click({target:this});}
+    remove(){this.removed=true;}
   }
-  const elements = new Map(), events={}, calls=[];
+  const elements = new Map(), events={}, calls=[], copied=[], downloads=[];
   const el = id => {if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
   let current=snapshot(), post=()=>Promise.resolve({status:200,ok:true,json:async()=>({schema:1,ok:true,data:{revoked:uid,serverId:'A'},outcomeUnknown:false})});
   let get=()=>Promise.resolve({status:200,ok:true,json:async()=>current});

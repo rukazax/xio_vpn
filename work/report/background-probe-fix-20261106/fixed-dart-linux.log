@@ -1,0 +1,14 @@
+00:00 +0: loading /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart
+00:00 +0: /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in false
+00:00 +1: /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in true
+00:00 +2: /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart: platform gate stays off when Android is not selected
+00:01 +3: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: automatic default retains selected first, selectedOnly is explicit
+00:01 +4: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: disposed disconnect success cannot publish or rearm
+00:01 +5: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: disposed activation success cannot publish or rearm
+00:01 +6: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: disposed disconnect error cannot publish or rearm
+00:01 +7: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: disposed activation error cannot publish or rearm
+00:01 +8: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: unjoined cleanup reserves activation after round expiry
+00:01 +9: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: repeated native recovery polls cannot renew the same lease
+00:01 +10: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: selectedOnly rejects missing native policy acknowledgement without fallback
+00:01 +11: /srv/archives/agent-background-probe-fix-20261106/source/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+00:02 +12: All tests passed!

@@ -1,0 +1,120 @@
+[
+  {
+    "backend": "userspace",
+    "transport": "ipv4",
+    "sourceMode": "hop-snat",
+    "removeLeavesForeignRules": true,
+    "requestedFamilies": [
+      "ipv4",
+      "ipv6"
+    ],
+    "awgIpv4": "2/2",
+    "awgIpv6": "2/2",
+    "rivetIpv4": "2/2",
+    "rivetIpv6": "2/2",
+    "managementDirect": true,
+    "nativeCapabilitiesFresh": true,
+    "terminalPolicyNoFallthrough": true,
+    "tunnelLossNoLeak": true,
+    "overlappingExitNativePrefixes": true,
+    "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"
+  },
+  {
+    "backend": "userspace",
+    "transport": "ipv6",
+    "sourceMode": "hop-snat",
+    "removeLeavesForeignRules": true,
+    "requestedFamilies": [
+      "ipv4",
+      "ipv6"
+    ],
+    "awgIpv4": "2/2",
+    "awgIpv6": "2/2",
+    "rivetIpv4": "2/2",
+    "rivetIpv6": "2/2",
+    "managementDirect": true,
+    "nativeCapabilitiesFresh": true,
+    "terminalPolicyNoFallthrough": true,
+    "tunnelLossNoLeak": true,
+    "overlappingExitNativePrefixes": true,
+    "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"
+  },
+  {
+    "backend": "userspace",
+    "transport": "ipv4",
+    "sourceMode": "preserve",
+    "removeLeavesForeignRules": true,
+    "requestedFamilies": [
+      "ipv4",
+      "ipv6"
+    ],
+    "awgIpv4": "2/2",
+    "awgIpv6": "2/2",
+    "rivetIpv4": "2/2",
+    "rivetIpv6": "2/2",
+    "managementDirect": true,
+    "nativeCapabilitiesFresh": true,
+    "terminalPolicyNoFallthrough": true,
+    "tunnelLossNoLeak": true,
+    "overlappingExitNativePrefixes": false,
+    "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"
+  },
+  {
+    "backend": "kernel",
+    "transport": "ipv4",
+    "sourceMode": "hop-snat",
+    "removeLeavesForeignRules": true,
+    "requestedFamilies": [
+      "ipv4",
+      "ipv6"
+    ],
+    "awgIpv4": "2/2",
+    "awgIpv6": "2/2",
+    "rivetIpv4": "2/2",
+    "rivetIpv6": "2/2",
+    "managementDirect": true,
+    "nativeCapabilitiesFresh": true,
+    "terminalPolicyNoFallthrough": true,
+    "tunnelLossNoLeak": true,
+    "overlappingExitNativePrefixes": true,
+    "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"
+  },
+  {
+    "backend": "userspace",
+    "transport": "ipv4",
+    "sourceMode": "hop-snat",
+    "removeLeavesForeignRules": true,
+    "requestedFamilies": [
+      "ipv4"
+    ],
+    "awgIpv4": "2/2",
+    "awgIpv6": "blocked",
+    "rivetIpv4": "2/2",
+    "rivetIpv6": "blocked",
+    "managementDirect": true,
+    "nativeCapabilitiesFresh": true,
+    "terminalPolicyNoFallthrough": true,
+    "tunnelLossNoLeak": true,
+    "overlappingExitNativePrefixes": true,
+    "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"
+  },
+  {
+    "backend": "userspace",
+    "transport": "ipv6",
+    "sourceMode": "hop-snat",
+    "removeLeavesForeignRules": true,
+    "requestedFamilies": [
+      "ipv6"
+    ],
+    "awgIpv4": "blocked",
+    "awgIpv6": "2/2",
+    "rivetIpv4": "blocked",
+    "rivetIpv6": "2/2",
+    "managementDirect": true,
+    "nativeCapabilitiesFresh": true,
+    "terminalPolicyNoFallthrough": true,
+    "tunnelLossNoLeak": true,
+    "overlappingExitNativePrefixes": true,
+    "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"
+  }
+]

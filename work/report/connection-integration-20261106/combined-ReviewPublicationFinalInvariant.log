@@ -1,0 +1,1 @@
+PASS independent final gate/source: old queued UP drops, own UP passes; own DOWN allowed, replacement between cancellation return and DOWN post drops old DOWN, rejected owner emits NONE; AWG captured callback before writes; permission/root DOWN

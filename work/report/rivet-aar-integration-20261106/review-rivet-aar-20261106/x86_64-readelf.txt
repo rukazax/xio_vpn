@@ -1,0 +1,69 @@
+Заголовок ELF:
+  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+  Класс:                             ELF64
+  Данные:                            дополнение до 2, от младшего к старшему
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  Версия ABI:                        0
+  Тип:                               DYN (Совм. исп. объектный файл)
+  Машина:                            Advanced Micro Devices X86-64
+  Версия:                            0x1
+  Адрес точки входа:                 0x0
+  Начало заголовков программы:       64 (байт в файле)
+  Начало заголовков раздела:         34764360 (байт в файле)
+  Флаги:                             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         9
+  Size of section headers:           64 (bytes)
+  Number of section headers:         33
+  Section header string table index: 32
+
+Заголовки программы:
+  Тип            Смещ.              Вирт.адр           Физ.адр
+                 Рзм.фйл            Рзм.пм              Флаги  Выравн
+  PHDR           0x0000000000000040 0x0000000000000040 0x0000000000000040
+                 0x00000000000001f8 0x00000000000001f8  R      0x8
+  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000001cc27e0 0x0000000001cc27e0  R E    0x4000
+  LOAD           0x0000000001cc27e0 0x0000000001cc67e0 0x0000000001cc67e0
+                 0x00000000003a5268 0x00000000003a5820  RW     0x4000
+  LOAD           0x0000000002067a50 0x000000000206fa50 0x000000000206fa50
+                 0x00000000000bf890 0x000000000210e610  RW     0x4000
+  DYNAMIC        0x00000000020676a0 0x000000000206b6a0 0x000000000206b6a0
+                 0x00000000000001b0 0x00000000000001b0  RW     0x8
+  GNU_RELRO      0x0000000001cc27e0 0x0000000001cc67e0 0x0000000001cc67e0
+                 0x00000000003a5268 0x00000000003a5820  R      0x1
+  GNU_EH_FRAME   0x0000000000f63700 0x0000000000f63700 0x0000000000f63700
+                 0x000000000000052c 0x000000000000052c  R      0x4
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000
+                 0x0000000000000000 0x0000000000000000  RW     0x0
+  NOTE           0x0000000000000238 0x0000000000000238 0x0000000000000238
+                 0x0000000000000120 0x0000000000000120  R      0x4
+
+ Соответствие раздел-сегмент:
+  Сегмент Разделы...
+   00     
+   01     .note.android.ident .note.go.buildid .note.gnu.build-id .dynsym .gnu.version .gnu.version_r .gnu.hash .dynstr .rela.dyn .rela.plt .rodata .gopclntab .eh_frame_hdr .eh_frame .text .plt 
+   02     .data.rel.ro .fini_array .init_array .dynamic .got .got.plt .relro_padding 
+   03     .go.buildinfo .go.fipsinfo .go.module .noptrdata .data .bss .noptrbss 
+   04     .dynamic 
+   05     .data.rel.ro .fini_array .init_array .dynamic .got .got.plt .relro_padding 
+   06     .eh_frame_hdr 
+   07     
+   08     .note.android.ident .note.go.buildid .note.gnu.build-id 
+
+Displaying notes found in: .note.android.ident
+  Владелец     Размер данных	Description
+  Android              0x00000084	NT_VERSION (версия)
+   данные описания: 1a 00 00 00 72 33 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 31 36 32 34 38 33 37 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+Displaying notes found in: .note.go.buildid
+  Владелец     Размер данных	Description
+  Go                   0x00000053	GO BUILDID
+   данные описания: 4b 69 71 42 44 7a 48 7a 72 6e 64 62 6b 41 67 35 2d 64 70 6a 2f 74 71 64 59 69 37 61 39 65 59 41 33 6f 2d 5f 45 75 70 75 78 2f 67 38 6f 6f 4f 64 76 76 6f 68 34 69 39 43 5a 55 52 68 6f 6e 2f 4d 68 45 62 4d 57 33 73 6b 67 67 65 6b 4b 6a 47 47 51 4a 4a 
+
+Displaying notes found in: .note.gnu.build-id
+  Владелец     Размер данных	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (уникальный ID битовой строки сборки)
+    ID сборки: de8367e462378229f905683df88018e1fbd3a47e

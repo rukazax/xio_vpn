@@ -1,0 +1,1 @@
+PASS source wiring: versioned atomic save; no truncation; capacity/empty checks; UUID persisted; both native apply paths require receipt; channel begin/cancel/revision+lease arguments

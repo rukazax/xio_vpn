@@ -1,0 +1,74 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart
+00:00 +0: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+00:00 +1: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+00:00 +2: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+00:00 +3: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+00:00 +4: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+00:00 +5: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+00:00 +6: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+Pending timers:
+Timer (duration: 0:00:15.000000, periodic: true), created:
+#0      new FakeTimer._ (package:fake_async/fake_async.dart:342:62)
+#1      FakeAsync._createTimer (package:fake_async/fake_async.dart:260:29)
+#2      FakeAsync.run.<anonymous closure> (package:fake_async/fake_async.dart:187:15)
+#5      AppStore._syncWatchdog (package:xio/core.dart:2255:27)
+#6      AppStore._readStatus (package:xio/core.dart:2242:9)
+<asynchronous suspension>
+#7      StatusPoll.run (package:xio/status_poll.dart:13:7)
+<asynchronous suspension>
+#8      AppStore.connect (package:xio/core.dart:2108:13)
+<asynchronous suspension>
+#9      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:222:7)
+<asynchronous suspension>
+#10     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#11     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from dart:async and package:stack_trace)
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+A Timer is still pending even after the widget tree was disposed.
+'package:flutter_test/src/binding.dart':
+Failed assertion: line 2543 pos 12: '!timersPending'
+
+When the exception was thrown, this was the stack:
+#2      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2543:12)
+#3      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 3 frames from class _AssertionError and package:stack_trace)
+
+The test description was:
+  connect invalidates old snapshot while new fresh verification still advances
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +6 -1: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances [E]
+  Test failed. See exception logs above.
+  The test description was: connect invalidates old snapshot while new fresh verification still advances
+
+00:00 +6 -1: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:00 +7 -1: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+00:00 +8 -1: /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+00:00 +9 -1: loading /srv/archives/agent-runtime-p2-20261105/app/test/status_poll_idle_test.dart
+00:01 +9 -1: /srv/archives/agent-runtime-p2-20261105/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+00:02 +10 -1: /srv/archives/agent-runtime-p2-20261105/app/test/status_poll_idle_test.dart: equal tunnel states compare equal
+00:02 +11 -1: loading /srv/archives/agent-runtime-p2-20261105/app/test/background_polling_test.dart
+00:06 +11 -1: /srv/archives/agent-runtime-p2-20261105/app/test/background_polling_test.dart: UI lifecycle stops status polling in background and refreshes on resume
+00:07 +12 -1: loading /srv/archives/agent-runtime-p2-20261105/app/test/watchdog_interval_test.dart
+00:09 +12 -1: /srv/archives/agent-runtime-p2-20261105/app/test/watchdog_interval_test.dart: watchdog halves its cadence only after a stable run
+00:09 +13 -1: loading /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart
+00:11 +13 -1: /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart: (setUpAll)
+00:11 +13 -1: /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart: fresh poll waits for older interface read and then reads the new interface
+00:11 +14 -1: /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart: startup statistics runs once despite repeat callers and one unavailable server
+00:11 +15 -1: /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart: stalled probe falls back; late first result cannot replace success
+00:11 +16 -1: /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:14 +17 -1: /srv/archives/agent-runtime-p2-20261105/app/test/connection_users_test.dart: (tearDownAll)
+00:14 +17 -1: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances

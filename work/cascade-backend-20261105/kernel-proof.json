@@ -1,0 +1,18 @@
+[
+  {
+    "transport": "ipv4",
+    "kernel_wireguard_handshake": true,
+    "ipv4_nat44_ping": "3/3",
+    "ipv6_nat66_ping": "3/3",
+    "all_mode_no_direct_fallback": true,
+    "evidence_scope": "private synthetic namespaces ONLY, not Internet/VPS/native app"
+  },
+  {
+    "transport": "ipv6",
+    "kernel_wireguard_handshake": true,
+    "ipv4_nat44_ping": "3/3",
+    "ipv6_nat66_ping": "3/3",
+    "all_mode_no_direct_fallback": true,
+    "evidence_scope": "private synthetic namespaces ONLY, not Internet/VPS/native app"
+  }
+]

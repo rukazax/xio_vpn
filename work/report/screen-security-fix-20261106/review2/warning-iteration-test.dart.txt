@@ -1,0 +1,218 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:xio/core.dart';
+
+class GateStore extends AppStore {
+  final gate = Completer<void>();
+  @override
+  Future<void> save() => gate.future;
+}
+
+class RollbackGateStore extends AppStore {
+  final rollback = Completer<void>();
+  int writes = 0;
+  @override
+  Future<void> save() async {
+    writes++;
+    if (writes == 1) throw StateError('initial save failed');
+    await rollback.future;
+  }
+}
+
+class MemoryStore extends AppStore {
+  @override
+  Future<void> save() async {}
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('app.xio/engine');
+  final calls = <bool>[];
+  setUp(() {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    calls.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          if (call.method == 'secureScreen') {
+            calls.add((call.arguments as Map)['enabled'] as bool);
+          }
+          return null;
+        });
+  });
+  tearDown(() {
+    debugDefaultTargetPlatformOverride = null;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+  });
+  test(
+    'disposed store must not clear new store window after pending save',
+    () async {
+      final old = GateStore();
+      final pending = old.setAllowScreenshots(true);
+      await Future<void>.delayed(Duration.zero);
+      old.dispose();
+      final fresh = MemoryStore();
+      await fresh.applyScreenSecurity();
+      old.gate.complete();
+      await pending;
+      try {
+        expect(calls, [true]);
+      } finally {
+        fresh.dispose();
+      }
+    },
+  );
+  test(
+    'failed load must not claim persisted screenshot preference known',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('c7-review-load-');
+      await File('${dir.path}/profiles.json').writeAsString('{broken');
+      final store = AppStore()..directory = dir;
+      try {
+        await store.load();
+        expect(store.ready, isTrue);
+        expect(store.screenSecurityEnabled, isNull);
+        expect(store.screenSecurityPreferenceKnown, isFalse);
+      } finally {
+        store.dispose();
+        await dir.delete(recursive: true);
+      }
+    },
+  );
+  test(
+    'disposed save failure does not start rollback or native dispatch',
+    () async {
+      final old = GateStore();
+      final pending = old.setAllowScreenshots(true);
+      await Future<void>.delayed(Duration.zero);
+      old.dispose();
+      final fresh = MemoryStore();
+      await fresh.applyScreenSecurity();
+      old.gate.completeError(StateError('late failure'));
+      await pending;
+      expect(calls, [true]);
+      expect(old.screenSecurityEnabled, isNull);
+      fresh.dispose();
+    },
+  );
+
+  for (final rollbackFails in [false, true]) {
+    test(
+      'disposed rollback completion cannot change replacement window: failure=$rollbackFails',
+      () async {
+        final old = RollbackGateStore();
+        final pending = old.setAllowScreenshots(true);
+        await Future<void>.delayed(Duration.zero);
+        expect(old.writes, 2);
+        old.dispose();
+        final fresh = MemoryStore();
+        await fresh.setAllowScreenshots(true);
+        if (rollbackFails) {
+          old.rollback.completeError(StateError('late rollback failure'));
+        } else {
+          old.rollback.complete();
+        }
+        await pending;
+        expect(calls, [false]);
+        expect(old.screenSecurityEnabled, isNull);
+        expect(old.screenSecurityBusy, isFalse);
+        fresh.dispose();
+      },
+    );
+  }
+
+  test(
+    'failed hydration remains unknown across native ACK and resume',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('c7-review-unknown-');
+      await File('${dir.path}/profiles.json').writeAsString('{broken');
+      final store = AppStore()..directory = dir;
+      try {
+        await store.load();
+        store.setForeground(false);
+        store.setForeground(true);
+        await store.applyScreenSecurity();
+        expect(store.screenSecurityEnabled, isTrue);
+        expect(store.screenSecurityPreferenceKnown, isFalse);
+        await expectLater(store.setAllowScreenshots(true), throwsStateError);
+        expect(store.screenSecurityPreferenceKnown, isFalse);
+      } finally {
+        store.dispose();
+        await dir.delete(recursive: true);
+      }
+    },
+  );
+
+  test('fresh missing preferences retain known default after load', () async {
+    final dir = await Directory.systemTemp.createTemp('c7-review-fresh-');
+    final store = AppStore()..directory = dir;
+    try {
+      await store.load();
+      expect(store.ready, isTrue);
+      expect(store.allowScreenshots, isFalse);
+      expect(store.screenSecurityPreferenceKnown, isTrue);
+      expect(store.screenSecurityEnabled, isTrue);
+    } finally {
+      store.dispose();
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test(
+    'successful hydration proves previously unknown persisted choice',
+    () async {
+      final dir = await Directory.systemTemp.createTemp('c7-review-valid-');
+      await File('${dir.path}/profiles.json')
+          .writeAsString('{"profiles":[],"allowScreenshots":true}');
+      final store = AppStore()..directory = dir;
+      store.screenSecurityPreferenceKnown = false;
+      try {
+        await store.load();
+        expect(store.allowScreenshots, isTrue);
+        expect(store.screenSecurityPreferenceKnown, isTrue);
+        expect(store.screenSecurityEnabled, isFalse);
+      } finally {
+        store.dispose();
+        await dir.delete(recursive: true);
+      }
+    },
+  );
+
+  test(
+    'late ACK after background does not republish old window state',
+    () async {
+      final ack = Completer<void>();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (_) => ack.future);
+      final store = MemoryStore();
+      final pending = store.applyScreenSecurity();
+      await Future<void>.delayed(Duration.zero);
+      store.setForeground(false);
+      ack.complete();
+      await pending;
+      expect(store.screenSecurityEnabled, isNull);
+      store.dispose();
+    },
+  );
+  test('disposed queued actions never issue new native calls', () async {
+    final ack = Completer<void>();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add((call.arguments as Map)['enabled'] as bool);
+          await ack.future;
+        });
+    final store = MemoryStore();
+    final first = store.applyScreenSecurity();
+    await Future<void>.delayed(Duration.zero);
+    final second = store.setAllowScreenshots(true);
+    store.dispose();
+    ack.complete();
+    await Future.wait([first, second]);
+    expect(calls, [true]);
+    expect(store.screenSecurityBusy, isFalse);
+  });
+}

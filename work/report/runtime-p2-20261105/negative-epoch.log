@@ -1,0 +1,197 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart
+00:00 +0: late status success cannot overwrite completed disconnect
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <Instance of 'TunnelStatus'>
+  Actual: <Instance of 'TunnelStatus'>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:112:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 112
+The test description was:
+  late status success cannot overwrite completed disconnect
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: late status success cannot overwrite completed disconnect [E]
+  Test failed. See exception logs above.
+  The test description was: late status success cannot overwrite completed disconnect
+
+00:00 +0 -1: status started during teardown success cannot survive its completion
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <Instance of 'TunnelStatus'>
+  Actual: <Instance of 'TunnelStatus'>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:139:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 139
+The test description was:
+  status started during teardown success cannot survive its completion
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -2: status started during teardown success cannot survive its completion [E]
+  Test failed. See exception logs above.
+  The test description was: status started during teardown success cannot survive its completion
+
+00:00 +0 -2: dispose fences in-flight status success and queued fresh reads
+00:00 +1 -2: late status failure cannot overwrite completed disconnect
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <Instance of 'TunnelStatus'>
+  Actual: <Instance of 'TunnelStatus'>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:112:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 112
+The test description was:
+  late status failure cannot overwrite completed disconnect
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +1 -3: late status failure cannot overwrite completed disconnect [E]
+  Test failed. See exception logs above.
+  The test description was: late status failure cannot overwrite completed disconnect
+
+00:00 +1 -3: status started during teardown failure cannot survive its completion
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <Instance of 'TunnelStatus'>
+  Actual: <Instance of 'TunnelStatus'>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:139:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 139
+The test description was:
+  status started during teardown failure cannot survive its completion
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +1 -4: status started during teardown failure cannot survive its completion [E]
+  Test failed. See exception logs above.
+  The test description was: status started during teardown failure cannot survive its completion
+
+00:00 +1 -4: dispose fences in-flight status failure and queued fresh reads
+00:00 +2 -4: connect invalidates old snapshot while new fresh verification still advances
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: 'awg2'
+  Actual: 'awg1'
+   Which: is different.
+          Expected: awg2
+            Actual: awg1
+                       ^
+           Differ at offset 3
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:189:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 189
+The test description was:
+  connect invalidates old snapshot while new fresh verification still advances
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +2 -5: connect invalidates old snapshot while new fresh verification still advances [E]
+  Test failed. See exception logs above.
+  The test description was: connect invalidates old snapshot while new fresh verification still advances
+
+00:00 +2 -5: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:00 +3 -5: disconnect owns watchdog cancellation even when the last poll is discarded
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: false
+  Actual: <true>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:243:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 243
+The test description was:
+  disconnect owns watchdog cancellation even when the last poll is discarded
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +3 -6: disconnect owns watchdog cancellation even when the last poll is discarded [E]
+  Test failed. See exception logs above.
+  The test description was: disconnect owns watchdog cancellation even when the last poll is discarded
+
+00:00 +3 -6: failed native teardown still invalidates older status errors
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <Instance of 'TunnelStatus'>
+  Actual: <Instance of 'TunnelStatus'>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart:264:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart line 264
+The test description was:
+  failed native teardown still invalidates older status errors
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +3 -7: failed native teardown still invalidates older status errors [E]
+  Test failed. See exception logs above.
+  The test description was: failed native teardown still invalidates older status errors
+
+00:00 +3 -7: current status changes and current errors are still published, identical reads coalesce
+00:00 +4 -7: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+  /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+  /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+  /srv/archives/agent-runtime-p2-20261105/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+  ... and 3 more

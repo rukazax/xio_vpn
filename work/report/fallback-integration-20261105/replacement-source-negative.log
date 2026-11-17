@@ -1,0 +1,4 @@
+Exception in thread "main" java.lang.AssertionError: actual own success must use unique returned activation token, not queued admission identity
+	at app.xio.xio.ServiceDownWiringTest.check(ServiceDownWiringTest.java:9)
+	at app.xio.xio.ServiceDownWiringTest.main(ServiceDownWiringTest.java:71)
+5b replacement unique publication source invariant exit=1 (expected1)

@@ -1,0 +1,21 @@
+test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) ... ok
+test_auth_and_identity_before_observations (test_admin_contract.ContractTests.test_auth_and_identity_before_observations) ... ok
+test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) ... ok
+test_incoming_alias_of_existing (test_admin_contract.ContractTests.test_incoming_alias_of_existing) ... ok
+test_incoming_noncanonical_is_canonicalized_or_rejected (test_admin_contract.ContractTests.test_incoming_noncanonical_is_canonicalized_or_rejected) ... ok
+test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns (test_admin_contract.ContractTests.test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns) ... ok
+test_native_ipv6_only_cannot_remove_ipv4_capture (test_admin_contract.ContractTests.test_native_ipv6_only_cannot_remove_ipv4_capture) ... ok
+test_native_partial_selected_readiness_rejected (test_admin_contract.ContractTests.test_native_partial_selected_readiness_rejected) ... ok
+test_native_selected_families_dns_and_both_captures (test_admin_contract.ContractTests.test_native_selected_families_dns_and_both_captures) ... ok
+test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) ... ok
+test_normal_legacy_distinct_wg_awg_remains_valid (test_admin_contract.ContractTests.test_normal_legacy_distinct_wg_awg_remains_valid) ... ok
+test_observation_failure_before_effects_and_no_reobserve (test_admin_contract.ContractTests.test_observation_failure_before_effects_and_no_reobserve) ... ok
+test_ordinary_revoke_and_repeat_remain_valid (test_admin_contract.ContractTests.test_ordinary_revoke_and_repeat_remain_valid) ... ok
+test_within_request_duplicate (test_admin_contract.ContractTests.test_within_request_duplicate) ... ok
+test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.534s
+
+OK
+EXIT=0

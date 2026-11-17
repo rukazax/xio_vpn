@@ -1,0 +1,241 @@
+00:00 +0: loading /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart
+00:00 +0: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.windows does not offer working capture protection
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  TargetPlatform.windows does not offer working capture protection
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.windows does not offer working capture protection [E]
+  Test failed. See exception logs above.
+  The test description was: TargetPlatform.windows does not offer working capture protection
+  
+00:01 +0 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.linux does not offer working capture protection
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  TargetPlatform.linux does not offer working capture protection
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.linux does not offer working capture protection [E]
+  Test failed. See exception logs above.
+  The test description was: TargetPlatform.linux does not offer working capture protection
+  
+00:01 +0 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android applies default, opt-in and opt-out using real Store/channel
+00:01 +1 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android missing channel is not successful setting application
+00:01 +2 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android setters and reapplication cannot overtake pending native ACK
+00:01 +3 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: failed save after rename rolls back actual persisted permission
+00:01 +4 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: real save/load preserves opt-in and obtains a fresh ACK
+00:01 +5 -2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android UI says unknown on native error and shows saved preference
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Android UI says unknown on native error and shows saved preference
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +5 -3: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android UI says unknown on native error and shows saved preference [E]
+  Test failed. See exception logs above.
+  The test description was: Android UI says unknown on native error and shows saved preference
+  
+00:01 +5 -3: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: persistent save/rollback failure is visible and retry recovers
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  persistent save/rollback failure is visible and retry recovers
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +5 -4: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: persistent save/rollback failure is visible and retry recovers [E]
+  Test failed. See exception logs above.
+  The test description was: persistent save/rollback failure is visible and retry recovers
+  
+00:02 +5 -4: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=false on open/close
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  secret import dialog preserves global allow=false on open/close
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +5 -5: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=false on open/close [E]
+  Test failed. See exception logs above.
+  The test description was: secret import dialog preserves global allow=false on open/close
+  
+00:02 +5 -5: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=true on open/close
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  secret import dialog preserves global allow=true on open/close
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +5 -6: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=true on open/close [E]
+  Test failed. See exception logs above.
+  The test description was: secret import dialog preserves global allow=true on open/close
+  
+00:02 +5 -6: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: background invalidates prior window ACK and resume reapplies opt-in
+00:02 +6 -6: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Full settings route uses the shared unsupported settings UI
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Full settings route uses the shared unsupported settings UI
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +6 -7: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Full settings route uses the shared unsupported settings UI [E]
+  Test failed. See exception logs above.
+  The test description was: Full settings route uses the shared unsupported settings UI
+  
+00:03 +6 -7: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Client settings route uses the shared unsupported settings UI
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:888:30)
+#2      WidgetController.ensureVisible (package:flutter_test/src/controller.dart:2389:32)
+#3      main.<anonymous closure> (file:///srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart:359:18)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Client settings route uses the shared unsupported settings UI
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +6 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Client settings route uses the shared unsupported settings UI [E]
+  Test failed. See exception logs above.
+  The test description was: Client settings route uses the shared unsupported settings UI
+  
+00:03 +6 -8: loading /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart
+00:05 +6 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: defaults: screenshots off, autostart off, Quad9 resolver
+00:05 +7 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:05 +8 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: custom DNS validation accepts unicast IPv4 and IPv6 literals
+00:05 +9 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: custom DNS validation rejects ports, schemes and extra entries
+00:05 +10 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: an unsupported resolver list is preserved for explicit repair
+00:05 +11 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+00:05 +12 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+00:05 +13 -8: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: the three settings switches persist immediately
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The value of a foundation debug variable was changed by the test.
+
+When the exception was thrown, this was the stack:
+#0      debugAssertAllFoundationVarsUnset.<anonymous closure> (package:flutter/src/foundation/debug.dart:45:7)
+#1      debugAssertAllFoundationVarsUnset (package:flutter/src/foundation/debug.dart:48:4)
+#2      TestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:1996:7)
+#3      AutomatedTestWidgetsFlutterBinding._verifyInvariants (package:flutter_test/src/binding.dart:2525:11)
+#4      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1974:7)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  the three settings switches persist immediately
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:07 +13 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: the three settings switches persist immediately [E]
+  Test failed. See exception logs above.
+  The test description was: the three settings switches persist immediately
+  
+00:07 +13 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+00:08 +14 -9: loading /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart
+00:10 +14 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: (setUpAll)
+00:10 +14 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues
+00:10 +15 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:11 +16 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:11 +17 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: status rows are translated and never left as the Russian key
+00:11 +18 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: no catalogue reuses the English value while Russian is the source
+00:11 +19 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: system language resolution checks preferences and falls back to English
+00:11 +20 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: dynamic status keeps technical arguments and specific message templates
+00:11 +21 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: explicit and system language persist without changing profiles
+00:11 +22 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:15 +23 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:22 +24 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+00:24 +25 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: cascade screen fits 360×640 in every language, RTL included
+00:25 +26 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+00:26 +27 -9: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: (tearDownAll)
+00:26 +27 -9: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: the three settings switches persist immediately
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android UI says unknown on native error and shows saved preference
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Client settings route uses the shared unsupported settings UI
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Full settings route uses the shared unsupported settings UI
+  ... and 5 more

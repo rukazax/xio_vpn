@@ -1,0 +1,32 @@
+=== RUN   TestAWGPeerKeySinglePeerOnly
+--- PASS: TestAWGPeerKeySinglePeerOnly (0.00s)
+=== RUN   TestPrepareEndpointsKeepsEveryCandidate
+--- PASS: TestPrepareEndpointsKeepsEveryCandidate (0.00s)
+=== RUN   TestAWGPendingDisconnectCancelsBeforeRuntimeLock
+--- PASS: TestAWGPendingDisconnectCancelsBeforeRuntimeLock (0.01s)
+=== RUN   TestAWGActivationMissingCandidatesFailsClosed
+--- PASS: TestAWGActivationMissingCandidatesFailsClosed (0.00s)
+=== RUN   TestDesktopPolicyRejectsMalformedIntentBeforeNetworking
+--- PASS: TestDesktopPolicyRejectsMalformedIntentBeforeNetworking (0.00s)
+=== RUN   TestDesktopPolicyQueueTimeConsumesSameRound
+=== RUN   TestDesktopPolicyQueueTimeConsumesSameRound/automatic
+=== RUN   TestDesktopPolicyQueueTimeConsumesSameRound/selectedOnly
+--- PASS: TestDesktopPolicyQueueTimeConsumesSameRound (0.01s)
+    --- PASS: TestDesktopPolicyQueueTimeConsumesSameRound/automatic (0.01s)
+    --- PASS: TestDesktopPolicyQueueTimeConsumesSameRound/selectedOnly (0.01s)
+=== RUN   TestDesktopPolicyRevokedQueuedActivationCannotStart
+--- PASS: TestDesktopPolicyRevokedQueuedActivationCannotStart (0.01s)
+=== RUN   TestDesktopPolicyLateDNSCannotAddRoutes
+--- PASS: TestDesktopPolicyLateDNSCannotAddRoutes (0.00s)
+=== RUN   TestDesktopPolicyAdmissionWaitItselfIsBounded
+--- PASS: TestDesktopPolicyAdmissionWaitItselfIsBounded (0.00s)
+=== RUN   TestDesktopPolicyTimedOutCleanupRetainsLockUntilJoin
+--- PASS: TestDesktopPolicyTimedOutCleanupRetainsLockUntilJoin (0.01s)
+=== RUN   TestDesktopPolicyReportsActualRecoveredTransport
+--- PASS: TestDesktopPolicyReportsActualRecoveredTransport (0.00s)
+=== RUN   TestDesktopPolicyUnjoinedDisconnectReportsIncomplete
+--- PASS: TestDesktopPolicyUnjoinedDisconnectReportsIncomplete (0.01s)
+=== RUN   TestPacketAdapterKeepsBatchesAndVirtioHeadroom
+--- PASS: TestPacketAdapterKeepsBatchesAndVirtioHeadroom (0.00s)
+PASS
+ok  	xio.local/rivet/internal/desktop	0.058s

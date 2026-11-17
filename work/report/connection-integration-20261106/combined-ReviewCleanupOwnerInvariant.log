@@ -1,0 +1,1 @@
+PASS independent actual owner predicate +source wiring: expired-before-owner A preserves B, same-round old child preserves next winner, matching canceled child retains independent original cleanup authority

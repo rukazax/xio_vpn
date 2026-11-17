@@ -1,0 +1,524 @@
+UTC 2026-11-05T22:22:41Z COMMAND: go test -p 1 -count=1 -v -timeout 30s -run ^TestDNSSettingNativeLinkLocalBoundaries$ ./internal/desktop
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe00::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe01::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe02::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe03::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe04::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe05::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe06::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe07::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe08::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe09::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe0a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe0b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe0c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe0d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe0e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe0f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe10::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe11::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe12::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe13::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe14::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe15::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe16::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe17::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe18::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe19::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe1a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe1b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe1c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe1d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe1e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe1f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe20::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe21::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe22::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe23::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe24::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe25::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe26::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe27::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe28::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe29::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe2a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe2b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe2c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe2d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe2e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe2f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe30::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe31::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe32::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe33::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe34::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe35::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe36::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe37::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe38::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe39::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe3a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe3b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe3c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe3d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe3e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe3f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe40::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe41::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe42::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe43::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe44::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe45::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe46::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe47::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe48::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe49::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe4a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe4b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe4c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe4d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe4e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe4f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe50::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe51::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe52::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe53::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe54::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe55::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe56::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe57::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe58::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe59::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe5a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe5b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe5c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe5d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe5e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe5f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe60::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe61::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe62::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe63::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe64::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe65::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe66::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe67::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe68::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe69::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe6a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe6b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe6c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe6d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe6e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe6f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe70::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe71::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe72::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe73::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe74::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe75::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe76::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe77::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe78::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe79::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe7a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe7b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe7c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe7d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe7e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe7f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe80::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe81::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe82::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe83::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe84::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe85::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe86::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe87::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe88::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe89::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe8a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe8b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe8c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe8d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe8e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe8f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe90::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe91::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe92::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe93::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe94::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe95::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe96::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe97::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe98::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe99::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe9a::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe9b::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe9c::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe9d::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe9e::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fe9f::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea0::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea1::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea2::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea3::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea4::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea5::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea6::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea7::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea8::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fea9::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feaa::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feab::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feac::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fead::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feae::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feaf::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb0::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb1::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb2::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb3::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb4::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb5::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb6::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb7::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb8::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feb9::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feba::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/febb::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/febc::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/febd::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/febe::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/febf::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec0::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec1::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec2::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec3::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec4::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec5::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec6::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec7::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec8::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fec9::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feca::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fecb::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fecc::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fecd::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fece::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fecf::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed0::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed1::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed2::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed3::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed4::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed5::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed6::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed7::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed8::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fed9::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feda::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fedb::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fedc::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fedd::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fede::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fedf::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee0::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee1::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee2::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee3::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee4::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee5::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee6::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee7::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee8::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fee9::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feea::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feeb::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feec::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feed::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feee::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feef::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef0::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef1::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef2::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef3::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef4::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef5::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef6::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef7::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef8::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fef9::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fefa::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fefb::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fefc::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fefd::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/fefe::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/feff::53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/169.253.1.53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/169.254.1.53
+=== RUN   TestDNSSettingNativeLinkLocalBoundaries/169.255.1.53
+--- PASS: TestDNSSettingNativeLinkLocalBoundaries (0.01s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe00::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe01::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe02::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe03::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe04::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe05::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe06::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe07::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe08::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe09::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe0a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe0b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe0c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe0d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe0e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe0f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe10::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe11::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe12::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe13::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe14::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe15::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe16::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe17::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe18::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe19::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe1a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe1b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe1c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe1d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe1e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe1f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe20::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe21::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe22::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe23::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe24::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe25::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe26::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe27::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe28::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe29::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe2a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe2b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe2c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe2d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe2e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe2f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe30::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe31::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe32::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe33::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe34::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe35::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe36::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe37::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe38::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe39::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe3a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe3b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe3c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe3d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe3e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe3f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe40::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe41::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe42::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe43::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe44::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe45::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe46::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe47::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe48::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe49::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe4a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe4b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe4c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe4d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe4e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe4f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe50::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe51::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe52::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe53::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe54::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe55::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe56::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe57::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe58::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe59::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe5a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe5b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe5c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe5d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe5e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe5f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe60::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe61::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe62::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe63::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe64::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe65::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe66::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe67::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe68::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe69::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe6a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe6b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe6c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe6d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe6e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe6f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe70::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe71::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe72::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe73::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe74::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe75::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe76::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe77::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe78::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe79::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe7a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe7b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe7c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe7d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe7e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe7f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe80::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe81::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe82::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe83::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe84::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe85::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe86::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe87::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe88::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe89::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe8a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe8b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe8c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe8d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe8e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe8f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe90::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe91::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe92::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe93::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe94::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe95::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe96::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe97::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe98::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe99::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe9a::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe9b::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe9c::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe9d::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe9e::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fe9f::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea0::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea1::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea2::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea3::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea4::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea5::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea6::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea7::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea8::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fea9::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feaa::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feab::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feac::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fead::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feae::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feaf::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb0::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb1::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb2::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb3::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb4::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb5::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb6::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb7::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb8::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feb9::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feba::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/febb::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/febc::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/febd::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/febe::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/febf::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec0::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec1::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec2::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec3::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec4::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec5::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec6::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec7::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec8::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fec9::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feca::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fecb::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fecc::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fecd::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fece::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fecf::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed0::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed1::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed2::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed3::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed4::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed5::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed6::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed7::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed8::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fed9::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feda::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fedb::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fedc::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fedd::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fede::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fedf::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee0::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee1::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee2::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee3::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee4::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee5::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee6::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee7::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee8::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fee9::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feea::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feeb::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feec::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feed::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feee::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feef::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef0::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef1::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef2::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef3::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef4::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef5::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef6::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef7::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef8::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fef9::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fefa::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fefb::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fefc::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fefd::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/fefe::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/feff::53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/169.253.1.53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/169.254.1.53 (0.00s)
+    --- PASS: TestDNSSettingNativeLinkLocalBoundaries/169.255.1.53 (0.00s)
+PASS
+ok  	xio.local/rivet/internal/desktop	0.029s
+EXIT=0

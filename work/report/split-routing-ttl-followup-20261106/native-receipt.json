@@ -1,0 +1,48 @@
+{
+  "compileCommand": [
+    "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+    "-Djava.io.tmpdir=/srv/archives/agent-split-routing-ttl-followup-20261106/tmp",
+    "-cp",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.4.0/f1a24af8bd111a83950236b1aec7a6d72a97e92c/kotlin-compiler-embeddable-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.4.0/1de03f0ef3e208ab5f97ee6a587e9b8480447df6/kotlin-script-runtime-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.4.0/46429d5887df2d02f33fe11a0c8444c5be5fd8da/kotlin-build-tools-api-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-embeddable/2.4.0/1ecabef3a8ba6a8e25654573d54edb7e4136e903/kotlin-daemon-embeddable-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.6.10/1cbe9c92c12a94eea200d23c2bbaedaf3daf5132/kotlin-reflect-1.6.10.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.8.0/ac1dc37a30a93150b704022f8d895ee1bd3a36b3/kotlinx-coroutines-core-jvm-1.8.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+    "-no-stdlib",
+    "-no-reflect",
+    "-jvm-target",
+    "17",
+    "-classpath",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+    "-d",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/kotlin-classes",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/main/kotlin/app/xio/xio/RoutingResolutionGate.kt",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/test/java/app/xio/xio/RoutingResolutionGateTest.kt",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/test/java/app/xio/xio/RoutingProvenanceTest.kt"
+  ],
+  "testCommand": [
+    "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+    "-cp",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/kotlin-classes:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar",
+    "app.xio.xio.RoutingResolutionGateTest"
+  ],
+  "provenanceCommand": [
+    "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+    "-cp",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/kotlin-classes:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar",
+    "app.xio.xio.RoutingProvenanceTest",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/cross-clock-allowance.txt",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final-cross-clock-allowance.txt"
+  ],
+  "inputs": {
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/main/kotlin/app/xio/xio/RoutingResolutionGate.kt": "f03fd5e2c5c4d3491e38a71633ea14877fb83b7c14b27be76edfc9ee81e29c7f",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/test/java/app/xio/xio/RoutingResolutionGateTest.kt": "06d47943acbd1e4ebbbc6ad6b59d8217a2668ad12679cd97e61067c851ac1ebb",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/main/kotlin/app/xio/xio/SplitRouting.kt": "22d398d32e0f3a429640eb94a811e1ef6b23415088d9d2fe8d2ae8af5519a527",
+    "/srv/archives/agent-split-routing-ttl-followup-20261106/final/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt": "c585c5ba04b623948a4571ff97dee61742bfe07da4f78530be588c8acf47e28b",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.4.0/f1a24af8bd111a83950236b1aec7a6d72a97e92c/kotlin-compiler-embeddable-2.4.0.jar": "c2b25e8c1c93ec416ba4327f5e31eaec0f0c8847241b9353e294b8db9dce564f",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar": "ccb14ff83fabcb11458b798dbc9824748ccdffeec79c9aba789e6ed1cda86b1c",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.4.0/1de03f0ef3e208ab5f97ee6a587e9b8480447df6/kotlin-script-runtime-2.4.0.jar": "196e8ecbf63daf477e34e67c2f871ee232ae7bf8b377432d876d1bbf9d273de3",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.4.0/46429d5887df2d02f33fe11a0c8444c5be5fd8da/kotlin-build-tools-api-2.4.0.jar": "66917335497f9ab75a36c34b3d90bad2bc8dc256c34b2413ecd0c9467fcf597d",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-embeddable/2.4.0/1ecabef3a8ba6a8e25654573d54edb7e4136e903/kotlin-daemon-embeddable-2.4.0.jar": "383093af5e078435b60043d19bfa83eb6191be0f4d13a28fb1c8a0f3ab24fe66",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.6.10/1cbe9c92c12a94eea200d23c2bbaedaf3daf5132/kotlin-reflect-1.6.10.jar": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.8.0/ac1dc37a30a93150b704022f8d895ee1bd3a36b3/kotlinx-coroutines-core-jvm-1.8.0.jar": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+  }
+}

@@ -1,0 +1,8 @@
+
+Algorithm Hash                                                             Path
+--------- ----                                                             ----
+SHA256    53458F7DE29C409A3F06E08D5630E2F539B9B06C5A6AA8CDF48B596B50B840FF C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\report\screen-security-fix-20261106\baseline-app.tar
+SHA256    AD1D8972889A7250A751FEA364C4E6BC965587F710C666B725B51F06D977209D C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\report\screen-security-fix-20261106\candidate-app.tar
+SHA256    B102F4CD8E2CF20ED539F527812E89CF78D88C6BABF77EF4B61EEBDAB91DB76D C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\report\screen-security-fix-20261106\recovery-core.tar
+
+

@@ -1,0 +1,87 @@
+00:00 +0: loading /srv/archives/agent-split-routing-fixes-20261106/baseline/app/test/routing_contract_invariants_test.dart
+00:00 +0: 65 distinct rules refuse activation without installing a subset
+00:00 +0 -1: 65 distinct rules refuse activation without installing a subset [E]
+  Expected: <0>
+    Actual: <1>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/routing_contract_invariants_test.dart 175:7    main.<fn>
+  
+00:00 +0 -1: 97 answers refuse activation with the 96 address budget intact
+00:00 +0 -2: 97 answers refuse activation with the 96 address budget intact [E]
+  Expected: <0>
+    Actual: <1>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/routing_contract_invariants_test.dart 187:7    main.<fn>
+  
+00:00 +0 -2: 128 manual networks leave no capacity for a domain answer
+00:00 +0 -3: 128 manual networks leave no capacity for a domain answer [E]
+  Expected: <0>
+    Actual: <1>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/routing_contract_invariants_test.dart 195:5    main.<fn>
+  
+00:00 +0 -3: empty and partial DNS answers refuse an incomplete policy
+00:00 +0 -4: empty and partial DNS answers refuse an incomplete policy [E]
+  Expected: <0>
+    Actual: <1>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/routing_contract_invariants_test.dart 204:5    main.<fn>
+  
+00:00 +0 -4: failed native apply retries instead of reporting a fresh cache hit
+00:00 +0 -5: failed native apply retries instead of reporting a fresh cache hit [E]
+  Expected: throws <Instance of 'PlatformException'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/routing_contract_invariants_test.dart 212:13  main.<fn>
+  
+00:00 +0 -5: failed clear preserves prior applied state and retries
+00:00 +0 -6: failed clear preserves prior applied state and retries [E]
+  Expected: throws <Instance of 'PlatformException'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/routing_contract_invariants_test.dart 230:11  main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                         _CustomZone.registerUnaryCallback
+  test/routing_contract_invariants_test.dart 227:5   main.<fn>
+  
+00:00 +0 -6: old gated connect never applies after DOWN (new policy=false)
+00:00 +0 -7: old gated connect never applies after DOWN (new policy=false) [E]
+  Expected: empty
+    Actual: [['192.0.2.1']]
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/routing_contract_invariants_test.dart 263:9    main.<fn>
+  
+00:00 +0 -7: old gated connect never applies after DOWN (new policy=true)
+00:00 +0 -8: old gated connect never applies after DOWN (new policy=true) [E]
+  Expected: [['192.0.2.2']]
+    Actual: [['192.0.2.2'], ['192.0.2.1']]
+     Which: at location [1] is [['192.0.2.2'], ['192.0.2.1']] which longer than expected
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/routing_contract_invariants_test.dart 263:9    main.<fn>
+  
+00:00 +0 -8: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-split-routing-fixes-20261106/baseline/app/test/routing_contract_invariants_test.dart: 128 manual networks leave no capacity for a domain answer
+  /srv/archives/agent-split-routing-fixes-20261106/baseline/app/test/routing_contract_invariants_test.dart: 65 distinct rules refuse activation without installing a subset
+  /srv/archives/agent-split-routing-fixes-20261106/baseline/app/test/routing_contract_invariants_test.dart: 97 answers refuse activation with the 96 address budget intact
+  /srv/archives/agent-split-routing-fixes-20261106/baseline/app/test/routing_contract_invariants_test.dart: empty and partial DNS answers refuse an incomplete policy
+  ... and 4 more

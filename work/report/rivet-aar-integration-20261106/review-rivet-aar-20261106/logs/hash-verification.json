@@ -1,0 +1,12 @@
+{
+  "archiveSha256": "27148ceb51225e5f60894952e469a116ede930e41a310ee342c8192edd95b904",
+  "archivedFileCount": 2598,
+  "archivedFileDeltas": {
+    "app/android/app/libs/rivet.aar": {
+      "before": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+      "after": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c"
+    }
+  },
+  "kotlinSourceCount": 19,
+  "javaSourceCount": 47
+}

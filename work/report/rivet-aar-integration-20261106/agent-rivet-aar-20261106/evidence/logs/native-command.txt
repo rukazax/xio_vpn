@@ -1,0 +1,1 @@
+gomobile bind -target=android/arm64\,android/arm\,android/amd64 -androidapi 26 -trimpath -ldflags=-s\ -w -javapkg app.xio -o /srv/archives/agent-rivet-aar-20261106/fresh-binding/rivet.aar ./mobile 

@@ -1,7 +1,7 @@
 {
   "go": "go version go1.27.3 linux/amd64",
-  "sourceSha256": "b5cb0080a5ff11b7b347e1bea03c888c9637ed9611620040773c89ed44464178",
-  "xrayServerSha256": "17bdb5db89b6164ef09c9cc2e1cb8bcfe21e33dadca4f6d6362447e473cd776f",
+  "sourceSha256": "53cae7a0bd22955122833ac0ad4eda2e9d3e403e02edbf0794d90547d26bb2c7",
+  "xrayServerSha256": "3e6b8fed3576fd11149bc2dd4d5e3f567b181e8c8562b8858eecaa0c8aab7949",
   "cloakServerSha256": "50d26fb97f5fa112669dface11ff48932fc78e614cbb39f6208f4adeaa7ba4e9",
   "fingerprintIncludes": "protocol/rivet plus vendor/anet, cloak, patched xray and tun2socks (tailscale source archive only)",
   "serverSha256": "ea902929eed10b35c6dbf7ef1f4fc5b3b31cf0be91076b35b749c3c3aa6b389f",

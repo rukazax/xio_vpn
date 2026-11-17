@@ -1,0 +1,9 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/engine-owned/home -Djava.io.tmpdir=/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/engine-owned/tmp
+Exception in thread "actual-Engine-worker" app.xio.xio.PolicyFailure: VPN cancellation incomplete
+	at app.xio.xio.Engine.policyReserve(MainActivity.kt:173)
+	at app.xio.xio.IndependentEngineLockOrderTest$2.reservePolicy(IndependentEngineLockOrderTest.java:10)
+	at app.xio.xio.PolicyJournal.reserve(PolicyJournal.java:280)
+	at app.xio.xio.PolicyJournal.reserveBegin(PolicyJournal.java:240)
+	at app.xio.xio.IndependentEngineLockOrderTest.lambda$main$0(IndependentEngineLockOrderTest.java:15)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+PASS actual product DOWN/publication lock order

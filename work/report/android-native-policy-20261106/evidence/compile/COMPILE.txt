@@ -1,0 +1,53 @@
+# Android compile evidence — android policy native — commit 5ab8ff7b75f8e9fb1933eb07bd9fa2b2c0d64898
+
+Owned root: /srv/archives/agent-policy-android-native-20261106
+Source overlay: /srv/archives/policy-android-src-20261106.tar sha256=d8105fa67a1b7c02bd27653a473c2df56b0b90ca63755251aeb4e4950a0ad229
+Overlay check: tar -df => identical (no output)
+AAR: fa319f5c4cd45f20db93934a2288643c507f6af08ca239e52c679560b36dee0b  /srv/archives/agent-policy-android-native-20261106/src/app/android/app/libs/rivet.aar
+AAR classes.jar: 8f1849333170c09c3e874c740bfc932a89adb177f454d131cf7caa86d5741400  -
+
+Toolchain:
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-policy-android-native-20261106/home -Djava.io.tmpdir=/srv/archives/agent-policy-android-native-20261106/tmp
+openjdk version "21.0.13" 2026-10-20
+OpenJDK Runtime Environment (build 21.0.13+9-1-deb13u2-Debian)
+OpenJDK 64-Bit Server VM (build 21.0.13+9-1-deb13u2-Debian, mixed mode, sharing)
+Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64"
+abaf9c523780a608bd46686fd5e53740a07077f8
+
+Commands:
+/root/.gradle/wrapper/dists/gradle-9.3.1-all/9ot9r568e8zfvvd4mn8rbu1j0/gradle-9.3.1/bin/gradle --offline --no-daemon --no-build-cache --max-workers=1 -Dorg.gradle.jvmargs=-Xmx1536m\ -XX:MaxMetaspaceSize=512m -Pkotlin.daemon.jvmargs=-Xmx1024m :app:compileDebugKotlin :app:compileDebugJavaWithJavac -Ptarget-platform=android-arm64 -x :app:compileFlutterBuildDebug -x :app:mergeDebugAssets 
+/root/.gradle/wrapper/dists/gradle-9.3.1-all/9ot9r568e8zfvvd4mn8rbu1j0/gradle-9.3.1/bin/gradle --offline --no-daemon --no-build-cache --max-workers=1 -Dorg.gradle.jvmargs=-Xmx1536m\ -XX:MaxMetaspaceSize=512m -Pkotlin.daemon.jvmargs=-Xmx1024m :app:compileDebugKotlin :app:compileDebugJavaWithJavac -Ptarget-platform=android-arm64 -x :app:compileFlutterBuildDebug -x :app:mergeDebugAssets -Pdart-defines=WElPX0NMSUVOVF9PTkxZPXRydWU= -Ptarget=lib/client_main.dart 
+Exits: full=0 client=0
+Task executions:
+logs/full-gradle.txt:> Task :app:compileDebugKotlin
+logs/full-gradle.txt:> Task :app:compileDebugJavaWithJavac
+logs/full-gradle.txt:BUILD SUCCESSFUL in 1m 23s
+logs/full-gradle.txt:32 actionable tasks: 5 executed, 27 up-to-date
+logs/client-gradle.txt:> Task :app:compileDebugKotlin
+logs/client-gradle.txt:> Task :app:compileDebugJavaWithJavac
+logs/client-gradle.txt:BUILD SUCCESSFUL in 6m 50s
+logs/client-gradle.txt:32 actionable tasks: 6 executed, 26 up-to-date
+
+Timestamps (mtime):
+logs/full-gradle.txt 2026-11-06 08:34:35.862458286 +0300
+logs/client-gradle.txt 2026-11-06 08:41:28.085807839 +0300
+
+Class counts (client-mode dir): kotlin=46 java=92
+
+Generated BuildConfig (client, last configuration):
+/**
+ * Automatically generated file. DO NOT MODIFY
+ */
+package app.xio.xio;
+
+public final class BuildConfig {
+  public static final boolean DEBUG = Boolean.parseBoolean("true");
+  public static final String APPLICATION_ID = "app.xio.client";
+  public static final String BUILD_TYPE = "debug";
+  public static final int VERSION_CODE = 5019;
+  public static final String VERSION_NAME = "0.24.2";
+  // Field from default config.
+  public static final boolean CLIENT_ONLY = true;
+}
+
+Bytecode ordering proofs: see Engine.bytecode.txt / PolicyBridge.bytecode.txt / MainActivity.bytecode.txt

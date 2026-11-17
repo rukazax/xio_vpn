@@ -1,0 +1,260 @@
+
+Таблица символов «.dynsym» содержит 257 элементов:
+   Чис:    Знач   Разм Тип     Связ   Vis      Индекс имени
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 FUNC    GLOBAL DEFAULT  UND __cxa_finalize@LIBC (2)
+     2: 00000000     0 FUNC    GLOBAL DEFAULT  UND __cxa_atexit@LIBC (2)
+     3: 00000000     0 FUNC    GLOBAL DEFAULT  UND __register_atfork@LIBC (2)
+     4: 00000000     0 FUNC    GLOBAL DEFAULT  UND malloc@LIBC (2)
+     5: 00000000     0 FUNC    GLOBAL DEFAULT  UND free@LIBC (2)
+     6: 00000000     0 FUNC    GLOBAL DEFAULT  UND __android_log_print
+     7: 00000000     0 FUNC    GLOBAL DEFAULT  UND abort@LIBC (2)
+     8: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_setspecific@LIBC (2)
+     9: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_key_create@LIBC (2)
+    10: 00000000     0 FUNC    GLOBAL DEFAULT  UND dlopen@LIBC (3)
+    11: 00000000     0 FUNC    GLOBAL DEFAULT  UND dlsym@LIBC (3)
+    12: 00000000     0 FUNC    GLOBAL DEFAULT  UND dlclose@LIBC (3)
+    13: 00000000     0 FUNC    GLOBAL DEFAULT  UND clearenv@LIBC (2)
+    14: 00000000     0 FUNC    GLOBAL DEFAULT  UND fwrite@LIBC (2)
+    15: 00000000     0 FUNC    GLOBAL DEFAULT  UND vfprintf@LIBC (2)
+    16: 00000000     0 FUNC    GLOBAL DEFAULT  UND fputc@LIBC (2)
+    17: 00000000     0 FUNC    GLOBAL DEFAULT  UND __android_log_vprint
+    18: 00000000     0 OBJECT  GLOBAL DEFAULT  UND stderr@LIBC (2)
+    19: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_mutex_lock@LIBC (2)
+    20: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_cond_wait@LIBC (2)
+    21: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_mutex_unlock@LIBC (2)
+    22: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_cond_broadcast@LIBC (2)
+    23: 00000000     0 FUNC    GLOBAL DEFAULT  UND setenv@LIBC (2)
+    24: 00000000     0 FUNC    GLOBAL DEFAULT  UND unsetenv@LIBC (2)
+    25: 00000000     0 FUNC    GLOBAL DEFAULT  UND fprintf@LIBC (2)
+    26: 00000000     0 FUNC    GLOBAL DEFAULT  UND setegid@LIBC (2)
+    27: 00000000     0 FUNC    GLOBAL DEFAULT  UND __errno@LIBC (2)
+    28: 00000000     0 FUNC    GLOBAL DEFAULT  UND seteuid@LIBC (2)
+    29: 00000000     0 FUNC    GLOBAL DEFAULT  UND setgid@LIBC (2)
+    30: 00000000     0 FUNC    GLOBAL DEFAULT  UND setgroups@LIBC (2)
+    31: 00000000     0 FUNC    GLOBAL DEFAULT  UND setregid@LIBC (2)
+    32: 00000000     0 FUNC    GLOBAL DEFAULT  UND setresgid@LIBC (2)
+    33: 00000000     0 FUNC    GLOBAL DEFAULT  UND setresuid@LIBC (2)
+    34: 00000000     0 FUNC    GLOBAL DEFAULT  UND setreuid@LIBC (2)
+    35: 00000000     0 FUNC    GLOBAL DEFAULT  UND setuid@LIBC (2)
+    36: 00000000     0 FUNC    GLOBAL DEFAULT  UND sigfillset@LIBC (2)
+    37: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_sigmask@LIBC (2)
+    38: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_attr_init@LIBC (2)
+    39: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_attr_setdetachstate@LIBC (2)
+    40: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_attr_getstacksize@LIBC (2)
+    41: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_create@LIBC (2)
+    42: 00000000     0 FUNC    GLOBAL DEFAULT  UND nanosleep@LIBC (2)
+    43: 00000000     0 FUNC    GLOBAL DEFAULT  UND strerror@LIBC (2)
+    44: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_self@LIBC (2)
+    45: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_getattr_np@LIBC (2)
+    46: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_attr_getstack@LIBC (2)
+    47: 00000000     0 FUNC    GLOBAL DEFAULT  UND pthread_attr_destroy@LIBC (2)
+    48: 00000000     0 FUNC    GLOBAL DEFAULT  UND __android_log_write
+    49: 00000000     0 FUNC    GLOBAL DEFAULT  UND getnameinfo@LIBC (2)
+    50: 00000000     0 FUNC    GLOBAL DEFAULT  UND getaddrinfo@LIBC (2)
+    51: 00000000     0 FUNC    GLOBAL DEFAULT  UND freeaddrinfo@LIBC (2)
+    52: 00000000     0 FUNC    GLOBAL DEFAULT  UND gai_strerror@LIBC (2)
+    53: 00000000     0 FUNC    GLOBAL DEFAULT  UND res_search@LIBC (2)
+    54: 00000000     0 FUNC    GLOBAL DEFAULT  UND memcpy@LIBC (2)
+    55: 019e7454   156 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgGetConfig
+    56: 01a945f4    44 FUNC    GLOBAL DEFAULT   13 x_cgo_call_symbolizer_function
+    57: 01df2a6c     4 OBJECT  GLOBAL DEFAULT   27 proxy_class_mobile_Protector
+    58: 01a9238c    44 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgGetConfig
+    59: 01a946ac    88 FUNC    GLOBAL DEFAULT   13 x_cgo_callers
+    60: 019e725c    76 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile_PacketSink_WritePacket
+    61: 01a94620    96 FUNC    GLOBAL DEFAULT   13 x_cgo_thread_start
+    62: 01a92320    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_attachTun
+    63: 01de2c1c     4 OBJECT  GLOBAL DEFAULT   26 x_cgo_inittls
+    64: 01a9167c    80 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgTurnOff
+    65: 019e7d5c   136 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__XrayStatus
+    66: 01a92374    24 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgCancelHandshake
+    67: 01a949a8    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setuid
+    68: 01a914bc   108 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgGetConfig
+    69: 01a93778    60 FUNC    GLOBAL DEFAULT   13 go_seq_inc_ref
+    70: 01a92754   164 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_connectTimeout
+    71: 019e71c8   148 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxy_error_Error
+    72: 01a92878    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_packetInput
+    73: 01a93380   388 FUNC    GLOBAL DEFAULT   13 go_seq_unwrap
+    74: 01a93fac   232 FUNC    GLOBAL DEFAULT   13 Java_go_Universe__1init
+    75: 01a94d40    72 FUNC    GLOBAL DEFAULT   13 _cgo_1ebd2d8f1b1c_Cfunc__Cmalloc
+    76: 01a91754    88 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgVersion
+    77: 01a91938   152 FUNC    GLOBAL DEFAULT   13 proxymobile__ConnectPolicyTimeout
+    78: 01a932f8    68 FUNC    GLOBAL DEFAULT   13 go_seq_to_refnum_go
+    79: 01a94e88   244 FUNC    GLOBAL DEFAULT   13 _cgo_1ebd2d8f1b1c_Cfunc_lockJNI
+    80: 01a91410    92 FUNC    GLOBAL DEFAULT   13 proxymobile__AttachTun
+    81: 01a91528   100 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgGetSocketV4
+    82: 01a91f90    68 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_cproxy_error_Error
+    83: 01a92aa4   136 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_xrayStart
+    84: 01a92ccc    44 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_00024proxyProtector_protect
+    85: 01a94858    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setgid
+    86: 01a94aec   128 FUNC    GLOBAL DEFAULT   13 _cgo_try_pthread_create
+    87: 01a951a0    64 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc_getaddrinfo
+    88: 01df2acc     4 OBJECT  GLOBAL DEFAULT   27 x_crosscall2_ptr
+    89: 01a94288    64 FUNC    GLOBAL DEFAULT   13 _cgo_release_context
+    90: 01a9158c   100 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgGetSocketV6
+    91: 01a915f0   140 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgHandshakeCandidates
+    92: 01a917ac    72 FUNC    GLOBAL DEFAULT   13 proxymobile__CancelConnect
+    93: 019e7638   116 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgTurnOn
+    94: 01a95158    20 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc_freeaddrinfo
+    95: 019e7734    40 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__CancelConnect
+    96: 01a91c7c    92 FUNC    GLOBAL DEFAULT   13 proxymobile__XrayAttachTun
+    97: 01a9333c    68 FUNC    GLOBAL DEFAULT   13 go_seq_to_refnum
+    98: 01a92548   156 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_cloakStart
+    99: 01a925e4    16 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_cloakStop
+   100: 01a949e0   268 FUNC    GLOBAL DEFAULT   13 _cgo_sys_thread_start
+   101: 01a92dd8   164 FUNC    GLOBAL DEFAULT   13 cproxymobile_Protector_Resolve
+   102: 01a94568    32 FUNC    GLOBAL DEFAULT   13 _cgo_get_traceback_function
+   103: 01a94c70    80 FUNC    GLOBAL DEFAULT   13 setContext
+   104: 019e7b94    60 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__Stop
+   105: 019e7c58    68 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__XrayAttachTun
+   106: 019e7e0c    68 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__XrayValidate
+   107: 01df2abc     4 OBJECT  GLOBAL DEFAULT   27 x_cgo_pthread_key_created
+   108: 01a91d4c   112 FUNC    GLOBAL DEFAULT   13 proxymobile__XrayStart
+   109: 01a94f7c    28 FUNC    GLOBAL DEFAULT   13 _cgo_1ebd2d8f1b1c_Cfunc_unlockJNI
+   110: 019e7968   188 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__ConnectTimeout
+   111: 01a94e74    20 FUNC    GLOBAL DEFAULT   13 _cgo_1ebd2d8f1b1c_Cfunc_free
+   112: 01a9248c    24 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgTurnOff
+   113: 01a945d4    32 FUNC    GLOBAL DEFAULT   13 _cgo_get_symbolizer_function
+   114: 001b26d0     4 OBJECT  GLOBAL DEFAULT   11 _cgo_yield
+   115: 01a91dbc    88 FUNC    GLOBAL DEFAULT   13 proxymobile__XrayStatus
+   116: 01a92e7c    12 FUNC    WEAK   DEFAULT   13 initClasses
+   117: 01a9501c   116 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_C2func_getnameinfo
+   118: 01a951e0    80 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc_res_search
+   119: 01a94358   276 FUNC    GLOBAL DEFAULT   13 _cgo_wait_runtime_init_done
+   120: 01a912e4   100 FUNC    GLOBAL DEFAULT   13 proxymobile_Protector_Protect
+   121: 01a91f00    72 FUNC    GLOBAL DEFAULT   13 DestroyRef
+   122: 01df2aa4     4 OBJECT  GLOBAL DEFAULT   27 proxy_class__error_cons
+   123: 01a93c08   184 FUNC    GLOBAL DEFAULT   13 go_seq_find_class
+   124: 01a920ac    20 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_go_seq_inc_ref
+   125: 01a9187c    72 FUNC    GLOBAL DEFAULT   13 proxymobile__CloakStop
+   126: 01a91e5c    92 FUNC    GLOBAL DEFAULT   13 proxymobile__XrayValidate
+   127: 01a92b68   100 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_xrayValidate
+   128: 01a94704   148 FUNC    GLOBAL DEFAULT   13 x_cgo_init
+   129: 01a913bc    84 FUNC    GLOBAL DEFAULT   13 proxymobile__AttachPacketFlow
+   130: 01a91a58   112 FUNC    GLOBAL DEFAULT   13 proxymobile__ConnectionPolicyMode
+   131: 01a937b4    60 FUNC    GLOBAL DEFAULT   13 go_seq_dec_ref
+   132: 01a92a14   144 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_xrayCheckHttps
+   133: 01a92ea8    64 FUNC    GLOBAL DEFAULT   13 go_seq_get_exception
+   134: 01a93d70   176 FUNC    GLOBAL DEFAULT   13 go_seq_get_method_id
+   135: 019e7ac8    68 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__PacketInput
+   136: 01a928f8    16 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_stop
+   137: 01a945b4    32 FUNC    GLOBAL DEFAULT   13 _cgo_get_context_function
+   138: 01a94798    80 FUNC    GLOBAL DEFAULT   13 threadentry
+   139: 019e7398    60 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AttachPacketFlow
+   140: 01a93668    64 FUNC    GLOBAL DEFAULT   13 go_seq_to_java_string
+   141: 01a93e20    36 FUNC    GLOBAL DEFAULT   13 go_seq_release_byte_array
+   142: 01a92d84    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_00024proxyProtector_resolve
+   143: 01df2ad8     4 OBJECT  WEAK   DEFAULT   27 x_cgo_threadentry_platform
+   144: 01a95144    20 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc_free
+   145: 01a918c4   116 FUNC    GLOBAL DEFAULT   13 proxymobile__Connect
+   146: 01a92b58    16 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_xrayStop
+   147: 019e72a8    76 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile_Protector_Protect
+   148: 019e7bd0    68 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__StopWithTimeout
+   149: 01df2a70     4 OBJECT  GLOBAL DEFAULT   27 proxy_class_mobile_Protector_cons
+   150: 01a9250c    44 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgVersion
+   151: 01a9414c     0 NOTYPE  GLOBAL DEFAULT   13 crosscall1
+   152: 00ccc948   152 FUNC    GLOBAL DEFAULT   13 crosscall2
+   153: 019e73d4    68 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AttachTun
+   154: 01a94b6c   176 FUNC    GLOBAL DEFAULT   13 x_cgo_sys_thread_create
+   155: 01a9146c    80 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgCancelHandshake
+   156: 01df2a60     4 OBJECT  GLOBAL DEFAULT   27 proxy_class_mobile_PacketSink
+   157: 01a92538    16 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_cancelConnect
+   158: 01a9295c   100 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_validate
+   159: 01a94890    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setgroups
+   160: 01a920c0    20 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_free
+   161: 01a92ee8   172 FUNC    GLOBAL DEFAULT   13 go_seq_to_java_bytearray
+   162: 01a94970    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setreuid
+   163: 01a92e88    32 FUNC    GLOBAL DEFAULT   13 go_seq_maybe_throw_exception
+   164: 01a929c0    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_xrayAttachTun
+   165: 01a942c8   144 FUNC    GLOBAL DEFAULT   13 fatalf
+   166: 01a94938    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setresuid
+   167: 01a92c30   156 FUNC    GLOBAL DEFAULT   13 cproxymobile_PacketSink_WritePacket
+   168: 01a93560   236 FUNC    GLOBAL DEFAULT   13 go_seq_from_refnum
+   169: 01df2aa0     4 OBJECT  GLOBAL DEFAULT   27 proxy_class__error
+   170: 019e789c   204 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__ConnectPolicyTimeout
+   171: 019e7c9c   100 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__XrayCheckHttps
+   172: 01a92010    60 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_cproxymobile_Protector_Protect
+   173: 01a94698    20 FUNC    GLOBAL DEFAULT   13 x_cgo_unsetenv
+   174: 01a92908    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_stopWithTimeout
+   175: 01a93504    92 FUNC    GLOBAL DEFAULT   13 go_seq_push_local_frame
+   176: 01a94278    16 FUNC    GLOBAL DEFAULT   13 x_cgo_clearenv
+   177: 01a948c8    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setregid
+   178: 01a94cc0   128 FUNC    GLOBAL DEFAULT   13 Java_go_Seq_setContext
+   179: 01a95090    92 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc_getnameinfo
+   180: 019e7d00    92 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__XrayStart
+   181: 01a91280   100 FUNC    GLOBAL DEFAULT   13 proxymobile_PacketSink_WritePacket
+   182: 01a931ec   268 FUNC    GLOBAL DEFAULT   13 go_seq_from_java_bytearray
+   183: 01a9364c    28 FUNC    GLOBAL DEFAULT   13 go_seq_pop_local_frame
+   184: 01a94900    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setresgid
+   185: 01a944a4    32 FUNC    GLOBAL DEFAULT   13 x_cgo_bindm
+   186: 01a919d0   136 FUNC    GLOBAL DEFAULT   13 proxymobile__ConnectTimeout
+   187: 00ccc8e0    48 FUNC    GLOBAL DEFAULT   13 _cgo_panic
+   188: 01a92098    20 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_go_seq_dec_ref
+   189: 01a923b8    24 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgGetSocketV4
+   190: 01a92b2c    44 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_xrayStatus
+   191: 01a937f0   932 FUNC    GLOBAL DEFAULT   13 Java_go_Seq_init
+   192: 01a944c4    80 FUNC    GLOBAL DEFAULT   13 x_cgo_notify_runtime_init_done
+   193: 01a92688   204 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_connectPolicyTimeout
+   194: 019e775c   108 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__CloakStart
+   195: 019e77c8    40 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__CloakStop
+   196: 01a91348   116 FUNC    GLOBAL DEFAULT   13 proxymobile_Protector_Resolve
+   197: 01a923d0    24 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgGetSocketV6
+   198: 01a93cc0   176 FUNC    GLOBAL DEFAULT   13 go_seq_get_static_method_id
+   199: 01a94514    84 FUNC    GLOBAL DEFAULT   13 x_cgo_set_traceback_functions
+   200: 01a924a4   104 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgTurnOn
+   201: 01a94820    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_seteuid
+   202: 019e72f4   164 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile_Protector_Resolve
+   203: 01a9121c   100 FUNC    GLOBAL DEFAULT   13 proxy_error_Error
+   204: 01a94d88   236 FUNC    GLOBAL DEFAULT   13 _cgo_1ebd2d8f1b1c_Cfunc_checkException
+   205: 019e75fc    60 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgTurnOff
+   206: 019e74f0    76 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgGetSocketV4
+   207: 019e77f0   172 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__Connect
+   208: 01a91b24    88 FUNC    GLOBAL DEFAULT   13 proxymobile__Status
+   209: 019e7e50    48 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_IncGoRef
+   210: 01a94c1c    84 FUNC    GLOBAL DEFAULT   13 x_cgo_getstackbound
+   211: 01a94f98    60 FUNC    GLOBAL DEFAULT   13 _cgo_1ebd2d8f1b1c_Cfunc___android_log_write
+   212: 01a93e44   360 FUNC    GLOBAL DEFAULT   13 go_seq_isinstanceof
+   213: 01a947e8    56 FUNC    GLOBAL DEFAULT   13 _cgo_libc_setegid
+   214: 019e753c    76 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgGetSocketV6
+   215: 019e7588   116 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgHandshakeCandidates
+   216: 01a94680    24 FUNC    GLOBAL DEFAULT   13 x_cgo_setenv
+   217: 01a920d4   504 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile__1init
+   218: 01a92f94   600 FUNC    GLOBAL DEFAULT   13 go_seq_from_java_string
+   219: 01a928cc    44 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_status
+   220: 019e7a24   164 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__ConnectionPolicyMode
+   221: 01a92bcc   100 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_00024proxyPacketSink_writePacket
+   222: 01a94094    52 FUNC    GLOBAL DEFAULT   13 Java_go_Universe_00024proxyerror_error
+   223: 01a91fd4    60 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_cproxymobile_PacketSink_WritePacket
+   224: 01df2a64     4 OBJECT  GLOBAL DEFAULT   27 proxy_class_mobile_PacketSink_cons
+   225: 01a925f4   148 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_connect
+   226: 00cb1554    40 FUNC    GLOBAL DEFAULT   13 _cgo_topofstack
+   227: 01a91eb8    72 FUNC    GLOBAL DEFAULT   13 IncGoRef
+   228: 01a940c8   132 FUNC    GLOBAL DEFAULT   13 cproxy_error_Error
+   229: 01a922cc    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_attachPacketFlow
+   230: 01a93bf4    20 FUNC    GLOBAL DEFAULT   13 Java_go_Seq_incGoRef
+   231: 019e7de4    40 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__XrayStop
+   232: 01a94fd4    72 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc__Cmalloc
+   233: 01a91b7c    72 FUNC    GLOBAL DEFAULT   13 proxymobile__Stop
+   234: 01a91e14    72 FUNC    GLOBAL DEFAULT   13 proxymobile__XrayStop
+   235: 019e76ac   136 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgVersion
+   236: 019e7e80    48 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_DestroyRef
+   237: 01a94588    44 FUNC    GLOBAL DEFAULT   13 x_cgo_call_traceback_function
+   238: 01a9516c    52 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_Cfunc_gai_strerror
+   239: 01a916cc   136 FUNC    GLOBAL DEFAULT   13 proxymobile__AwgTurnOn
+   240: 01a91cd8   116 FUNC    GLOBAL DEFAULT   13 proxymobile__XrayCheckHttps
+   241: 019e5094   136 FUNC    GLOBAL DEFAULT   13 _cgoexp_478f353ee833_setContext
+   242: 019e6c60     4 FUNC    GLOBAL DEFAULT   13 main.main
+   243: 01a9204c    76 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc_cproxymobile_Protector_Resolve
+   244: 01a917f4   136 FUNC    GLOBAL DEFAULT   13 proxymobile__CloakStart
+   245: 01a91c20    92 FUNC    GLOBAL DEFAULT   13 proxymobile__Validate
+   246: 01a92cf8   140 FUNC    GLOBAL DEFAULT   13 cproxymobile_Protector_Protect
+   247: 01a923e8   164 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_awgHandshakeCandidates
+   248: 01a91f48    72 FUNC    GLOBAL DEFAULT   13 _cgo_9ecd47603de1_Cfunc__Cmalloc
+   249: 01a950ec    88 FUNC    GLOBAL DEFAULT   13 _cgo_90c9abb7659c_C2func_getaddrinfo
+   250: 01a93be0    20 FUNC    GLOBAL DEFAULT   13 Java_go_Seq_destroyRef
+   251: 019e7418    60 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__AwgCancelHandshake
+   252: 01a91bc4    92 FUNC    GLOBAL DEFAULT   13 proxymobile__StopWithTimeout
+   253: 01a927f8   128 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_connectionPolicyMode
+   254: 019e7b0c   136 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__Status
+   255: 019e7c14    68 FUNC    GLOBAL DEFAULT   13 _cgoexp_9ecd47603de1_proxymobile__Validate
+   256: 01a91ac8    92 FUNC    GLOBAL DEFAULT   13 proxymobile__PacketInput

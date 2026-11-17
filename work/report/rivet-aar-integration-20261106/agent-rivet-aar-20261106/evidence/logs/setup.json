@@ -1,0 +1,10 @@
+{
+  "tree": "/srv/archives/agent-rivet-aar-20261106/src",
+  "staleAarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+  "committedAarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+  "flutterSdkFacade": "/srv/archives/agent-rivet-aar-20261106/flutter",
+  "gradleCaches": "/srv/archives/agent-rivet-aar-20261106/gradle/caches",
+  "integrationTest": "/srv/archives/agent-rivet-aar-20261106/integration_test",
+  "pluginMetadataSha256": "55b0ea7cac7718f89d0b44c8721e172f3a05753cfd1aca9b236f6232f429fd94",
+  "localProperties": "sdk.dir=/opt/android-sdk\nflutter.sdk=/srv/archives/agent-rivet-aar-20261106/flutter\nflutter.versionName=0.24.2\nflutter.versionCode=5019\n"
+}

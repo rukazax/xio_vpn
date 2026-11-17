@@ -1,0 +1,25 @@
+OWN_PROCESSES
+RECEIPTS {"baseline-analyze.exit": "1", "client-mode.exit": "0", "final-analyze.exit": "1", "format-final.exit": "0", "full-suite.exit": "1", "green-analyze.exit": "1", "green-attempt1.exit": "1", "green-targeted.exit": "0", "instrumented-pub.exit": "0", "pub-get.exit": "0", "red-instrumented.exit": "1", "red.exit": "1", "source-after.exit": "0", "source-before.exit": "0"}
+full-suite.txt 03:54 +732 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/asset_provenance_test.dart: bundled server archive and bootstrap match the server source tree
+03:54 +732 ~16 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart
+03:56 +732 ~16 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart: live shared SSH client: pinned IPv4 DNS transport
+03:56 +732 ~17 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart: live shared SSH client: pinned IPv4 literal transport
+03:56 +732 ~18 -1: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+client-mode.txt 00:09 +25: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: client build is explicit and rejects administrative input before native IO
+00:09 +26: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: selected profile stays first; fallbacks follow it
+00:09 +27: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: same-endpoint variant goes before another endpoint profile
+00:09 +28: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: switch waits for stop and refuses failed stop: false
+00:11 +29: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: switch waits for stop and refuses failed stop: true
+00:12 +30: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: small display and large text keep client scrollable
+00:12 +31: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: shared home theme previews with test profiles
+00:12 +32: All tests passed!
+final-analyze.txt Analyzing app...                                                
+
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1030:7 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1032:7 • curly_braces_in_flow_control_structures
+
+2 issues found. (ran in 5.0s)
+LIVE_EXECUTED_FILES 528 MISMATCHES []

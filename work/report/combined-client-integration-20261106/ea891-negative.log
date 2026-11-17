@@ -1,0 +1,448 @@
+00:00 +0: loading /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart
+00:00 +0: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+00:00 +1: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+00:00 +2: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: DNS rejects every second-octet boundary in IPv6 fe80::/10
+00:00 +3: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: DNS accepts non-link-local fe00::/8 including site-local fec0::/10
+00:00 +4: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: null
+00:00 +5: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: []
+00:01 +6: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: [,   ]
+00:02 +7: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:03 +8: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:03 +9: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:05 +10: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:06 +11: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:06 +12: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:06 +13: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:07 +14: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:07 +15: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+00:07 +16: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS dns.example.org has zero remote effects
+00:07 +17: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+00:07 +18: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +19: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +20: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +21: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +22: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +23: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +24: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +25: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +26: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +27: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +28: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +29: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +30: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +31: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +32: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +33: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +34: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +35: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +36: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +37: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +38: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +39: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +40: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +41: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +42: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +43: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +44: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +45: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +46: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +47: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +48: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +49: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +50: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +51: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +52: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +53: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +54: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +55: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +56: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +57: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +58: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +59: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +60: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +61: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +62: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +63: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +64: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +65: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +66: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +67: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +68: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +69: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +70: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +71: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +72: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +73: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +74: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +75: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +76: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +77: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +78: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +79: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +80: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +81: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +82: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +83: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +84: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +85: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +86: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +87: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +88: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +89: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +90: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +91: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +92: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +93: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +94: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +95: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +96: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +97: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +98: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +99: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +100: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +101: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +102: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +103: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +104: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +105: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +106: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +107: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +108: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +109: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +110: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +111: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +112: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +113: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +114: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +115: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +116: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +117: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +118: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +119: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +120: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +121: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +122: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +123: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +124: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +125: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +126: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +127: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +128: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +129: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +130: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +131: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +132: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +133: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +134: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +135: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +136: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +137: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +138: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +139: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +140: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +141: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +142: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +143: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +144: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +145: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +146: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +147: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +148: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +149: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +150: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +151: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +152: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +153: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +154: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +155: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +156: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +157: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +158: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +159: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +160: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +161: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +162: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +163: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +164: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +165: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +166: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +167: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +168: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +169: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +170: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +171: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +172: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +173: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +174: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +175: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +176: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +177: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +178: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +179: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +180: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +181: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +182: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +183: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +184: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +185: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +186: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +187: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +188: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +189: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +190: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +191: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +192: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +193: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +194: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +195: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +196: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +197: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +198: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +199: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +200: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +201: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +202: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +203: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +204: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +205: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +206: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +207: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +208: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +209: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +210: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +211: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +212: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +213: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +214: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +215: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +216: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +217: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +218: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +219: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +220: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:08 +221: /srv/archives/agent-combined-client-review-20261106/source/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+00:09 +222: /srv/archives/agent-combined-client-review-20261106/source/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+00:09 +223: loading /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart
+00:14 +223: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: bundle round trip carries both protocol keys without SSH credentials
+00:14 +224: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: invalid imported bundle cannot erase remotely discovered user metadata
+00:14 +225: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: check site normalization rejects credentials and non HTTPS schemes
+00:14 +226: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: settings and management metadata survive restart without private configs
+00:14 +227: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:15 +228: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:15 +229: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:15 +230: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:15 +231: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:15 +232: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:15 +233: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +234: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +235: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +236: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +237: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +238: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +239: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +240: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +241: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:16 +242: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +243: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +244: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +245: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +246: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +247: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +248: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:16 +249: /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:19 +250: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary accepts real-shaped domain names and both IP families
+00:19 +251: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary rejects schemes, host:port and injection in a host field
+00:19 +252: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary parses endpoint hosts with explicit port and IPv6 brackets
+00:19 +253: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary SshTarget validates the same host before a socket exists
+00:19 +254: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary known-hosts keys a bracketed IPv6 by its raw host
+00:19 +255: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary managed metadata keeps the proxy and VPN host independent
+00:19 +256: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary DNS candidate resolution asks A and AAAA separately
+00:19 +257: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three A answers never starve the single AAAA answer
+00:19 +258: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three AAAA answers never starve the single A answer
+00:19 +259: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary socket attempts try the AAAA answer before extra A records
+00:19 +260: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary an established socket is never replaced by another address
+00:19 +261: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary a changed key for the domain aborts before authentication
+00:19 +262: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy install sends fr-host.fr while SSH stays on the proxy:9046
+00:19 +263: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy AWG and both RIVET profiles use the VPN domain and SNI
+00:19 +264: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy invalid public host performs no upload or init
+00:19 +265: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints AWG accepts a domain endpoint and rejects schemes or extra parts
+00:19 +266: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints RIVET keeps endpoint domain and independent TLS serverName
+00:19 +267: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints extended outbound keeps address domain and TLS SNI identity
+00:19 +268: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints subclient provisioning uses the same domain endpoint rules
+00:19 +269: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:19 +270: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:19 +271: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:19 +272: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:20 +273: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:20 +274: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:20 +275: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:20 +276: /srv/archives/agent-combined-client-review-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:21 +277: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 2001:db8::42, not SSH proxy
+00:21 +278: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host [2001:db8::42], not SSH proxy
+00:21 +279: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: malformed hosts perform no inspect, upload, init or store write
+00:21 +280: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: a ready installation is reused without uploading the old bundle
+00:21 +281: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: a different explicit host on a ready server is refused before upload
+00:21 +282: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: an incomplete installation is a hard stop before upload
+00:21 +283: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: a fresh init mismatch never registers a different VPN host
+00:21 +284: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: a malicious server AWG extension is rejected and the user revoked
+00:21 +285: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: password is released only after the host key gate accepts
+00:22 +286: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: client factory wires pin verification before password release
+00:22 +287: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: a pinned host rejects a different key before the password
+00:22 +288: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: case and trailing-dot aliases share one host-key pin
+00:22 +289: /srv/archives/agent-combined-client-review-20261106/source/app/test/install_domain_security_test.dart: DNS resolution keeps a Punycode name, never substitutes an address
+test/managed_update_verification_test.dart:54:16: Error: The method '_Store.saveNativePlan' has fewer named arguments than those of overridden method 'AppStore.saveNativePlan'.
+  Future<void> saveNativePlan() async {
+               ^
+lib/core.dart:1476:16: Context: This is the overridden method ('saveNativePlan').
+  Future<void> saveNativePlan({bool? androidForTesting}) async {
+               ^
+00:22 +290: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 198.51.100.42
+00:22 +291: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: vpn.example
+00:22 +292: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 2001:db8::42
+00:22 +293: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 
+00:22 +294: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: https://vpn.example
+00:22 +295: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: user@vpn.example
+00:22 +296: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example;id
+00:22 +297: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a b
+00:22 +298: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: :::
+00:22 +299: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [198.51.100.42]
+00:22 +300: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [::1
+00:22 +301: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 256.256.256.256
+00:22 +302: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: -vpn.example
+00:22 +303: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn..example
+00:22 +304: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a_1.example
+00:22 +305: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example:443
+00:22 +306: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject invalid endpoint ports
+00:22 +307: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: legacy management metadata retains its direct VPN host
+00:22 +308: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: proxy SSH and public IPv6 survive management export metadata
+00:22 +309: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: install sends public IPv6 to server init, retaining SSH proxy for control
+00:22 +310: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: invalid public host performs no upload or init
+00:22 +311: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 198.51.100.42
+00:22 +311 -1: loading /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_update_verification_test.dart [E]
+  Failed to load "/srv/archives/agent-combined-client-review-20261106/source/app/test/managed_update_verification_test.dart":
+  Compilation failed for testPath=/srv/archives/agent-combined-client-review-20261106/source/app/test/managed_update_verification_test.dart: test/managed_update_verification_test.dart:54:16: Error: The method '_Store.saveNativePlan' has fewer named arguments than those of overridden method 'AppStore.saveNativePlan'.
+    Future<void> saveNativePlan() async {
+                 ^
+  lib/core.dart:1476:16: Context: This is the overridden method ('saveNativePlan').
+    Future<void> saveNativePlan({bool? androidForTesting}) async {
+                 ^
+  .
+00:22 +312 -1: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: vpn.example
+00:22 +313 -1: /srv/archives/agent-combined-client-review-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 2001:db8::42
+00:27 +314 -1: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: (setUpAll)
+00:28 +314 -1: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues
+00:28 +314 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues [E]
+  Expected: true
+    Actual: <false>
+  ru has no entry for «Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.»
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/l10n_test.dart 74:11                           main.<fn>
+  
+00:28 +314 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +315 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +316 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +317 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +318 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +319 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +320 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +321 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +322 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +323 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:28 +324 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:29 +325 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:29 +326 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:29 +327 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:29 +328 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:29 +329 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/routing_contract_invariants_test.dart: rule edit during apply rejects write and never commits stale cache
+00:29 +330 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:29 +331 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:29 +332 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:29 +333 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:29 +334 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:29 +335 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: status rows are translated and never left as the Russian key
+00:29 +336 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: no catalogue reuses the English value while Russian is the source
+00:29 +337 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: system language resolution checks preferences and falls back to English
+00:29 +338 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: dynamic status keeps technical arguments and specific message templates
+00:29 +339 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: explicit and system language persist without changing profiles
+00:29 +340 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:30 +341 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:30 +342 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:30 +343 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:30 +344 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:30 +345 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:32 +346 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:34 +347 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:34 +348 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:34 +349 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:34 +350 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:34 +351 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:34 +352 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +353 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +354 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +355 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +356 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +357 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +358 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +359 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +360 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +361 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +362 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +363 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +364 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +365 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +366 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +367 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:35 +368 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +369 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +370 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +371 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +372 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +373 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +374 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:37 +375 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:38 +376 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:38 +377 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:38 +378 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:38 +379 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:39 +380 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:39 +381 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:42 +382 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/background_polling_test.dart: UI lifecycle stops status polling in background and refreshes on resume
+00:43 +383 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+00:44 +384 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+00:45 +385 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: cascade screen fits 360×640 in every language, RTL included
+00:46 +386 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+00:47 +387 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+00:47 +388 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: startup statistics runs once despite repeat callers and one unavailable server
+00:47 +389 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: stalled probe falls back; late first result cannot replace success
+00:47 +390 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:48 +391 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +392 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +393 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +394 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +395 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +396 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +397 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +398 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:49 +399 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:50 +400 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/connection_users_test.dart: (tearDownAll)
+00:50 +400 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in false
+00:50 +401 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in true
+00:50 +402 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/background_probe_plan_test.dart: platform gate stays off when Android is not selected
+00:52 +403 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/credential_id_test.dart: strict credential namespace desktop=false
+00:52 +404 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/credential_id_test.dart: strict credential namespace desktop=true
+00:52 +405 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: keys persist before open returns and restart reuses exactly the same intent
+00:53 +406 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: parallel instances cannot overwrite each others first key material
+00:53 +407 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: write is awaited and failed persistence never admits a returned intent
+00:53 +408 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: missing write readback fails and reordered maps remain valid
+00:53 +409 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: unknown remote outcomes preserve operation identity keys and pending action
+00:53 +410 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: stale caller cannot roll journal backwards or replace newer state
+00:53 +411 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: corrupt private record never regenerates or prints private contents
+00:53 +412 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/native_cascade_journal_test.dart: different target/configuration cannot be resumed under the old identity
+00:53 +413 -2: /srv/archives/agent-combined-client-review-20261106/source/app/test/desktop_adapter_test.dart: retired engines are absent from the supported catalogue
+00:53 +414 -2: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-combined-client-review-20261106/source/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues
+  /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_update_verification_test.dart: loading /srv/archives/agent-combined-client-review-20261106/source/app/test/managed_update_verification_test.dart

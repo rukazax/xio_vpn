@@ -1,0 +1,8 @@
+Exception in thread "main" app.xio.xio.ConnectionBudget$CleanupIncomplete: VPN cleanup incomplete
+	at app.xio.xio.ConnectionBudget.runCandidates(ConnectionBudget.java:81)
+	at app.xio.xio.ConnectionBudgetTest.main(ConnectionBudgetTest.java:57)
+Caused by: app.xio.xio.ConnectionBudget$Expired: Connection round deadline
+	at app.xio.xio.ConnectionBudget.remainingMillis(ConnectionBudget.java:47)
+	at app.xio.xio.ConnectionBudgetTest$2.cleanup(ConnectionBudgetTest.java:62)
+	at app.xio.xio.ConnectionBudget.runCandidates(ConnectionBudget.java:80)
+	... 1 more

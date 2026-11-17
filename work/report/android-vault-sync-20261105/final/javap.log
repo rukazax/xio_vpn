@@ -1,0 +1,1197 @@
+Classfile /srv/archives/agent-vault-compile-20261105/public-api-final/classes/app/xio/xio/ConfigVault.class
+  Last modified 5 нояб. 2026 г.; size 9279 bytes
+  SHA-256 checksum 9b15824f90e31e2af7ac4c556aca6bce691538feeb413fb364a61ae9a2a47364
+  Compiled from "ConfigVault.kt"
+public final class app.xio.xio.ConfigVault
+  minor version: 0
+  major version: 61
+  flags: (0x0031) ACC_PUBLIC, ACC_FINAL, ACC_SUPER
+  this_class: #2                          // app/xio/xio/ConfigVault
+  super_class: #4                         // java/lang/Object
+  interfaces: 0, fields: 1, methods: 8, attributes: 6
+Constant pool:
+    #1 = Utf8               app/xio/xio/ConfigVault
+    #2 = Class              #1            // app/xio/xio/ConfigVault
+    #3 = Utf8               java/lang/Object
+    #4 = Class              #3            // java/lang/Object
+    #5 = Utf8               <init>
+    #6 = Utf8               (Landroid/content/Context;)V
+    #7 = Utf8               Lorg/jetbrains/annotations/NotNull;
+    #8 = Utf8               context
+    #9 = String             #8            // context
+   #10 = Utf8               kotlin/jvm/internal/Intrinsics
+   #11 = Class              #10           // kotlin/jvm/internal/Intrinsics
+   #12 = Utf8               checkNotNullParameter
+   #13 = Utf8               (Ljava/lang/Object;Ljava/lang/String;)V
+   #14 = NameAndType        #12:#13       // checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+   #15 = Methodref          #11.#14       // kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+   #16 = Utf8               ()V
+   #17 = NameAndType        #5:#16        // "<init>":()V
+   #18 = Methodref          #4.#17        // java/lang/Object."<init>":()V
+   #19 = Utf8               Landroid/content/Context;
+   #20 = NameAndType        #8:#19        // context:Landroid/content/Context;
+   #21 = Fieldref           #2.#20        // app/xio/xio/ConfigVault.context:Landroid/content/Context;
+   #22 = Utf8               this
+   #23 = Utf8               Lapp/xio/xio/ConfigVault;
+   #24 = Utf8               getNoBackupFilesDir
+   #25 = Utf8               ()Ljava/io/File;
+   #26 = Utf8               android/content/Context
+   #27 = Class              #26           // android/content/Context
+   #28 = NameAndType        #24:#25       // getNoBackupFilesDir:()Ljava/io/File;
+   #29 = Methodref          #27.#28       // android/content/Context.getNoBackupFilesDir:()Ljava/io/File;
+   #30 = Utf8               contains
+   #31 = Utf8               (Ljava/lang/String;)Z
+   #32 = Utf8               id
+   #33 = String             #32           // id
+   #34 = Utf8               secretFile
+   #35 = Utf8               (Ljava/lang/String;)Ljava/io/File;
+   #36 = NameAndType        #34:#35       // secretFile:(Ljava/lang/String;)Ljava/io/File;
+   #37 = Methodref          #2.#36        // app/xio/xio/ConfigVault.secretFile:(Ljava/lang/String;)Ljava/io/File;
+   #38 = Utf8               java/io/File
+   #39 = Class              #38           // java/io/File
+   #40 = Utf8               exists
+   #41 = Utf8               ()Z
+   #42 = NameAndType        #40:#41       // exists:()Z
+   #43 = Methodref          #39.#42       // java/io/File.exists:()Z
+   #44 = Utf8               Ljava/lang/String;
+   #45 = Utf8               delete
+   #46 = Utf8               (Ljava/lang/String;)V
+   #47 = NameAndType        #45:#41       // delete:()Z
+   #48 = Methodref          #39.#47       // java/io/File.delete:()Z
+   #49 = Utf8               kotlin/text/Regex
+   #50 = Class              #49           // kotlin/text/Regex
+   #51 = Utf8               ^((wg|awg|rvh|rvs|xr|ss|ov|ik|ck|ts)[0-9]{1,24}|ssh[a-f0-9]{64}|state[a-f0-9]{64})$
+   #52 = String             #51           // ^((wg|awg|rvh|rvs|xr|ss|ov|ik|ck|ts)[0-9]{1,24}|ssh[a-f0-9]{64}|state[a-f0-9]{64})$
+   #53 = NameAndType        #5:#46        // "<init>":(Ljava/lang/String;)V
+   #54 = Methodref          #50.#53       // kotlin/text/Regex."<init>":(Ljava/lang/String;)V
+   #55 = Utf8               java/lang/CharSequence
+   #56 = Class              #55           // java/lang/CharSequence
+   #57 = Utf8               matches
+   #58 = Utf8               (Ljava/lang/CharSequence;)Z
+   #59 = NameAndType        #57:#58       // matches:(Ljava/lang/CharSequence;)Z
+   #60 = Methodref          #50.#59       // kotlin/text/Regex.matches:(Ljava/lang/CharSequence;)Z
+   #61 = Utf8               Failed requirement.
+   #62 = String             #61           // Failed requirement.
+   #63 = Utf8               java/lang/IllegalArgumentException
+   #64 = Class              #63           // java/lang/IllegalArgumentException
+   #65 = Utf8               toString
+   #66 = Utf8               ()Ljava/lang/String;
+   #67 = NameAndType        #65:#66       // toString:()Ljava/lang/String;
+   #68 = Methodref          #4.#67        // java/lang/Object.toString:()Ljava/lang/String;
+   #69 = Methodref          #64.#53       // java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+   #70 = Methodref          #2.#28        // app/xio/xio/ConfigVault.getNoBackupFilesDir:()Ljava/io/File;
+   #71 = Utf8               vault
+   #72 = String             #71           // vault
+   #73 = Utf8               (Ljava/io/File;Ljava/lang/String;)V
+   #74 = NameAndType        #5:#73        // "<init>":(Ljava/io/File;Ljava/lang/String;)V
+   #75 = Methodref          #39.#74       // java/io/File."<init>":(Ljava/io/File;Ljava/lang/String;)V
+   #76 = Utf8               mkdirs
+   #77 = NameAndType        #76:#41       // mkdirs:()Z
+   #78 = Methodref          #39.#77       // java/io/File.mkdirs:()Z
+   #79 = Utf8               \u0001.bin
+   #80 = String             #79           // \u0001.bin
+   #81 = Utf8               java/lang/invoke/StringConcatFactory
+   #82 = Class              #81           // java/lang/invoke/StringConcatFactory
+   #83 = Utf8               makeConcatWithConstants
+   #84 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+   #85 = NameAndType        #83:#84       // makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+   #86 = Methodref          #82.#85       // java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+   #87 = MethodHandle       6:#86         // REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+   #88 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+   #89 = NameAndType        #83:#88       // makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+   #90 = InvokeDynamic      #0:#89        // #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+   #91 = Utf8               $i$a$-apply-ConfigVault$secretFile$directory$1
+   #92 = Utf8               I
+   #93 = Utf8               $this$secretFile_u24lambda_u240
+   #94 = Utf8               Ljava/io/File;
+   #95 = Utf8               directory
+   #96 = Utf8               key
+   #97 = Utf8               ()Ljavax/crypto/SecretKey;
+   #98 = Utf8               AndroidKeyStore
+   #99 = String             #98           // AndroidKeyStore
+  #100 = Utf8               java/security/KeyStore
+  #101 = Class              #100          // java/security/KeyStore
+  #102 = Utf8               getInstance
+  #103 = Utf8               (Ljava/lang/String;)Ljava/security/KeyStore;
+  #104 = NameAndType        #102:#103     // getInstance:(Ljava/lang/String;)Ljava/security/KeyStore;
+  #105 = Methodref          #101.#104     // java/security/KeyStore.getInstance:(Ljava/lang/String;)Ljava/security/KeyStore;
+  #106 = Utf8               load
+  #107 = Utf8               (Ljava/security/KeyStore$LoadStoreParameter;)V
+  #108 = NameAndType        #106:#107     // load:(Ljava/security/KeyStore$LoadStoreParameter;)V
+  #109 = Methodref          #101.#108     // java/security/KeyStore.load:(Ljava/security/KeyStore$LoadStoreParameter;)V
+  #110 = Utf8               xio.vault.v1
+  #111 = String             #110          // xio.vault.v1
+  #112 = Utf8               getKey
+  #113 = Utf8               (Ljava/lang/String;[C)Ljava/security/Key;
+  #114 = NameAndType        #112:#113     // getKey:(Ljava/lang/String;[C)Ljava/security/Key;
+  #115 = Methodref          #101.#114     // java/security/KeyStore.getKey:(Ljava/lang/String;[C)Ljava/security/Key;
+  #116 = Utf8               javax/crypto/SecretKey
+  #117 = Class              #116          // javax/crypto/SecretKey
+  #118 = Utf8               AES
+  #119 = String             #118          // AES
+  #120 = Utf8               javax/crypto/KeyGenerator
+  #121 = Class              #120          // javax/crypto/KeyGenerator
+  #122 = Utf8               (Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/KeyGenerator;
+  #123 = NameAndType        #102:#122     // getInstance:(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/KeyGenerator;
+  #124 = Methodref          #121.#123     // javax/crypto/KeyGenerator.getInstance:(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/KeyGenerator;
+  #125 = Utf8               android/security/keystore/KeyGenParameterSpec$Builder
+  #126 = Class              #125          // android/security/keystore/KeyGenParameterSpec$Builder
+  #127 = Utf8               (Ljava/lang/String;I)V
+  #128 = NameAndType        #5:#127       // "<init>":(Ljava/lang/String;I)V
+  #129 = Methodref          #126.#128     // android/security/keystore/KeyGenParameterSpec$Builder."<init>":(Ljava/lang/String;I)V
+  #130 = Utf8               java/lang/String
+  #131 = Class              #130          // java/lang/String
+  #132 = Utf8               GCM
+  #133 = String             #132          // GCM
+  #134 = Utf8               setBlockModes
+  #135 = Utf8               ([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+  #136 = NameAndType        #134:#135     // setBlockModes:([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+  #137 = Methodref          #126.#136     // android/security/keystore/KeyGenParameterSpec$Builder.setBlockModes:([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+  #138 = Utf8               NoPadding
+  #139 = String             #138          // NoPadding
+  #140 = Utf8               setEncryptionPaddings
+  #141 = NameAndType        #140:#135     // setEncryptionPaddings:([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+  #142 = Methodref          #126.#141     // android/security/keystore/KeyGenParameterSpec$Builder.setEncryptionPaddings:([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+  #143 = Utf8               build
+  #144 = Utf8               ()Landroid/security/keystore/KeyGenParameterSpec;
+  #145 = NameAndType        #143:#144     // build:()Landroid/security/keystore/KeyGenParameterSpec;
+  #146 = Methodref          #126.#145     // android/security/keystore/KeyGenParameterSpec$Builder.build:()Landroid/security/keystore/KeyGenParameterSpec;
+  #147 = Utf8               java/security/spec/AlgorithmParameterSpec
+  #148 = Class              #147          // java/security/spec/AlgorithmParameterSpec
+  #149 = Utf8               init
+  #150 = Utf8               (Ljava/security/spec/AlgorithmParameterSpec;)V
+  #151 = NameAndType        #149:#150     // init:(Ljava/security/spec/AlgorithmParameterSpec;)V
+  #152 = Methodref          #121.#151     // javax/crypto/KeyGenerator.init:(Ljava/security/spec/AlgorithmParameterSpec;)V
+  #153 = Utf8               generateKey
+  #154 = NameAndType        #153:#97      // generateKey:()Ljavax/crypto/SecretKey;
+  #155 = Methodref          #121.#154     // javax/crypto/KeyGenerator.generateKey:()Ljavax/crypto/SecretKey;
+  #156 = Utf8               generateKey(...)
+  #157 = String             #156          // generateKey(...)
+  #158 = Utf8               checkNotNullExpressionValue
+  #159 = NameAndType        #158:#13      // checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+  #160 = Methodref          #11.#159      // kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+  #161 = Utf8               $i$a$-apply-ConfigVault$key$store$1
+  #162 = Utf8               $this$key_u24lambda_u240
+  #163 = Utf8               Ljava/security/KeyStore;
+  #164 = Utf8               store
+  #165 = Utf8               existing
+  #166 = Utf8               Ljavax/crypto/SecretKey;
+  #167 = Utf8               generator
+  #168 = Utf8               Ljavax/crypto/KeyGenerator;
+  #169 = Utf8               java/security/Key
+  #170 = Class              #169          // java/security/Key
+  #171 = Utf8               writeSecret
+  #172 = Utf8               (Ljava/lang/String;Ljava/lang/String;)V
+  #173 = Utf8               java/lang/Throwable
+  #174 = Class              #173          // java/lang/Throwable
+  #175 = Utf8               raw
+  #176 = String             #175          // raw
+  #177 = Utf8               AES/GCM/NoPadding
+  #178 = String             #177          // AES/GCM/NoPadding
+  #179 = Utf8               javax/crypto/Cipher
+  #180 = Class              #179          // javax/crypto/Cipher
+  #181 = Utf8               (Ljava/lang/String;)Ljavax/crypto/Cipher;
+  #182 = NameAndType        #102:#181     // getInstance:(Ljava/lang/String;)Ljavax/crypto/Cipher;
+  #183 = Methodref          #180.#182     // javax/crypto/Cipher.getInstance:(Ljava/lang/String;)Ljavax/crypto/Cipher;
+  #184 = NameAndType        #96:#97       // key:()Ljavax/crypto/SecretKey;
+  #185 = Methodref          #2.#184       // app/xio/xio/ConfigVault.key:()Ljavax/crypto/SecretKey;
+  #186 = Utf8               (ILjava/security/Key;)V
+  #187 = NameAndType        #149:#186     // init:(ILjava/security/Key;)V
+  #188 = Methodref          #180.#187     // javax/crypto/Cipher.init:(ILjava/security/Key;)V
+  #189 = Utf8               kotlin/text/Charsets
+  #190 = Class              #189          // kotlin/text/Charsets
+  #191 = Utf8               UTF_8
+  #192 = Utf8               Ljava/nio/charset/Charset;
+  #193 = NameAndType        #191:#192     // UTF_8:Ljava/nio/charset/Charset;
+  #194 = Fieldref           #190.#193     // kotlin/text/Charsets.UTF_8:Ljava/nio/charset/Charset;
+  #195 = Utf8               getBytes
+  #196 = Utf8               (Ljava/nio/charset/Charset;)[B
+  #197 = NameAndType        #195:#196     // getBytes:(Ljava/nio/charset/Charset;)[B
+  #198 = Methodref          #131.#197     // java/lang/String.getBytes:(Ljava/nio/charset/Charset;)[B
+  #199 = Utf8               getBytes(...)
+  #200 = String             #199          // getBytes(...)
+  #201 = Utf8               updateAAD
+  #202 = Utf8               ([B)V
+  #203 = NameAndType        #201:#202     // updateAAD:([B)V
+  #204 = Methodref          #180.#203     // javax/crypto/Cipher.updateAAD:([B)V
+  #205 = Utf8               getPath
+  #206 = NameAndType        #205:#66      // getPath:()Ljava/lang/String;
+  #207 = Methodref          #39.#206      // java/io/File.getPath:()Ljava/lang/String;
+  #208 = Utf8               \u0001.tmp
+  #209 = String             #208          // \u0001.tmp
+  #210 = InvokeDynamic      #1:#89        // #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+  #211 = Methodref          #39.#53       // java/io/File."<init>":(Ljava/lang/String;)V
+  #212 = Utf8               java/io/FileOutputStream
+  #213 = Class              #212          // java/io/FileOutputStream
+  #214 = Utf8               (Ljava/io/File;)V
+  #215 = NameAndType        #5:#214       // "<init>":(Ljava/io/File;)V
+  #216 = Methodref          #213.#215     // java/io/FileOutputStream."<init>":(Ljava/io/File;)V
+  #217 = Utf8               java/io/Closeable
+  #218 = Class              #217          // java/io/Closeable
+  #219 = Utf8               getIV
+  #220 = Utf8               ()[B
+  #221 = NameAndType        #219:#220     // getIV:()[B
+  #222 = Methodref          #180.#221     // javax/crypto/Cipher.getIV:()[B
+  #223 = Utf8               write
+  #224 = Utf8               (I)V
+  #225 = NameAndType        #223:#224     // write:(I)V
+  #226 = Methodref          #213.#225     // java/io/FileOutputStream.write:(I)V
+  #227 = NameAndType        #223:#202     // write:([B)V
+  #228 = Methodref          #213.#227     // java/io/FileOutputStream.write:([B)V
+  #229 = Utf8               doFinal
+  #230 = Utf8               ([B)[B
+  #231 = NameAndType        #229:#230     // doFinal:([B)[B
+  #232 = Methodref          #180.#231     // javax/crypto/Cipher.doFinal:([B)[B
+  #233 = Utf8               flush
+  #234 = NameAndType        #233:#16      // flush:()V
+  #235 = Methodref          #213.#234     // java/io/FileOutputStream.flush:()V
+  #236 = Utf8               getFD
+  #237 = Utf8               ()Ljava/io/FileDescriptor;
+  #238 = NameAndType        #236:#237     // getFD:()Ljava/io/FileDescriptor;
+  #239 = Methodref          #213.#238     // java/io/FileOutputStream.getFD:()Ljava/io/FileDescriptor;
+  #240 = Utf8               java/io/FileDescriptor
+  #241 = Class              #240          // java/io/FileDescriptor
+  #242 = Utf8               sync
+  #243 = NameAndType        #242:#16      // sync:()V
+  #244 = Methodref          #241.#243     // java/io/FileDescriptor.sync:()V
+  #245 = Utf8               kotlin/Unit
+  #246 = Class              #245          // kotlin/Unit
+  #247 = Utf8               INSTANCE
+  #248 = Utf8               Lkotlin/Unit;
+  #249 = NameAndType        #247:#248     // INSTANCE:Lkotlin/Unit;
+  #250 = Fieldref           #246.#249     // kotlin/Unit.INSTANCE:Lkotlin/Unit;
+  #251 = Utf8               kotlin/io/CloseableKt
+  #252 = Class              #251          // kotlin/io/CloseableKt
+  #253 = Utf8               closeFinally
+  #254 = Utf8               (Ljava/io/Closeable;Ljava/lang/Throwable;)V
+  #255 = NameAndType        #253:#254     // closeFinally:(Ljava/io/Closeable;Ljava/lang/Throwable;)V
+  #256 = Methodref          #252.#255     // kotlin/io/CloseableKt.closeFinally:(Ljava/io/Closeable;Ljava/lang/Throwable;)V
+  #257 = Utf8               renameTo
+  #258 = Utf8               (Ljava/io/File;)Z
+  #259 = NameAndType        #257:#258     // renameTo:(Ljava/io/File;)Z
+  #260 = Methodref          #39.#259      // java/io/File.renameTo:(Ljava/io/File;)Z
+  #261 = Utf8               java/lang/IllegalStateException
+  #262 = Class              #261          // java/lang/IllegalStateException
+  #263 = Utf8               Check failed.
+  #264 = String             #263          // Check failed.
+  #265 = Methodref          #262.#53      // java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+  #266 = Utf8               getParentFile
+  #267 = NameAndType        #266:#25      // getParentFile:()Ljava/io/File;
+  #268 = Methodref          #39.#267      // java/io/File.getParentFile:()Ljava/io/File;
+  #269 = Utf8               checkNotNull
+  #270 = Utf8               (Ljava/lang/Object;)V
+  #271 = NameAndType        #269:#270     // checkNotNull:(Ljava/lang/Object;)V
+  #272 = Methodref          #11.#271      // kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+  #273 = Utf8               kotlin/collections/CollectionsKt
+  #274 = Class              #273          // kotlin/collections/CollectionsKt
+  #275 = Utf8               listOf
+  #276 = Utf8               ([Ljava/lang/Object;)Ljava/util/List;
+  #277 = NameAndType        #275:#276     // listOf:([Ljava/lang/Object;)Ljava/util/List;
+  #278 = Methodref          #274.#277     // kotlin/collections/CollectionsKt.listOf:([Ljava/lang/Object;)Ljava/util/List;
+  #279 = Utf8               java/lang/Iterable
+  #280 = Class              #279          // java/lang/Iterable
+  #281 = Utf8               java/util/HashSet
+  #282 = Class              #281          // java/util/HashSet
+  #283 = Methodref          #282.#17      // java/util/HashSet."<init>":()V
+  #284 = Utf8               java/util/ArrayList
+  #285 = Class              #284          // java/util/ArrayList
+  #286 = Methodref          #285.#17      // java/util/ArrayList."<init>":()V
+  #287 = Utf8               iterator
+  #288 = Utf8               ()Ljava/util/Iterator;
+  #289 = NameAndType        #287:#288     // iterator:()Ljava/util/Iterator;
+  #290 = InterfaceMethodref #280.#289     // java/lang/Iterable.iterator:()Ljava/util/Iterator;
+  #291 = Utf8               java/util/Iterator
+  #292 = Class              #291          // java/util/Iterator
+  #293 = Utf8               hasNext
+  #294 = NameAndType        #293:#41      // hasNext:()Z
+  #295 = InterfaceMethodref #292.#294     // java/util/Iterator.hasNext:()Z
+  #296 = Utf8               next
+  #297 = Utf8               ()Ljava/lang/Object;
+  #298 = NameAndType        #296:#297     // next:()Ljava/lang/Object;
+  #299 = InterfaceMethodref #292.#298     // java/util/Iterator.next:()Ljava/lang/Object;
+  #300 = Utf8               getAbsolutePath
+  #301 = NameAndType        #300:#66      // getAbsolutePath:()Ljava/lang/String;
+  #302 = Methodref          #39.#301      // java/io/File.getAbsolutePath:()Ljava/lang/String;
+  #303 = Utf8               add
+  #304 = Utf8               (Ljava/lang/Object;)Z
+  #305 = NameAndType        #303:#304     // add:(Ljava/lang/Object;)Z
+  #306 = Methodref          #282.#305     // java/util/HashSet.add:(Ljava/lang/Object;)Z
+  #307 = Methodref          #285.#305     // java/util/ArrayList.add:(Ljava/lang/Object;)Z
+  #308 = Utf8               java/util/List
+  #309 = Class              #308          // java/util/List
+  #310 = InterfaceMethodref #309.#289     // java/util/List.iterator:()Ljava/util/Iterator;
+  #311 = Utf8               android/system/OsConstants
+  #312 = Class              #311          // android/system/OsConstants
+  #313 = Utf8               O_RDONLY
+  #314 = NameAndType        #313:#92      // O_RDONLY:I
+  #315 = Fieldref           #312.#314     // android/system/OsConstants.O_RDONLY:I
+  #316 = Utf8               android/system/Os
+  #317 = Class              #316          // android/system/Os
+  #318 = Utf8               open
+  #319 = Utf8               (Ljava/lang/String;II)Ljava/io/FileDescriptor;
+  #320 = NameAndType        #318:#319     // open:(Ljava/lang/String;II)Ljava/io/FileDescriptor;
+  #321 = Methodref          #317.#320     // android/system/Os.open:(Ljava/lang/String;II)Ljava/io/FileDescriptor;
+  #322 = Utf8               fstat
+  #323 = Utf8               (Ljava/io/FileDescriptor;)Landroid/system/StructStat;
+  #324 = NameAndType        #322:#323     // fstat:(Ljava/io/FileDescriptor;)Landroid/system/StructStat;
+  #325 = Methodref          #317.#324     // android/system/Os.fstat:(Ljava/io/FileDescriptor;)Landroid/system/StructStat;
+  #326 = Utf8               android/system/StructStat
+  #327 = Class              #326          // android/system/StructStat
+  #328 = Utf8               st_mode
+  #329 = NameAndType        #328:#92      // st_mode:I
+  #330 = Fieldref           #327.#329     // android/system/StructStat.st_mode:I
+  #331 = Utf8               S_ISDIR
+  #332 = Utf8               (I)Z
+  #333 = NameAndType        #331:#332     // S_ISDIR:(I)Z
+  #334 = Methodref          #312.#333     // android/system/OsConstants.S_ISDIR:(I)Z
+  #335 = Utf8               fsync
+  #336 = Utf8               (Ljava/io/FileDescriptor;)V
+  #337 = NameAndType        #335:#336     // fsync:(Ljava/io/FileDescriptor;)V
+  #338 = Methodref          #317.#337     // android/system/Os.fsync:(Ljava/io/FileDescriptor;)V
+  #339 = Utf8               close
+  #340 = NameAndType        #339:#336     // close:(Ljava/io/FileDescriptor;)V
+  #341 = Methodref          #317.#340     // android/system/Os.close:(Ljava/io/FileDescriptor;)V
+  #342 = Utf8               $i$a$-use-ConfigVault$writeSecret$1
+  #343 = Utf8               out
+  #344 = Utf8               Ljava/io/FileOutputStream;
+  #345 = Utf8               $i$a$-distinctBy-ConfigVault$writeSecret$2
+  #346 = Utf8               it
+  #347 = Utf8               key$iv
+  #348 = Utf8               Ljava/lang/Object;
+  #349 = Utf8               e$iv
+  #350 = Utf8               $i$f$distinctBy
+  #351 = Utf8               set$iv
+  #352 = Utf8               Ljava/util/HashSet;
+  #353 = Utf8               list$iv
+  #354 = Utf8               Ljava/util/ArrayList;
+  #355 = Utf8               $this$distinctBy$iv
+  #356 = Utf8               Ljava/lang/Iterable;
+  #357 = Utf8               Ljava/io/FileDescriptor;
+  #358 = Utf8               parent
+  #359 = Utf8               cipher
+  #360 = Utf8               Ljavax/crypto/Cipher;
+  #361 = Utf8               file
+  #362 = Utf8               temp
+  #363 = Utf8               readSecret
+  #364 = Utf8               kotlin/io/FilesKt
+  #365 = Class              #364          // kotlin/io/FilesKt
+  #366 = Utf8               readBytes
+  #367 = Utf8               (Ljava/io/File;)[B
+  #368 = NameAndType        #366:#367     // readBytes:(Ljava/io/File;)[B
+  #369 = Methodref          #365.#368     // kotlin/io/FilesKt.readBytes:(Ljava/io/File;)[B
+  #370 = Utf8               javax/crypto/spec/GCMParameterSpec
+  #371 = Class              #370          // javax/crypto/spec/GCMParameterSpec
+  #372 = Utf8               kotlin/collections/ArraysKt
+  #373 = Class              #372          // kotlin/collections/ArraysKt
+  #374 = Utf8               copyOfRange
+  #375 = Utf8               ([BII)[B
+  #376 = NameAndType        #374:#375     // copyOfRange:([BII)[B
+  #377 = Methodref          #373.#376     // kotlin/collections/ArraysKt.copyOfRange:([BII)[B
+  #378 = Utf8               (I[B)V
+  #379 = NameAndType        #5:#378       // "<init>":(I[B)V
+  #380 = Methodref          #371.#379     // javax/crypto/spec/GCMParameterSpec."<init>":(I[B)V
+  #381 = Utf8               (ILjava/security/Key;Ljava/security/spec/AlgorithmParameterSpec;)V
+  #382 = NameAndType        #149:#381     // init:(ILjava/security/Key;Ljava/security/spec/AlgorithmParameterSpec;)V
+  #383 = Methodref          #180.#382     // javax/crypto/Cipher.init:(ILjava/security/Key;Ljava/security/spec/AlgorithmParameterSpec;)V
+  #384 = Utf8               doFinal(...)
+  #385 = String             #384          // doFinal(...)
+  #386 = Utf8               ([BLjava/nio/charset/Charset;)V
+  #387 = NameAndType        #5:#386       // "<init>":([BLjava/nio/charset/Charset;)V
+  #388 = Methodref          #131.#387     // java/lang/String."<init>":([BLjava/nio/charset/Charset;)V
+  #389 = Utf8               bytes
+  #390 = Utf8               [B
+  #391 = Utf8               size
+  #392 = Class              #390          // "[B"
+  #393 = Utf8               Lkotlin/Metadata;
+  #394 = Utf8               mv
+  #395 = Integer            2
+  #396 = Integer            4
+  #397 = Integer            0
+  #398 = Utf8               k
+  #399 = Integer            1
+  #400 = Utf8               xi
+  #401 = Integer            48
+  #402 = Utf8               d1
+  #403 = Utf8               \u00006\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\u0018\u00002\u00020\u0001B\u000f\u0012\u0006\u0010\u0002\u001a\u00020\u0003¢\u0006\u0004\b\u0004\u0010\u0005J\u000e\u0010\u000b\u001a\u00020\f2\u0006\u0010\r\u001a\u00020\u000eJ\u000e\u0010\u000f\u001a\u00020\u00102\u0006\u0010\r\u001a\u00020\u000eJ\u0010\u0010\u0011\u001a\u00020\u00072\u0006\u0010\r\u001a\u00020\u000eH\u0002J\b\u0010\u0012\u001a\u00020\u0013H\u0002J\u0016\u0010\u0014\u001a\u00020\u00102\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u0015\u001a\u00020\u000eJ\u000e\u0010\u0016\u001a\u00020\u000e2\u0006\u0010\r\u001a\u00020\u000eR\u000e\u0010\u0002\u001a\u00020\u0003X\u0082\u0004¢\u0006\u0002\n\u0000R\u001c\u0010\u0006\u001a\n \b*\u0004\u0018\u00010\u00070\u00078BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\t\u0010\n
+  #404 = Utf8               d2
+  #405 = Utf8
+  #406 = Utf8               noBackupFilesDir
+  #407 = Utf8               kotlin.jvm.PlatformType
+  #408 = Utf8               android/security/keystore/KeyGenParameterSpec
+  #409 = Class              #408          // android/security/keystore/KeyGenParameterSpec
+  #410 = Utf8               Builder
+  #411 = Utf8               java/security/KeyStore$LoadStoreParameter
+  #412 = Class              #411          // java/security/KeyStore$LoadStoreParameter
+  #413 = Utf8               LoadStoreParameter
+  #414 = Utf8               ConfigVault.kt
+  #415 = Utf8               Lkotlin/jvm/internal/SourceDebugExtension;
+  #416 = Utf8               value
+  #417 = Utf8               SMAP\nConfigVault.kt\nKotlin\n*S Kotlin\n*F\n+ 1 ConfigVault.kt\napp/xio/xio/ConfigVault\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n+ 3 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,67:1\n1#2:68\n1849#3,8:69\n*S KotlinDebug\n*F\n+ 1 ConfigVault.kt\napp/xio/xio/ConfigVault\n*L\n49#1:69,8\n*E\n
+  #418 = Utf8               RuntimeInvisibleAnnotations
+  #419 = Utf8               Code
+  #420 = Utf8               LineNumberTable
+  #421 = Utf8               LocalVariableTable
+  #422 = Utf8               RuntimeInvisibleParameterAnnotations
+  #423 = Utf8               StackMapTable
+  #424 = Utf8               InnerClasses
+  #425 = Utf8               SourceFile
+  #426 = Utf8               SourceDebugExtension
+  #427 = Utf8               RuntimeVisibleAnnotations
+  #428 = Utf8               BootstrapMethods
+{
+  private final android.content.Context context;
+    descriptor: Landroid/content/Context;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+    RuntimeInvisibleAnnotations:
+      0: #7()
+        org.jetbrains.annotations.NotNull
+
+  public app.xio.xio.ConfigVault(android.content.Context);
+    descriptor: (Landroid/content/Context;)V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_1
+         1: ldc           #9                  // String context
+         3: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_0
+         7: invokespecial #18                 // Method java/lang/Object."<init>":()V
+        10: aload_0
+        11: aload_1
+        12: putfield      #21                 // Field context:Landroid/content/Context;
+        15: return
+      LineNumberTable:
+        line 15: 6
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      16     0  this   Lapp/xio/xio/ConfigVault;
+            0      16     1 context   Landroid/content/Context;
+    RuntimeInvisibleParameterAnnotations:
+      parameter 0:
+        0: #7()
+          org.jetbrains.annotations.NotNull
+
+  private final java.io.File getNoBackupFilesDir();
+    descriptor: ()Ljava/io/File;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #21                 // Field context:Landroid/content/Context;
+         4: invokevirtual #29                 // Method android/content/Context.getNoBackupFilesDir:()Ljava/io/File;
+         7: areturn
+      LineNumberTable:
+        line 16: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       8     0  this   Lapp/xio/xio/ConfigVault;
+
+  public final boolean contains(java.lang.String);
+    descriptor: (Ljava/lang/String;)Z
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_1
+         1: ldc           #33                 // String id
+         3: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_0
+         7: aload_1
+         8: invokespecial #37                 // Method secretFile:(Ljava/lang/String;)Ljava/io/File;
+        11: invokevirtual #43                 // Method java/io/File.exists:()Z
+        14: ireturn
+      LineNumberTable:
+        line 17: 6
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      15     0  this   Lapp/xio/xio/ConfigVault;
+            0      15     1    id   Ljava/lang/String;
+    RuntimeInvisibleParameterAnnotations:
+      parameter 0:
+        0: #7()
+          org.jetbrains.annotations.NotNull
+
+  public final void delete(java.lang.String);
+    descriptor: (Ljava/lang/String;)V
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code:
+      stack=2, locals=2, args_size=2
+         0: aload_1
+         1: ldc           #33                 // String id
+         3: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_0
+         7: aload_1
+         8: invokespecial #37                 // Method secretFile:(Ljava/lang/String;)Ljava/io/File;
+        11: invokevirtual #48                 // Method java/io/File.delete:()Z
+        14: pop
+        15: return
+      LineNumberTable:
+        line 18: 6
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      16     0  this   Lapp/xio/xio/ConfigVault;
+            0      16     1    id   Ljava/lang/String;
+    RuntimeInvisibleParameterAnnotations:
+      parameter 0:
+        0: #7()
+          org.jetbrains.annotations.NotNull
+
+  private final java.io.File secretFile(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/io/File;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+    Code:
+      stack=4, locals=6, args_size=2
+         0: new           #50                 // class kotlin/text/Regex
+         3: dup
+         4: ldc           #52                 // String ^((wg|awg|rvh|rvs|xr|ss|ov|ik|ck|ts)[0-9]{1,24}|ssh[a-f0-9]{64}|state[a-f0-9]{64})$
+         6: invokespecial #54                 // Method kotlin/text/Regex."<init>":(Ljava/lang/String;)V
+         9: aload_1
+        10: checkcast     #56                 // class java/lang/CharSequence
+        13: invokevirtual #60                 // Method kotlin/text/Regex.matches:(Ljava/lang/CharSequence;)Z
+        16: ifne          34
+        19: ldc           #62                 // String Failed requirement.
+        21: astore_3
+        22: new           #64                 // class java/lang/IllegalArgumentException
+        25: dup
+        26: aload_3
+        27: invokevirtual #68                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        30: invokespecial #69                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        33: athrow
+        34: new           #39                 // class java/io/File
+        37: dup
+        38: aload_0
+        39: invokespecial #70                 // Method getNoBackupFilesDir:()Ljava/io/File;
+        42: ldc           #72                 // String vault
+        44: invokespecial #75                 // Method java/io/File."<init>":(Ljava/io/File;Ljava/lang/String;)V
+        47: astore_3
+        48: aload_3
+        49: astore        4
+        51: iconst_0
+        52: istore        5
+        54: aload         4
+        56: invokevirtual #78                 // Method java/io/File.mkdirs:()Z
+        59: pop
+        60: aload_3
+        61: astore_2
+        62: new           #39                 // class java/io/File
+        65: dup
+        66: aload_2
+        67: aload_1
+        68: invokedynamic #90,  0             // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        73: invokespecial #75                 // Method java/io/File."<init>":(Ljava/io/File;Ljava/lang/String;)V
+        76: areturn
+      StackMapTable: number_of_entries = 1
+        frame_type = 34 /* same */
+      LineNumberTable:
+        line 20: 0
+        line 21: 34
+        line 68: 51
+        line 21: 54
+        line 21: 60
+        line 21: 61
+        line 22: 62
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           54       6     5 $i$a$-apply-ConfigVault$secretFile$directory$1   I
+           51       9     4 $this$secretFile_u24lambda_u240   Ljava/io/File;
+           62      15     2 directory   Ljava/io/File;
+            0      77     0  this   Lapp/xio/xio/ConfigVault;
+            0      77     1    id   Ljava/lang/String;
+
+  private final javax.crypto.SecretKey key();
+    descriptor: ()Ljavax/crypto/SecretKey;
+    flags: (0x0012) ACC_PRIVATE, ACC_FINAL
+    Code:
+      stack=5, locals=5, args_size=1
+         0: ldc           #99                 // String AndroidKeyStore
+         2: invokestatic  #105                // Method java/security/KeyStore.getInstance:(Ljava/lang/String;)Ljava/security/KeyStore;
+         5: astore_2
+         6: aload_2
+         7: astore_3
+         8: iconst_0
+         9: istore        4
+        11: aload_3
+        12: aconst_null
+        13: invokevirtual #109                // Method java/security/KeyStore.load:(Ljava/security/KeyStore$LoadStoreParameter;)V
+        16: aload_2
+        17: astore_1
+        18: aload_1
+        19: ldc           #111                // String xio.vault.v1
+        21: aconst_null
+        22: invokevirtual #115                // Method java/security/KeyStore.getKey:(Ljava/lang/String;[C)Ljava/security/Key;
+        25: astore_3
+        26: aload_3
+        27: instanceof    #117                // class javax/crypto/SecretKey
+        30: ifeq          40
+        33: aload_3
+        34: checkcast     #117                // class javax/crypto/SecretKey
+        37: goto          41
+        40: aconst_null
+        41: astore_2
+        42: aload_2
+        43: dup
+        44: ifnull        48
+        47: areturn
+        48: pop
+        49: ldc           #119                // String AES
+        51: ldc           #99                 // String AndroidKeyStore
+        53: invokestatic  #124                // Method javax/crypto/KeyGenerator.getInstance:(Ljava/lang/String;Ljava/lang/String;)Ljavax/crypto/KeyGenerator;
+        56: astore_3
+        57: aload_3
+        58: new           #126                // class android/security/keystore/KeyGenParameterSpec$Builder
+        61: dup
+        62: ldc           #111                // String xio.vault.v1
+        64: iconst_3
+        65: invokespecial #129                // Method android/security/keystore/KeyGenParameterSpec$Builder."<init>":(Ljava/lang/String;I)V
+        68: iconst_1
+        69: anewarray     #131                // class java/lang/String
+        72: astore        4
+        74: aload         4
+        76: iconst_0
+        77: ldc           #133                // String GCM
+        79: aastore
+        80: aload         4
+        82: invokevirtual #137                // Method android/security/keystore/KeyGenParameterSpec$Builder.setBlockModes:([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+        85: iconst_1
+        86: anewarray     #131                // class java/lang/String
+        89: astore        4
+        91: aload         4
+        93: iconst_0
+        94: ldc           #139                // String NoPadding
+        96: aastore
+        97: aload         4
+        99: invokevirtual #142                // Method android/security/keystore/KeyGenParameterSpec$Builder.setEncryptionPaddings:([Ljava/lang/String;)Landroid/security/keystore/KeyGenParameterSpec$Builder;
+       102: invokevirtual #146                // Method android/security/keystore/KeyGenParameterSpec$Builder.build:()Landroid/security/keystore/KeyGenParameterSpec;
+       105: checkcast     #148                // class java/security/spec/AlgorithmParameterSpec
+       108: invokevirtual #152                // Method javax/crypto/KeyGenerator.init:(Ljava/security/spec/AlgorithmParameterSpec;)V
+       111: aload_3
+       112: invokevirtual #155                // Method javax/crypto/KeyGenerator.generateKey:()Ljavax/crypto/SecretKey;
+       115: dup
+       116: ldc           #157                // String generateKey(...)
+       118: invokestatic  #160                // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+       121: areturn
+      StackMapTable: number_of_entries = 3
+        frame_type = 255 /* full_frame */
+          offset_delta = 40
+          locals = [ class app/xio/xio/ConfigVault, class java/security/KeyStore, class java/security/KeyStore, class java/security/Key, int ]
+          stack = []
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ class javax/crypto/SecretKey ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 6
+          locals = [ class app/xio/xio/ConfigVault, class java/security/KeyStore, class javax/crypto/SecretKey, class java/security/Key, int ]
+          stack = [ class javax/crypto/SecretKey ]
+      LineNumberTable:
+        line 25: 0
+        line 68: 8
+        line 25: 11
+        line 25: 16
+        line 25: 17
+        line 26: 18
+        line 27: 42
+        line 28: 48
+        line 29: 57
+        line 30: 68
+        line 29: 108
+        line 31: 111
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           11       5     4 $i$a$-apply-ConfigVault$key$store$1   I
+            8       8     3 $this$key_u24lambda_u240   Ljava/security/KeyStore;
+           18     104     1 store   Ljava/security/KeyStore;
+           42      80     2 existing   Ljavax/crypto/SecretKey;
+           57      65     3 generator   Ljavax/crypto/KeyGenerator;
+            0     122     0  this   Lapp/xio/xio/ConfigVault;
+
+  public final void writeSecret(java.lang.String, java.lang.String);
+    descriptor: (Ljava/lang/String;Ljava/lang/String;)V
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code:
+      stack=5, locals=15, args_size=3
+         0: aload_1
+         1: ldc           #33                 // String id
+         3: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_2
+         7: ldc           #176                // String raw
+         9: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+        12: ldc           #178                // String AES/GCM/NoPadding
+        14: invokestatic  #183                // Method javax/crypto/Cipher.getInstance:(Ljava/lang/String;)Ljavax/crypto/Cipher;
+        17: astore_3
+        18: aload_3
+        19: iconst_1
+        20: aload_0
+        21: invokespecial #185                // Method key:()Ljavax/crypto/SecretKey;
+        24: checkcast     #170                // class java/security/Key
+        27: invokevirtual #188                // Method javax/crypto/Cipher.init:(ILjava/security/Key;)V
+        30: aload_3
+        31: aload_1
+        32: astore        4
+        34: getstatic     #194                // Field kotlin/text/Charsets.UTF_8:Ljava/nio/charset/Charset;
+        37: aload         4
+        39: swap
+        40: invokevirtual #198                // Method java/lang/String.getBytes:(Ljava/nio/charset/Charset;)[B
+        43: dup
+        44: ldc           #200                // String getBytes(...)
+        46: invokestatic  #160                // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+        49: invokevirtual #204                // Method javax/crypto/Cipher.updateAAD:([B)V
+        52: aload_0
+        53: aload_1
+        54: invokespecial #37                 // Method secretFile:(Ljava/lang/String;)Ljava/io/File;
+        57: astore        4
+        59: new           #39                 // class java/io/File
+        62: dup
+        63: aload         4
+        65: invokevirtual #207                // Method java/io/File.getPath:()Ljava/lang/String;
+        68: invokedynamic #210,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        73: invokespecial #211                // Method java/io/File."<init>":(Ljava/lang/String;)V
+        76: astore        5
+        78: new           #213                // class java/io/FileOutputStream
+        81: dup
+        82: aload         5
+        84: invokespecial #216                // Method java/io/FileOutputStream."<init>":(Ljava/io/File;)V
+        87: checkcast     #218                // class java/io/Closeable
+        90: astore        6
+        92: aconst_null
+        93: astore        7
+        95: nop
+        96: aload         6
+        98: checkcast     #213                // class java/io/FileOutputStream
+       101: astore        8
+       103: iconst_0
+       104: istore        9
+       106: aload         8
+       108: aload_3
+       109: invokevirtual #222                // Method javax/crypto/Cipher.getIV:()[B
+       112: arraylength
+       113: invokevirtual #226                // Method java/io/FileOutputStream.write:(I)V
+       116: aload         8
+       118: aload_3
+       119: invokevirtual #222                // Method javax/crypto/Cipher.getIV:()[B
+       122: invokevirtual #228                // Method java/io/FileOutputStream.write:([B)V
+       125: aload         8
+       127: aload_3
+       128: aload_2
+       129: getstatic     #194                // Field kotlin/text/Charsets.UTF_8:Ljava/nio/charset/Charset;
+       132: swap
+       133: swap
+       134: invokevirtual #198                // Method java/lang/String.getBytes:(Ljava/nio/charset/Charset;)[B
+       137: dup
+       138: ldc           #200                // String getBytes(...)
+       140: invokestatic  #160                // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+       143: invokevirtual #232                // Method javax/crypto/Cipher.doFinal:([B)[B
+       146: invokevirtual #228                // Method java/io/FileOutputStream.write:([B)V
+       149: aload         8
+       151: invokevirtual #235                // Method java/io/FileOutputStream.flush:()V
+       154: aload         8
+       156: invokevirtual #239                // Method java/io/FileOutputStream.getFD:()Ljava/io/FileDescriptor;
+       159: invokevirtual #244                // Method java/io/FileDescriptor.sync:()V
+       162: nop
+       163: getstatic     #250                // Field kotlin/Unit.INSTANCE:Lkotlin/Unit;
+       166: astore        8
+       168: aload         6
+       170: aload         7
+       172: invokestatic  #256                // Method kotlin/io/CloseableKt.closeFinally:(Ljava/io/Closeable;Ljava/lang/Throwable;)V
+       175: goto          199
+       178: astore        9
+       180: aload         9
+       182: astore        7
+       184: aload         9
+       186: athrow
+       187: astore        9
+       189: aload         6
+       191: aload         7
+       193: invokestatic  #256                // Method kotlin/io/CloseableKt.closeFinally:(Ljava/io/Closeable;Ljava/lang/Throwable;)V
+       196: aload         9
+       198: athrow
+       199: aload         5
+       201: aload         4
+       203: invokevirtual #260                // Method java/io/File.renameTo:(Ljava/io/File;)Z
+       206: ifne          220
+       209: new           #262                // class java/lang/IllegalStateException
+       212: dup
+       213: ldc_w         #264                // String Check failed.
+       216: invokespecial #265                // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+       219: athrow
+       220: iconst_3
+       221: anewarray     #39                 // class java/io/File
+       224: astore        7
+       226: aload         7
+       228: iconst_0
+       229: aload         4
+       231: invokevirtual #268                // Method java/io/File.getParentFile:()Ljava/io/File;
+       234: dup
+       235: invokestatic  #272                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+       238: aastore
+       239: aload         7
+       241: iconst_1
+       242: aload_0
+       243: invokespecial #70                 // Method getNoBackupFilesDir:()Ljava/io/File;
+       246: aastore
+       247: aload         7
+       249: iconst_2
+       250: aload_0
+       251: invokespecial #70                 // Method getNoBackupFilesDir:()Ljava/io/File;
+       254: invokevirtual #268                // Method java/io/File.getParentFile:()Ljava/io/File;
+       257: dup
+       258: invokestatic  #272                // Method kotlin/jvm/internal/Intrinsics.checkNotNull:(Ljava/lang/Object;)V
+       261: aastore
+       262: aload         7
+       264: invokestatic  #278                // Method kotlin/collections/CollectionsKt.listOf:([Ljava/lang/Object;)Ljava/util/List;
+       267: checkcast     #280                // class java/lang/Iterable
+       270: astore        7
+       272: nop
+       273: iconst_0
+       274: istore        8
+       276: new           #282                // class java/util/HashSet
+       279: dup
+       280: invokespecial #283                // Method java/util/HashSet."<init>":()V
+       283: astore        9
+       285: new           #285                // class java/util/ArrayList
+       288: dup
+       289: invokespecial #286                // Method java/util/ArrayList."<init>":()V
+       292: astore        10
+       294: aload         7
+       296: invokeinterface #290,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+       301: astore        11
+       303: aload         11
+       305: invokeinterface #295,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       310: ifeq          360
+       313: aload         11
+       315: invokeinterface #299,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       320: astore        12
+       322: aload         12
+       324: checkcast     #39                 // class java/io/File
+       327: astore        13
+       329: iconst_0
+       330: istore        14
+       332: aload         13
+       334: invokevirtual #302                // Method java/io/File.getAbsolutePath:()Ljava/lang/String;
+       337: astore        13
+       339: aload         9
+       341: aload         13
+       343: invokevirtual #306                // Method java/util/HashSet.add:(Ljava/lang/Object;)Z
+       346: ifeq          303
+       349: aload         10
+       351: aload         12
+       353: invokevirtual #307                // Method java/util/ArrayList.add:(Ljava/lang/Object;)Z
+       356: pop
+       357: goto          303
+       360: aload         10
+       362: checkcast     #309                // class java/util/List
+       365: invokeinterface #310,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       370: astore        6
+       372: aload         6
+       374: invokeinterface #295,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       379: ifeq          457
+       382: aload         6
+       384: invokeinterface #299,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       389: checkcast     #39                 // class java/io/File
+       392: astore        7
+       394: aload         7
+       396: invokevirtual #302                // Method java/io/File.getAbsolutePath:()Ljava/lang/String;
+       399: getstatic     #315                // Field android/system/OsConstants.O_RDONLY:I
+       402: iconst_0
+       403: invokestatic  #321                // Method android/system/Os.open:(Ljava/lang/String;II)Ljava/io/FileDescriptor;
+       406: astore        8
+       408: nop
+       409: aload         8
+       411: invokestatic  #325                // Method android/system/Os.fstat:(Ljava/io/FileDescriptor;)Landroid/system/StructStat;
+       414: getfield      #330                // Field android/system/StructStat.st_mode:I
+       417: invokestatic  #334                // Method android/system/OsConstants.S_ISDIR:(I)Z
+       420: ifne          434
+       423: new           #262                // class java/lang/IllegalStateException
+       426: dup
+       427: ldc_w         #264                // String Check failed.
+       430: invokespecial #265                // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+       433: athrow
+       434: aload         8
+       436: invokestatic  #338                // Method android/system/Os.fsync:(Ljava/io/FileDescriptor;)V
+       439: aload         8
+       441: invokestatic  #341                // Method android/system/Os.close:(Ljava/io/FileDescriptor;)V
+       444: goto          372
+       447: astore        9
+       449: aload         8
+       451: invokestatic  #341                // Method android/system/Os.close:(Ljava/io/FileDescriptor;)V
+       454: aload         9
+       456: athrow
+       457: return
+      Exception table:
+         from    to  target type
+            95   168   178   Class java/lang/Throwable
+            95   168   187   any
+           178   187   187   any
+           187   189   187   any
+           408   439   447   any
+           447   449   447   any
+      StackMapTable: number_of_entries = 10
+        frame_type = 255 /* full_frame */
+          offset_delta = 178
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/io/Closeable, null ]
+          stack = [ class java/lang/Throwable ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 8
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/io/Closeable, class java/lang/Throwable ]
+          stack = [ class java/lang/Throwable ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 11
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/io/Closeable, null, class kotlin/Unit, int ]
+          stack = []
+        frame_type = 20 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 82
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/io/Closeable, class java/lang/Iterable, int, class java/util/HashSet, class java/util/ArrayList, class java/util/Iterator ]
+          stack = []
+        frame_type = 56 /* same */
+        frame_type = 255 /* full_frame */
+          offset_delta = 11
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/util/Iterator, class java/lang/Object, top, class java/util/HashSet, class java/util/ArrayList, class java/util/Iterator ]
+          stack = []
+        frame_type = 255 /* full_frame */
+          offset_delta = 61
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/util/Iterator, class java/io/File, class java/io/FileDescriptor, class java/util/HashSet, class java/util/ArrayList, class java/util/Iterator ]
+          stack = []
+        frame_type = 255 /* full_frame */
+          offset_delta = 12
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/util/Iterator, class java/io/File, class java/io/FileDescriptor, class java/lang/Object, class java/util/ArrayList, class java/util/Iterator ]
+          stack = [ class java/lang/Throwable ]
+        frame_type = 255 /* full_frame */
+          offset_delta = 9
+          locals = [ class app/xio/xio/ConfigVault, class java/lang/String, class java/lang/String, class javax/crypto/Cipher, class java/io/File, class java/io/File, class java/util/Iterator, class java/lang/Object, top, class java/util/HashSet, class java/util/ArrayList, class java/util/Iterator ]
+          stack = []
+      LineNumberTable:
+        line 34: 12
+        line 35: 18
+        line 36: 30
+        line 36: 49
+        line 37: 52
+        line 38: 59
+        line 39: 82
+        line 39: 92
+        line 40: 106
+        line 40: 143
+        line 43: 149
+        line 44: 154
+        line 45: 162
+        line 39: 166
+        line 46: 199
+        line 48: 220
+        line 49: 250
+        line 48: 262
+        line 49: 272
+        line 69: 276
+        line 70: 285
+        line 71: 294
+        line 72: 322
+        line 49: 332
+        line 72: 337
+        line 73: 339
+        line 74: 349
+        line 76: 360
+        line 48: 365
+        line 50: 394
+        line 51: 408
+        line 52: 409
+        line 53: 434
+        line 54: 439
+        line 56: 457
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+          106      57     9 $i$a$-use-ConfigVault$writeSecret$1   I
+          103      60     8   out   Ljava/io/FileOutputStream;
+          332       5    14 $i$a$-distinctBy-ConfigVault$writeSecret$2   I
+          329       8    13    it   Ljava/io/File;
+          339      18    13 key$iv   Ljava/lang/Object;
+          322      35    12  e$iv   Ljava/lang/Object;
+          276      89     8 $i$f$distinctBy   I
+          285      80     9 set$iv   Ljava/util/HashSet;
+          294      71    10 list$iv   Ljava/util/ArrayList;
+          273      92     7 $this$distinctBy$iv   Ljava/lang/Iterable;
+          408      49     8 directory   Ljava/io/FileDescriptor;
+          394      63     7 parent   Ljava/io/File;
+           18     440     3 cipher   Ljavax/crypto/Cipher;
+           59     399     4  file   Ljava/io/File;
+           78     380     5  temp   Ljava/io/File;
+            0     458     0  this   Lapp/xio/xio/ConfigVault;
+            0     458     1    id   Ljava/lang/String;
+            0     458     2   raw   Ljava/lang/String;
+    RuntimeInvisibleParameterAnnotations:
+      parameter 0:
+        0: #7()
+          org.jetbrains.annotations.NotNull
+      parameter 1:
+        0: #7()
+          org.jetbrains.annotations.NotNull
+
+  public final java.lang.String readSecret(java.lang.String);
+    descriptor: (Ljava/lang/String;)Ljava/lang/String;
+    flags: (0x0011) ACC_PUBLIC, ACC_FINAL
+    Code:
+      stack=10, locals=7, args_size=2
+         0: aload_1
+         1: ldc           #33                 // String id
+         3: invokestatic  #15                 // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         6: aload_0
+         7: aload_1
+         8: invokespecial #37                 // Method secretFile:(Ljava/lang/String;)Ljava/io/File;
+        11: invokestatic  #369                // Method kotlin/io/FilesKt.readBytes:(Ljava/io/File;)[B
+        14: astore_2
+        15: aload_2
+        16: iconst_0
+        17: baload
+        18: sipush        255
+        21: iand
+        22: istore_3
+        23: iload_3
+        24: bipush        12
+        26: if_icmpne     42
+        29: aload_2
+        30: arraylength
+        31: iload_3
+        32: bipush        17
+        34: iadd
+        35: if_icmple     42
+        38: iconst_1
+        39: goto          43
+        42: iconst_0
+        43: ifne          63
+        46: ldc           #62                 // String Failed requirement.
+        48: astore        5
+        50: new           #64                 // class java/lang/IllegalArgumentException
+        53: dup
+        54: aload         5
+        56: invokevirtual #68                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        59: invokespecial #69                 // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        62: athrow
+        63: ldc           #178                // String AES/GCM/NoPadding
+        65: invokestatic  #183                // Method javax/crypto/Cipher.getInstance:(Ljava/lang/String;)Ljavax/crypto/Cipher;
+        68: astore        4
+        70: aload         4
+        72: iconst_2
+        73: aload_0
+        74: invokespecial #185                // Method key:()Ljavax/crypto/SecretKey;
+        77: checkcast     #170                // class java/security/Key
+        80: new           #371                // class javax/crypto/spec/GCMParameterSpec
+        83: dup
+        84: sipush        128
+        87: aload_2
+        88: iconst_1
+        89: iload_3
+        90: iconst_1
+        91: iadd
+        92: invokestatic  #377                // Method kotlin/collections/ArraysKt.copyOfRange:([BII)[B
+        95: invokespecial #380                // Method javax/crypto/spec/GCMParameterSpec."<init>":(I[B)V
+        98: checkcast     #148                // class java/security/spec/AlgorithmParameterSpec
+       101: invokevirtual #383                // Method javax/crypto/Cipher.init:(ILjava/security/Key;Ljava/security/spec/AlgorithmParameterSpec;)V
+       104: aload         4
+       106: aload_1
+       107: astore        5
+       109: getstatic     #194                // Field kotlin/text/Charsets.UTF_8:Ljava/nio/charset/Charset;
+       112: aload         5
+       114: swap
+       115: invokevirtual #198                // Method java/lang/String.getBytes:(Ljava/nio/charset/Charset;)[B
+       118: dup
+       119: ldc           #200                // String getBytes(...)
+       121: invokestatic  #160                // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+       124: invokevirtual #204                // Method javax/crypto/Cipher.updateAAD:([B)V
+       127: aload         4
+       129: aload_2
+       130: iload_3
+       131: iconst_1
+       132: iadd
+       133: aload_2
+       134: arraylength
+       135: invokestatic  #377                // Method kotlin/collections/ArraysKt.copyOfRange:([BII)[B
+       138: invokevirtual #232                // Method javax/crypto/Cipher.doFinal:([B)[B
+       141: dup
+       142: ldc_w         #385                // String doFinal(...)
+       145: invokestatic  #160                // Method kotlin/jvm/internal/Intrinsics.checkNotNullExpressionValue:(Ljava/lang/Object;Ljava/lang/String;)V
+       148: astore        5
+       150: getstatic     #194                // Field kotlin/text/Charsets.UTF_8:Ljava/nio/charset/Charset;
+       153: astore        6
+       155: new           #131                // class java/lang/String
+       158: dup
+       159: aload         5
+       161: aload         6
+       163: invokespecial #388                // Method java/lang/String."<init>":([BLjava/nio/charset/Charset;)V
+       166: areturn
+      StackMapTable: number_of_entries = 3
+        frame_type = 253 /* append */
+          offset_delta = 42
+          locals = [ class "[B", int ]
+        frame_type = 64 /* same_locals_1_stack_item */
+          stack = [ int ]
+        frame_type = 19 /* same */
+      LineNumberTable:
+        line 58: 6
+        line 59: 15
+        line 60: 23
+        line 61: 63
+        line 62: 70
+        line 62: 95
+        line 63: 104
+        line 63: 124
+        line 64: 127
+        line 64: 138
+        line 64: 166
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           15     152     2 bytes   [B
+           23     144     3  size   I
+           70      97     4 cipher   Ljavax/crypto/Cipher;
+            0     167     0  this   Lapp/xio/xio/ConfigVault;
+            0     167     1    id   Ljava/lang/String;
+    RuntimeInvisibleAnnotations:
+      0: #7()
+        org.jetbrains.annotations.NotNull
+    RuntimeInvisibleParameterAnnotations:
+      parameter 0:
+        0: #7()
+          org.jetbrains.annotations.NotNull
+}
+InnerClasses:
+  public static final #410= #126 of #409; // Builder=class android/security/keystore/KeyGenParameterSpec$Builder of class android/security/keystore/KeyGenParameterSpec
+  public static #413= #412 of #101;       // LoadStoreParameter=class java/security/KeyStore$LoadStoreParameter of class java/security/KeyStore
+SourceFile: "ConfigVault.kt"
+SourceDebugExtension:
+  SMAP
+  ConfigVault.kt
+  Kotlin
+  *S Kotlin
+  *F
+  + 1 ConfigVault.kt
+  app/xio/xio/ConfigVault
+  + 2 fake.kt
+  kotlin/jvm/internal/FakeKt
+  + 3 _Collections.kt
+  kotlin/collections/CollectionsKt___CollectionsKt
+  *L
+  1#1,67:1
+  1#2:68
+  1849#3,8:69
+  *S KotlinDebug
+  *F
+  + 1 ConfigVault.kt
+  app/xio/xio/ConfigVault
+  *L
+  49#1:69,8
+  *E
+RuntimeVisibleAnnotations:
+  0: #393(#394=[I#395,I#396,I#397],#398=I#399,#400=I#401,#402=[s#403],#404=[s#23,s#405,s#8,s#19,s#5,s#6,s#406,s#94,s#407,s#24,s#25,s#30,s#405,s#32,s#405,s#45,s#405,s#34,s#96,s#166,s#171,s#175,s#363])
+    kotlin.Metadata(
+      mv=[2,4,0]
+      k=1
+      xi=48
+      d1=["\u00006\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0003\n\u0002\u0018\u0002\n\u0002\b\u0004\n\u0002\u0010\u000b\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0002\b\u0003\u0018\u00002\u00020\u0001B\u000f\u0012\u0006\u0010\u0002\u001a\u00020\u0003¢\u0006\u0004\b\u0004\u0010\u0005J\u000e\u0010\u000b\u001a\u00020\f2\u0006\u0010\r\u001a\u00020\u000eJ\u000e\u0010\u000f\u001a\u00020\u00102\u0006\u0010\r\u001a\u00020\u000eJ\u0010\u0010\u0011\u001a\u00020\u00072\u0006\u0010\r\u001a\u00020\u000eH\u0002J\b\u0010\u0012\u001a\u00020\u0013H\u0002J\u0016\u0010\u0014\u001a\u00020\u00102\u0006\u0010\r\u001a\u00020\u000e2\u0006\u0010\u0015\u001a\u00020\u000eJ\u000e\u0010\u0016\u001a\u00020\u000e2\u0006\u0010\r\u001a\u00020\u000eR\u000e\u0010\u0002\u001a\u00020\u0003X\u0082\u0004¢\u0006\u0002\n\u0000R\u001c\u0010\u0006\u001a\n \b*\u0004\u0018\u00010\u00070\u00078BX\u0082\u0004¢\u0006\u0006\u001a\u0004\b\t\u0010\n"]
+      d2=["Lapp/xio/xio/ConfigVault;","","context","Landroid/content/Context;","<init>","(Landroid/content/Context;)V","noBackupFilesDir","Ljava/io/File;","kotlin.jvm.PlatformType","getNoBackupFilesDir","()Ljava/io/File;","contains","","id","","delete","","secretFile","key","Ljavax/crypto/SecretKey;","writeSecret","raw","readSecret"]
+    )
+RuntimeInvisibleAnnotations:
+  0: #415(#416=[s#417])
+    kotlin.jvm.internal.SourceDebugExtension(
+      value=["SMAP\nConfigVault.kt\nKotlin\n*S Kotlin\n*F\n+ 1 ConfigVault.kt\napp/xio/xio/ConfigVault\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n+ 3 _Collections.kt\nkotlin/collections/CollectionsKt___CollectionsKt\n*L\n1#1,67:1\n1#2:68\n1849#3,8:69\n*S KotlinDebug\n*F\n+ 1 ConfigVault.kt\napp/xio/xio/ConfigVault\n*L\n49#1:69,8\n*E\n"]
+    )
+BootstrapMethods:
+  0: #87 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #80 \u0001.bin
+  1: #87 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #209 \u0001.tmp

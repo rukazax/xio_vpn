@@ -1,0 +1,1 @@
+AAR /srv/archives/agent-rivet-aar-20261106/artifacts/stale-rivet-cfc336c9.aar sha256 cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7

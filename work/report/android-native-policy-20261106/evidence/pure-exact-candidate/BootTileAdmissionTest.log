@@ -1,0 +1,1 @@
+PASS boot/Tile without Flutter: durable READY becomes process-confirmed and admits automatic and manual candidates; pending/blocked/malformed restarts, missing marker, digest/routing divergence and a versioned document without envelope all stay blocked

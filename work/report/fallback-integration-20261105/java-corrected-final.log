@@ -1,0 +1,4 @@
+final corrected javac exit=0
+ConnectionBudget: cumulative deadline, child cancellation/fallback, publication epochs, late success and cleanup reservation PASS
+PASS: actual source wiring + production gate external DOWN/admission, unique per-activation UP/DOWN, replacement/own-success, automatic fallback/deadline, obsolete cleanup and cancel-owner invariants (no Kotlin/JNI execution)
+final original budget + actual-source/production gate/fallback/cancel-owner exit=0

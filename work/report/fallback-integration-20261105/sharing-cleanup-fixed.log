@@ -1,0 +1,16 @@
+rollback/both-throw: ok=True threw=True public=True private=True receipt=True rule=True
+rollback/private-throw: ok=True threw=True public=False private=True receipt=True rule=True
+rollback/public-throw: ok=True threw=True public=True private=False receipt=True rule=True
+rollback/sticky-success: ok=True threw=True public=True private=False receipt=True rule=True
+rollback/success: ok=True threw=False public=False private=False receipt=False rule=False
+rollback/rule-failure: ok=True threw=True public=False private=False receipt=True rule=True
+rollback/already-disabled: ok=True threw=False public=False private=False receipt=False rule=False
+disable/both-throw: ok=True threw=True public=True private=True receipt=True rule=True
+disable/private-throw: ok=True threw=True public=False private=True receipt=True rule=True
+disable/public-throw: ok=True threw=True public=True private=True receipt=True rule=True
+disable/sticky-success: ok=True threw=True public=True private=False receipt=True rule=True
+disable/success: ok=True threw=False public=False private=False receipt=False rule=False
+disable/rule-failure: ok=True threw=True public=False private=False receipt=True rule=True
+disable/already-disabled: ok=True threw=False public=False private=False receipt=False rule=False
+PASS: 14 actual cleanup-body failure/success/partial/no-op cases + pre-existing rule retention; no COM/network/host mutation
+actual-source mock cleanup exit=0; no COM/network/host mutation

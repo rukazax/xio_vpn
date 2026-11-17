@@ -1,0 +1,16 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.

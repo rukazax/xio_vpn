@@ -1,0 +1,30 @@
+== fresh arm64-v8a ==
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, for Android 26, built by NDK r30 (16248370), Go BuildID=QbXnmPZr_eq-jJZMHt_0/tmtojQ0DlWU3FtekCiJY/6585lQlDvK8TIwfdKZym/Eln4hdKVR5k412Q0r5Dr, BuildID[sha1]=ea62e1278554a192649f18340200ae053a460ed6, stripped
+== fresh armeabi-v7a ==
+  Class:                             ELF32
+  Type:                              DYN (Shared object file)
+  Machine:                           ARM
+ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, for Android 26, built by NDK r30 (16248370), Go BuildID=3IZ_wHLTrQcJEVDSX3CW/6Ld7yW11sefv8RJljW5U/cqgGjm_jXalSEVXyScGH/BbO557g8bFQ4g_UtuZl3, stripped
+== fresh x86_64 ==
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           Advanced Micro Devices X86-64
+ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, for Android 26, built by NDK r30 (16248370), Go BuildID=KiqBDzHzrndbkAg5-dpj/tqdYi7a9eYA3o-_Eupux/g8ooOdvvoh4i9CZURhon/MhEbMW3skggekKjGGQJJ, BuildID[sha1]=de8367e462378229f905683df88018e1fbd3a47e, stripped
+== stale arm64-v8a ==
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           AArch64
+ELF 64-bit LSB shared object, ARM aarch64, version 1 (SYSV), dynamically linked, for Android 26, built by NDK r30 (16248370), Go BuildID=HXxKT__wHk6ZN5OuYESj/YlqpDmO7k5ueAfxLWbiZ/H_s9s0YtrfQeTBtp5g7K/A9CRv85VUiU0waAa7Qit, stripped
+== stale armeabi-v7a ==
+  Class:                             ELF32
+  Type:                              DYN (Shared object file)
+  Machine:                           ARM
+ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, for Android 26, built by NDK r30 (16248370), Go BuildID=XZQdNMGqdl-iTrWvYOEK/0nWkOOcGlF-AcrAm3wF4/C6rae3Hs8JuBWOsN1x8z/HQ813qE30QasHpmSVOLB, stripped
+== stale x86_64 ==
+  Class:                             ELF64
+  Type:                              DYN (Shared object file)
+  Machine:                           Advanced Micro Devices X86-64
+ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, for Android 26, built by NDK r30 (16248370), Go BuildID=5TkjCTm9DtW9IdLVolNn/twal3j1-_Y9L2W7sOl1M/SQB6xxY8A1FOyFc1s9C1/mbhVFhSf7pbemtiVRvYP, stripped

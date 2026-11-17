@@ -1,0 +1,8 @@
+1e24a0594cc5dedc1b18fb31154d58c7d5bb6e4b
+ba3566b6b2cd63ecedee8de11a5e549b5eb89958
+36fa869aff5b98152e06ba774f31d87491f03c57
+?? .build-support/
+ app/lib/core.dart                      |  94 +++++-
+ app/lib/desktop_engine.dart            |  15 +-
+ app/test/desktop_autoconnect_test.dart | 578 +++++++++++++++++++++++++++++++++
+ 3 files changed, 677 insertions(+), 10 deletions(-)

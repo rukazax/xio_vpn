@@ -686,8 +686,11 @@ def awg_client_config(d,user,cascade=None,ipv6_only=False):
   allowed='::/0'
   dns='2620:fe::fe'
  else:
-  address='10.78.0.%d/24, fd78:1::%x/64'%(slot,slot)
-  allowed='0.0.0.0/0, ::/0'
+  # Advertise only the families this deployment can actually carry: a bridge
+  # without a working IPv6 default route must not hand out ::/0, otherwise an
+  # IPv6-preferring client blackholes its own traffic.
+  address=', '.join(value for family,value in [('ipv4','10.78.0.%d/24'%slot),('ipv6','fd78:1::%x/64'%slot)] if families[family])
+  allowed=', '.join(value for family,value in [('ipv4','0.0.0.0/0'),('ipv6','::/0')] if families[family])
   dns=', '.join(address for family,address in [('ipv4','9.9.9.9'),('ipv6','2620:fe::fe')] if families[family])
  lines=['[Interface]','PrivateKey = <client-private-key>','Address = '+address,'DNS = '+dns]
  for key in ['Jc','Jmin','Jmax','S1','S2','S3','S4','H1','H2','H3','H4','I1','I2','I3','I4','I5']:

@@ -1,0 +1,51 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart
+00:00 +0: update awaits digest and advances only after acceptance
+00:00 +0 -1: update awaits digest and advances only after acceptance [E]
+  Expected: false
+    Actual: <true>
+
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/managed_update_verification_test.dart 165:11   main.<fn>
+
+00:00 +0 -1: update awaits digest and returns mismatch without side effects
+00:00 +0 -2: update awaits digest and returns mismatch without side effects [E]
+  Expected: false
+    Actual: <true>
+
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/managed_update_verification_test.dart 165:11   main.<fn>
+
+00:00 +0 -2: default service returns real digest mismatch before updater load
+00:00 +0 -2: update awaits digest and returns mismatch without side effects [E]
+  Bad state: Архив серверного релиза не совпадает с манифестом приложения
+  package:xio/managed_service.dart 79:7              ServerRelease.verifyArchiveOffThread
+  ===== asynchronous gap ===========================
+  dart:async                                         _CustomZone.registerBinaryCallback
+  test/managed_update_verification_test.dart 114:5   _GatedService.verifyUpdateArchive
+  package:xio/managed_service.dart 176:5             ManagedService.ensureUpdated
+  ===== asynchronous gap ===========================
+  dart:async                                         _CustomZone.registerUnaryCallback
+  package:xio/managed_service.dart 159:19            ManagedService.ensureUpdated
+  test/managed_update_verification_test.dart 151:14  main.<fn>
+
+00:00 +0 -3: default service returns real digest mismatch before updater load [E]
+  Expected: throws <Instance of 'StateError'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/managed_update_verification_test.dart 241:13  main.<fn>
+
+00:00 +0 -3: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart: default service returns real digest mismatch before updater load
+  /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart: update awaits digest and advances only after acceptance
+  /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart: update awaits digest and returns mismatch without side effects

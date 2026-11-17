@@ -1,0 +1,88 @@
+00:00 +0: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart
+00:00 +0: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: 65 distinct rules refuse activation without installing a subset
+00:00 +1: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: 97 answers refuse activation with the 96 address budget intact
+00:00 +2: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: 128 manual networks leave no capacity for a domain answer
+00:00 +3: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: empty and partial DNS answers refuse an incomplete policy
+00:00 +4: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: failed native apply retries instead of reporting a fresh cache hit
+00:00 +5: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: failed clear preserves prior applied state and retries
+00:00 +6: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: expired provenance requires one fresh lookup then permits owned reuse
+00:00 +7: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: restart provenance requires one fresh lookup then permits owned reuse
+00:00 +8: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: policy edit provenance requires one fresh lookup then permits owned reuse
+00:00 +9: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: cache missing provenance requires one fresh lookup then permits owned reuse
+00:00 +10: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: force provenance requires one fresh lookup then permits owned reuse
+00:00 +11: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=false)
+00:00 +12: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=true)
+00:00 +13: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: late begin reply cannot start DNS or cancel a newer native lease
+00:00 +14: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: rule edit during apply rejects write and never commits stale cache
+00:00 +15: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: DOWN/new connect re-applies fresh cached DNS under a new native lease
+00:00 +16: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: empty domain standard policy needs no DNS and connects normally
+00:00 +17: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: a new admitted connect revokes an older standalone resolution
+00:00 +18: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_contract_invariants_test.dart: dispose revokes gated resolver even without a replacement refresh
+00:00 +19: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_resolution_completeness_test.dart
+00:01 +19: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_resolution_completeness_test.dart: lookup/address limits and empty DNS expose incomplete, not success
+00:01 +20: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_resolution_completeness_test.dart: DNS exception is incomplete even with a successful sibling
+00:01 +21: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_resolution_completeness_test.dart: duplicates and order do not consume extra address capacity
+00:01 +22: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_resolution_completeness_test.dart: new leases reuse DNS without renewing its original expiry
+00:01 +23: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_resolution_completeness_test.dart: invalidation while awaiting apply prevents a fresh cache commit
+00:01 +24: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_native_clock_test.dart
+00:03 +24: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_native_clock_test.dart: native provenance governs cached DNS after wall rewind at real nine minutes
+00:03 +25: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/split_domains_store_test.dart
+00:04 +25: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/split_domains_store_test.dart: домены сохраняются в профиле и читаются после перезапуска
+00:04 +26: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/split_domains_store_test.dart: некорректный домен не сохраняется и не меняет список
+00:04 +27: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/split_domains_store_test.dart: домены читаются из нативной политики, мусор отбрасывается
+00:04 +28: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/split_domains_store_test.dart: syncSplitDomains разрешает домены и передаёт адреса нативной стороне
+00:04 +29: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/split_domains_store_test.dart: без Android домены не трогают нативную сторону
+00:04 +30: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart
+00:06 +30: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: доменное правило принимает домен и wildcard в каноническом виде
+00:06 +31: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: доменное правило отвергает схему, слэши, порт и одиночную метку
+00:06 +32: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: проверка адресов IPv4, IPv6 и CIDR сохраняют прежнее поведение
+00:06 +33: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: проверка адресов домены в списке сетей не принимаются
+00:06 +34: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: ввод списка доменов разбирает строки, запятые и дубли
+00:06 +35: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: ввод списка доменов сообщает, какая именно запись некорректна
+00:06 +36: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: ввод списка доменов ограничивает число правил
+00:06 +37: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: разрешение доменов обычный домен превращается в свои адреса
+00:06 +38: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: разрешение доменов wildcard разрешает корень и известные поддомены, но не глубже
+00:06 +39: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: разрешение доменов сбои DNS и мусор в ответе не блокируют остальные правила
+00:06 +40: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: разрешение доменов таймаут передаётся резолверу и ограничивает обход
+00:06 +41: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: разрешение доменов число адресов ограничено запасом нативной политики
+00:06 +42: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов передаёт адреса нативной стороне и живёт по кэшу 10 минут
+00:06 +43: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов изменение списка разрешает заново, очистка снимает адреса
+00:06 +44: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов invalidate и force обходят кэш
+00:06 +45: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов пустой список с самого начала ничего не пишет
+00:06 +46: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart
+00:08 +46: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+00:08 +47: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+00:08 +48: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+00:08 +49: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+00:08 +50: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+00:08 +51: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+00:08 +52: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+00:08 +53: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:08 +54: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+00:08 +55: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+00:08 +56: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+00:08 +57: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_poll_idle_test.dart
+00:10 +57: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+00:11 +58: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/status_poll_idle_test.dart: equal tunnel states compare equal
+00:11 +59: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/background_polling_test.dart
+00:13 +59: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/background_polling_test.dart: UI lifecycle stops status polling in background and refreshes on resume
+00:15 +60: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/watchdog_interval_test.dart
+00:17 +60: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/watchdog_interval_test.dart: watchdog halves its cadence only after a stable run
+00:17 +61: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart
+00:19 +61: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart: (setUpAll)
+00:20 +61: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart: fresh poll waits for older interface read and then reads the new interface
+00:20 +62: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart: startup statistics runs once despite repeat callers and one unavailable server
+00:20 +63: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart: stalled probe falls back; late first result cannot replace success
+00:20 +64: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:23 +65: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/connection_users_test.dart: (tearDownAll)
+00:23 +65: loading /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart
+00:25 +65: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: automatic default retains selected first, selectedOnly is explicit
+00:26 +66: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: disposed disconnect success cannot publish or rearm
+00:26 +67: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: disposed activation success cannot publish or rearm
+00:26 +68: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: disposed disconnect error cannot publish or rearm
+00:26 +69: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: disposed activation error cannot publish or rearm
+00:26 +70: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: unjoined cleanup reserves activation after round expiry
+00:26 +71: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: repeated native recovery polls cannot renew the same lease
+00:26 +72: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: selectedOnly rejects missing native policy acknowledgement without fallback
+00:26 +73: /srv/archives/agent-split-routing-ttl-followup-20261106/final/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+00:26 +74: All tests passed!

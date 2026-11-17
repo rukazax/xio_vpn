@@ -1,0 +1,6 @@
+60bc5072696a5b4cf6d1e2192dc28629eb6f1e19a4c06d909299503c20ae94e7  app/android/app/src/main/java/app/xio/xio/BackgroundVerificationOptions.java
+3b1393d4e8a01d2ac04c63e015300bf388f2250712ccab08996e60834bceac96  app/android/app/src/test/java/app/xio/xio/BackgroundVerificationOptionsTest.java
+4f9e5a48857025ddb9ed0a5e712a8d2758fac1afc0a44d2404d4c1e405ada9f5  app/lib/core.dart
+002eacd322b8a1d87645760eb3fefdcd58b8d78f06cabc9c53842005f1dd3d00  app/android/app/src/main/kotlin/app/xio/xio/VpnControlService.kt
+793c0cbc1536a6dd06c6615142c1d605b7c736342127d80ecc77fc4388092b3f  app/android/app/src/main/kotlin/app/xio/xio/ConnectionProbe.kt
+ea393a2df212e7389a553f91873261f43ac2f48105a74288bd3d6e63a930d2b3  work/report/background-probe-fix-20261106/sentinel-followup/ReviewMissingHandshake.java

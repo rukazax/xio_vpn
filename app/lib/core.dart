@@ -28,6 +28,8 @@ import 'l10n.dart';
 import 'routing_domains.dart';
 
 import 'dart:async';
+
+import 'diag.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -1019,9 +1021,9 @@ class AppStore extends ChangeNotifier {
   bool autoConnectOnStart = false;
 
   /// Desired persisted permission, NOT evidence that a window flag was applied.
-  bool allowScreenshots = false;
+  bool allowScreenshots = xioTestBuild;
   bool get screenSecuritySupported =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+      !xioTestBuild && !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   /// Last acknowledged Android window-flag request; null means unknown.
   /// This is not a guarantee against OS/root/capture bypass.
@@ -1259,7 +1261,7 @@ class AppStore extends ChangeNotifier {
         autostart = j['autostart'] == true;
         persistedAutoConnect = j['autoConnectOnStart'] == true;
         autoConnectOnStart = persistedAutoConnect;
-        allowScreenshots = j['allowScreenshots'] == true;
+        allowScreenshots = xioTestBuild || j['allowScreenshots'] == true;
         cascadeBridge =
             validateCascadeBridge(j['cascadeBridge'] as String? ?? '') ?? '';
         cascadeExit =
@@ -1947,7 +1949,12 @@ class AppStore extends ChangeNotifier {
           documentBytes: jsonEncode(document),
         );
       }
-      final transaction = channel.transaction(snapshot);
+      final transaction = _desktopSession
+          ? channel.transaction(snapshot)
+          : channel.transaction(
+              snapshot,
+              expectedGeneration: await _androidExpectedGeneration(channel),
+            );
       await transaction.begin();
       try {
         await _saveDocument(
@@ -2310,10 +2317,46 @@ class AppStore extends ChangeNotifier {
       '${DateTime.now().toIso8601String().substring(11, 19)}  $event',
     );
     if (events.length > 100) events.removeLast();
+    XioDiag.log('event', event);
   }
 
   Future<void> select(String id) =>
       withDocumentMutation(() => _select(id));
+
+  /// Switches the active tunnel to another profile without a manual disconnect.
+  ///
+  /// There is one TUN per device, so this is a controlled disconnect/select/
+  /// connect sequence, not a packet-level handover: the VPN drops for a few
+  /// hundred milliseconds and comes back on the new protocol. It exists so the
+  /// user (and the diagnostic matrix) can change protocol with one action and
+  /// get a single, honest error instead of juggling three buttons.
+  Future<void> switchProfile(String id) async {
+    if (busy || reconnecting) throw StateError('Дождитесь завершения операции');
+    if (cleanupIncomplete) throw StateError('Отключение VPN не завершено');
+    final target = profiles.where((p) => p.id == id).firstOrNull;
+    if (target == null) throw StateError('Профиль не найден');
+    if (!nativeProtocols.contains(target.protocol)) {
+      throw StateError('Протокол ${target.protocol} недоступен на этом устройстве');
+    }
+    final wasActive = status.active || _desired;
+    final started = DateTime.now().millisecondsSinceEpoch;
+    XioDiag.log('switch', 'begin -> ${target.protocol} endpoint=${target.endpoint} active=$wasActive');
+    if (status.active) await disconnect();
+    await select(id);
+    if (!wasActive) {
+      XioDiag.log('switch', 'selected without connect (tunnel was down)');
+      return;
+    }
+    await connect();
+    final ms = DateTime.now().millisecondsSinceEpoch - started;
+    if (status.active && status.path == target.protocol) {
+      XioDiag.log('switch', 'done -> ${target.protocol} in $ms ms');
+      log('Переключено на ${target.protocol} за ${(ms / 1000).toStringAsFixed(1)} с');
+    } else {
+      XioDiag.log('switch', 'failed -> ${target.protocol} after $ms ms: ${error ?? status.state}');
+      throw StateError(error ?? 'Переключение не подтверждено');
+    }
+  }
 
   Future<void> _select(String id) async {
     if (busy || status.active) {
@@ -2704,6 +2747,42 @@ class AppStore extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
+  /// Expected plan generation for an ordinary Android reservation.
+  ///
+  /// Android has no separate CAS field, so the native journal's READY envelope
+  /// is the authority for the generation a new `begin` must name. A fresh
+  /// process (or a commit whose ACK was lost) does not know it yet; without
+  /// learning it every publication would reserve against a stale/null CAS and
+  /// the lane would answer POLICY_STALE forever. Desktop keeps its own CAS
+  /// semantics and returns null here.
+  Future<Object?> _androidExpectedGeneration(PolicyChannel channel) async {
+    if (_desktopSession) return null;
+    PolicyNativeState state;
+    try {
+      state = await channel.queryState();
+    } catch (_) {
+      return null;
+    }
+    if (state.pendingLane || state.pendingTransaction != null) {
+      try {
+        state = await settleNativePending() ?? state;
+      } catch (_) {
+        // A lane that refuses to settle keeps its own reason; the reservation
+        // below then fails closed with POLICY_BUSY/STALE instead of guessing.
+      }
+    }
+    if (state.state != 'ready') return null;
+    return state.planGeneration ?? state.receipt?.planGeneration;
+  }
+
+  /// Read-only diagnostics of the native policy lane (test builds and the
+  /// diagnostic log). Never starts, settles or fences a publication.
+  Future<PolicyNativeState?> nativePolicyState() async {
+    final channel = _policyChannel;
+    if (channel == null) return null;
+    return channel.queryState();
+  }
+
   /// Settles a dead persisted pending transaction through the documented
   /// recovery protocol (WIRE-V2 §9): inspect native state, abort the SAME dead
   /// transaction (3-key request), re-inspect, and only then treat the lane as
@@ -2724,9 +2803,15 @@ class AppStore extends ChangeNotifier {
       _policyReconcileRequired = true;
       if (!_disposed) notifyListeners();
     }
-    if (!const {'pending', 'pendingUnknown'}.contains(state.phase)) {
-      return state;
-    }
+    // A reservation can outlive its envelope: a round that timed out while the
+    // commit was in flight leaves READY on disk plus a live reservation that
+    // still holds the native policy gate. Treating only pending phases as
+    // unsettled leaked that reservation, and every later publication was
+    // refused with "VPN publication is active".
+    bool unsettled(PolicyNativeState value) =>
+        const {'pending', 'pendingUnknown'}.contains(value.phase) ||
+        value.pendingTransaction != null;
+    if (!unsettled(state)) return state;
     final dead = state.pendingTransaction ?? state.transactionId;
     if (dead == null) {
       throw const PolicyFailure(
@@ -2734,15 +2819,16 @@ class AppStore extends ChangeNotifier {
         'A pending publication has no transaction identity to settle',
       );
     }
-    await channel.abort(transactionId: dead);
-    state = await channel.queryState();
-    if (const {'pending', 'pendingUnknown'}.contains(state.phase)) {
-      throw const PolicyFailure(
-        'POLICY_BUSY',
-        'The native policy lane is still settling its previous publication',
-      );
+    for (var attempt = 0; attempt < 3; attempt++) {
+      await channel.abort(transactionId: dead);
+      state = await channel.queryState();
+      if (!unsettled(state)) return state;
+      await Future<void>.delayed(const Duration(milliseconds: 120));
     }
-    return state;
+    throw const PolicyFailure(
+      'POLICY_BUSY',
+      'The native policy lane is still settling its previous publication',
+    );
   }
 
   /// Reconciles the durable document with the versioned native envelope after a
@@ -2907,8 +2993,28 @@ class AppStore extends ChangeNotifier {
     // Capture the ORIGINAL pre-BEGIN receipt/CAS and epoch. Nothing sampled
     // after the BEGIN await may legitimize a newer document for this reserved
     // transaction.
+    //
+    // Without an explicit expectation the DURABLE document is the CAS authority:
+    // a failed publication can rename the document (new receipt on disk) and
+    // still fail to ACK, leaving the in-memory receipt pointing at the previous
+    // transaction. Reconciling against memory then failed every time with
+    // "the durable snapshot changed by a newer publication" and the lane stayed
+    // unreconcilable. The file is read BEFORE begin and re-CASed by _saveDocument
+    // under the writer hold, so a concurrent winner is still fenced.
+    Object? discoveredDurableTransaction;
+    if (expectedDurableTransaction == null && directory != null) {
+      try {
+        final current = Map<String, dynamic>.from(
+          jsonDecode(await File('${directory!.path}/profiles.json').readAsString())
+              as Map,
+        );
+        final receipt = current['connectionPlanReceipt'];
+        if (receipt is Map) discoveredDurableTransaction = receipt['transactionId'];
+      } catch (_) {}
+    }
     final previousRawReceipt = _rawConnectionPlanReceipt;
     final originalDurableTransaction = expectedDurableTransaction ??
+        discoveredDurableTransaction ??
         (previousRawReceipt is Map
             ? previousRawReceipt['transactionId']
             : null);
@@ -3632,7 +3738,12 @@ class AppStore extends ChangeNotifier {
         // Any ordinary save that slips in before this publication commits must
         // re-emit the SAME new receipt, never the previous one.
         _rawConnectionPlanReceipt = document['connectionPlanReceipt'];
-        transaction = channel.transaction(snapshot);
+        transaction = _desktopSession
+            ? channel.transaction(snapshot)
+            : channel.transaction(
+                snapshot,
+                expectedGeneration: await _androidExpectedGeneration(channel),
+              );
         await transaction.begin();
         begun = true;
       } catch (error) {
@@ -4263,6 +4374,16 @@ class AppStore extends ChangeNotifier {
     }
   }
 
+  /// Exact native-stored config for one profile, for exports that need the
+  /// private key (standalone AWG profile). Callers must treat it as a secret.
+  Future<String> readProfileConfig(String id) async {
+    final value = await native.invokeMethod<String>('readConfig', {'id': id});
+    if (value == null || value.isEmpty) {
+      throw StateError('Профиль не сохранён на этом устройстве');
+    }
+    return value;
+  }
+
   Future<UserBundle> exportUser(ManagedUser user) async {
     if (user.revoked) throw StateError('Доступ отозван');
     final configs = <String, String>{};
@@ -4503,6 +4624,7 @@ class AppStore extends ChangeNotifier {
     }
     final candidates = connectionCandidates(initial);
     final policy = connectionPolicy;
+    XioDiag.log('connect', 'start selected=${initial.protocol} candidates=${candidates.map((p) => p.protocol).join(",")} mode=${policy.name}');
     if (candidates.isEmpty && policy == ConnectionPolicy.selectedOnly) {
       // Missing, deleted, unsupported or revoked manual selection: no other
       // profile is tried and no auto-repair happens. Legacy native layers that
@@ -4550,6 +4672,11 @@ class AppStore extends ChangeNotifier {
     if (!_disposed) notifyListeners();
     var nativeIssued = false;
     var accepted = false;
+    // One reconcile per round: a candidate that failed its activation can leave
+    // the lane without a receipt (the plan is invalidated together with the
+    // tunnel), and the documented recovery is a fresh publication, not "give up
+    // on every remaining candidate".
+    var recoveredCandidate = false;
     bool startupConsentCurrent() {
       if (!startup || !enforceConsent || consentReady) return true;
       // An obsolete startup continuation cannot clear a newer owner's intent.
@@ -4584,8 +4711,13 @@ class AppStore extends ChangeNotifier {
         // in-memory versioned flag has been re-read from disk.
         try {
           await round.run(() => reconcilePolicy());
-        } catch (_) {
+        } catch (failure) {
           _policyReconcileRequired = true;
+          XioDiag.log(
+            'policy',
+            'reconcile failed: $failure'
+                '${failure is PublicationFailure ? ' cause=${failure.cause}' : ''}',
+          );
           throw const PolicyFailure(
             'POLICY_UNKNOWN',
             'The saved plan could not be reconciled with the local engine',
@@ -4618,6 +4750,7 @@ class AppStore extends ChangeNotifier {
           if (!nativeProtocols.contains(p.protocol) || !nativeTunnel) continue;
           if (!startupConsentCurrent()) return;
           final started = DateTime.now().millisecondsSinceEpoch;
+          XioDiag.log('connect', 'try ${p.protocol} endpoint=${p.endpoint}');
           // Attachment validation precedes the effect: a stale receipt or a
           // manual candidate that is not the committed selection is refused
           // before any native stop/setup.
@@ -4686,6 +4819,7 @@ class AppStore extends ChangeNotifier {
           }
           accepted = true;
           _retryCount = 0;
+          XioDiag.log('connect', 'accepted ${p.protocol} in ${DateTime.now().millisecondsSinceEpoch - started} ms');
           log(
             siteCheckEnabled
                 ? 'Автоматически выбран ${p.protocol}; сайт доступен'
@@ -4709,7 +4843,39 @@ class AppStore extends ChangeNotifier {
               round.remaining <= Duration.zero) {
             rethrow;
           }
+          XioDiag.log(
+            'connect',
+            'failed ${p.protocol}: '
+                '${e is PlatformException ? '${e.code}: ${e.message}' : e is PolicyFailure ? '${e.code}: ${e.message}' : '$e'}',
+          );
           log('Проверка ${p.protocol} не пройдена');
+          final policyCode = e is PolicyFailure
+              ? e.code
+              : e is PlatformException &&
+                      const {
+                          'POLICY_BUSY',
+                          'POLICY_UNSUPPORTED',
+                          'POLICY_STALE',
+                        }.contains(e.code)
+                  ? e.code
+                  : null;
+          if (policyCode != null && !recoveredCandidate) {
+            // The candidate could not be activated because the lane lost its
+            // receipt. Reconcile once and let the remaining candidates try;
+            // a second refusal is final for this round.
+            recoveredCandidate = true;
+            XioDiag.log(
+              'connect',
+              'candidate ${p.protocol} needs reconcile: $policyCode',
+            );
+            try {
+              await round.run(() => reconcilePolicy());
+            } catch (failure) {
+              XioDiag.log('policy', 'candidate reconcile failed: $failure');
+              rethrow;
+            }
+            continue;
+          }
           if (e is PolicyFailure || e is PublicationFailure) {
             // Identity/admission refusals and unconfirmed document writes are
             // never "this protocol failed, try the next one".
@@ -4731,6 +4897,7 @@ class AppStore extends ChangeNotifier {
         'Ни один доступный маршрут не подтвердил туннель. Проверьте точку входа и доступность сервера.',
       );
     } catch (e) {
+      XioDiag.log('connect', 'aborted: ${e is PlatformException ? e.code : e.runtimeType}: $e');
       if (current()) {
         _invalidateConnectionStatus();
         _activeId = null;

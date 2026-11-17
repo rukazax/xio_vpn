@@ -260,9 +260,50 @@ public final class PolicyWiringTest {
         selfJournal.abort(PolicyFixtures.GEN2); // nothing written yet: releases cleanly
         check(selfGate.admissionOpen(), "the owning abort is not self-blocked");
 
+        // Automatic failover: the candidate that finally connects IS the round's
+        // publication owner. Until its activation settles the lane is closed; once
+        // it settles, the accepted selection must be publishable while the tunnel
+        // stays UP. Refusing that made failover stop with POLICY_BUSY right after
+        // the winning candidate connected.
+        PublicationLease failover = new PublicationLease();
+        ConnectionBudget round = new ConnectionBudget(30000, () -> 1000L);
+        failover.register(round);
+        long token = failover.begin(failover.admissionToken(), round, "round-1");
+        try {
+            failover.reservePolicy("tx-activation");
+            throw new AssertionError("publication admitted while the connect request was outstanding");
+        } catch (IllegalStateException busy) {
+            check(busy.getMessage().contains("request"), "an outstanding request fences the lane: " + busy.getMessage());
+        }
+        failover.release(round); // the connect request was delivered, the activation is still settling
+        try {
+            failover.reservePolicy("tx-activation");
+            throw new AssertionError("publication admitted while the activation was still being established");
+        } catch (IllegalStateException busy) {
+            check(busy.getMessage().contains("activation"), "activation must own the lane until it settles: " + busy.getMessage());
+        }
+        failover.settleActivation("round-1");
+        failover.reservePolicy("tx-accepted");
+        check(failover.policyReserved(), "the accepted candidate can publish its selection");
+        check(failover.accepts(token), "settling the activation must not revoke the live tunnel");
+        failover.releasePolicy("tx-accepted");
+        check(!failover.policyReserved(), "publication released");
+        // A later round starts a NEW activation and closes the lane again.
+        failover.register(round);
+        failover.begin(failover.admissionToken(), round, "round-2");
+        failover.release(round);
+        try {
+            failover.reservePolicy("tx-next");
+            throw new AssertionError("publication admitted during the next activation");
+        } catch (IllegalStateException expected) { }
+        failover.retire("round-2", null); // candidate failure: lane reopens for recovery
+        failover.reservePolicy("tx-recovery");
+        check(failover.policyReserved(), "a retired activation releases the lane for recovery");
+        failover.releasePolicy("tx-recovery");
+
         System.out.println("PASS native policy wiring: admission before stop/UP, receipt carried through every tile candidate, "
             + "no raw-plan tile/xray/restart consumer, synchronous config/routing fence, real gate+journal DOWN/late-write "
-            + "ownership, pendingUnknown, C7 FLAG_SECURE ordering");
+            + "ownership, pendingUnknown, failover publication after a settled activation, C7 FLAG_SECURE ordering");
     }
 
     private PolicyWiringTest() { }

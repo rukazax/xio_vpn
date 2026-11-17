@@ -1,0 +1,9 @@
+{
+  "run": "fresh-client",
+  "mode": "client",
+  "applicationId": "app.xio.client",
+  "clientOnly": "true",
+  "compiledClasses": 98,
+  "buildConfigSha256": "8cefcb10b89a8acdb4ab71807fbaf7123c5cecf3bb274166447e5da7197be210",
+  "mainActivitySha256": "0570cde798e699f5db8346d57e11163433c440b4becfef3293d6fb9434db5a0e"
+}

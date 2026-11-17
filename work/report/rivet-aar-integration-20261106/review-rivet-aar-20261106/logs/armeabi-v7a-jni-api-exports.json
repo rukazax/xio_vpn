@@ -1,0 +1,14 @@
+{
+  "cancelConnect": [
+    "157: 01a92538    16 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_cancelConnect"
+  ],
+  "stopWithTimeout": [
+    "174: 01a92908    84 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_stopWithTimeout"
+  ],
+  "connectPolicyTimeout": [
+    "193: 01a92688   204 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_connectPolicyTimeout"
+  ],
+  "connectionPolicyMode": [
+    "253: 01a927f8   128 FUNC    GLOBAL DEFAULT   13 Java_app_xio_mobile_Mobile_connectionPolicyMode"
+  ]
+}

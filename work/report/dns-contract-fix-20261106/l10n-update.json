@@ -1,0 +1,15 @@
+{
+"ru": ["До двух unicast-адресов IPv4 или IPv6, включая частные. Без домена, порта и схемы.", "DNS: укажите IPv4 или IPv6 — без домена, порта, схемы и пути"],
+"en": ["Up to two unicast IPv4 or IPv6 addresses, including private addresses. No domain, port or scheme.", "DNS: enter IPv4 or IPv6 — no domain, port, scheme or path"],
+"de": ["Bis zu zwei Unicast-IPv4- oder IPv6-Adressen, einschließlich privater Adressen. Ohne Domäne, Port oder Schema.", "DNS: IPv4 oder IPv6 eingeben — ohne Domäne, Port, Schema oder Pfad"],
+"fr": ["Deux adresses IPv4 ou IPv6 unicast maximum, y compris privées. Sans domaine, port ni schéma.", "DNS : saisissez une IPv4 ou IPv6 — sans domaine, port, schéma ni chemin"],
+"es": ["Hasta dos direcciones IPv4 o IPv6 unicast, incluidas las privadas. Sin dominio, puerto ni esquema.", "DNS: introduzca IPv4 o IPv6 — sin dominio, puerto, esquema ni ruta"],
+"it": ["Fino a due indirizzi IPv4 o IPv6 unicast, inclusi quelli privati. Senza dominio, porta o schema.", "DNS: inserisci IPv4 o IPv6 — senza dominio, porta, schema o percorso"],
+"pt": ["Até dois endereços IPv4 ou IPv6 unicast, incluindo privados. Sem domínio, porta ou esquema.", "DNS: insira IPv4 ou IPv6 — sem domínio, porta, esquema ou caminho"],
+"tr": ["Özel adresler dahil en fazla iki unicast IPv4 veya IPv6 adresi. Alan adı, bağlantı noktası veya şema olmadan.", "DNS: IPv4 veya IPv6 girin — alan adı, bağlantı noktası, şema veya yol olmadan"],
+"ar": ["حتى عنواني IPv4 أو IPv6 أحاديي الإرسال، بما في ذلك العناوين الخاصة. بدون نطاق أو منفذ أو مخطط.", "DNS: أدخل IPv4 أو IPv6 — بدون نطاق أو منفذ أو مخطط أو مسار"],
+"hi": ["निजी पतों सहित अधिकतम दो यूनिकास्ट IPv4 या IPv6 पते। डोमेन, पोर्ट या स्कीम नहीं।", "DNS: IPv4 या IPv6 दर्ज करें — डोमेन, पोर्ट, स्कीम या पथ नहीं"],
+"ja": ["プライベートアドレスを含むユニキャスト IPv4 または IPv6 アドレスを最大2件。ドメイン・ポート・スキームは不可。", "DNS: IPv4 または IPv6 を入力 — ドメイン・ポート・スキーム・パスは不可"],
+"ko": ["사설 주소를 포함한 유니캐스트 IPv4 또는 IPv6 주소 최대 두 개. 도메인, 포트, 스킴은 제외.", "DNS: IPv4 또는 IPv6 입력 — 도메인, 포트, 스킴, 경로는 제외"],
+"zh": ["最多两个单播 IPv4 或 IPv6 地址，包括私有地址。不含域名、端口或协议。", "DNS：请输入 IPv4 或 IPv6，不含域名、端口、协议或路径"]
+}

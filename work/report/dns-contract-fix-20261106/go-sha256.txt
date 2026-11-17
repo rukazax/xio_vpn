@@ -1,0 +1,2 @@
+e7cacf374dc22af9719a20733e09606622a69d9da92e19e3eb31f970c7e83b02  protocol/rivet/internal/desktop/profile.go
+db0de8c2deec22c1d04711b0c076609b7758fd8aaa4889feb811af2968f82216  protocol/rivet/internal/desktop/dns_contract_probe_test.go

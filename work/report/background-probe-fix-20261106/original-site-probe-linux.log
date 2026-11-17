@@ -1,0 +1,5 @@
+00:00 +0: loading /srv/archives/agent-background-probe-fix-20261106/source/app/test/connection_users_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: stalled probe falls back; late first result cannot replace success
+00:01 +1: (tearDownAll)
+00:01 +1: All tests passed!

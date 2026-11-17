@@ -1,0 +1,190 @@
+
+UTC 2026-11-05T21:35:03Z COMMAND: flutter --no-version-check pub get --offline
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+EXIT=0
+
+UTC 2026-11-05T21:35:12Z COMMAND: flutter --no-version-check analyze --no-pub lib/managed_models.dart lib/app_settings.dart lib/core.dart lib/managed_service.dart lib/subclients.dart test/dns_contract_test.dart test/app_settings_test.dart
+Analyzing 7 items...                                            
+No issues found! (ran in 60.0s)
+EXIT=0
+
+UTC 2026-11-05T21:36:14Z COMMAND: flutter --no-version-check test --no-pub --no-test-assets --concurrency=1 --reporter expanded test/dns_contract_test.dart test/app_settings_test.dart test/managed_models_test.dart test/account_access_test.dart test/native_profile_readiness_test.dart
+00:00 +0: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart
+00:00 +0: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+00:00 +1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+00:00 +2: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:00 +3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS 127.0.0.1 survives actual load-save and literal repair
+00:00 +4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:01 +5: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS has zero remote effects
+00:01 +6: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS has zero effects with pending=false
+00:01 +7: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS has zero effects with pending=true
+00:01 +8: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+
+Warning: A call to tap() with finder "Found 1 widget with text "Сохранить": [
+  Text("Сохранить", dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(400.0, 740.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+Indeed, Offset(400.0, 740.0) is outside the bounds of the root of the render tree, Size(800.0, 600.0).
+The finder corresponds to this RenderBox: RenderParagraph#e815e relayoutBoundary=up25
+The hit test result at that offset is: HitTestResult(HitTestEntry<HitTestTarget>#9e377(_ReusableRenderView#c1171), HitTestEntry<HitTestTarget>#6043e(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2165:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1947:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1080:7)
+#3      main.<anonymous closure> (file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart:233:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+#6      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: ['1.1.1.1']
+  Actual: ['dns.example.org']
+   Which: at location [0] is 'dns.example.org' instead of '1.1.1.1'
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart:235:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart line 235
+The test description was:
+  legacy DNS remains visible with unsupported error and can be repaired
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:03 +8 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired [E]
+  Test failed. See exception logs above.
+  The test description was: legacy DNS remains visible with unsupported error and can be repaired
+  
+00:03 +8 -1: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart
+00:05 +8 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: defaults: screenshots off, autostart off, Quad9 resolver
+00:05 +9 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:06 +10 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: custom DNS validation accepts unicast IPv4 and IPv6 literals
+00:06 +11 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: custom DNS validation rejects ports, schemes and extra entries
+00:06 +12 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: an unsupported resolver list is preserved for explicit repair
+00:06 +13 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+00:06 +14 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+00:06 +15 -1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following _Exception was thrown running a test:
+Exception: Asset 'shaders/ink_sparkle.frag' not found
+
+When the exception was thrown, this was the stack:
+#0      new FragmentProgram._fromAsset (dart:ui/painting.dart:5415:7)
+#1      FragmentProgram.fromAsset.<anonymous closure> (dart:ui/painting.dart:5443:39)
+#12     FakeAsync.run.<anonymous closure>.<anonymous closure> (package:fake_async/fake_async.dart:189:18)
+#13     FakeAsync.flushMicrotasks (package:fake_async/fake_async.dart:200:32)
+#14     AutomatedTestWidgetsFlutterBinding.runTest.<anonymous closure> (package:flutter_test/src/binding.dart:2507:17)
+(elided 25 frames from dart:async and package:stack_trace)
+
+The test description was:
+  the three settings switches persist immediately
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:08 +15 -2: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately [E]
+  Test failed. See exception logs above.
+  The test description was: the three settings switches persist immediately
+  
+00:08 +15 -2: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextContainingWidgetFinder:<Found 0 widgets with text containing без порта: []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart:287:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart line 287
+The test description was:
+  resolver page saves a preset and rejects a bad custom address
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:09 +15 -3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address [E]
+  Test failed. See exception logs above.
+  The test description was: resolver page saves a preset and rejects a bad custom address
+  
+00:09 +15 -3: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart
+00:26 +15 -3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: bundle round trip carries both protocol keys without SSH credentials
+00:26 +16 -3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: invalid imported bundle cannot erase remotely discovered user metadata
+00:26 +17 -3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: check site normalization rejects credentials and non HTTPS schemes
+00:26 +18 -3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: settings and management metadata survive restart without private configs
+00:26 +19 -3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following _Exception was thrown running a test:
+Exception: Asset 'shaders/ink_sparkle.frag' not found
+
+When the exception was thrown, this was the stack:
+#0      new FragmentProgram._fromAsset (dart:ui/painting.dart:5415:7)
+#1      FragmentProgram.fromAsset.<anonymous closure> (dart:ui/painting.dart:5443:39)
+#12     FakeAsync.run.<anonymous closure>.<anonymous closure> (package:fake_async/fake_async.dart:189:18)
+#13     FakeAsync.flushMicrotasks (package:fake_async/fake_async.dart:200:32)
+#14     AutomatedTestWidgetsFlutterBinding.runTest.<anonymous closure> (package:flutter_test/src/binding.dart:2507:17)
+(elided 25 frames from dart:async and package:stack_trace)
+
+The test description was:
+  site check is off by default and saves the chosen HTTPS site when enabled
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:28 +19 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled [E]
+  Test failed. See exception logs above.
+  The test description was: site check is off by default and saves the chosen HTTPS site when enabled
+  
+00:28 +19 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:29 +20 -4: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart
+00:30 +20 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: only a bounded HTTPS capability can enter schema 3
+00:31 +21 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: subclient material excludes parent API and administrator credentials
+00:31 +22 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: IPv6 DNS is issued only with an explicit gateway capability
+00:31 +23 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: unknown response retains exact operation and local keys for explicit reconciliation
+00:31 +24 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv4
+00:31 +25 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv6
+00:31 +26 -4: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart
+00:33 +26 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: absent metadata preserves native legacy behavior
+00:33 +27 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: policy-only IPv6 readiness issues IPv6 despite no host default field
+00:33 +28 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: explicit IPv4-only overrides old IPv6 flag and resolver
+00:33 +29 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: explicit IPv6-only requires no IPv4 exit and retains RIVET identity
+00:33 +30 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: unselected transport and unsupported proxy configs are omitted
+00:33 +31 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: requested dual-family is never downgraded or recovered via legacy true
+00:33 +32 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: selected RIVET metadata cannot silently disappear
+00:33 +33 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: stale malformed missing and non-boolean metadata fail closed
+00:33 +34 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: readiness enforces 60-second age and TTL with five-second skew
+00:33 +35 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: oversized or old evidence fails issuance, not proxy/direct fallback
+00:33 +36 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: UTC and revision compatibility remain strict and compatible
+00:33 +37 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: owner issuance uses policy-only readiness and excludes proxy bypass
+00:33 +38 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: owner issuance failure compensates newly registered identity
+00:33 +39 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=false retains intent
+00:33 +40 -4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=true retains intent
+00:33 +41 -4: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+EXIT=1

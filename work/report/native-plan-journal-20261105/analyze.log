@@ -1,0 +1,6 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Analyzing native_cascade_plan.dart, native_cascade_plan_test.dart, native_cascade_journal.dart, native_cascade_journal_test.dart, managed_service.dart, managed_update_verification_test.dart...
+No issues found!

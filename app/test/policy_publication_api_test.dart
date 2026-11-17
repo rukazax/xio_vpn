@@ -671,6 +671,55 @@ void main() {
     store.dispose();
   });
 
+  test('automatic failover dials the next candidate and publishes the winner',
+      () async {
+    await writeDocument(directory, document());
+    final base = Channel(policyCapable: true);
+    var dials = 0;
+    final attempts = <Map<String, dynamic>>[];
+    messenger.setMockMethodCallHandler(native, (call) async {
+      if (call.method == 'connect') {
+        dials++;
+        attempts.add(Map<String, dynamic>.from(call.arguments as Map));
+        if (dials == 1) throw PlatformException(code: 'FIXTURE_ATTEMPT');
+        return {'policyMode': 'automatic'};
+      }
+      if (call.method == 'status') {
+        final up = dials >= 2;
+        return {
+          'active': up,
+          'phase': up ? 'connected' : 'disconnected',
+          'handshake': up ? DateTime.now().millisecondsSinceEpoch : 0,
+          'tx': up ? 32 : 0,
+          'rx': up ? 32 : 0,
+          'id': up ? 'p2' : null,
+          'protocol': 'xray',
+        };
+      }
+      return base.handle(call);
+    });
+    final store = AppStore(nativeTunnelOverride: true)
+      ..directory = directory
+      ..androidActivationForTesting = true;
+    await store.load();
+    expect(store.committedReceipt, isNotNull);
+    base.installs.clear();
+    attempts.clear();
+    await store.connect();
+    // The failed candidate is not the end of the round: the next one is dialed
+    // with the SAME committed receipt, and the winner becomes the durable
+    // selection (the publication after a settled activation is what used to be
+    // refused natively with POLICY_BUSY).
+    expect(attempts.map((a) => a['id']), ['p1', 'p2']);
+    expect(attempts[1]['policyReceipt'], attempts[0]['policyReceipt']);
+    expect(store.status.active, isTrue);
+    expect(store.selectedId, 'p2');
+    expect((await readDocument(directory))['selected'], 'p2');
+    expect(store.committedReceipt, isNotNull);
+    expect(store.error, isNull);
+    store.dispose();
+  });
+
   test('a persisted pending lane is settled by aborting the SAME dead transaction',
       () async {
     await writeDocument(directory, document());

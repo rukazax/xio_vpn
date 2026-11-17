@@ -1,0 +1,6 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-policy-android-native-20261106/home -Djava.io.tmpdir=/srv/archives/agent-policy-android-native-20261106/tmp
+openjdk version "21.0.13" 2026-10-20
+OpenJDK Runtime Environment (build 21.0.13+9-1-deb13u2-Debian)
+OpenJDK 64-Bit Server VM (build 21.0.13+9-1-deb13u2-Debian, mixed mode, sharing)
+Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64"
+abaf9c523780a608bd46686fd5e53740a07077f8

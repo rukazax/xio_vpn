@@ -1,0 +1,612 @@
+[
+  {
+    "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "path": ".gitattributes",
+    "bytes": 8
+  },
+  {
+    "sha256": "6a2e53814297fe93bdade4a93aa90061247f71b081016de35470dd480d4cd391",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/fresh-arm64-v8a-header.txt",
+    "bytes": 938
+  },
+  {
+    "sha256": "997c14232e265e4806fb3971fa877586079ec4a8b1619ce5350b5ed11b028a36",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/fresh-armeabi-v7a-header.txt",
+    "bytes": 971
+  },
+  {
+    "sha256": "5cace234358b9f7fb0a3da882b76fc4b2178dddc5b2891634f0f6e661b2edd6a",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/fresh-x86_64-header.txt",
+    "bytes": 960
+  },
+  {
+    "sha256": "7b09fa735c11bc218045afbdc30a8d82edcda78ae5c32f64bf914acb061a7676",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/stale-arm64-v8a-header.txt",
+    "bytes": 938
+  },
+  {
+    "sha256": "78262b1560010ecbd60f1cbb81206eb3cb4a7e2a18cb326b67dd7e682ba1699a",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/stale-armeabi-v7a-header.txt",
+    "bytes": 971
+  },
+  {
+    "sha256": "aacbc412ca45536eb4c3147561c255a4ad3e5ce760e023908be0de57516250b9",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/stale-x86_64-header.txt",
+    "bytes": 960
+  },
+  {
+    "sha256": "4b78c198e82dc348a61c62b24716da8ffca570090efe5990eba425efc9f29a75",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/elf/summary.txt",
+    "bytes": 2550
+  },
+  {
+    "sha256": "6a070b6149b2c381eb3fac020ed54cf1e5a37818a3908d20ce1206d52c295016",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/provenance.json",
+    "bytes": 8376
+  },
+  {
+    "sha256": "bba40f6d057e1a5857384bc9c3a2ef4e6388f4e9f8acfc77ffae4fe40d683f7d",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/SHA256SUMS",
+    "bytes": 1031
+  },
+  {
+    "sha256": "552b11cbbc614df22960720b4224811029274d2f0a9ef7834df1bb0d4d1e3d3a",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/surface/fresh/fresh-javap.txt",
+    "bytes": 2344
+  },
+  {
+    "sha256": "3a478bdc780122af2fff5dd6db3a77c75d772e245be66be18aa241c5e2c71df4",
+    "path": "agent-rivet-aar-20261106/evidence/artifacts/surface/stale/stale-javap.txt",
+    "bytes": 1957
+  },
+  {
+    "sha256": "b418fae23a620a616a693c33015c54e8709c0180eca242680a7c5bd3781b9062",
+    "path": "agent-rivet-aar-20261106/evidence/logs/aar-surface-out.txt",
+    "bytes": 2457
+  },
+  {
+    "sha256": "22357d2e97fda710f2ed7cc26f79e5693e18608a3a79766f1a9d46f06698a61b",
+    "path": "agent-rivet-aar-20261106/evidence/logs/aar-surface.json",
+    "bytes": 3001
+  },
+  {
+    "sha256": "bfeaaa0091afee9a32f7beeaa2eb940f9f3214f1ffb58c93c9118255e8e696cf",
+    "path": "agent-rivet-aar-20261106/evidence/logs/archive-sha.txt",
+    "bytes": 91
+  },
+  {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "path": "agent-rivet-aar-20261106/evidence/logs/bind-driver.txt",
+    "bytes": 0
+  },
+  {
+    "sha256": "fc6e7b21236ed146ba16246b5298272e3b51d0b52c17a23d5bfd52ab966dbf2c",
+    "path": "agent-rivet-aar-20261106/evidence/logs/final-integrity-out.txt",
+    "bytes": 50752
+  },
+  {
+    "sha256": "fc6e7b21236ed146ba16246b5298272e3b51d0b52c17a23d5bfd52ab966dbf2c",
+    "path": "agent-rivet-aar-20261106/evidence/logs/final-integrity.json",
+    "bytes": 50752
+  },
+  {
+    "sha256": "e20f7a4ecf984a7eea1f6dfe4b202af395f812f45d027d8df2573bee535831d8",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-aar.txt",
+    "bytes": 139
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-audit-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "f569f6df997dab7ed107ecf87e4c516b07db30a3634ab19a4bf8d2086227a7de",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-audit.txt",
+    "bytes": 317
+  },
+  {
+    "sha256": "e9e70be8374bff4e12b1eac94dbb3eeb507682af0283e949affcf7e1ca4fd34c",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-command.txt",
+    "bytes": 462
+  },
+  {
+    "sha256": "2dbf7165355c138e70a7c4168cd74f96084ee986475cb56a0acedd1b5013717d",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-compiled-classes.json",
+    "bytes": 16780
+  },
+  {
+    "sha256": "2f057a5313f1138c421c8e3b2e525ae1ec201565d6cd1a950a84b6371df9dbeb",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-duration.txt",
+    "bytes": 4
+  },
+  {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-errors.txt",
+    "bytes": 0
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "918ccc2129b3fc7dbf36d02a7586079fc6b5271c86876704d0758554e17379d1",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-client-gradle.txt",
+    "bytes": 5080
+  },
+  {
+    "sha256": "e20f7a4ecf984a7eea1f6dfe4b202af395f812f45d027d8df2573bee535831d8",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-aar.txt",
+    "bytes": 139
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-audit-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "6244269b098cb4c5c788fa1beb37d54a707b090e54fbc7115894c768d587fd4b",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-audit.txt",
+    "bytes": 311
+  },
+  {
+    "sha256": "ea0ac6e2d805fb2c42763df95f94bb40c32a36a4415e431682c1a7b716bbb4df",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-command.txt",
+    "bytes": 388
+  },
+  {
+    "sha256": "1be5492f31c97941036fc7999b511a8014081041780045af0a16a4e919039387",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-compiled-classes.json",
+    "bytes": 16780
+  },
+  {
+    "sha256": "57cb03ec073cd8eff2c0335367a83adb332d10bfa758de802523b353f9fdb6e6",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-duration.txt",
+    "bytes": 4
+  },
+  {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-errors.txt",
+    "bytes": 0
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "b8952e613828683ac6f0c9523fadce9cfc5a68d46e0a9b7c6278eaea39f4a547",
+    "path": "agent-rivet-aar-20261106/evidence/logs/fresh-full-gradle.txt",
+    "bytes": 5649
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "agent-rivet-aar-20261106/evidence/logs/go-private-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "15884a69de6f10b65c499637b9ac0a05b24e7db97f0faf7536162034b34d6517",
+    "path": "agent-rivet-aar-20261106/evidence/logs/go-private.txt",
+    "bytes": 50
+  },
+  {
+    "sha256": "5c4d67ab7373afc53d68be1883ce275dca1263ba6fa0db71f678b29a195e95c6",
+    "path": "agent-rivet-aar-20261106/evidence/logs/inputs.json",
+    "bytes": 3988
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "agent-rivet-aar-20261106/evidence/logs/native-bind-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "path": "agent-rivet-aar-20261106/evidence/logs/native-bind.txt",
+    "bytes": 0
+  },
+  {
+    "sha256": "3a0f71b9688cdeea97487392045ac68dc76a8021b228f729f286d9d3948aff50",
+    "path": "agent-rivet-aar-20261106/evidence/logs/native-command.txt",
+    "bytes": 198
+  },
+  {
+    "sha256": "4b1427a66c3cddba0e44db561f803e65b85a6b57c2670ac9ed300d8cf25324a9",
+    "path": "agent-rivet-aar-20261106/evidence/logs/provenance-out.txt",
+    "bytes": 4063
+  },
+  {
+    "sha256": "f0819ad2f31cab46ca7984c98d5477d8f1203d0cdbfd01badaf6b49ba78f781f",
+    "path": "agent-rivet-aar-20261106/evidence/logs/setup.json",
+    "bytes": 724
+  },
+  {
+    "sha256": "21b8b06788253f92d13fe7faf39c739d1db41105d879f7c74d0abc8511762169",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-client-aar.txt",
+    "bytes": 150
+  },
+  {
+    "sha256": "e9e70be8374bff4e12b1eac94dbb3eeb507682af0283e949affcf7e1ca4fd34c",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-client-command.txt",
+    "bytes": 462
+  },
+  {
+    "sha256": "1294c5c7394709dfbc1f3aa3f6e6333b608e22c740d5eb9ba9d7e7a49219c8e0",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-client-duration.txt",
+    "bytes": 5
+  },
+  {
+    "sha256": "5958ff2f29ad8dca0345a1745d974f3974832f794f9dd3a4d7584797cbd3dd5d",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-client-errors.txt",
+    "bytes": 1145
+  },
+  {
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-client-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "f91b0cf58aa991d59406f2f4f99175e90b0cb098b65f6c0cae75ff4f4b7f741d",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-client-gradle.txt",
+    "bytes": 6134
+  },
+  {
+    "sha256": "21b8b06788253f92d13fe7faf39c739d1db41105d879f7c74d0abc8511762169",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-full-aar.txt",
+    "bytes": 150
+  },
+  {
+    "sha256": "ea0ac6e2d805fb2c42763df95f94bb40c32a36a4415e431682c1a7b716bbb4df",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-full-command.txt",
+    "bytes": 388
+  },
+  {
+    "sha256": "25abeca7e14e9f7c7b4dbb70d59bd8a85156c30b180e102c5e010e5f346fbc02",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-full-duration.txt",
+    "bytes": 5
+  },
+  {
+    "sha256": "5958ff2f29ad8dca0345a1745d974f3974832f794f9dd3a4d7584797cbd3dd5d",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-full-errors.txt",
+    "bytes": 1145
+  },
+  {
+    "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-full-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "505b63e0d201f69b9cbb0caccc665ebc1a1dffd16d5b9aefaadd571d091895e0",
+    "path": "agent-rivet-aar-20261106/evidence/logs/stale-full-gradle.txt",
+    "bytes": 10982
+  },
+  {
+    "sha256": "6b2c6b6907c772c4d0bc995a47aefe06399d6f7958c5b4b25aff9698dffa3731",
+    "path": "agent-rivet-aar-20261106/evidence/logs/toolchain-bind-provenance.txt",
+    "bytes": 1128
+  },
+  {
+    "sha256": "316776aebd9c42d169fd1cbeabf21db4540006e57f0827474f60e409ac8c19bf",
+    "path": "agent-rivet-aar-20261106/evidence/logs/toolchain-compile.txt",
+    "bytes": 1471
+  },
+  {
+    "sha256": "d9216671eb9de397e35e6cb820ffc0dad71ba25f8afae33872d0a04d2a937f1a",
+    "path": "agent-rivet-aar-20261106/evidence/logs/toolchain-native.txt",
+    "bytes": 1104
+  },
+  {
+    "sha256": "46c578cbdb67d0d4e1c28b646f6ad3b3ca037e4a1a8591796851f5c919dbc084",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/audit_run.py",
+    "bytes": 1457
+  },
+  {
+    "sha256": "2387e0e8c23c0524cd56aba101eb4b6810ac77367aaabde68f0fe3b631084e45",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/bind.sh",
+    "bytes": 2212
+  },
+  {
+    "sha256": "8f1d8b70ec0ac8fd122cb82d0111d5c9781209a0ae7f71799604b54752f3eba8",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/compile.sh",
+    "bytes": 3646
+  },
+  {
+    "sha256": "21fbf5464b91f9aca408a36f2c9aa10063e57b5a1a5caea3e281348bb7880175",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/finalize.py",
+    "bytes": 2889
+  },
+  {
+    "sha256": "cfca5c90fbd30bcdb124c9b2649dca5b2f913e3f018f2204dfff3e690b2953b9",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/inputs.py",
+    "bytes": 2479
+  },
+  {
+    "sha256": "32b15888472f72150ea38f6d1f90b6d0e0eddb13282d7df1b4e6bd6367d9fde7",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/prove.py",
+    "bytes": 2517
+  },
+  {
+    "sha256": "4df7008475f488e7ae2a6121600796745603370a77bc91833a90cb712c4a1fe0",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/provenance.py",
+    "bytes": 7577
+  },
+  {
+    "sha256": "0f4f1f7d2e2f36c26639de823198a4eddac1fd613fa2694012752663042b9bc6",
+    "path": "agent-rivet-aar-20261106/evidence/scripts/setup_compile.py",
+    "bytes": 3708
+  },
+  {
+    "sha256": "d7459d0c98f13b3758297efc7f893c7b1ebcf0d0f625397bbc3c9bbc61295240",
+    "path": "ANDROID-RIVET-AAR-20261106.md",
+    "bytes": 12307
+  },
+  {
+    "sha256": "3e17ff2041fd4f78b07f3b688801b13890de20717500a09e88185934add6f5dd",
+    "path": "REPORT.md",
+    "bytes": 2798
+  },
+  {
+    "sha256": "bdc963ef86f1e5cc26dec463eab42f82ebc444dc621b36cc1f1666ab891cf609",
+    "path": "REVIEW-RIVET-AAR-20261106.md",
+    "bytes": 11886
+  },
+  {
+    "sha256": "3dab51351c517b955f619f91fa10262b6a7886ccd780931f1c477c4fe163e9b4",
+    "path": "review-rivet-aar-20261106/arm64-v8a-readelf.txt",
+    "bytes": 4620
+  },
+  {
+    "sha256": "30c1376da8c68af869c030b922e01782cec3e6ed9db60ceb3595fb40fa987e36",
+    "path": "review-rivet-aar-20261106/armeabi-v7a-readelf.txt",
+    "bytes": 3641
+  },
+  {
+    "sha256": "efe829754b7593cb69d3583009d01638d3abb655ba227b400bc1e898df1d2164",
+    "path": "review-rivet-aar-20261106/audit.py",
+    "bytes": 2271
+  },
+  {
+    "sha256": "fa173bb5bb627f32d2df7b0d2b75e9899cf0682432edac9260af2a1f7286c376",
+    "path": "review-rivet-aar-20261106/client-progress.txt",
+    "bytes": 2687
+  },
+  {
+    "sha256": "6e889fe8c6e891436f119cb1ff8bb5d5cfa59bae27a88cdf69df20b450e0fad9",
+    "path": "review-rivet-aar-20261106/compile.sh",
+    "bytes": 1988
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "review-rivet-aar-20261106/extra-provenance-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "path": "review-rivet-aar-20261106/extra-provenance-log.txt",
+    "bytes": 0
+  },
+  {
+    "sha256": "ed93c50cb89560f0d3a67f117fe92f23d8fbdeb6444f527a362497e1bc860f42",
+    "path": "review-rivet-aar-20261106/extra-provenance.py",
+    "bytes": 2950
+  },
+  {
+    "sha256": "3ce782ebaddc7f1e89524db89bc16b701d2419bd6d093d4bf1028a1e09bdc82a",
+    "path": "review-rivet-aar-20261106/full-progress.txt",
+    "bytes": 9043
+  },
+  {
+    "sha256": "6212df066dcedcf7a4c767c94b7d987a71670d12486f3a691611776b598a5cc7",
+    "path": "review-rivet-aar-20261106/logs/arm64-v8a-dynamic-symbols.txt",
+    "bytes": 23503
+  },
+  {
+    "sha256": "adff4b4aecc331de2bc02bc02391adc16cb171dba4ff51d3c47c759e35a679f6",
+    "path": "review-rivet-aar-20261106/logs/arm64-v8a-go-buildinfo.txt",
+    "bytes": 5002
+  },
+  {
+    "sha256": "769b154a5d864728d3c2bdb14f67f86d89dac7bfd5c1dcb91a851f991b6f1b47",
+    "path": "review-rivet-aar-20261106/logs/arm64-v8a-jni-api-exports.json",
+    "bytes": 548
+  },
+  {
+    "sha256": "3dab51351c517b955f619f91fa10262b6a7886ccd780931f1c477c4fe163e9b4",
+    "path": "review-rivet-aar-20261106/logs/arm64-v8a-readelf.txt",
+    "bytes": 4620
+  },
+  {
+    "sha256": "14e08b926f224aeed65a02ec4bdee03d1ad19276efec67fb42f7129a5fcfe63a",
+    "path": "review-rivet-aar-20261106/logs/armeabi-v7a-dynamic-symbols.txt",
+    "bytes": 20758
+  },
+  {
+    "sha256": "e83b34a63a230636199b88050b2237c752109220c091278ca2e884daf5252d29",
+    "path": "review-rivet-aar-20261106/logs/armeabi-v7a-go-buildinfo.txt",
+    "bytes": 4997
+  },
+  {
+    "sha256": "0cbdc053cda9b411d7a13e9414de99bbd808774ca846ce0d7da232c771842f46",
+    "path": "review-rivet-aar-20261106/logs/armeabi-v7a-jni-api-exports.json",
+    "bytes": 518
+  },
+  {
+    "sha256": "30c1376da8c68af869c030b922e01782cec3e6ed9db60ceb3595fb40fa987e36",
+    "path": "review-rivet-aar-20261106/logs/armeabi-v7a-readelf.txt",
+    "bytes": 3641
+  },
+  {
+    "sha256": "67437b803a17c8b1071b1ea671fef6e25adac688fd9b4aac67205b81f571af27",
+    "path": "review-rivet-aar-20261106/logs/client-aar-after.txt",
+    "bytes": 147
+  },
+  {
+    "sha256": "67437b803a17c8b1071b1ea671fef6e25adac688fd9b4aac67205b81f571af27",
+    "path": "review-rivet-aar-20261106/logs/client-aar-before.txt",
+    "bytes": 147
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "review-rivet-aar-20261106/logs/client-audit-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "f241b8216b1b896055375f35e87aa8a296037b397847fd813ff125fcbc8a6063",
+    "path": "review-rivet-aar-20261106/logs/client-command.txt",
+    "bytes": 461
+  },
+  {
+    "sha256": "2dbf7165355c138e70a7c4168cd74f96084ee986475cb56a0acedd1b5013717d",
+    "path": "review-rivet-aar-20261106/logs/client-compiled-classes.json",
+    "bytes": 16780
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "review-rivet-aar-20261106/logs/client-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "312bfa631595f089d0319297e7f0fce869e0994d6ff379e9c0eccc6e31d42ac6",
+    "path": "review-rivet-aar-20261106/logs/client-gradle.txt",
+    "bytes": 5118
+  },
+  {
+    "sha256": "7a1a2459679a657c2a5e7648c526e216b4f7f938fcbe118ea4f62ed3f6f2deb3",
+    "path": "review-rivet-aar-20261106/logs/client-output-audit.txt",
+    "bytes": 198
+  },
+  {
+    "sha256": "13233438d46ae6039a433f098a8e7dcf9c26b07df1fc6827a70c26e067df2e3b",
+    "path": "review-rivet-aar-20261106/logs/finalize.txt",
+    "bytes": 414
+  },
+  {
+    "sha256": "67437b803a17c8b1071b1ea671fef6e25adac688fd9b4aac67205b81f571af27",
+    "path": "review-rivet-aar-20261106/logs/full-aar-after.txt",
+    "bytes": 147
+  },
+  {
+    "sha256": "67437b803a17c8b1071b1ea671fef6e25adac688fd9b4aac67205b81f571af27",
+    "path": "review-rivet-aar-20261106/logs/full-aar-before.txt",
+    "bytes": 147
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "review-rivet-aar-20261106/logs/full-audit-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "c8d1bc07aed7a60236207ae6860a1b0ee5dc762072d114838d7606fb561783d7",
+    "path": "review-rivet-aar-20261106/logs/full-command.txt",
+    "bytes": 387
+  },
+  {
+    "sha256": "1be5492f31c97941036fc7999b511a8014081041780045af0a16a4e919039387",
+    "path": "review-rivet-aar-20261106/logs/full-compiled-classes.json",
+    "bytes": 16780
+  },
+  {
+    "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "path": "review-rivet-aar-20261106/logs/full-exit.txt",
+    "bytes": 2
+  },
+  {
+    "sha256": "3ce782ebaddc7f1e89524db89bc16b701d2419bd6d093d4bf1028a1e09bdc82a",
+    "path": "review-rivet-aar-20261106/logs/full-gradle.txt",
+    "bytes": 9043
+  },
+  {
+    "sha256": "278c5ded674a87692466ef19fd66632f41cc4d2b1d197f7dfc8332e43a50870c",
+    "path": "review-rivet-aar-20261106/logs/full-output-audit.txt",
+    "bytes": 196
+  },
+  {
+    "sha256": "959ede7235b4f3200b11db47369e54a45c03772f1c9a40d74a07adb90d72c168",
+    "path": "review-rivet-aar-20261106/logs/hash-verification.json",
+    "bytes": 413
+  },
+  {
+    "sha256": "cd802f44842a630df53bc5968789cb46e9b61eb5dbebe7cc6881a7ea6a596b6b",
+    "path": "review-rivet-aar-20261106/logs/independent-input-payload-check.json",
+    "bytes": 1578
+  },
+  {
+    "sha256": "552b11cbbc614df22960720b4224811029274d2f0a9ef7834df1bb0d4d1e3d3a",
+    "path": "review-rivet-aar-20261106/logs/javap-Mobile.txt",
+    "bytes": 2344
+  },
+  {
+    "sha256": "9254da2e31e3c35d7cddad6fce95e3ee3757026fee726e6f39a163c2faad6824",
+    "path": "review-rivet-aar-20261106/logs/private-go-patch-check.json",
+    "bytes": 309
+  },
+  {
+    "sha256": "6573f9966fd4a16d9f8e4ff81e660a70a9b6bab5eb22c862f9b4b040d7331a0c",
+    "path": "review-rivet-aar-20261106/logs/stale-Mobile-api.txt",
+    "bytes": 2133
+  },
+  {
+    "sha256": "955f7b7b4e0d414fcbd3643fffd0356316c86efe75a2f24219fb679ef8a4fae2",
+    "path": "review-rivet-aar-20261106/logs/toolchain-hash-check.json",
+    "bytes": 1634
+  },
+  {
+    "sha256": "4227c7beeb21d94df468f14768400574aa025987fad40bad9d58813f31865e5e",
+    "path": "review-rivet-aar-20261106/logs/toolchain.txt",
+    "bytes": 495
+  },
+  {
+    "sha256": "845867777179bc6ce776adf05006a1921b08453a74e1dc456cf5949ba540cf1e",
+    "path": "review-rivet-aar-20261106/logs/x86_64-dynamic-symbols.txt",
+    "bytes": 23503
+  },
+  {
+    "sha256": "f2c95b9a86eb8d4eab31bdb66657f9945888f95aaf3328ddb96c94efd0ba4e04",
+    "path": "review-rivet-aar-20261106/logs/x86_64-go-buildinfo.txt",
+    "bytes": 4997
+  },
+  {
+    "sha256": "1ab4304d4fdf7c72f900e6a26b0f164642a007bd60b1a53751c5825c8f3faa56",
+    "path": "review-rivet-aar-20261106/logs/x86_64-jni-api-exports.json",
+    "bytes": 548
+  },
+  {
+    "sha256": "3734d491812a9304c5ac37724e64462aa31d441edbdb04fa8ab756f316d3cd8a",
+    "path": "review-rivet-aar-20261106/logs/x86_64-readelf.txt",
+    "bytes": 4642
+  },
+  {
+    "sha256": "73cf8f8a81066d2964c5cfce9be65a4d52f165d8512ccf144db0d0203eac3024",
+    "path": "review-rivet-aar-20261106/setup-log.txt",
+    "bytes": 1579
+  },
+  {
+    "sha256": "73cf8f8a81066d2964c5cfce9be65a4d52f165d8512ccf144db0d0203eac3024",
+    "path": "review-rivet-aar-20261106/setup-progress.txt",
+    "bytes": 1579
+  },
+  {
+    "sha256": "68499210cd50a610f053ee7a52747c3dc728ec42d71a33f320b09d82aec4773c",
+    "path": "review-rivet-aar-20261106/setup.py",
+    "bytes": 5287
+  },
+  {
+    "sha256": "238672e0e9c94c692685a0feaf8b21531272a3d0feb5fc156d4a1b20d388e7fd",
+    "path": "review-rivet-aar-20261106/SHA256SUMS.txt",
+    "bytes": 801
+  },
+  {
+    "sha256": "0376f9b9ede04b376a280150d2f0e1ca90ba0f284e84c5322aaf6793aebab0e2",
+    "path": "review-rivet-aar-20261106/source-post.json",
+    "bytes": 307067
+  },
+  {
+    "sha256": "01dd80a294153b342f07c26f5fd662e5a39a7a73cb0e75b1a78825db76d1c367",
+    "path": "review-rivet-aar-20261106/source-pre.json",
+    "bytes": 307067
+  },
+  {
+    "sha256": "3734d491812a9304c5ac37724e64462aa31d441edbdb04fa8ab756f316d3cd8a",
+    "path": "review-rivet-aar-20261106/x86_64-readelf.txt",
+    "bytes": 4642
+  }
+]

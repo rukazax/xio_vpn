@@ -1,0 +1,29 @@
+usage: android_acceptance.py [-h] --apk APK --package
+                             {app.xio.xio,app.xio.client} --version-code
+                             VERSION_CODE --apk-sha256 APK_SHA256
+                             --cert-sha256 CERT_SHA256 [--serial SERIAL] --adb
+                             ADB --aapt AAPT --apksigner APKSIGNER --out OUT
+                             [--samples SAMPLES] [--interval INTERVAL]
+                             [--exercise] [--airplane-cycle]
+
+Identity-pinned, collect-only Android evidence. No install/focus/screenshot
+API. Exercise mode records OPERATOR observations, not a claim that VPN traffic
+passed. Only exercise mode may restore airplane/WiFi; a radio cycle needs a
+second flag.
+
+options:
+  -h, --help            show this help message and exit
+  --apk APK
+  --package {app.xio.xio,app.xio.client}
+  --version-code VERSION_CODE
+  --apk-sha256 APK_SHA256
+  --cert-sha256 CERT_SHA256
+  --serial SERIAL
+  --adb ADB
+  --aapt AAPT
+  --apksigner APKSIGNER
+  --out OUT             New, nonexisting output directory
+  --samples SAMPLES
+  --interval INTERVAL
+  --exercise
+  --airplane-cycle

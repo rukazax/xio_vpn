@@ -1,0 +1,3 @@
+native_unit_exit=0
+native_proof_exit=0
+host_invariance_exit=0

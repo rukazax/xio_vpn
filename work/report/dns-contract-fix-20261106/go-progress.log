@@ -1,0 +1,1 @@
+UTC 2026-11-05T21:45:56Z COMMAND: go test -p 1 -count=1 -v -timeout 30s -run ^TestDNSSettingNativeContract$ ./internal/desktop

@@ -16,6 +16,8 @@
   * сравнение секретов через hmac.compare_digest;
   * CSRF-заголовок X-XIO-CSRF на всех POST;
   * rate-limit: 5 неудачных попыток аутентификации с адреса -> блокировка;
+  * диагностический канал /api/diag: отдельный токен X-XIO-Diag-Token,
+    только gzip/json/plain до 8 МиБ, отдельный каталог 0700 и лимит загрузок;
   * все внешние действия — subprocess без shell, только списки аргументов.
 """
 
@@ -71,6 +73,18 @@ TIMEOUT_CERT = 60
 MAX_BODY = 64 * 1024
 MAX_OUTPUT = 4000
 
+# диагностика: отдельный токен, отдельный каталог, отдельные лимиты
+DIAG_TOKEN_FILE = BASE_DIR / "diag-token"
+DIAG_DIR = Path("/var/lib/xio-webui/diag")
+DIAG_HEADER = "X-XIO-Diag-Token"
+DIAG_TYPES = ("application/gzip", "application/json", "text/plain")
+DIAG_MAX_BODY = 8 * 1024 * 1024
+DIAG_MAX_BYTES = 200 * 1024 * 1024
+DIAG_UPLOADS_PER_HOUR = 30
+DIAG_WINDOW = 3600
+DIAG_LIST_LIMIT = 50
+DIAG_ID_RE = re.compile(r"^[0-9]{8}T[0-9]{6}-[0-9a-f]{8}\.json\.gz$")
+
 SESSION_TTL = 12 * 3600
 FAIL_LIMIT = 5
 FAIL_WINDOW = 900
@@ -113,8 +127,9 @@ def log(msg, level="INFO"):
 # --------------------------------------------------------------------------
 
 class TokenStore(object):
-    def __init__(self, path):
+    def __init__(self, path, announce=True):
         self.path = Path(path)
+        self.announce = announce
         self.token = ""
         self.csrf = ""
         self.load()
@@ -137,13 +152,15 @@ class TokenStore(object):
             # Секрет печатаем только в интерактивный терминал. Под systemd stdout
             # уходит в журнал, а журнал переживает установку: токен оставался бы
             # читаемым для всех членов systemd-journal/adm и в `journalctl -xe`.
-            if sys.stdout.isatty():
+            # Для диагностического токена announce=False: он не печатается нигде.
+            if self.announce and sys.stdout.isatty():
                 sys.stdout.write("XIO WebUI token: %s\n" % raw)
-            else:
+            elif self.announce:
                 sys.stdout.write(
                     "XIO WebUI token written to %s (0600); read it with: cat %s\n"
                     % (self.path, self.path))
-            sys.stdout.flush()
+            if self.announce:
+                sys.stdout.flush()
 
     def _write(self, raw):
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -243,10 +260,157 @@ class RateLimiter(object):
             self._fails.pop(ip, None)
 
 
+class DiagLimiter(object):
+    """Скользящее окно загрузок диагностики: не больше 30 в час на адрес."""
+
+    def __init__(self):
+        self._hits = {}
+        self._lock = threading.Lock()
+
+    def allow(self, ip):
+        now = time.time()
+        with self._lock:
+            bucket = [stamp for stamp in self._hits.get(ip, ()) if now - stamp < DIAG_WINDOW]
+            if len(bucket) >= DIAG_UPLOADS_PER_HOUR:
+                self._hits[ip] = bucket
+                return False
+            bucket.append(now)
+            self._hits[ip] = bucket
+            if len(self._hits) > 4096:  # не храним вечно адреса, которые давно молчат
+                self._hits = {key: value for key, value in self._hits.items()
+                              if value and now - value[-1] < DIAG_WINDOW}
+            return True
+
+
 TOKENS = TokenStore(TOKEN_FILE)
 SESSIONS = Sessions()
 LIMITER = RateLimiter()
+DIAG_TOKENS = TokenStore(DIAG_TOKEN_FILE, announce=False)
+DIAG_UPLOADS = DiagLimiter()
+DIAG_LOCK = threading.Lock()
+DIAG_READY = False
 STATE_LOCK = threading.Lock()
+
+
+# --------------------------------------------------------------------------
+# диагностика: каталог, атомарная запись, список, чтение, лимит диска
+# --------------------------------------------------------------------------
+
+def ensure_diag_dir():
+    """Готовит каталог диагностики 0700. Ошибка ФС не роняет панель: канал выключен."""
+    global DIAG_READY
+    try:
+        DIAG_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
+        os.chmod(str(DIAG_DIR), 0o700)
+    except OSError as exc:
+        DIAG_READY = False
+        log("diag disabled: %s: %s" % (exc.__class__.__name__, DIAG_DIR), "WARN")
+        return False
+    DIAG_READY = True
+    log("diag ingest enabled: dir=%s mode=0700 token_file=%s" % (DIAG_DIR, DIAG_TOKEN_FILE))
+    return True
+
+
+def _diag_name():
+    stamp = time.strftime("%Y%m%dT%H%M%S", time.gmtime())
+    return "%s-%s.json.gz" % (stamp, secrets.token_hex(4))
+
+
+def _diag_prune_locked(keep):
+    """Удаляет самые старые загрузки, пока каталог не впишется в DIAG_MAX_BYTES.
+
+    Только что принятый файл не удаляется: иначе кап меньше одного бандла
+    превращал бы успешную загрузку в пустой список.
+    """
+    try:
+        entries = []
+        total = 0
+        for item in DIAG_DIR.iterdir():
+            if not DIAG_ID_RE.match(item.name):
+                continue
+            try:
+                stat = item.stat()
+            except OSError:
+                continue
+            entries.append((stat.st_mtime, item.name, stat.st_size))
+            total += stat.st_size
+    except OSError as exc:
+        log("diag prune skipped: %s" % exc.__class__.__name__, "WARN")
+        return
+    removed = 0
+    for _mtime, name, size in sorted(entries):
+        if total <= DIAG_MAX_BYTES:
+            break
+        if name == keep:
+            continue
+        try:
+            os.unlink(str(DIAG_DIR / name))
+        except OSError:
+            continue
+        total -= size
+        removed += 1
+    if removed:
+        log("diag pruned %d oldest file(s), %d bytes kept" % (removed, total), "WARN")
+
+
+def diag_save(body):
+    """Атомарно сохраняет тело (*.part -> os.replace). Возвращает id или None."""
+    with DIAG_LOCK:
+        name = _diag_name()
+        path = DIAG_DIR / name
+        tmp = DIAG_DIR / (name + ".part")
+        try:
+            fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            try:
+                view = memoryview(body)
+                while view:
+                    written = os.write(fd, view)
+                    view = view[written:]
+            finally:
+                os.close(fd)
+            os.chmod(str(tmp), 0o600)
+            os.replace(str(tmp), str(path))
+            os.chmod(str(path), 0o600)
+        except OSError as exc:
+            try:
+                os.unlink(str(tmp))
+            except OSError:
+                pass
+            log("diag write failed: %s" % exc.__class__.__name__, "ERROR")
+            return None
+        _diag_prune_locked(name)
+        return name
+
+
+def diag_list():
+    """Новые сверху, не больше DIAG_LIST_LIMIT записей."""
+    with DIAG_LOCK:
+        try:
+            entries = []
+            for item in DIAG_DIR.iterdir():
+                if not DIAG_ID_RE.match(item.name):
+                    continue
+                try:
+                    stat = item.stat()
+                except OSError:
+                    continue
+                entries.append((stat.st_mtime, item.name, stat.st_size))
+        except OSError:
+            return []
+    entries.sort(key=lambda entry: (entry[0], entry[1]), reverse=True)
+    return [{"id": name, "size": size, "mtime": int(mtime)}
+            for mtime, name, size in entries[:DIAG_LIST_LIMIT]]
+
+
+def diag_read(name):
+    """Читает файл с уже проверенным id. Возвращает bytes или None."""
+    if not DIAG_ID_RE.match(name or ""):
+        return None
+    with DIAG_LOCK:
+        try:
+            return (DIAG_DIR / name).read_bytes()
+        except OSError:
+            return None
 
 
 # --------------------------------------------------------------------------
@@ -1502,12 +1666,12 @@ class Handler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             self.close_connection = True
 
-    def _json(self, status, payload, extra_headers=None):
+    def _json(self, status, payload, extra_headers=None, close=False):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self._send(status, body, "application/json; charset=utf-8", extra_headers)
+        self._send(status, body, "application/json; charset=utf-8", extra_headers, close)
 
-    def _error(self, status, message, extra_headers=None):
-        self._json(status, {"ok": False, "error": message}, extra_headers)
+    def _error(self, status, message, extra_headers=None, close=False):
+        self._json(status, {"ok": False, "error": message}, extra_headers, close)
 
     def _path(self):
         return urllib.parse.urlsplit(self.path).path
@@ -1565,6 +1729,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = self._path()
+        # диагностический канал живёт на своём токене: проверка ДО _authenticate
+        if path == "/api/diag" or path.startswith("/api/diag/"):
+            return self._do_diag_get(path)
         if path in ("/", "/index.html"):
             return self._serve_index()
         if path == "/api/health":
@@ -1608,6 +1775,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self._path()
+        # диагностический канал: свой токен, свой лимит тела, без сессии и CSRF
+        if path == "/api/diag":
+            return self._do_diag_post()
         length = 0
         try:
             length = int(self.headers.get("Content-Length") or 0)
@@ -1697,6 +1867,77 @@ class Handler(BaseHTTPRequestHandler):
         if type(payload) is not dict or set(payload) != {'expectedServerId', 'id'}:
             return failure(400, 'INVALID_REQUEST')
         return admin_call('revoke', {'serverId': payload['expectedServerId'], 'id': payload['id']})
+
+    # ---- диагностика ----
+
+    def _diag_authorize(self):
+        """-> True, если X-XIO-Diag-Token верен; иначе ответ уже отправлен.
+
+        Сравнение — через TokenStore.check (hmac.compare_digest). Сессия, Bearer
+        и CSRF на этом канале не используются и не запрашиваются.
+        """
+        if not (DIAG_READY and DIAG_TOKENS.token):
+            self._error(HTTPStatus.SERVICE_UNAVAILABLE, "diag unavailable", close=True)
+            return False
+        candidate = self.headers.get(DIAG_HEADER, "") or ""
+        if candidate and DIAG_TOKENS.check(candidate):
+            return True
+        log("diag auth failed ip=%s path=%s" % (self._client_ip(), self._path()), "WARN")
+        self._error(HTTPStatus.UNAUTHORIZED, "invalid diag token", close=True)
+        return False
+
+    def _do_diag_get(self, path):
+        if not self._diag_authorize():
+            return None
+        if path == "/api/diag":
+            return self._json(HTTPStatus.OK, diag_list())
+        name = path[len("/api/diag/"):]
+        if not DIAG_ID_RE.match(name):
+            return self._error(HTTPStatus.BAD_REQUEST, "invalid diag id")
+        body = diag_read(name)
+        if body is None:
+            return self._error(HTTPStatus.NOT_FOUND, "diag not found")
+        return self._send(HTTPStatus.OK, body, "application/gzip",
+                          [("Content-Disposition", 'attachment; filename="%s"' % name)])
+
+    def _do_diag_post(self):
+        # Тело читается ровно один раз; отказ до чтения закрывает соединение,
+        # иначе остаток тела был бы разобран как следующий запрос.
+        if not self._diag_authorize():
+            return None
+        lengths = self.headers.get_all("Content-Length") or []
+        try:
+            length = int(lengths[0]) if len(lengths) == 1 else -1
+        except ValueError:
+            length = -1
+        # chunked/дублирующийся Content-Length не разбираем: иначе остаток тела
+        # мог бы уехать следующим запросом.
+        if self.headers.get("Transfer-Encoding") or length <= 0 or length > DIAG_MAX_BODY:
+            return self._error(HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                               "body size 1..%d required" % DIAG_MAX_BODY, close=True)
+        if not DIAG_UPLOADS.allow(self._client_ip()):
+            log("diag upload rate-limited ip=%s" % self._client_ip(), "WARN")
+            return self._error(HTTPStatus.TOO_MANY_REQUESTS,
+                               "too many uploads, retry later", close=True)
+        buf = bytearray()
+        while len(buf) < length:
+            chunk = self.rfile.read(length - len(buf))
+            if not chunk:
+                break
+            buf.extend(chunk)
+        if len(buf) != length:
+            return self._error(HTTPStatus.BAD_REQUEST, "incomplete body", close=True)
+        ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+        if ctype not in DIAG_TYPES:
+            return self._error(HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
+                               "application/gzip, application/json or text/plain required")
+        if ctype == "application/gzip" and bytes(buf[:2]) != b"\x1f\x8b":
+            return self._error(HTTPStatus.BAD_REQUEST, "gzip magic expected")
+        name = diag_save(bytes(buf))
+        if name is None:
+            return self._error(HTTPStatus.INTERNAL_SERVER_ERROR, "diag storage unavailable")
+        log("diag upload ip=%s id=%s bytes=%d" % (self._client_ip(), name, length))
+        return self._json(HTTPStatus.OK, {"ok": True, "id": name})
 
     # ---- прочие методы ----
 
@@ -1827,6 +2068,7 @@ def main(argv=None):
 
     os.umask(0o077)
     TLS_DIR.mkdir(parents=True, exist_ok=True)
+    ensure_diag_dir()
     generated = ensure_certificate(host, regenerate=args.regenerate_cert)
     run_command([SYSTEMCTL, "show", "xio-ready", "--no-pager", "-p", "ActiveState"], None, 5)
 

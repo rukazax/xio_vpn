@@ -1,0 +1,877 @@
+00:00 +0: loading /srv/archives/agent-screen-security-fix-20261106/app/test/probe_tls_test.dart
+00:00 +0: /srv/archives/agent-screen-security-fix-20261106/app/test/probe_tls_test.dart: legacy compatibility roots do not trust arbitrary self-signed certificates
+00:00 +1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/https_probe_test.dart
+00:02 +1: /srv/archives/agent-screen-security-fix-20261106/app/test/https_probe_test.dart: (setUpAll)
+00:02 +1: /srv/archives/agent-screen-security-fix-20261106/app/test/https_probe_test.dart: a stalled first response recovers on a fresh connection within the same budget
+PROBE-DIAG ok=true requests=2 elapsedMs=5332 check="Сайт доступен · HTTP 200"
+00:07 +2: /srv/archives/agent-screen-security-fix-20261106/app/test/https_probe_test.dart: HTTPS redirects may not downgrade the control request to plaintext
+00:07 +3: /srv/archives/agent-screen-security-fix-20261106/app/test/https_probe_test.dart: one absolute deadline also limits stalled response retries
+00:09 +4: /srv/archives/agent-screen-security-fix-20261106/app/test/https_probe_test.dart: (tearDownAll)
+00:09 +4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/credential_id_test.dart
+00:11 +4: /srv/archives/agent-screen-security-fix-20261106/app/test/credential_id_test.dart: strict credential namespace desktop=false
+00:11 +5: /srv/archives/agent-screen-security-fix-20261106/app/test/credential_id_test.dart: strict credential namespace desktop=true
+00:11 +6: loading /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart
+00:13 +6: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: targets use canonical literal exit and exact verified identities
+00:13 +7: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: no same installation or guessed exit target
+00:13 +8: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: endpoint family never guesses supported inner egress
+00:13 +9: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: explicit family and safe physical egress map required
+00:13 +10: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: intent snapshots cannot drift with caller collections
+00:13 +11: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: public plan stable roundtrip and set-order-independent identity
+00:13 +12: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: journal plan rejects unknown fields/modes/families/schema
+00:13 +13: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: configuration hashes match the real Python connector normalizer
+00:13 +14: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: RFC7748 keys restore and recover exact secret material
+00:13 +15: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: generated keys are distinct, canonical and recoverable
+00:13 +16: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: corrupt vault records reject without echoing private data
+00:13 +17: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: paired configs move keys both ways and use hop-snat for overlapping full nodes
+00:13 +18: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_plan_test.dart: ordinary plan/public config serialization never contains tunnel secrets
+00:13 +19: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart
+00:14 +19: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart: Выбор сервера для проверки точное совпадение SSH-хоста важнее порядка
+00:14 +20: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart: Выбор сервера для проверки совпадение по VPN-адресу (publicHost)
+00:14 +21: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart: Выбор сервера для проверки нет точного адреса — нельзя проверять посторонний VPS
+00:14 +22: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart: Выбор сервера для проверки без серверов проверять нечего
+00:14 +23: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart: Команда проверки сначала настоящий healthcheck, затем встроенная проба
+00:14 +24: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_probe_test.dart: Команда проверки команда только читает состояние и не трогает каскад
+00:14 +25: loading /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart
+00:16 +25: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+00:16 +26: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+00:16 +27: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: DNS rejects every second-octet boundary in IPv6 fe80::/10
+00:16 +28: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: DNS accepts non-link-local fe00::/8 including site-local fec0::/10
+00:16 +29: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: null
+00:16 +30: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: []
+00:16 +31: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: [,   ]
+00:16 +32: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:16 +33: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: legacy DNS 127.0.0.1 survives actual load-save and literal repair
+00:17 +34: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:17 +35: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS dns.example.org has zero remote effects
+00:17 +36: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS dns.example.org has zero effects with pending=false
+00:17 +37: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS dns.example.org has zero effects with pending=true
+00:17 +38: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS 127.0.0.1 has zero remote effects
+00:17 +39: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS 127.0.0.1 has zero effects with pending=false
+00:17 +40: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS 127.0.0.1 has zero effects with pending=true
+00:17 +41: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS ::ffff:192.0.2.53 has zero remote effects
+00:17 +42: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS ::ffff:192.0.2.53 has zero effects with pending=false
+00:17 +43: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS ::ffff:192.0.2.53 has zero effects with pending=true
+00:17 +44: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe80::1 has zero remote effects
+00:17 +45: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe80::1 has zero effects with pending=false
+00:17 +46: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe80::1 has zero effects with pending=true
+00:17 +47: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe81::1 has zero remote effects
+00:17 +48: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe81::1 has zero effects with pending=false
+00:17 +49: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe81::1 has zero effects with pending=true
+00:17 +50: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe82::1 has zero remote effects
+00:17 +51: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe82::1 has zero effects with pending=false
+00:17 +52: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe82::1 has zero effects with pending=true
+00:17 +53: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe83::1 has zero remote effects
+00:17 +54: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe83::1 has zero effects with pending=false
+00:17 +55: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe83::1 has zero effects with pending=true
+00:17 +56: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe84::1 has zero remote effects
+00:17 +57: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe84::1 has zero effects with pending=false
+00:17 +58: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe84::1 has zero effects with pending=true
+00:17 +59: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe85::1 has zero remote effects
+00:17 +60: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe85::1 has zero effects with pending=false
+00:17 +61: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe85::1 has zero effects with pending=true
+00:17 +62: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe86::1 has zero remote effects
+00:17 +63: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe86::1 has zero effects with pending=false
+00:17 +64: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe86::1 has zero effects with pending=true
+00:17 +65: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe87::1 has zero remote effects
+00:17 +66: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe87::1 has zero effects with pending=false
+00:17 +67: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe87::1 has zero effects with pending=true
+00:17 +68: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe88::1 has zero remote effects
+00:17 +69: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe88::1 has zero effects with pending=false
+00:17 +70: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe88::1 has zero effects with pending=true
+00:17 +71: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe89::1 has zero remote effects
+00:17 +72: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe89::1 has zero effects with pending=false
+00:17 +73: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe89::1 has zero effects with pending=true
+00:17 +74: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe8a::1 has zero remote effects
+00:17 +75: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8a::1 has zero effects with pending=false
+00:17 +76: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8a::1 has zero effects with pending=true
+00:17 +77: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe8b::1 has zero remote effects
+00:17 +78: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8b::1 has zero effects with pending=false
+00:17 +79: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8b::1 has zero effects with pending=true
+00:17 +80: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe8c::1 has zero remote effects
+00:17 +81: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8c::1 has zero effects with pending=false
+00:17 +82: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8c::1 has zero effects with pending=true
+00:17 +83: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe8d::1 has zero remote effects
+00:17 +84: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8d::1 has zero effects with pending=false
+00:17 +85: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8d::1 has zero effects with pending=true
+00:17 +86: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe8e::1 has zero remote effects
+00:17 +87: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8e::1 has zero effects with pending=false
+00:17 +88: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8e::1 has zero effects with pending=true
+00:17 +89: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe8f::1 has zero remote effects
+00:17 +90: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8f::1 has zero effects with pending=false
+00:17 +91: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe8f::1 has zero effects with pending=true
+00:17 +92: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe90::1 has zero remote effects
+00:17 +93: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe90::1 has zero effects with pending=false
+00:17 +94: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe90::1 has zero effects with pending=true
+00:17 +95: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe91::1 has zero remote effects
+00:17 +96: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe91::1 has zero effects with pending=false
+00:17 +97: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe91::1 has zero effects with pending=true
+00:17 +98: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe92::1 has zero remote effects
+00:17 +99: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe92::1 has zero effects with pending=false
+00:17 +100: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe92::1 has zero effects with pending=true
+00:17 +101: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe93::1 has zero remote effects
+00:17 +102: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe93::1 has zero effects with pending=false
+00:17 +103: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe93::1 has zero effects with pending=true
+00:17 +104: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe94::1 has zero remote effects
+00:17 +105: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe94::1 has zero effects with pending=false
+00:17 +106: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe94::1 has zero effects with pending=true
+00:17 +107: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe95::1 has zero remote effects
+00:17 +108: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe95::1 has zero effects with pending=false
+00:17 +109: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe95::1 has zero effects with pending=true
+00:17 +110: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe96::1 has zero remote effects
+00:17 +111: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe96::1 has zero effects with pending=false
+00:17 +112: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe96::1 has zero effects with pending=true
+00:17 +113: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe97::1 has zero remote effects
+00:17 +114: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe97::1 has zero effects with pending=false
+00:17 +115: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe97::1 has zero effects with pending=true
+00:17 +116: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe98::1 has zero remote effects
+00:17 +117: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe98::1 has zero effects with pending=false
+00:17 +118: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe98::1 has zero effects with pending=true
+00:17 +119: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe99::1 has zero remote effects
+00:17 +120: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe99::1 has zero effects with pending=false
+00:17 +121: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe99::1 has zero effects with pending=true
+00:17 +122: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe9a::1 has zero remote effects
+00:17 +123: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9a::1 has zero effects with pending=false
+00:17 +124: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9a::1 has zero effects with pending=true
+00:17 +125: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe9b::1 has zero remote effects
+00:17 +126: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9b::1 has zero effects with pending=false
+00:17 +127: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9b::1 has zero effects with pending=true
+00:17 +128: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe9c::1 has zero remote effects
+00:17 +129: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9c::1 has zero effects with pending=false
+00:17 +130: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9c::1 has zero effects with pending=true
+00:17 +131: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe9d::1 has zero remote effects
+00:17 +132: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9d::1 has zero effects with pending=false
+00:17 +133: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9d::1 has zero effects with pending=true
+00:17 +134: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe9e::1 has zero remote effects
+00:17 +135: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9e::1 has zero effects with pending=false
+00:17 +136: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9e::1 has zero effects with pending=true
+00:17 +137: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fe9f::1 has zero remote effects
+00:17 +138: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9f::1 has zero effects with pending=false
+00:17 +139: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fe9f::1 has zero effects with pending=true
+00:17 +140: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea0::1 has zero remote effects
+00:17 +141: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea0::1 has zero effects with pending=false
+00:17 +142: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea0::1 has zero effects with pending=true
+00:17 +143: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea1::1 has zero remote effects
+00:17 +144: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea1::1 has zero effects with pending=false
+00:17 +145: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea1::1 has zero effects with pending=true
+00:17 +146: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea2::1 has zero remote effects
+00:17 +147: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea2::1 has zero effects with pending=false
+00:17 +148: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea2::1 has zero effects with pending=true
+00:17 +149: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea3::1 has zero remote effects
+00:17 +150: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea3::1 has zero effects with pending=false
+00:17 +151: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea3::1 has zero effects with pending=true
+00:17 +152: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea4::1 has zero remote effects
+00:17 +153: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea4::1 has zero effects with pending=false
+00:17 +154: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea4::1 has zero effects with pending=true
+00:17 +155: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea5::1 has zero remote effects
+00:17 +156: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea5::1 has zero effects with pending=false
+00:17 +157: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea5::1 has zero effects with pending=true
+00:17 +158: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea6::1 has zero remote effects
+00:17 +159: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea6::1 has zero effects with pending=false
+00:17 +160: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea6::1 has zero effects with pending=true
+00:17 +161: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea7::1 has zero remote effects
+00:17 +162: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea7::1 has zero effects with pending=false
+00:17 +163: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea7::1 has zero effects with pending=true
+00:17 +164: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea8::1 has zero remote effects
+00:17 +165: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea8::1 has zero effects with pending=false
+00:17 +166: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea8::1 has zero effects with pending=true
+00:17 +167: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fea9::1 has zero remote effects
+00:17 +168: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea9::1 has zero effects with pending=false
+00:17 +169: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fea9::1 has zero effects with pending=true
+00:17 +170: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feaa::1 has zero remote effects
+00:17 +171: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feaa::1 has zero effects with pending=false
+00:17 +172: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feaa::1 has zero effects with pending=true
+00:17 +173: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feab::1 has zero remote effects
+00:17 +174: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feab::1 has zero effects with pending=false
+00:17 +175: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feab::1 has zero effects with pending=true
+00:17 +176: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feac::1 has zero remote effects
+00:17 +177: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feac::1 has zero effects with pending=false
+00:17 +178: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feac::1 has zero effects with pending=true
+00:17 +179: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS fead::1 has zero remote effects
+00:17 +180: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fead::1 has zero effects with pending=false
+00:17 +181: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS fead::1 has zero effects with pending=true
+00:17 +182: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feae::1 has zero remote effects
+00:17 +183: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feae::1 has zero effects with pending=false
+00:17 +184: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feae::1 has zero effects with pending=true
+00:17 +185: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feaf::1 has zero remote effects
+00:17 +186: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feaf::1 has zero effects with pending=false
+00:17 +187: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feaf::1 has zero effects with pending=true
+00:17 +188: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb0::1 has zero remote effects
+00:17 +189: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb0::1 has zero effects with pending=false
+00:17 +190: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb0::1 has zero effects with pending=true
+00:17 +191: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb1::1 has zero remote effects
+00:17 +192: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb1::1 has zero effects with pending=false
+00:17 +193: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb1::1 has zero effects with pending=true
+00:17 +194: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb2::1 has zero remote effects
+00:17 +195: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb2::1 has zero effects with pending=false
+00:17 +196: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb2::1 has zero effects with pending=true
+00:17 +197: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb3::1 has zero remote effects
+00:17 +198: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb3::1 has zero effects with pending=false
+00:17 +199: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb3::1 has zero effects with pending=true
+00:17 +200: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb4::1 has zero remote effects
+00:17 +201: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb4::1 has zero effects with pending=false
+00:17 +202: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb4::1 has zero effects with pending=true
+00:17 +203: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb5::1 has zero remote effects
+00:17 +204: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb5::1 has zero effects with pending=false
+00:17 +205: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb5::1 has zero effects with pending=true
+00:17 +206: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb6::1 has zero remote effects
+00:17 +207: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb6::1 has zero effects with pending=false
+00:17 +208: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb6::1 has zero effects with pending=true
+00:17 +209: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb7::1 has zero remote effects
+00:17 +210: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb7::1 has zero effects with pending=false
+00:17 +211: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb7::1 has zero effects with pending=true
+00:17 +212: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb8::1 has zero remote effects
+00:17 +213: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb8::1 has zero effects with pending=false
+00:17 +214: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb8::1 has zero effects with pending=true
+00:17 +215: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feb9::1 has zero remote effects
+00:17 +216: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb9::1 has zero effects with pending=false
+00:17 +217: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feb9::1 has zero effects with pending=true
+00:17 +218: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS feba::1 has zero remote effects
+00:17 +219: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feba::1 has zero effects with pending=false
+00:17 +220: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS feba::1 has zero effects with pending=true
+00:17 +221: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS febb::1 has zero remote effects
+00:17 +222: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febb::1 has zero effects with pending=false
+00:17 +223: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febb::1 has zero effects with pending=true
+00:17 +224: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS febc::1 has zero remote effects
+00:17 +225: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febc::1 has zero effects with pending=false
+00:17 +226: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febc::1 has zero effects with pending=true
+00:17 +227: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS febd::1 has zero remote effects
+00:17 +228: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febd::1 has zero effects with pending=false
+00:17 +229: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febd::1 has zero effects with pending=true
+00:17 +230: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS febe::1 has zero remote effects
+00:17 +231: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febe::1 has zero effects with pending=false
+00:17 +232: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febe::1 has zero effects with pending=true
+00:17 +233: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid owner DNS febf::1 has zero remote effects
+00:17 +234: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febf::1 has zero effects with pending=false
+00:17 +235: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: invalid delegated DNS febf::1 has zero effects with pending=true
+00:17 +236: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot 192.0.2.53
+00:18 +237: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot fec0::53
+00:18 +238: /srv/archives/agent-screen-security-fix-20261106/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+00:20 +239: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart
+00:21 +239: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "::::"
+00:21 +240: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal ":::"
+00:21 +241: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:::2"
+00:21 +242: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:2:3"
+00:21 +243: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1::2::3"
+00:21 +244: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "[::::]"
+00:21 +245: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8:1:2:3:4:5:6:7"
+00:21 +246: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:2:3:4:5:6:7:8::"
+00:21 +247: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal ":1:2:3:4:5:6:7"
+00:21 +248: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1:2:3:4:5:6:7:"
+00:21 +249: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8::zz"
+00:21 +250: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "fe80::1%eth0"
+00:21 +251: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "[fe80::1%25eth0]"
+00:21 +252: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "[2001:db8::1]:9443"
+00:21 +253: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8::1/64"
+00:21 +254: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001: db8::1"
+00:21 +255: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "2001:db8::1\n;id"
+00:21 +256: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "[192.0.2.1]"
+00:21 +257: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "01.2.3.4"
+00:21 +258: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.02.3.4"
+00:21 +259: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "256.2.3.4"
+00:21 +260: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.-1"
+00:21 +261: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.+1"
+00:21 +262: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3"
+00:21 +263: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.4.5"
+00:21 +264: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "0x7f.0.0.1"
+00:21 +265: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "2130706433"
+00:21 +266: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.4:9443"
+00:21 +267: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "1.2.3.4/24"
+00:21 +268: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "exit.example"
+00:21 +269: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "https://exit.example"
+00:21 +270: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "[::1"
+00:21 +271: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal "::1]"
+00:21 +272: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit rejects malformed literal ""
+00:21 +273: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: valid IPv6 spellings normalize to one identity, no DNS
+00:21 +274: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: bridge rejects legacy IPv4 aliases and invalid DNS label lengths
+00:21 +275: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: IPv4 exit persists; malformed replacements cannot mutate saved route
+00:21 +276: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: IPv4 exit is a configured route, not a successful healthcheck
+00:21 +277: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: probe target must be unique and exact, never guessed
+00:21 +278: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: positive health must confirm the configured exit identity
+00:21 +279: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: exit binding never upgrades a previous failure
+00:21 +280: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: screen refuses positive verdict for unconfirmed exit 192.0.2.2
+00:23 +281: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: screen refuses positive verdict for unconfirmed exit null
+00:23 +282: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: late prior success cannot finish a new poll or cancel its deadline
+00:23 +283: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 1:::2
+00:23 +284: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 1::2::3
+00:23 +285: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from ::::
+00:23 +286: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 20:41:07
+00:23 +287: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from 1:2:3:4:5:6:7:8:9:0:1:2:3:4:5:6:7
+00:23 +288: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from fe80::1%eth0
+00:23 +289: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress cannot extract a valid prefix from bad2001::1host
+00:23 +290: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_identity_test.dart: egress extracts a complete IPv6 token from human detail
+00:23 +291: loading /srv/archives/agent-screen-security-fix-20261106/app/test/split_domains_store_test.dart
+00:25 +291: /srv/archives/agent-screen-security-fix-20261106/app/test/split_domains_store_test.dart: домены сохраняются в профиле и читаются после перезапуска
+00:25 +292: /srv/archives/agent-screen-security-fix-20261106/app/test/split_domains_store_test.dart: некорректный домен не сохраняется и не меняет список
+00:25 +293: /srv/archives/agent-screen-security-fix-20261106/app/test/split_domains_store_test.dart: домены читаются из нативной политики, мусор отбрасывается
+00:25 +294: /srv/archives/agent-screen-security-fix-20261106/app/test/split_domains_store_test.dart: syncSplitDomains разрешает домены и передаёт адреса нативной стороне
+00:25 +295: /srv/archives/agent-screen-security-fix-20261106/app/test/split_domains_store_test.dart: без Android домены не трогают нативную сторону
+00:25 +296: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_servers_test.dart
+00:27 +296: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_servers_test.dart: Серверы каскада: валидация bridge принимает IPv4 и домен, отвергает мусор
+00:27 +297: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_servers_test.dart: Серверы каскада: валидация exit принимает literal IPv4 и IPv6
+00:27 +298: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_servers_test.dart: Серверы каскада: валидация маршрут из адресов: настроен и не настроен
+00:27 +299: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_servers_test.dart: Серверы каскада: валидация полу-настроенный маршрут не считается активным
+00:27 +300: loading /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart
+00:29 +300: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: (setUpAll)
+00:31 +300: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: main screen: idle, server chosen
+00:32 +301: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: connection tab: key, own server, cascade, user
+00:33 +302: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: settings: list, then the application/locale screen
+00:33 +303: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: cascade screen: configured bridge and IPv6 exit
+00:33 +304: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: cascade health: result of «Проверить каскад»
+00:34 +305: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: cascade servers dialog: two fields and the install command
+00:34 +306: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: dns resolver: presets, the saved pair and the custom fields
+00:34 +307: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: split routing: IP/site modes and the domains field
+00:34 +308: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: mtproto proxy: instruction, saved link and status
+00:35 +309: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: application settings: autostart, auto-connect, screenshots
+00:35 +310: /srv/archives/agent-screen-security-fix-20261106/app/test/screenshots/capture_screens_test.dart: (tearDownAll)
+00:35 +310: loading /srv/archives/agent-screen-security-fix-20261106/app/test/dead_imports_test.dart
+00:36 +310: /srv/archives/agent-screen-security-fix-20261106/app/test/dead_imports_test.dart: first-party sources have no dead imports
+00:38 +311: /srv/archives/agent-screen-security-fix-20261106/app/test/dead_imports_test.dart: the guard itself detects a dead import
+00:38 +312: loading /srv/archives/agent-screen-security-fix-20261106/app/test/delegation_test.dart
+00:39 +312: /srv/archives/agent-screen-security-fix-20261106/app/test/delegation_test.dart: management key is standard Ed25519 and signs using the matching public key
+00:39 +313: /srv/archives/agent-screen-security-fix-20261106/app/test/delegation_test.dart: delegated bundle transports restricted key but never a root password
+00:39 +314: loading /srv/archives/agent-screen-security-fix-20261106/app/test/swipe_navigation_test.dart
+00:41 +314: /srv/archives/agent-screen-security-fix-20261106/app/test/swipe_navigation_test.dart: three destination swipes, boundaries and tap sync Size(360.0, 800.0)
+00:44 +315: /srv/archives/agent-screen-security-fix-20261106/app/test/swipe_navigation_test.dart: three destination swipes, boundaries and tap sync Size(784.0, 720.0)
+00:45 +316: /srv/archives/agent-screen-security-fix-20261106/app/test/swipe_navigation_test.dart: user form survives tab switches, notifications and fold
+00:46 +317: /srv/archives/agent-screen-security-fix-20261106/app/test/swipe_navigation_test.dart: home has server selector and no manual protocol menu
+00:46 +318: loading /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart
+00:47 +318: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: installed version matches the build source
+00:47 +319: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: published envelope verifies with the pinned key and matches final packages
+00:47 +319 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: only strictly newer semantic versions qualify, never documentation tags
+00:47 +320 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: weekly schedule persists with 24-hour independent jitter, not a release-wide time
+00:48 +321 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: successful installed build cleans only the fixed staging directory
+00:48 +322 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: signed manifest rejects modified payload and unrelated signing key
+00:48 +323 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: reject asset host substitution, traversal, malformed hashes and huge sizes
+00:48 +324 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_security_test.dart: archive traversal, links and duplicate Windows paths fail before extraction
+00:48 +325 ~1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/settings_hierarchy_test.dart
+00:50 +325 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/settings_hierarchy_test.dart: (setUpAll)
+00:50 +325 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots ru
+00:54 +326 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/settings_hierarchy_test.dart: settings hierarchy and screenshots en
+00:55 +327 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/settings_hierarchy_test.dart: (tearDownAll)
+00:55 +327 ~1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart
+00:56 +327 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: historical 0.24.2 fixture verifies with the pinned application key
+00:56 +328 ~1: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: published manifest matches the real package sizes and hashes
+  Skip: set XIO_RELEASE_DIR to the downloaded assets
+00:56 +328 ~2: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: check() returns the signed release for a build newer than this one
+00:57 +329 ~2: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: check() skips a manifest for the installed version without fetching it
+00:57 +330 ~2: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: check() refuses a verified manifest advertised under another tag
+00:57 +331 ~2: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: download() accepts the real package bytes for the signed release
+  Skip: set XIO_RELEASE_DIR to the downloaded assets
+00:57 +331 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_manifest_test.dart: the published signature covers the payload bytes
+00:57 +332 ~3: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart
+00:59 +332 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Успешная проверка живой каскад: стадия active, пинг, egress из detail
+00:59 +333 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Успешная проверка JSON без checks: доверяем ok, egress берём из ответа
+00:59 +334 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Успешная проверка формат dualstack.cascade_status(): alive=true
+00:59 +335 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Успешная проверка реальный ответ встроенной пробы bridge 81.177.142.37
+00:59 +336 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Деградация провал только whitelist — каскад жив с замечаниями
+00:59 +337 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Отказ bridge не запущен — failed без выдуманного bridgeToExit
+00:59 +338 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Отказ bridge жив, exit нет — стадия bridge → exit
+00:59 +339 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Отказ healthcheck вернул ошибку без проверок
+00:59 +340 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Отказ dualstack: нет IPv6-маршрута — причина по-русски
+00:59 +341 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Отказ CascadeHealth.failure сохраняет измеренный отклик
+00:59 +342 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Отказ CascadeHealth.unconfigured — честное «не настроен»
+00:59 +343 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON пустой ответ → failed с причиной
+00:59 +344 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON HTML вместо JSON → failed с причиной
+00:59 +345 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON обрезанный JSON → failed с причиной
+00:59 +346 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON массив вместо объекта → failed с причиной
+00:59 +347 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON нет полей ok/alive → failed с причиной
+00:59 +348 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON ok строкой → failed с причиной
+00:59 +349 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON alive числом → failed с причиной
+00:59 +350 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON мусорные элементы checks пропускаются, валидные читаются
+00:59 +351 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Мусор вместо JSON checks не список — ответ всё равно читается по ok
+00:59 +352 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Выходной IPv6 глобальный IPv6 из проверки exit.ipv6
+00:59 +353 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Выходной IPv6 проваленная проверка egress не даёт адрес
+00:59 +354 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_health_test.dart: Выходной IPv6 мусор в поле egress6 игнорируется
+00:59 +355 ~3: loading /srv/archives/agent-screen-security-fix-20261106/app/test/android_controls_test.dart
+01:00 +355 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/android_controls_test.dart: tile addition reports cancellation, success and legacy manual flow
+01:02 +356 ~3: loading /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart
+01:03 +356 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: 65 distinct rules refuse activation without installing a subset
+01:03 +357 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: 97 answers refuse activation with the 96 address budget intact
+01:03 +358 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: 128 manual networks leave no capacity for a domain answer
+01:03 +359 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: empty and partial DNS answers refuse an incomplete policy
+01:03 +360 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: failed native apply retries instead of reporting a fresh cache hit
+01:03 +361 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: failed clear preserves prior applied state and retries
+01:03 +362 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: expired provenance requires one fresh lookup then permits owned reuse
+01:03 +363 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: restart provenance requires one fresh lookup then permits owned reuse
+01:03 +364 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: policy edit provenance requires one fresh lookup then permits owned reuse
+01:03 +365 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: cache missing provenance requires one fresh lookup then permits owned reuse
+01:03 +366 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: force provenance requires one fresh lookup then permits owned reuse
+01:03 +367 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=false)
+01:03 +368 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=true)
+01:03 +369 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: late begin reply cannot start DNS or cancel a newer native lease
+01:03 +370 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: rule edit during apply rejects write and never commits stale cache
+01:03 +371 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: DOWN/new connect re-applies fresh cached DNS under a new native lease
+01:03 +372 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: empty domain standard policy needs no DNS and connects normally
+01:03 +373 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: a new admitted connect revokes an older standalone resolution
+01:03 +374 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_contract_invariants_test.dart: dispose revokes gated resolver even without a replacement refresh
+01:03 +375 ~3: loading /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart
+01:05 +375 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: normalizes a complete flat bundle
+01:05 +376 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path ../escape before writing
+01:05 +377 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data//alias before writing
+01:05 +378 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path /absolute before writing
+01:05 +379 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/./alias before writing
+01:05 +380 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/aux.txt before writing
+01:05 +381 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/com1.bin before writing
+01:05 +382 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/name. before writing
+01:05 +383 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/name  before writing
+01:05 +384 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/bad?name before writing
+01:05 +385 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/bad|name before writing
+01:05 +386 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/bad<name before writing
+01:05 +387 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data/a:stream before writing
+01:05 +388 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects flat path data\escape before writing
+01:05 +389 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: normalizes a complete nested bundle
+01:05 +390 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path ../escape before writing
+01:05 +391 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data//alias before writing
+01:05 +392 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path /absolute before writing
+01:05 +393 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/./alias before writing
+01:05 +394 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/aux.txt before writing
+01:05 +395 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/com1.bin before writing
+01:05 +396 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/name. before writing
+01:05 +397 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/name  before writing
+01:05 +398 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/bad?name before writing
+01:05 +399 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/bad|name before writing
+01:05 +400 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/bad<name before writing
+01:05 +401 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data/a:stream before writing
+01:05 +402 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects nested path data\escape before writing
+01:05 +403 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects mixed before writing
+01:05 +404 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects file-parent before writing
+01:05 +405 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects directory-alias before writing
+01:05 +406 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects case-alias before writing
+01:05 +407 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects symlink before writing
+01:05 +408 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: rejects incomplete before writing
+01:06 +409 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: Windows transaction script quotes paths and requires a fresh version ACK
+01:06 +410 ~3: /srv/archives/agent-screen-security-fix-20261106/app/test/update_windows_test.dart: extracts the real published flat Windows ZIP
+  Skip: set XIO_RELEASE_DIR to the release assets
+01:06 +410 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/desktop_adapter_test.dart
+01:07 +410 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/desktop_adapter_test.dart: retired engines are absent from the supported catalogue
+01:07 +411 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart
+01:09 +411 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: (setUpAll)
+01:10 +411 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues
+01:10 +412 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+01:10 +413 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+01:11 +414 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: status rows are translated and never left as the Russian key
+01:11 +415 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: no catalogue reuses the English value while Russian is the source
+01:11 +416 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: system language resolution checks preferences and falls back to English
+01:11 +417 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: dynamic status keeps technical arguments and specific message templates
+01:11 +418 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: explicit and system language persist without changing profiles
+01:11 +419 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+01:15 +420 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+01:23 +421 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+01:25 +422 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: cascade screen fits 360×640 in every language, RTL included
+01:26 +423 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+01:26 +424 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: (tearDownAll)
+01:26 +424 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/profile_removal_test.dart
+01:28 +424 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/profile_removal_test.dart: removing a profile releases its user for re-import
+01:29 +425 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart
+01:31 +425 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: (setUpAll)
+01:31 +425 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: navigation, empty state, and layout Size(320.0, 740.0)
+01:33 +426 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: navigation, empty state, and layout Size(390.0, 844.0)
+01:34 +427 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: navigation, empty state, and layout Size(1280.0, 900.0)
+01:34 +428 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: capture desktop and phone product screens
+01:34 +429 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: primary action stays visible with larger phone text
+01:34 +430 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: tab navigation does not inherit another page scroll offset
+01:35 +431 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/layout_test.dart: (tearDownAll)
+01:35 +431 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/managed_update_verification_test.dart
+01:36 +431 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_update_verification_test.dart: update awaits digest and advances only after acceptance
+01:36 +432 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_update_verification_test.dart: update awaits digest and returns mismatch without side effects
+01:36 +433 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_update_verification_test.dart: default service returns real digest mismatch before updater load
+01:36 +434 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart
+01:38 +434 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: cascade screen fits 360×640 without overflow
+01:40 +435 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: cascade screen fits 412×915 without overflow
+01:40 +436 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: cascade screen keeps large text inside the same viewport
+01:40 +437 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: locked cascade shows the paid-feature banner and lock overlay
+01:40 +438 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: activation enables the cascade for free until billing lands
+01:40 +439 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: an unconfigured cascade says so instead of running a check
+01:41 +440 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: the check button is busy-locked and applies the real answer
+01:41 +441 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: a broken exit puts the scheme on bridge → exit with the reason
+01:41 +442 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: an SSH failure is reported as a failed cascade
+01:41 +443 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: a stuck check fails after the 15 s deadline
+01:41 +444 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: disposing the screen cancels the check deadline
+01:41 +445 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_screen_test.dart: feature gate stays closed until a real subscription is wired
+01:41 +446 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart
+01:43 +446 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: flagEmoji собирает флаг из двухбуквенного ISO-кода
+01:43 +447 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: flagEmoji не зависит от регистра и пробелов
+01:43 +448 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: flagEmoji для неизвестного кода отдаёт белый флаг
+01:43 +449 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: CascadeRoute JSON toJson содержит все поля
+01:43 +450 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: CascadeRoute JSON проходит через jsonEncode/jsonDecode и обратно
+01:43 +451 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: CascadeRoute JSON без pingMs и updatedAt сериализуется с null
+01:43 +452 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: CascadeRoute JSON терпит мусор вместо полей
+01:43 +453 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: CascadeStage / CascadeHopState имена стадий стабильны (используются в JSON)
+01:43 +454 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: CascadeStage / CascadeHopState isAnimating только на переходных стадиях
+01:43 +455 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: Подписка (заглушка) по умолчанию подписки нет
+01:43 +456 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: Подписка (заглушка) CascadeFeatureGate выключен
+01:43 +457 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_model_test.dart: Подписка (заглушка) requestActivation() возвращает false
+01:43 +458 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart
+01:44 +458 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart: routing editor 320.0 Brightness.dark searches, persists and reports active tunnel
+01:46 +459 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart: routing editor 320.0 Brightness.light searches, persists and reports active tunnel
+01:47 +460 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart: routing editor 784.0 Brightness.dark searches, persists and reports active tunnel
+01:47 +461 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart: routing editor 784.0 Brightness.light searches, persists and reports active tunnel
+01:47 +462 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart: IP editor restores local subnets and saves only IP rules
+01:48 +463 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/split_routing_test.dart: cached home and settings entries both refresh when rules change
+01:48 +464 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/legal_consent_test.dart
+01:50 +464 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/legal_consent_test.dart: acknowledgement is versioned, timestamped and invalid records require review
+01:50 +465 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/legal_consent_test.dart: first run needs two separate unchecked acknowledgements and persists receipt
+01:52 +466 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/legal_consent_test.dart: receipt persists in the ordinary app storage without changing GPL rights
+01:52 +467 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/legal_consent_test.dart: failed storage cannot acknowledge or unlock connection
+01:52 +468 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/update_download_test.dart
+01:55 +468 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/update_download_test.dart: download commits verified bytes
+01:58 +469 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/update_download_test.dart: download rejects corrupted bytes and deletes partials
+02:00 +470 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/update_download_test.dart: concurrent checks share one HTTP request and rate-limit immediate retries
+02:00 +471 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/update_download_test.dart: untrusted redirect never receives a request
+02:00 +472 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/server_actions_test.dart
+02:02 +472 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/server_actions_test.dart: local deletion needs confirmation, no SSH and preserves remote choice
+02:04 +473 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/watchdog_interval_test.dart
+02:06 +473 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/watchdog_interval_test.dart: watchdog halves its cadence only after a stable run
+02:06 +474 ~4: loading /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart
+02:07 +474 ~4: /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <0>
+  Actual: <1>
+the first read changed nothing
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart:16:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart line 16
+The test description was:
+  an idle status poll does not notify listeners
+════════════════════════════════════════════════════════════════════════════════════════════════════
+02:08 +474 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners [E]
+  Test failed. See exception logs above.
+  The test description was: an idle status poll does not notify listeners
+  
+02:08 +474 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: equal tunnel states compare equal
+02:08 +475 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/dualstack_preview_test.dart
+02:10 +475 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/dualstack_preview_test.dart: (setUpAll)
+02:10 +475 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/dualstack_preview_test.dart: RU EN previews of the real home widgets use synthetic profiles
+02:12 +476 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/dualstack_preview_test.dart: (tearDownAll)
+02:12 +476 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart
+02:14 +476 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: plain WireGuard and comments pretending to enable AWG are rejected
+02:14 +477 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: AWG extensions including zero and empty fields select AWG
+02:14 +478 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: reject hooks, foreign protocols, subscriptions and oversized input
+02:14 +479 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: XIO exports import, unknown scheme and protocol mismatch are rejected
+02:14 +480 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: Amnezia client JSON and Qt compressed vpn keys import client data only
+02:14 +481 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: structured Amnezia export retains explicit route policy and rejects missing routes
+02:14 +482 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_import_test.dart: decompression bomb with falsely small Qt length is bounded
+02:14 +483 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/background_probe_plan_test.dart
+02:16 +483 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in false
+02:16 +484 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in true
+02:16 +485 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/background_probe_plan_test.dart: platform gate stays off when Android is not selected
+02:16 +486 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart
+02:18 +486 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 198.51.100.42
+02:18 +487 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: vpn.example
+02:18 +488 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 2001:db8::42
+02:18 +489 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 
+02:18 +490 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: https://vpn.example
+02:18 +491 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: user@vpn.example
+02:18 +492 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example;id
+02:18 +493 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a b
+02:18 +494 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: :::
+02:18 +495 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [198.51.100.42]
+02:18 +496 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [::1
+02:18 +497 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 256.256.256.256
+02:18 +498 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: -vpn.example
+02:18 +499 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn..example
+02:18 +500 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a_1.example
+02:18 +501 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example:443
+02:18 +502 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject invalid endpoint ports
+02:18 +503 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: legacy management metadata retains its direct VPN host
+02:18 +504 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: proxy SSH and public IPv6 survive management export metadata
+02:18 +505 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: install sends public IPv6 to server init, retaining SSH proxy for control
+02:18 +506 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: invalid public host performs no upload or init
+02:18 +507 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 198.51.100.42
+02:18 +508 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: vpn.example
+02:18 +509 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 2001:db8::42
+02:18 +510 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_persistence_test.dart
+02:19 +510 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/cascade_persistence_test.dart: адреса каскада и разблокировка переживают перезапуск
+02:20 +511 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/protocol_compatibility_test.dart
+02:21 +511 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/protocol_compatibility_test.dart: wire export preserves all protocols regardless of runtime target
+02:21 +512 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/protocol_compatibility_test.dart: unimplemented engines are explicit and not simulated by reducing Android
+02:21 +513 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/protocol_compatibility_test.dart: client and administrative desktop storage identities stay separate
+02:21 +514 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/protocol_compatibility_test.dart: limited native engines retain all five imported profiles for re-export
+02:24 +515 ~4 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart
+02:25 +515 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: (setUpAll)
+02:25 +515 ~4 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: invalid IDs reject before creating any storage
+02:25 +515 ~5 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: AccountVault real desktop roundtrip and protected modes
+02:25 +515 ~6 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: existing state ciphertext remains readable and deletable unchanged
+02:25 +515 ~7 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: all existing credential producers roundtrip without renaming
+02:25 +515 ~8 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: corrupt ciphertext or existing key fails without replacing material
+02:25 +515 ~9 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_vault_desktop_test.dart: (tearDownAll)
+02:25 +515 ~9 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/client_theme_test.dart
+02:26 +515 ~9 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_theme_test.dart: client amber palette has readable text in dark
+02:26 +516 ~9 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_theme_test.dart: client amber palette has readable text in light
+02:26 +517 ~9 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_theme_test.dart: full app keeps its original green identity
+02:27 +518 ~9 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_live_test.dart
+02:28 +518 ~9 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_live_test.dart: live install uses the VPN hostname and the product SSH path
+02:28 +518 ~10 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart
+02:30 +518 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: server release manifest binds the exact archive bytes
+02:30 +519 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install uploads the manifest-matched archive and bootstrap verbatim
+02:30 +520 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: a stale or corrupted archive is refused before any upload
+02:30 +521 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install and generated profiles use VPN host fr-host.fr, not SSH proxy
+02:30 +522 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install and generated profiles use VPN host xn--bcher-kva.example, not SSH proxy
+02:31 +523 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install and generated profiles use VPN host XN--BCHER-KVA.example, not SSH proxy
+02:31 +524 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 198.51.100.42, not SSH proxy
+02:31 +525 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 2001:db8::42, not SSH proxy
+02:31 +526 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: install and generated profiles use VPN host [2001:db8::42], not SSH proxy
+02:31 +527 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: malformed hosts perform no inspect, upload, init or store write
+02:31 +528 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: a ready installation is reused without uploading the old bundle
+02:31 +529 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: a different explicit host on a ready server is refused before upload
+02:31 +530 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: an incomplete installation is a hard stop before upload
+02:31 +531 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: a fresh init mismatch never registers a different VPN host
+02:31 +532 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: a malicious server AWG extension is rejected and the user revoked
+02:31 +533 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: password is released only after the host key gate accepts
+02:31 +534 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: client factory wires pin verification before password release
+02:31 +535 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: a pinned host rejects a different key before the password
+02:31 +536 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: case and trailing-dot aliases share one host-key pin
+02:31 +537 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/install_domain_security_test.dart: DNS resolution keeps a Punycode name, never substitutes an address
+02:31 +538 ~10 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart
+02:34 +538 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: формат ссылки принимает FakeTLS, legacy и t.me-ссылку
+02:34 +539 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: формат ссылки принимает base64-секрет и домен в верхнем регистре
+02:34 +540 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: формат ссылки отклоняет пустую и чужую схему
+02:34 +541 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: формат ссылки отклоняет неполные и лишние параметры
+02:34 +542 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: формат ссылки отклоняет некорректный сервер, порт и секрет
+02:34 +543 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: хранение ссылка переживает перезапуск и очищается
+02:34 +544 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: хранение битая ссылка в профиле не мешает загрузке
+02:34 +545 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: команды SSH запрос и установка собираются без подстановок Dart
+02:34 +546 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: ответ сервера mtproto установленный прокси отдаёт каноническую ссылку
+02:34 +547 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: ответ сервера mtproto t.me-вид приводится к tg://, строка-порт принимается
+02:34 +548 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: ответ сервера mtproto без секрета прокси не установлен, ссылки нет
+02:34 +549 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: ответ сервера mtproto установленный прокси без рабочей ссылки — ошибка
+02:34 +550 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: ответ сервера mtproto некорректный ответ сервера отклоняется
+02:34 +551 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: автоподстановка ссылка из ответа сервера сохраняется и переживает перезапуск
+02:34 +552 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: автоподстановка не установленный прокси не трогает сохранённую ссылку
+02:34 +553 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: экран сам подставляет ссылку с сервера
+02:36 +554 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: индикатор загрузки и понятная ошибка запроса
+02:36 +555 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: без прокси на сервере — кнопка установки и повторный запрос
+02:37 +556 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/mtproto_test.dart: экран показывает инструкцию и проверяет ввод
+02:37 +557 ~10 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/profile_persistence_test.dart
+02:39 +557 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/profile_persistence_test.dart: profile JSON round-trips unicode names and IPv6 endpoints
+02:39 +558 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/profile_persistence_test.dart: save/load keeps profiles and the selected id
+02:39 +559 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/profile_persistence_test.dart: foreign profiles.json parses and drops unknown protocols
+02:39 +560 ~10 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart
+02:40 +560 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: доменное правило принимает домен и wildcard в каноническом виде
+02:40 +561 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: доменное правило отвергает схему, слэши, порт и одиночную метку
+02:40 +562 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: проверка адресов IPv4, IPv6 и CIDR сохраняют прежнее поведение
+02:40 +563 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: проверка адресов домены в списке сетей не принимаются
+02:40 +564 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: ввод списка доменов разбирает строки, запятые и дубли
+02:40 +565 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: ввод списка доменов сообщает, какая именно запись некорректна
+02:40 +566 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: ввод списка доменов ограничивает число правил
+02:40 +567 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: разрешение доменов обычный домен превращается в свои адреса
+02:40 +568 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: разрешение доменов wildcard разрешает корень и известные поддомены, но не глубже
+02:40 +569 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: разрешение доменов сбои DNS и мусор в ответе не блокируют остальные правила
+02:40 +570 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: разрешение доменов таймаут передаётся резолверу и ограничивает обход
+02:40 +571 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: разрешение доменов число адресов ограничено запасом нативной политики
+02:40 +572 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: синхронизация адресов передаёт адреса нативной стороне и живёт по кэшу 10 минут
+02:40 +573 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: синхронизация адресов изменение списка разрешает заново, очистка снимает адреса
+02:40 +574 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: синхронизация адресов invalidate и force обходят кэш
+02:40 +575 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_domains_test.dart: синхронизация адресов пустой список с самого начала ничего не пишет
+02:40 +576 ~10 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/vps_debian_test.dart
+02:42 +576 ~10 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/vps_debian_test.dart: real Debian VPS SSH pin, preflight and application WG installer
+02:42 +576 ~11 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/desktop_profile_test.dart
+02:44 +576 ~11 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/desktop_profile_test.dart: desktop encrypted import/export keeps supported protocols
+  Skip: Set XIO_DESKTOP_PRIVATE_BUNDLE to a private encrypted bundle: the test imports it and writes into the real application profile directory
+02:44 +576 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_trust_test.dart
+02:45 +576 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_trust_test.dart: first key persists and reconnect works across instances and users
+02:46 +577 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_trust_test.dart: concurrent first contacts never overwrite each other
+02:46 +578 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_trust_test.dart: corrupt trust store fails closed and is not overwritten
+02:46 +579 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_trust_test.dart: write failure refuses trust and does not poison later attempts
+02:46 +580 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_trust_test.dart: VPS setup needs address and credentials without fingerprint field
+02:48 +581 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart
+02:49 +581 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: (setUpAll)
+02:49 +581 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: system brightness changes all surfaces without losing selected page or profile
+02:52 +582 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(320.0, 740.0) Brightness.dark with larger text
+02:52 +583 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(320.0, 740.0) Brightness.light with larger text
+02:52 +584 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(360.0, 800.0) Brightness.dark with larger text
+02:52 +585 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(360.0, 800.0) Brightness.light with larger text
+02:52 +586 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(390.0, 844.0) Brightness.dark with larger text
+02:52 +587 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(390.0, 844.0) Brightness.light with larger text
+02:52 +588 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(784.0, 720.0) Brightness.dark with larger text
+02:53 +589 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(784.0, 720.0) Brightness.light with larger text
+02:53 +590 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(900.0, 780.0) Brightness.dark with larger text
+02:53 +591 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: safe compact controls Size(900.0, 780.0) Brightness.light with larger text
+02:53 +592 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: fold and unfold preserve the current tab and scrollable content
+02:53 +593 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: capture cover and unfolded light/dark layouts
+02:53 +594 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/theme_foldable_test.dart: (tearDownAll)
+02:53 +594 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/routing_resolution_completeness_test.dart
+02:55 +594 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_resolution_completeness_test.dart: lookup/address limits and empty DNS expose incomplete, not success
+02:55 +595 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_resolution_completeness_test.dart: DNS exception is incomplete even with a successful sibling
+02:55 +596 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_resolution_completeness_test.dart: duplicates and order do not consume extra address capacity
+02:55 +597 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_resolution_completeness_test.dart: new leases reuse DNS without renewing its original expiry
+02:55 +598 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_resolution_completeness_test.dart: invalidation while awaiting apply prevents a fresh cache commit
+02:55 +599 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart
+02:57 +599 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: defaults: screenshots off, autostart off, Quad9 resolver
+02:57 +600 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+02:57 +601 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: custom DNS validation accepts unicast IPv4 and IPv6 literals
+02:57 +602 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: custom DNS validation rejects ports, schemes and extra entries
+02:57 +603 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: an unsupported resolver list is preserved for explicit repair
+02:57 +604 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+02:57 +605 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+02:57 +606 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: the three settings switches persist immediately
+02:59 +607 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+03:00 +608 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart
+03:02 +608 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+03:02 +609 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+03:02 +610 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+03:02 +611 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+03:02 +612 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+03:02 +613 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+03:02 +614 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+03:02 +615 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+03:02 +616 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+03:02 +617 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+03:02 +618 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+03:02 +619 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/app_icons_test.dart
+03:04 +619 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_icons_test.dart: (setUpAll)
+03:05 +619 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_icons_test.dart: icon choices fit narrow large-text and RTL layouts and persist through native state
+03:07 +620 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/app_icons_test.dart: (tearDownAll)
+03:07 +620 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart
+03:08 +620 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.windows does not offer working capture protection
+03:09 +621 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.linux does not offer working capture protection
+03:09 +622 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android applies default, opt-in and opt-out using real Store/channel
+03:10 +623 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android missing channel is not successful setting application
+03:10 +624 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android setters and reapplication cannot overtake pending native ACK
+03:10 +625 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: native default is installed before Flutter startup (source invariant)
+03:10 +626 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: failed older save cannot roll back newer queued selection or reapply
+03:10 +627 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: failed save after rename rolls back actual persisted permission
+03:10 +628 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: real save/load preserves opt-in and obtains a fresh ACK
+03:10 +629 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android UI says unknown on native error and shows saved preference
+03:10 +630 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: persistent save/rollback failure is visible and retry recovers
+03:10 +631 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=false on open/close
+03:11 +632 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=true on open/close
+03:11 +633 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: background invalidates prior window ACK and resume reapplies opt-in
+03:11 +634 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Full settings route uses the shared unsupported settings UI
+03:12 +635 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Client settings route uses the shared unsupported settings UI
+03:12 +636 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart
+03:14 +636 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: absent metadata preserves native legacy behavior
+03:14 +637 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: policy-only IPv6 readiness issues IPv6 despite no host default field
+03:14 +638 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: explicit IPv4-only overrides old IPv6 flag and resolver
+03:14 +639 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: explicit IPv6-only requires no IPv4 exit and retains RIVET identity
+03:14 +640 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: unselected transport and unsupported proxy configs are omitted
+03:14 +641 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: requested dual-family is never downgraded or recovered via legacy true
+03:14 +642 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: selected RIVET metadata cannot silently disappear
+03:14 +643 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: stale malformed missing and non-boolean metadata fail closed
+03:14 +644 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: readiness enforces 60-second age and TTL with five-second skew
+03:14 +645 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: oversized or old evidence fails issuance, not proxy/direct fallback
+03:14 +646 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: UTC and revision compatibility remain strict and compatible
+03:14 +647 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: owner issuance uses policy-only readiness and excludes proxy bypass
+03:14 +648 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: owner issuance failure compensates newly registered identity
+03:14 +649 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=false retains intent
+03:14 +650 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=true retains intent
+03:14 +651 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart
+03:16 +651 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: accept standard profile and identify full tunnel
+03:16 +652 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: reject shell hooks and Amnezia-specific configuration
+03:16 +653 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: AWG mode accepts extensions but rejects commands and oversized padding
+03:16 +654 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: reject duplicate secrets, invalid CIDR and invalid endpoints
+03:16 +655 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: reject extra peer and missing interface
+03:16 +656 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: host validation allows automatic SSH trust and optional explicit pin
+03:16 +657 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: removal of active profile is blocked
+03:16 +658 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: diagnostic export excludes profiles and private material
+03:16 +659 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: concurrent profile saves leave the newest complete snapshot
+03:17 +660 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: TCP diagnostic exercises an actual local socket
+03:17 +661 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/security_test.dart: closed TCP endpoint is not reported as healthy
+03:17 +662 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/extended_profile_test.dart
+03:18 +662 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/extended_profile_test.dart: VLESS REALITY round trip and automatic import
+03:18 +663 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/extended_profile_test.dart: removed protocols cannot be imported
+03:18 +664 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/extended_profile_test.dart: reject insecure TLS, plain VLESS and local API/import files
+03:18 +665 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/extended_profile_test.dart: XHTTP modes preserve upstream Encryption and reject unsafe extras
+03:18 +666 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart
+03:20 +666 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart: IPv6 endpoints and inner addresses stay bound to the authenticated user slot
+03:20 +667 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart: automatic plan contains only supported engines and respects maintenance
+03:20 +668 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart: protocol preference keeps paired RIVET fallback before legacy paths
+03:20 +669 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart: RIVET client profiles detect both transports without engine selection
+03:20 +670 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart: multi-protocol export preserves all four keys without SSH access
+03:20 +671 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/rivet_profile_test.dart: reject unsafe endpoints, unsupported fields and inconsistent credentials
+03:20 +672 ~12 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_transport_test.dart
+03:22 +672 ~12 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_transport_test.dart: real SSH uses automatic persistent trust and rejects changed key
+03:22 +672 ~13 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_transport_test.dart: real SSH handshake accepts pinned key and rejects mismatch
+03:22 +672 ~14 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart
+03:23 +672 ~14 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: client tests require XIO_CLIENT_ONLY=true
+03:23 +672 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart
+03:25 +672 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart: bundle round trip carries both protocol keys without SSH credentials
+03:25 +673 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart: invalid imported bundle cannot erase remotely discovered user metadata
+03:25 +674 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart: check site normalization rejects credentials and non HTTPS schemes
+03:25 +675 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart: settings and management metadata survive restart without private configs
+03:25 +676 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+03:27 +677 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+03:28 +678 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart
+03:30 +678 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: keys persist before open returns and restart reuses exactly the same intent
+03:30 +679 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: parallel instances cannot overwrite each others first key material
+03:30 +680 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: write is awaited and failed persistence never admits a returned intent
+03:30 +681 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: missing write readback fails and reordered maps remain valid
+03:30 +682 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: unknown remote outcomes preserve operation identity keys and pending action
+03:30 +683 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: stale caller cannot roll journal backwards or replace newer state
+03:30 +684 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: corrupt private record never regenerates or prints private contents
+03:30 +685 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/native_cascade_journal_test.dart: different target/configuration cannot be resumed under the old identity
+03:30 +686 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/background_polling_test.dart
+03:31 +686 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/background_polling_test.dart: UI lifecycle stops status polling in background and refreshes on resume
+03:33 +687 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart
+03:35 +687 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart: (setUpAll)
+03:35 +687 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart: fresh poll waits for older interface read and then reads the new interface
+03:35 +688 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart: startup statistics runs once despite repeat callers and one unavailable server
+03:35 +689 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart: stalled probe falls back; late first result cannot replace success
+03:36 +690 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+03:39 +691 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/connection_users_test.dart: (tearDownAll)
+03:39 +691 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart
+03:40 +691 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary accepts real-shaped domain names and both IP families
+03:40 +692 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary rejects schemes, host:port and injection in a host field
+03:40 +693 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary parses endpoint hosts with explicit port and IPv6 brackets
+03:40 +694 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary SshTarget validates the same host before a socket exists
+03:40 +695 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary known-hosts keys a bracketed IPv6 by its raw host
+03:40 +696 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary managed metadata keeps the proxy and VPN host independent
+03:40 +697 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary DNS candidate resolution asks A and AAAA separately
+03:40 +698 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three A answers never starve the single AAAA answer
+03:40 +699 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three AAAA answers never starve the single A answer
+03:40 +700 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary socket attempts try the AAAA answer before extra A records
+03:40 +701 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary an established socket is never replaced by another address
+03:40 +702 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary a changed key for the domain aborts before authentication
+03:40 +703 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy install sends fr-host.fr while SSH stays on the proxy:9046
+03:40 +704 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy AWG and both RIVET profiles use the VPN domain and SNI
+03:41 +705 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy invalid public host performs no upload or init
+03:41 +706 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints AWG accepts a domain endpoint and rejects schemes or extra parts
+03:41 +707 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints RIVET keeps endpoint domain and independent TLS serverName
+03:41 +708 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints extended outbound keeps address domain and TLS SNI identity
+03:41 +709 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints subclient provisioning uses the same domain endpoint rules
+03:41 +710 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+03:42 +711 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart
+03:44 +711 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: automatic default retains selected first, selectedOnly is explicit
+03:44 +712 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: disposed disconnect success cannot publish or rearm
+03:44 +713 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: disposed activation success cannot publish or rearm
+03:44 +714 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: disposed disconnect error cannot publish or rearm
+03:44 +715 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: disposed activation error cannot publish or rearm
+03:44 +716 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: unjoined cleanup reserves activation after round expiry
+03:44 +717 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: repeated native recovery polls cannot renew the same lease
+03:44 +718 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: selectedOnly rejects missing native policy acknowledgement without fallback
+03:44 +719 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+03:44 +720 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/routing_native_clock_test.dart
+03:46 +720 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_native_clock_test.dart: native provenance governs cached DNS after wall rewind at real nine minutes
+03:46 +721 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart
+03:47 +721 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart: only a bounded HTTPS capability can enter schema 3
+03:47 +722 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart: subclient material excludes parent API and administrator credentials
+03:47 +723 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart: IPv6 DNS is issued only with an explicit gateway capability
+03:47 +724 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart: unknown response retains exact operation and local keys for explicit reconciliation
+03:47 +725 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart: TLS pin and redirect protection on IPv4
+03:48 +726 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/account_access_test.dart: TLS pin and redirect protection on IPv6
+03:48 +727 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart
+03:49 +727 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: подписи режимов называют и IP, и сайты
+03:49 +728 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: экран маршрутизации показывает новые режимы и поле доменов
+03:51 +729 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: некорректный домен не сохраняется и объясняет причину
+03:52 +730 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: раздельное туннелирование переехало в «Соединение»
+03:53 +731 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: на вкладке «Настройка соединений» нет подзаголовка
+03:53 +732 ~15 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/asset_provenance_test.dart
+03:54 +732 ~15 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/asset_provenance_test.dart: bundled server archive and bootstrap match the server source tree
+03:54 +732 ~16 -1: loading /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart
+03:56 +732 ~16 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart: live shared SSH client: pinned IPv4 DNS transport
+03:56 +732 ~17 -1: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart: live shared SSH client: pinned IPv4 literal transport
+03:56 +732 ~18 -1: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners

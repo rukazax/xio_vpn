@@ -1,0 +1,62 @@
+fda86965e827652e0df86e76a4f1562f4a602a578c598c0c3b6443e1d1836ff3  xio-mtproto-setup.sh
+eeb44ebb4b1ea22815b790bc4426fc44d33cee6f5c7049d5b0f17f742bb5674b  test_ownership.py
+580a050b7481887bacabc0d38b995defb4a088810ee77bd8f131bed4389ea2ff  README.md
+commit=5801b32da95a8e86b9949dec03dca430374b92e4
+original_test_sha256=eeb44ebb4b1ea22815b790bc4426fc44d33cee6f5c7049d5b0f17f742bb5674b
+adaptation=two fixture-root literals only (docstring and AUTHORIZED)
+in_memory_test_sha256=dd174ce3c4640b6fdc7452a0c9ac85e3dad692b345e8f46b81aaf7d69c6c0728
+source_sha256=fda86965e827652e0df86e76a4f1562f4a602a578c598c0c3b6443e1d1836ff3
+test_active_service_without_remaining_unit_proof_refuses_cleanup (__main__.OwnershipTests.test_active_service_without_remaining_unit_proof_refuses_cleanup) ... ok
+test_all_install_journal_publication_interruptions_are_conservative (__main__.OwnershipTests.test_all_install_journal_publication_interruptions_are_conservative) ... ok
+test_all_update_journal_interruptions_preserve_pending_evidence (__main__.OwnershipTests.test_all_update_journal_interruptions_preserve_pending_evidence) ... ok
+test_bad_argument_has_no_effects (__main__.OwnershipTests.test_bad_argument_has_no_effects) ... ok
+test_control_receipt_corruption_and_substitution (__main__.OwnershipTests.test_control_receipt_corruption_and_substitution) ... ok
+test_cooperating_waiters_keep_stable_lock_across_uninstall (__main__.OwnershipTests.test_cooperating_waiters_keep_stable_lock_across_uninstall) ... ok
+test_crash_after_unlink_accepts_only_journaled_absence (__main__.OwnershipTests.test_crash_after_unlink_accepts_only_journaled_absence) ... ok
+test_crash_after_userdel_with_numeric_reuse_refuses (__main__.OwnershipTests.test_crash_after_userdel_with_numeric_reuse_refuses) ... ok
+test_dependency_attempt_is_journaled_and_revalidated (__main__.OwnershipTests.test_dependency_attempt_is_journaled_and_revalidated) ... ok
+test_effective_unit_collisions (__main__.OwnershipTests.test_effective_unit_collisions) ... ok
+test_failed_update_is_manual_not_adopted (__main__.OwnershipTests.test_failed_update_is_manual_not_adopted) ... ok
+test_file_drift_and_hardlink_rejected (__main__.OwnershipTests.test_file_drift_and_hardlink_rejected) ... ok
+test_final_journal_failure_retries (__main__.OwnershipTests.test_final_journal_failure_retries) ... ok
+test_fixed_path_collisions_and_dangling_link (__main__.OwnershipTests.test_fixed_path_collisions_and_dangling_link) ... ok
+test_foreign_supplementary_group_refuses_user_deletion (__main__.OwnershipTests.test_foreign_supplementary_group_refuses_user_deletion) ... ok
+test_full_install_repeat_update_uninstall_preserves_foreign_mtg (__main__.OwnershipTests.test_full_install_repeat_update_uninstall_preserves_foreign_mtg) ... ok
+test_group_members_gid_drift_and_duplicate_uid (__main__.OwnershipTests.test_group_members_gid_drift_and_duplicate_uid) ... ok
+test_groupdel_failure_retries (__main__.OwnershipTests.test_groupdel_failure_retries) ... ok
+test_implicit_private_group_deletion_is_journaled (__main__.OwnershipTests.test_implicit_private_group_deletion_is_journaled) ... ok
+test_inherited_dropins_and_vendor_unit_files (__main__.OwnershipTests.test_inherited_dropins_and_vendor_unit_files) ... ok
+test_journal_failure_stops_before_managed_effect (__main__.OwnershipTests.test_journal_failure_stops_before_managed_effect) ... ok
+test_malformed_receipt_and_lock_substitution (__main__.OwnershipTests.test_malformed_receipt_and_lock_substitution) ... ok
+test_missing_safety_tool_never_bootstraps_apt (__main__.OwnershipTests.test_missing_safety_tool_never_bootstraps_apt) ... ok
+test_nss_failure_and_systemctl_query_failure (__main__.OwnershipTests.test_nss_failure_and_systemctl_query_failure) ... ok
+test_parent_symlink_and_writable_parent (__main__.OwnershipTests.test_parent_symlink_and_writable_parent) ... ok
+test_pending_install_after_account_creation_is_manual (__main__.OwnershipTests.test_pending_install_after_account_creation_is_manual) ... ok
+test_pending_unlink_foreign_replacement_is_not_adopted (__main__.OwnershipTests.test_pending_unlink_foreign_replacement_is_not_adopted) ... ok
+test_prefixed_group_collision_before_effects (__main__.OwnershipTests.test_prefixed_group_collision_before_effects) ... ok
+test_prefixed_user_collision_before_effects (__main__.OwnershipTests.test_prefixed_user_collision_before_effects) ... ok
+test_print_link_legacy_no_state_bootstrap_no_network (__main__.OwnershipTests.test_print_link_legacy_no_state_bootstrap_no_network) ... ok
+test_print_link_unsafe_path_and_missing_state (__main__.OwnershipTests.test_print_link_unsafe_path_and_missing_state) ... ok
+test_reactivated_retry_stop_failure_preserves_payload (__main__.OwnershipTests.test_reactivated_retry_stop_failure_preserves_payload) ... ok
+test_real_hardlink_same_content_replacement_and_mode_drift (__main__.OwnershipTests.test_real_hardlink_same_content_replacement_and_mode_drift) ... ok
+test_reboot_after_stop_done_revalidates_current_quiescence (__main__.OwnershipTests.test_reboot_after_stop_done_revalidates_current_quiescence) ... ok
+test_receiptless_uninstall_has_no_effects (__main__.OwnershipTests.test_receiptless_uninstall_has_no_effects) ... ok
+test_recreated_same_account_fields_different_marker_refuses_retry (__main__.OwnershipTests.test_recreated_same_account_fields_different_marker_refuses_retry) ... ok
+test_removed_path_replacement_is_preserved (__main__.OwnershipTests.test_removed_path_replacement_is_preserved) ... ok
+test_stop_failure_preserves_payload_and_retries (__main__.OwnershipTests.test_stop_failure_preserves_payload_and_retries) ... ok
+test_tombstone_foreign_resource_blocks_fresh_install (__main__.OwnershipTests.test_tombstone_foreign_resource_blocks_fresh_install) ... ok
+test_uid_gecos_home_shell_and_primary_gid_drift (__main__.OwnershipTests.test_uid_gecos_home_shell_and_primary_gid_drift) ... ok
+test_uninstall_reload_and_rmdir_failures_retry (__main__.OwnershipTests.test_uninstall_reload_and_rmdir_failures_retry) ... ok
+test_unknown_entry_appearing_during_rmdir_is_preserved (__main__.OwnershipTests.test_unknown_entry_appearing_during_rmdir_is_preserved) ... ok
+test_unknown_files_preserved (__main__.OwnershipTests.test_unknown_files_preserved) ... ok
+test_unknown_same_target_enablement_link (__main__.OwnershipTests.test_unknown_same_target_enablement_link) ... ok
+test_unlink_failure_retries (__main__.OwnershipTests.test_unlink_failure_retries) ... ok
+test_unreadable_unit_link_scan_refuses_without_effects (__main__.OwnershipTests.test_unreadable_unit_link_scan_refuses_without_effects) ... ok
+test_userdel_failure_after_files_removed_retries (__main__.OwnershipTests.test_userdel_failure_after_files_removed_retries) ... ok
+test_vendor_alias_to_future_unit_refuses_before_effects (__main__.OwnershipTests.test_vendor_alias_to_future_unit_refuses_before_effects) ... ok
+test_vendor_scan_deduplicates_roots_without_following_child_directories (__main__.OwnershipTests.test_vendor_scan_deduplicates_roots_without_following_child_directories) ... ok
+
+----------------------------------------------------------------------
+Ran 49 tests in 547.608s
+
+OK

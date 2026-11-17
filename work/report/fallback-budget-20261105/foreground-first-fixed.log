@@ -1,0 +1,71 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/agent-fallback-budget-20261105/app/test/fallback_budget_test.dart
+00:00 +0: /srv/archives/agent-fallback-budget-20261105/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value less than or equal to <2>
+  Actual: <3>
+   Which: is not a value less than or equal to <2>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-fallback-budget-20261105/app/test/fallback_budget_test.dart:50:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-fallback-budget-20261105/app/test/fallback_budget_test.dart line 50
+The test description was:
+  one foreground round ends at 30 seconds, not 15 seconds per candidate
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:00 +0 -1: /srv/archives/agent-fallback-budget-20261105/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate [E]
+  Test failed. See exception logs above.
+  The test description was: one foreground round ends at 30 seconds, not 15 seconds per candidate
+  
+00:01 +0 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+00:01 +1 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+00:01 +2 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+00:01 +3 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+00:01 +4 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+00:01 +5 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+00:01 +6 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+00:01 +7 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:01 +8 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+00:01 +9 -1: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: <Instance of 'TunnelStatus'>
+  Actual: <Instance of 'TunnelStatus'>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart:304:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart line 304
+The test description was:
+  failed native teardown still invalidates older status errors
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +9 -2: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors [E]
+  Test failed. See exception logs above.
+  The test description was: failed native teardown still invalidates older status errors
+  
+00:01 +9 -2: /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+00:01 +10 -2: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-fallback-budget-20261105/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+  /srv/archives/agent-fallback-budget-20261105/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors

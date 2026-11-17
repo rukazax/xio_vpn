@@ -1,0 +1,4 @@
+Mock actual failed-owner replacement: oldUPToken=0 newOwnerToken=0 oldUPAccepted=true oldChildOwns=false
+Exception in thread "main" java.lang.AssertionError: DESIRED INVARIANT FAILED: a queued old owner UP was accepted under a different owner's live setup budget
+	at app.xio.xio.ReviewReplacementPublicationInvariant.check(ReviewReplacementPublicationInvariant.java:7)
+	at app.xio.xio.ReviewReplacementPublicationInvariant.main(ReviewReplacementPublicationInvariant.java:24)

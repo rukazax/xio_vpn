@@ -1,0 +1,29 @@
+Compiled from "Mobile.java"
+public abstract class app.xio.mobile.Mobile {
+  public static void touch();
+  public static native void attachPacketFlow(app.xio.mobile.PacketSink) throws java.lang.Exception;
+  public static native void attachTun(long) throws java.lang.Exception;
+  public static native void awgCancelHandshake(long);
+  public static native java.lang.String awgGetConfig(long);
+  public static native long awgGetSocketV4(long);
+  public static native long awgGetSocketV6(long);
+  public static native void awgHandshakeCandidates(long, java.lang.String, java.lang.String, long) throws java.lang.Exception;
+  public static native void awgTurnOff(long);
+  public static native long awgTurnOn(java.lang.String, long, java.lang.String, app.xio.mobile.Protector);
+  public static native java.lang.String awgVersion();
+  public static native long cloakStart(java.lang.String, app.xio.mobile.Protector, long) throws java.lang.Exception;
+  public static native void cloakStop();
+  public static native java.lang.String connect(java.lang.String, app.xio.mobile.Protector) throws java.lang.Exception;
+  public static native java.lang.String connectTimeout(java.lang.String, app.xio.mobile.Protector, long) throws java.lang.Exception;
+  public static native boolean packetInput(byte[]);
+  public static native java.lang.String status();
+  public static native void stop();
+  public static native void validate(java.lang.String) throws java.lang.Exception;
+  public static native void xrayAttachTun(long) throws java.lang.Exception;
+  public static native void xrayCheckHttps(java.lang.String, java.lang.String, long) throws java.lang.Exception;
+  public static native void xrayStart(java.lang.String, app.xio.mobile.Protector, long) throws java.lang.Exception;
+  public static native java.lang.String xrayStatus();
+  public static native void xrayStop();
+  public static native void xrayValidate(java.lang.String) throws java.lang.Exception;
+  static {};
+}

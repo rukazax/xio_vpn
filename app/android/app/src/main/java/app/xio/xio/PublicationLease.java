@@ -11,6 +11,8 @@ public final class PublicationLease {
     private String owner;
     private ConnectionBudget current;
     private int cancellations;
+    /** An activation is being established (begin .. activation settle). */
+    private boolean activationPending;
     private final Set<ConnectionBudget> requests = new HashSet<>();
 
     /** Policy publication reservation: a distinct identity from every epoch here. */
@@ -43,8 +45,19 @@ public final class PublicationLease {
         budget.remainingMillis();
         owner = roundId;
         current = budget;
+        activationPending = true;
         revoked = false;
         return ++epoch;
+    }
+
+    /**
+     * The activation this round established is complete: the tunnel may stay up,
+     * but it no longer owns the policy lane. Without this the accepted candidate
+     * could never publish the selection it just confirmed (automatic failover was
+     * refused with POLICY_BUSY right after the winning candidate connected).
+     */
+    public synchronized void settleActivation(String roundId) {
+        if (java.util.Objects.equals(owner, roundId)) activationPending = false;
     }
     public synchronized boolean owns(String roundId, ConnectionBudget budget) {
         return java.util.Objects.equals(owner, roundId) && current == budget;
@@ -53,6 +66,7 @@ public final class PublicationLease {
     public synchronized boolean retire(String roundId, ConnectionBudget expected) {
         if (!java.util.Objects.equals(owner, roundId) || (expected != null && current != expected)) return false;
         invalidate();
+        activationPending = false;
         if (current != null) current.cancel();
         return true;
     }
@@ -67,6 +81,7 @@ public final class PublicationLease {
     public synchronized void revoke() {
         ++admissionEpoch;
         invalidate();
+        activationPending = false;
         if (policy != null) policy.revoked = true; // Logical only: physical writer stays owned.
         for (ConnectionBudget budget : requests) budget.cancel();
         requests.clear();
@@ -79,14 +94,20 @@ public final class PublicationLease {
     /**
      * Reserves the one policy publication lane. Quiescence is checked from the
      * gate's own registrations, NOT from {@link #idle()} (which only tracks
-     * cancellations): no request, no outstanding cancellation, no active
-     * publication owner, no config mutation, no previous reservation.
+     * cancellations): no request, no outstanding cancellation, no activation
+     * still being established, no config mutation, no previous reservation.
+     *
+     * A tunnel that is already UP owns no lane: the activation that established
+     * it settled, so the accepted candidate can publish the selection it just
+     * confirmed. Treating the live activation as a publication owner made every
+     * publication after a successful connect impossible (automatic failover was
+     * refused with POLICY_BUSY immediately after its winning candidate connected).
      */
     public synchronized PolicyTicket reservePolicy(String transactionId) {
         if (policy != null) throw new IllegalStateException("Connection policy publication in progress");
         if (cancellations != 0) throw new IllegalStateException("VPN cancellation incomplete");
         if (!requests.isEmpty()) throw new IllegalStateException("Connection request outstanding");
-        if (current != null && !revoked) throw new IllegalStateException("VPN publication is active");
+        if (activationPending && !revoked) throw new IllegalStateException("VPN activation is in progress");
         if (mutations != 0) throw new IllegalStateException("Connection settings are being saved");
         policy = new PolicyTicket(transactionId);
         ++policyEpoch;

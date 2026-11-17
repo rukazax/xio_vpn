@@ -1,0 +1,14 @@
+== Engine.connect admission before stop
+     176: invokevirtual #897                // Method requirePolicyAdmissionOpen:()V
+     189: invokevirtual #901                // Method app/xio/xio/PolicyBridge.requireAdmission:(Landroid/content/Context;Ljava/util/Map;Ljava/lang/String;)Lapp/xio/xio/CapturedAdmission;
+     195: invokevirtual #897                // Method requirePolicyAdmissionOpen:()V
+     226: invokestatic  #915                // Method app/xio/mobile/Mobile.stopWithTimeout:(J)V
+
+== commit identity before proposal
+      51: invokevirtual #374                // Method app/xio/xio/PolicyJournal.requireSameProposal:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lapp/xio/xio/PolicyPlan;)Lapp/xio/xio/PolicyJournal$Reservation;
+      64: invokespecial #378                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+      70: invokevirtual #381                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+
+== reconcile
+      64: invokespecial #378                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+      70: invokevirtual #381                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;

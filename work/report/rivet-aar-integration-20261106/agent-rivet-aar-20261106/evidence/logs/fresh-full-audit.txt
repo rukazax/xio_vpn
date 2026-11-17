@@ -1,0 +1,9 @@
+{
+  "run": "fresh-full",
+  "mode": "full",
+  "applicationId": "app.xio.xio",
+  "clientOnly": "false",
+  "compiledClasses": 98,
+  "buildConfigSha256": "21e4a9c6ee212b98f4d30b47322a5ac907f8cf40e6305dff353fc89767bb2008",
+  "mainActivitySha256": "4ac50cba4dc3ba0e8716b7c500b5ee7965b7075097e43dfa2c6f11299dce7d00"
+}

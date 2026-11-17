@@ -1,0 +1,1 @@
+PASS native admission: known-clean boot/Tile path without Flutter, exact vault digests, routing/priority/selected/settings divergence, consent/revocation, malformed/mixed receipt pairs, late-automatic-resurrection, required routing, empty plan, publication-ACK re-derivation, legacy only against a pre-versioned document

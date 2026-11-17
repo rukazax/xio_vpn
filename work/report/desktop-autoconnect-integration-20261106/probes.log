@@ -1,0 +1,15 @@
+00:00 +0: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart
+00:00 +0: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: legacy known absent status without phase legitimately starts once
+00:00 +1: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: valid consent supplied during state await is not missed
+00:00 +2: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: changing selected profile while state awaits uses current eligible profile
+00:00 +3: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: removing eligible profiles during state await cannot start
+00:00 +4: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: unknown startup state does not silently disable manual UP
+00:00 +5: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: a later idle poll and repeated load do not repeat consumed startup
+00:00 +6: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: DOWN after ready notification but before startup blocks activation
+00:00 +7: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: consent revoked while startup waits native busy cannot activate
+00:00 +8: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: obsolete consent-loss continuation cannot cancel awaiting newer manual owner
+00:00 +9: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/review_c6_probe_test.dart: consent removed in candidate notification stops before native activation
+00:01 +10: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/lib/review_adapter_test.dart
+00:02 +10: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/lib/review_adapter_test.dart: raw vault absent versus corrupt stays distinct in real adapter
+00:02 +11: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/lib/review_adapter_test.dart: saved unreachable worker stays unknown without network IO
+00:02 +12: All tests passed!

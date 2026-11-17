@@ -1,0 +1,16 @@
+test_actual_private_kernel_zero_mask_conflict_never_installs_reject_route (__main__.ReviewTests.test_actual_private_kernel_zero_mask_conflict_never_installs_reject_route) ... ok
+test_after_guard_backend_failure_keeps_installed_guard_state_no_direct_rollback (__main__.ReviewTests.test_after_guard_backend_failure_keeps_installed_guard_state_no_direct_rollback) ... ok
+test_foreign_policy_at_other_priority_or_duplicate_refused_not_adopted (__main__.ReviewTests.test_foreign_policy_at_other_priority_or_duplicate_refused_not_adopted) ... ok
+test_foreign_policy_blocks_remove_before_lifecycle_or_network_effects (__main__.ReviewTests.test_foreign_policy_blocks_remove_before_lifecycle_or_network_effects) ... ok
+test_foreign_policy_conflicts_validated_both_families_before_any_route_or_rule_write (__main__.ReviewTests.test_foreign_policy_conflicts_validated_both_families_before_any_route_or_rule_write) ... ok
+test_fwmark_effective_full_mask_only_and_no_unexpected_selectors (__main__.ReviewTests.test_fwmark_effective_full_mask_only_and_no_unexpected_selectors) ... ok
+test_key_symlink_public_mode_nonregular_and_oversize_are_refused (__main__.ReviewTests.test_key_symlink_public_mode_nonregular_and_oversize_are_refused) ... ok
+test_live_capabilities_never_green_for_zero_mask_foreign_rule (__main__.ReviewTests.test_live_capabilities_never_green_for_zero_mask_foreign_rule) ... ok
+test_native_lookup_and_terminal_rule_reject_narrowing_but_keep_kernel_metadata (__main__.ReviewTests.test_native_lookup_and_terminal_rule_reject_narrowing_but_keep_kernel_metadata) ... ok
+test_private_and_psk_unsafe_reads_fail_before_backend_or_configure_effects (__main__.ReviewTests.test_private_and_psk_unsafe_reads_fail_before_backend_or_configure_effects) ... ok
+test_private_key_reader_valid_optional_and_no_secret_error_text (__main__.ReviewTests.test_private_key_reader_valid_optional_and_no_secret_error_text) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.870s
+
+OK

@@ -1,0 +1,29 @@
+{
+  "archive": "xio-cascade.tar.gz",
+  "files": {
+    "99-xio-cascade.conf": "049c876a2a459d511c0417f6492c662287d35202142c5a05609fb1939562ce40",
+    "Dockerfile": "32fe16cddf07abb3e9a611db5fd3b8d4e93039625ff7d20941f7adfeb4b5369c",
+    "README.md": "7108096595ecb6ef6a01dc26aed6867ccb4c59d51a023f9e59f0713c22323562",
+    "cascade-bridge-setup.sh": "dee4c7b803d026510c75783a1d595c8761f2c9de878a8ec6eadb3eca297f7e05",
+    "cascade-config.py": "c98f4afae79d26c2c1fddcc72d10959ae419e1b471697ac5c244a143026a7492",
+    "cascade-exit-setup.sh": "41e8a7120f5c71adf4ea832892b47349cb31cfd5522d8599adb46cd2292a105a",
+    "cascade-healthcheck.sh": "06145a255711b4035931439c5591221592bb5aeeae8335a45b980b3f02b784f9",
+    "cascade-install.sh": "47116c90dd536e2786dd4bc9d1513b61cde9cdd34cbef45d9fc26c875fb259fc",
+    "entrypoint.sh": "0cf817c98c03c9c9bba63bf873ffa391e337fffc2e0ed4edb66e2cc62092f01f",
+    "terminal-install.sh": "e9db1d8ef13ffa781bce69fec2d8c1d95e7aa12a11c0f21c9e906563c5f43331",
+    "whitelist-update.sh": "6fae4fad7f6d27e3c278e6d2f8d0cb7ec3f8eb5640b99210112f37aab2aae2a2",
+    "whitelists.conf": "423442ef20254facad30650b193797f996be2fd5113c30a6b1cfb4c80a0fe439",
+    "xio-awg-uapi.conf": "3b55757698f075127006018aafbdf60c7d4bef99bebba9078da6753c5acfebc8",
+    "xio-cascade-awg-firewall.sh": "03ec5d26e939faef90bef220d31708b80b3ed3cfc39afc04061af21b8c014282",
+    "xio-cascade-exit.service": "fe397623e56d28abb899e5a60c548a56932fa1c27195fd9314337fbebe92f381",
+    "xio-cascade-exit.sh": "37d561897c39c8f440817eaed38d3114bc333ae161d4446a776997137e5d2ae5",
+    "xio-cascade-tunnel.sh": "770d988db9c74f1145cc47e31d779b86af9e11e7494b630d8134e1b28b22e9f3",
+    "xio-cascade.service": "178ab220001f2cb9a348bf1dd9af3db76b47030f5126380ff2cb9d8edcd194b1"
+  },
+  "schema": 1,
+  "scope": "Standalone kernel WireGuard cascade; native XIO RIVET/AWG NOT integrated",
+  "sha256": "6ca4b316517e25ddbcb105173c96bcaa712a99ee4fcc054824a3200504f52171",
+  "size": 26686,
+  "source_tree_sha256": "6fd0df4dee6e97d10d394123baa241af7c541775828454cb13599bead3b6b39d",
+  "trust": "Pin archive URL + sha256 in frontend; bootstrap must itself be trusted/pinned"
+}

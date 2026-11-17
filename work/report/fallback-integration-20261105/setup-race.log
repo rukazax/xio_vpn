@@ -1,0 +1,35 @@
+=== RUN   TestSetupPlanStopsAfterRevoke
+--- PASS: TestSetupPlanStopsAfterRevoke (0.00s)
+=== RUN   TestSetupPlanDeadlineDuringSteps
+--- PASS: TestSetupPlanDeadlineDuringSteps (0.00s)
+=== RUN   TestSetupBlockingCallReceivesRemainingCapAndCancellation
+--- PASS: TestSetupBlockingCallReceivesRemainingCapAndCancellation (0.00s)
+=== RUN   TestSetupCanceledEndpointDNSReturnsWithoutRelease
+--- PASS: TestSetupCanceledEndpointDNSReturnsWithoutRelease (0.00s)
+=== RUN   TestSetupPhysicalDNSCannotAdmitAnotherQueryAfterCancel
+--- PASS: TestSetupPhysicalDNSCannotAdmitAnotherQueryAfterCancel (0.00s)
+=== RUN   TestSetupCommitDetachesWinningNetworkLifetime
+--- PASS: TestSetupCommitDetachesWinningNetworkLifetime (0.00s)
+=== RUN   TestSetupRevokedCannotCommitStaleCallback
+--- PASS: TestSetupRevokedCannotCommitStaleCallback (0.00s)
+=== RUN   TestSetupInflightOwnerRetainsReservationUntilJoinedCleanup
+--- PASS: TestSetupInflightOwnerRetainsReservationUntilJoinedCleanup (0.00s)
+=== RUN   TestSetupSharingStepsStopAndCleanupUsesIndependentContext
+--- PASS: TestSetupSharingStepsStopAndCleanupUsesIndependentContext (0.00s)
+=== RUN   TestSetupSharingDeadlineDoesNotResetBetweenSteps
+--- PASS: TestSetupSharingDeadlineDoesNotResetBetweenSteps (0.00s)
+=== RUN   TestSetupFailedCleanupKeepsIncompleteReservation
+--- PASS: TestSetupFailedCleanupKeepsIncompleteReservation (0.00s)
+=== RUN   TestSetupAWGHandshakeUsesSetupCancellation
+--- PASS: TestSetupAWGHandshakeUsesSetupCancellation (0.00s)
+=== RUN   TestSetupActualLinuxConfigureAndIndependentCleanup
+--- PASS: TestSetupActualLinuxConfigureAndIndependentCleanup (0.04s)
+=== RUN   TestSetupRuntimePipelineDisconnectFencesActualCommandsAndJoins
+--- PASS: TestSetupRuntimePipelineDisconnectFencesActualCommandsAndJoins (0.04s)
+=== RUN   TestSetupRuntimeWinnerSurvivesDeferredSetupCancellation
+--- PASS: TestSetupRuntimeWinnerSurvivesDeferredSetupCancellation (0.04s)
+=== RUN   TestSetupActualLinuxResolveReceivesCanceledRound
+--- PASS: TestSetupActualLinuxResolveReceivesCanceledRound (0.00s)
+PASS
+ok  	xio.local/rivet/internal/desktop	1.181s
+setup race exit=0

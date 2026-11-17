@@ -1,0 +1,37 @@
+CASE userspace-ipv4-hop-snat-ipv4-ipv6
+awg ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+awg ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+{"backend": "userspace", "transport": "ipv4", "sourceMode": "hop-snat", "removeLeavesForeignRules": true, "requestedFamilies": ["ipv4", "ipv6"], "awgIpv4": "2/2", "awgIpv6": "2/2", "rivetIpv4": "2/2", "rivetIpv6": "2/2", "managementDirect": true, "nativeCapabilitiesFresh": true, "terminalPolicyNoFallthrough": true, "tunnelLossNoLeak": true, "overlappingExitNativePrefixes": true, "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"}
+CASE userspace-ipv6-hop-snat-ipv4-ipv6
+awg ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+awg ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+{"backend": "userspace", "transport": "ipv6", "sourceMode": "hop-snat", "removeLeavesForeignRules": true, "requestedFamilies": ["ipv4", "ipv6"], "awgIpv4": "2/2", "awgIpv6": "2/2", "rivetIpv4": "2/2", "rivetIpv6": "2/2", "managementDirect": true, "nativeCapabilitiesFresh": true, "terminalPolicyNoFallthrough": true, "tunnelLossNoLeak": true, "overlappingExitNativePrefixes": true, "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"}
+CASE userspace-ipv4-preserve-ipv4-ipv6
+awg ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+awg ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+{"backend": "userspace", "transport": "ipv4", "sourceMode": "preserve", "removeLeavesForeignRules": true, "requestedFamilies": ["ipv4", "ipv6"], "awgIpv4": "2/2", "awgIpv6": "2/2", "rivetIpv4": "2/2", "rivetIpv6": "2/2", "managementDirect": true, "nativeCapabilitiesFresh": true, "terminalPolicyNoFallthrough": true, "tunnelLossNoLeak": true, "overlappingExitNativePrefixes": false, "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"}
+CASE kernel-ipv4-hop-snat-ipv4-ipv6
+awg ipv4 2/2 via native ingress -> dedicated kernel uplink -> exit
+awg ipv6 2/2 via native ingress -> dedicated kernel uplink -> exit
+rivet ipv4 2/2 via native ingress -> dedicated kernel uplink -> exit
+rivet ipv6 2/2 via native ingress -> dedicated kernel uplink -> exit
+{"backend": "kernel", "transport": "ipv4", "sourceMode": "hop-snat", "removeLeavesForeignRules": true, "requestedFamilies": ["ipv4", "ipv6"], "awgIpv4": "2/2", "awgIpv6": "2/2", "rivetIpv4": "2/2", "rivetIpv6": "2/2", "managementDirect": true, "nativeCapabilitiesFresh": true, "terminalPolicyNoFallthrough": true, "tunnelLossNoLeak": true, "overlappingExitNativePrefixes": true, "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"}
+CASE userspace-ipv4-hop-snat-ipv4
+awg ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+awg ipv6 blocked (unrequested family)
+rivet ipv4 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv6 blocked (unrequested family)
+{"backend": "userspace", "transport": "ipv4", "sourceMode": "hop-snat", "removeLeavesForeignRules": true, "requestedFamilies": ["ipv4"], "awgIpv4": "2/2", "awgIpv6": "blocked", "rivetIpv4": "2/2", "rivetIpv6": "blocked", "managementDirect": true, "nativeCapabilitiesFresh": true, "terminalPolicyNoFallthrough": true, "tunnelLossNoLeak": true, "overlappingExitNativePrefixes": true, "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"}
+CASE userspace-ipv6-hop-snat-ipv6
+awg ipv4 blocked (unrequested family)
+awg ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+rivet ipv4 blocked (unrequested family)
+rivet ipv6 2/2 via native ingress -> dedicated userspace uplink -> exit
+{"backend": "userspace", "transport": "ipv6", "sourceMode": "hop-snat", "removeLeavesForeignRules": true, "requestedFamilies": ["ipv6"], "awgIpv4": "blocked", "awgIpv6": "2/2", "rivetIpv4": "blocked", "rivetIpv6": "2/2", "managementDirect": true, "nativeCapabilitiesFresh": true, "terminalPolicyNoFallthrough": true, "tunnelLossNoLeak": true, "overlappingExitNativePrefixes": true, "scope": "private synthetic L3/netns ONLY; no anti-DPI app/public VPS acceptance"}
+PASS all native L3 cases; private namespaces only

@@ -1,0 +1,92 @@
+{
+  "connectorSourceSha256": "523fad66d3ba730884fa0a7e84a0937b74c3e031b9828fc87ca0c075522b1f4f",
+  "cases": {
+    "bridge": {
+      "config": {
+        "schema": 1,
+        "enabled": true,
+        "ownerOptIn": true,
+        "role": "bridge",
+        "backend": "userspace",
+        "interface": "xiocascade0",
+        "ingresses": {
+          "awg": {
+            "interface": "xioawg0",
+            "ipv4": "10.78.0.0/24",
+            "ipv6": "fd78:1::/64"
+          },
+          "rivet": {
+            "interface": "xiorivet",
+            "ipv4": "10.79.0.0/24",
+            "ipv6": "fd79:1::/64"
+          }
+        },
+        "innerFamilies": [
+          "ipv4",
+          "ipv6"
+        ],
+        "sourceMode": "hop-snat",
+        "localAddresses": {
+          "ipv4": "10.204.241.2",
+          "ipv6": "fd42:204:241::2"
+        },
+        "peerAddresses": {
+          "ipv4": "10.204.241.1",
+          "ipv6": "fd42:204:241::1"
+        },
+        "peer": {
+          "publicKey": "3p7bfXt9wbTTW2HC7OQ1Nz+DQ8hbeGdNrfx+FG+IK08=",
+          "host": "2001:db8::20",
+          "port": 9443
+        },
+        "listenPort": 0,
+        "exitInterfaces": {}
+      },
+      "sha256": "0d96f1e7a5d9702c9998cc4d77a3156cfd84a0c9b067aea76c7aa9a60e805378"
+    },
+    "exit": {
+      "config": {
+        "schema": 1,
+        "enabled": true,
+        "ownerOptIn": true,
+        "role": "exit",
+        "backend": "userspace",
+        "interface": "xiocascade0",
+        "ingresses": {
+          "awg": {
+            "interface": "xioawg0",
+            "ipv4": "10.78.0.0/24",
+            "ipv6": "fd78:1::/64"
+          },
+          "rivet": {
+            "interface": "xiorivet",
+            "ipv4": "10.79.0.0/24",
+            "ipv6": "fd79:1::/64"
+          }
+        },
+        "innerFamilies": [
+          "ipv4",
+          "ipv6"
+        ],
+        "sourceMode": "hop-snat",
+        "localAddresses": {
+          "ipv4": "10.204.241.1",
+          "ipv6": "fd42:204:241::1"
+        },
+        "peerAddresses": {
+          "ipv4": "10.204.241.2",
+          "ipv6": "fd42:204:241::2"
+        },
+        "peer": {
+          "publicKey": "hSDwCYkwp1R0i33ctD73Wg2/Og0mOBr066SpjqqbTmo="
+        },
+        "listenPort": 9443,
+        "exitInterfaces": {
+          "ipv4": "eth0",
+          "ipv6": "eth0"
+        }
+      },
+      "sha256": "ed6a92120f7306d03a1b114605d9c28a1d9401f4e5a57c3d3a68927292be76c9"
+    }
+  }
+}

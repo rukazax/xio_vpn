@@ -1,0 +1,50 @@
+=== RUN   TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse
+=== RUN   TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse/establishment
+=== RUN   TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse/lifetime
+=== RUN   TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse/deadline
+--- PASS: TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse (0.00s)
+    --- PASS: TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse/establishment (0.00s)
+    --- PASS: TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse/lifetime (0.00s)
+    --- PASS: TestSourceNoNetworkCarrierCancellationJoinsBlockedResponse/deadline (0.00s)
+=== RUN   TestSourceNoNetworkWinningCarrierDetachesOnlySetupWatch
+--- PASS: TestSourceNoNetworkWinningCarrierDetachesOnlySetupWatch (0.00s)
+=== RUN   TestSourceNoNetworkH3CancellationClosesActualOwnedResources
+--- PASS: TestSourceNoNetworkH3CancellationClosesActualOwnedResources (0.00s)
+PASS
+ok  	xio.local/rivet/internal/rivet	0.008s
+=== RUN   TestRecoveryStartupWinnerSurvivesLeaseReturnAndStopCancelsLifetime
+--- PASS: TestRecoveryStartupWinnerSurvivesLeaseReturnAndStopCancelsLifetime (0.00s)
+=== RUN   TestRecoveryRecoveredWinnerSurvivesRoundAndStopJoins
+--- PASS: TestRecoveryRecoveredWinnerSurvivesRoundAndStopJoins (0.00s)
+=== RUN   TestRecoveryTerminalPacketSinkFailureRevokesAndJoins
+--- PASS: TestRecoveryTerminalPacketSinkFailureRevokesAndJoins (0.00s)
+=== RUN   TestRecoveryTerminalTunEOFRevokesAndJoins
+--- PASS: TestRecoveryTerminalTunEOFRevokesAndJoins (0.00s)
+=== RUN   TestRecoveryBlockedCallerSinkRetainsCleanupReservation
+--- PASS: TestRecoveryBlockedCallerSinkRetainsCleanupReservation (0.00s)
+=== RUN   TestRecoveryExplicitPolicyValidation
+--- PASS: TestRecoveryExplicitPolicyValidation (0.00s)
+=== RUN   TestRecoverySelectedFirstAndStrictNeverSwitches
+--- PASS: TestRecoverySelectedFirstAndStrictNeverSwitches (0.00s)
+=== RUN   TestRecoveryOneThirtySecondRoundClosesLateSessions
+--- PASS: TestRecoveryOneThirtySecondRoundClosesLateSessions (0.00s)
+=== RUN   TestRecoveryAttachPacketFlowStopJoinsAndDoesNotCloseCallerSink
+--- PASS: TestRecoveryAttachPacketFlowStopJoinsAndDoesNotCloseCallerSink (0.00s)
+=== RUN   TestRecoveryAttachTunTransfersOnlyAcceptedDescriptor
+--- PASS: TestRecoveryAttachTunTransfersOnlyAcceptedDescriptor (0.00s)
+=== RUN   TestRecoveryMonitorBoundedExhaustionAndInactivePhases
+--- PASS: TestRecoveryMonitorBoundedExhaustionAndInactivePhases (0.00s)
+=== RUN   TestRecoveryLateStartupDialCannotCommitAndUnjoinedCleanupReservesOwner
+--- PASS: TestRecoveryLateStartupDialCannotCommitAndUnjoinedCleanupReservesOwner (0.00s)
+=== RUN   TestRecoveryUnjoinedRetiredCarrierConsumesLeaseAndReservesOwner
+=== RUN   TestRecoveryUnjoinedRetiredCarrierConsumesLeaseAndReservesOwner/read
+=== RUN   TestRecoveryUnjoinedRetiredCarrierConsumesLeaseAndReservesOwner/send
+--- PASS: TestRecoveryUnjoinedRetiredCarrierConsumesLeaseAndReservesOwner (0.01s)
+    --- PASS: TestRecoveryUnjoinedRetiredCarrierConsumesLeaseAndReservesOwner/read (0.00s)
+    --- PASS: TestRecoveryUnjoinedRetiredCarrierConsumesLeaseAndReservesOwner/send (0.00s)
+=== RUN   TestRecoveryRetirementTimeIsInsideFirstThirtySecondRound
+--- PASS: TestRecoveryRetirementTimeIsInsideFirstThirtySecondRound (0.00s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.20s)
+PASS
+ok  	xio.local/rivet/mobile	0.251s

@@ -1,0 +1,9 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart
+00:00 +0: update awaits digest and advances only after acceptance
+00:00 +1: update awaits digest and returns mismatch without side effects
+00:00 +2: default service returns real digest mismatch before updater load
+00:00 +3: All tests passed!

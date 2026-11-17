@@ -1,0 +1,72 @@
+{
+  "fresh": {
+    "aar": "/srv/archives/agent-rivet-aar-20261106/fresh-binding/rivet.aar",
+    "aarSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+    "aarBytes": 36548360,
+    "aarEntryCount": 8,
+    "classesJarSha256": "8f1849333170c09c3e874c740bfc932a89adb177f454d131cf7caa86d5741400",
+    "classesJarBytes": 12290,
+    "nativeLibs": {
+      "jni/arm64-v8a/libgojni.so": {
+        "sha256": "990c84db1bb4142dcf68e1f112317d00b794719713f26680293eb1997b217ecd",
+        "bytes": 32582984
+      },
+      "jni/armeabi-v7a/libgojni.so": {
+        "sha256": "18ac04444292b0e4a37b7d0a1b05105a5de13905cd5f2652df2e706e5c592ff1",
+        "bytes": 31331504
+      },
+      "jni/x86_64/libgojni.so": {
+        "sha256": "ddb62423c7d4049ba860315f0b69f108b601897a4b6a82297687b58e08955cd6",
+        "bytes": 34766472
+      }
+    },
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "javapExit": 0,
+    "javapClass": "app.xio.mobile.Mobile",
+    "methodPresent": {
+      "cancelConnect": true,
+      "stopWithTimeout": true,
+      "connectPolicyTimeout": true
+    },
+    "javapOutputSaved": "/srv/archives/agent-rivet-aar-20261106/artifacts/surface/fresh/fresh-javap.txt"
+  },
+  "stale": {
+    "aar": "/srv/archives/agent-rivet-aar-20261106/artifacts/stale-rivet-cfc336c9.aar",
+    "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+    "aarBytes": 41112707,
+    "aarEntryCount": 8,
+    "classesJarSha256": "c2493dbde0cad9b56c800109876f64e1e709bf3187c8b2e402d6760857865b8e",
+    "classesJarBytes": 12229,
+    "nativeLibs": {
+      "jni/arm64-v8a/libgojni.so": {
+        "sha256": "0ae89de3495212743f72378ab6643507d219f3de49f5c0873df30ba475457b71",
+        "bytes": 36860352
+      },
+      "jni/armeabi-v7a/libgojni.so": {
+        "sha256": "7b88657d006ec836f0d6313efb75c25fdfef3bc412a08539cdf1414f255cba68",
+        "bytes": 35504840
+      },
+      "jni/x86_64/libgojni.so": {
+        "sha256": "ac951ba0bd0e7d5d50dbe7c252c16dd470cc49e08f4aea65f9a04d8b9d8fbf88",
+        "bytes": 39332480
+      }
+    },
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "javapExit": 0,
+    "javapClass": "app.xio.mobile.Mobile",
+    "methodPresent": {
+      "cancelConnect": false,
+      "stopWithTimeout": false,
+      "connectPolicyTimeout": false
+    },
+    "javapOutputSaved": "/srv/archives/agent-rivet-aar-20261106/artifacts/surface/stale/stale-javap.txt"
+  }
+}

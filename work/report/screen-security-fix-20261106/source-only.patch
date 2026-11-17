@@ -1,0 +1,962 @@
+diff --git a/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt b/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt
+index 2c1b301..bebb953 100644
+--- a/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt
++++ b/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt
+@@ -268,6 +268,12 @@ object Engine {
+ }
+ 
+ class MainActivity : FlutterActivity() {
++    override fun onCreate(savedInstanceState: android.os.Bundle?) {
++        // Secure before Flutter renders or reads the persisted global opt-in.
++        // Each new Activity starts secure; Dart reapplies the owner's choice.
++        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
++        super.onCreate(savedInstanceState)
++    }
+     private data class ConnectRequest(val id:String,val callback:MethodChannel.Result,
+         val budget:ConnectionBudget,val round:ConnectionBudget,val policy:String,val roundId:String,
+         val admissionToken:Long=Engine.registerConnect(round),
+diff --git a/app/assets/l10n/ar.json b/app/assets/l10n/ar.json
+index d9b2f36..d0da264 100644
+--- a/app/assets/l10n/ar.json
++++ b/app/assets/l10n/ar.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "لا يمنع التطبيق لقطات الشاشة أو تسجيلها على هذه المنصة.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "لم يتم تأكيد حفظ الإذن. اختره مرة أخرى.",
++  "Состояние флага Android не подтверждено.": "حالة علامة Android غير مؤكدة.",
++  "Android подтвердил включение FLAG_SECURE.": "أكد Android تفعيل FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "أكد Android تعطيل FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "يسري الإذن المحفوظ على التطبيق بأكمله. لا يضمن FLAG_SECURE الحماية من صلاحيات root أو تجاوز نظام التشغيل أو كاميرا خارجية.",
++  "Не удалось подтвердить настройку снимков экрана.": "تعذر تأكيد إعداد لقطات الشاشة.",
+   "Превышено время подключения (30 с)": "انتهت مهلة الاتصال (30 ثانية)",
+   "Отключение VPN не завершено": "لم يكتمل قطع اتصال VPN",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "تعذر تطبيق جميع قواعد النطاقات. تحقق من DNS وحدود المسارات.",
+diff --git a/app/assets/l10n/de.json b/app/assets/l10n/de.json
+index fd66b1c..22f10fe 100644
+--- a/app/assets/l10n/de.json
++++ b/app/assets/l10n/de.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "Auf dieser Plattform blockiert die Anwendung weder Bildschirmfotos noch Bildschirmaufnahmen.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "Das Speichern der Berechtigung wurde nicht bestätigt. Wählen Sie erneut.",
++  "Состояние флага Android не подтверждено.": "Der Zustand des Android-Flags ist nicht bestätigt.",
++  "Android подтвердил включение FLAG_SECURE.": "Android hat das Aktivieren von FLAG_SECURE bestätigt.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android hat das Deaktivieren von FLAG_SECURE bestätigt.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "Die gespeicherte Berechtigung gilt für die gesamte Anwendung. FLAG_SECURE garantiert keinen Schutz vor Root-Zugriff, Umgehung des Betriebssystems oder einer externen Kamera.",
++  "Не удалось подтвердить настройку снимков экрана.": "Die Einstellung für Bildschirmfotos konnte nicht bestätigt werden.",
+   "Превышено время подключения (30 с)": "Zeitüberschreitung beim Verbindungsaufbau (30 s)",
+   "Отключение VPN не завершено": "Die VPN-Trennung wurde nicht abgeschlossen",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Nicht alle Domainregeln konnten angewendet werden. Prüfen Sie DNS und die Routenlimits.",
+diff --git a/app/assets/l10n/en.json b/app/assets/l10n/en.json
+index 6e12f1b..c5f2338 100644
+--- a/app/assets/l10n/en.json
++++ b/app/assets/l10n/en.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "This application does not block screenshots or screen recording on this platform.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "Saving the permission was not confirmed. Select it again.",
++  "Состояние флага Android не подтверждено.": "The Android flag state is unconfirmed.",
++  "Android подтвердил включение FLAG_SECURE.": "Android acknowledged enabling FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android acknowledged disabling FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "The saved permission applies to the whole application. FLAG_SECURE does not guarantee protection against root, OS bypass or an external camera.",
++  "Не удалось подтвердить настройку снимков экрана.": "Could not confirm the screenshot setting.",
+   "Превышено время подключения (30 с)": "Connection timed out (30 s)",
+   "Отключение VPN не завершено": "VPN disconnection has not completed",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Could not apply all domain rules. Check DNS and route limits.",
+diff --git a/app/assets/l10n/es.json b/app/assets/l10n/es.json
+index b106162..1abe52e 100644
+--- a/app/assets/l10n/es.json
++++ b/app/assets/l10n/es.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "En esta plataforma, la aplicación no bloquea las capturas ni la grabación de pantalla.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "No se confirmó que se guardara el permiso. Vuelve a seleccionarlo.",
++  "Состояние флага Android не подтверждено.": "El estado del indicador de Android no está confirmado.",
++  "Android подтвердил включение FLAG_SECURE.": "Android confirmó la activación de FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android confirmó la desactivación de FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "El permiso guardado se aplica a toda la aplicación. FLAG_SECURE no garantiza protección frente a root, la elusión del sistema operativo o una cámara externa.",
++  "Не удалось подтвердить настройку снимков экрана.": "No se pudo confirmar el ajuste de capturas de pantalla.",
+   "Превышено время подключения (30 с)": "Tiempo de conexión agotado (30 s)",
+   "Отключение VPN не завершено": "No se ha completado la desconexión de la VPN",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "No se pudieron aplicar todas las reglas de dominio. Comprueba el DNS y los límites de rutas.",
+diff --git a/app/assets/l10n/fr.json b/app/assets/l10n/fr.json
+index 90e8c0d..83c5cd2 100644
+--- a/app/assets/l10n/fr.json
++++ b/app/assets/l10n/fr.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "Sur cette plateforme, l’application ne bloque ni les captures ni l’enregistrement d’écran.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "L’enregistrement de l’autorisation n’est pas confirmé. Sélectionnez-la à nouveau.",
++  "Состояние флага Android не подтверждено.": "L’état du drapeau Android n’est pas confirmé.",
++  "Android подтвердил включение FLAG_SECURE.": "Android a confirmé l’activation de FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android a confirmé la désactivation de FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "L’autorisation enregistrée s’applique à toute l’application. FLAG_SECURE ne garantit aucune protection contre root, le contournement du système ou une caméra externe.",
++  "Не удалось подтвердить настройку снимков экрана.": "Impossible de confirmer le réglage des captures d’écran.",
+   "Превышено время подключения (30 с)": "Délai de connexion dépassé (30 s)",
+   "Отключение VPN не завершено": "La déconnexion du VPN n’est pas terminée",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Impossible d’appliquer toutes les règles de domaine. Vérifiez le DNS et les limites de routes.",
+diff --git a/app/assets/l10n/hi.json b/app/assets/l10n/hi.json
+index 0689eb1..1953f2a 100644
+--- a/app/assets/l10n/hi.json
++++ b/app/assets/l10n/hi.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "इस प्लेटफ़ॉर्म पर ऐप स्क्रीनशॉट या स्क्रीन रिकॉर्डिंग को नहीं रोकता है।",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "अनुमति सहेजे जाने की पुष्टि नहीं हुई। फिर से चुनें।",
++  "Состояние флага Android не подтверждено.": "Android फ़्लैग की स्थिति की पुष्टि नहीं हुई है।",
++  "Android подтвердил включение FLAG_SECURE.": "Android ने FLAG_SECURE चालू करने की पुष्टि की।",
++  "Android подтвердил отключение FLAG_SECURE.": "Android ने FLAG_SECURE बंद करने की पुष्टि की।",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "सहेजी गई अनुमति पूरे ऐप पर लागू होती है। FLAG_SECURE, root, ऑपरेटिंग सिस्टम को दरकिनार करने या बाहरी कैमरे से सुरक्षा की गारंटी नहीं देता है।",
++  "Не удалось подтвердить настройку снимков экрана.": "स्क्रीनशॉट सेटिंग की पुष्टि नहीं हो सकी।",
+   "Превышено время подключения (30 с)": "कनेक्शन का समय समाप्त हो गया (30 सेकंड)",
+   "Отключение VPN не завершено": "VPN पूरी तरह डिस्कनेक्ट नहीं हुआ",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "सभी डोमेन नियम लागू नहीं हो सके। DNS और रूट की सीमाएँ जाँचें।",
+diff --git a/app/assets/l10n/it.json b/app/assets/l10n/it.json
+index 82ee305..b3d60b8 100644
+--- a/app/assets/l10n/it.json
++++ b/app/assets/l10n/it.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "Su questa piattaforma, l’applicazione non blocca screenshot né registrazioni dello schermo.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "Il salvataggio del permesso non è confermato. Selezionalo di nuovo.",
++  "Состояние флага Android не подтверждено.": "Lo stato del flag Android non è confermato.",
++  "Android подтвердил включение FLAG_SECURE.": "Android ha confermato l’attivazione di FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android ha confermato la disattivazione di FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "Il permesso salvato si applica all’intera applicazione. FLAG_SECURE non garantisce protezione da root, aggiramento del sistema operativo o fotocamere esterne.",
++  "Не удалось подтвердить настройку снимков экрана.": "Impossibile confermare l’impostazione degli screenshot.",
+   "Превышено время подключения (30 с)": "Tempo di connessione scaduto (30 s)",
+   "Отключение VPN не завершено": "La disconnessione della VPN non è stata completata",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Impossibile applicare tutte le regole di dominio. Controlla il DNS e i limiti delle rotte.",
+diff --git a/app/assets/l10n/ja.json b/app/assets/l10n/ja.json
+index 3cbf741..42d0032 100644
+--- a/app/assets/l10n/ja.json
++++ b/app/assets/l10n/ja.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "このプラットフォームでは、アプリはスクリーンショットや画面録画をブロックしません。",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "許可の保存を確認できませんでした。もう一度選択してください。",
++  "Состояние флага Android не подтверждено.": "Android フラグの状態は未確認です。",
++  "Android подтвердил включение FLAG_SECURE.": "Android が FLAG_SECURE の有効化を確認しました。",
++  "Android подтвердил отключение FLAG_SECURE.": "Android が FLAG_SECURE の無効化を確認しました。",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "保存された許可はアプリ全体に適用されます。FLAG_SECURE は root、OS の回避、外部カメラに対する保護を保証しません。",
++  "Не удалось подтвердить настройку снимков экрана.": "スクリーンショット設定を確認できませんでした。",
+   "Превышено время подключения (30 с)": "接続がタイムアウトしました（30 秒）",
+   "Отключение VPN не завершено": "VPN の切断が完了していません",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "すべてのドメインルールを適用できませんでした。DNS とルート数の上限を確認してください。",
+diff --git a/app/assets/l10n/ko.json b/app/assets/l10n/ko.json
+index c4ac8e4..fe4a938 100644
+--- a/app/assets/l10n/ko.json
++++ b/app/assets/l10n/ko.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "이 플랫폼에서는 앱이 스크린샷이나 화면 녹화를 차단하지 않습니다.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "권한 저장이 확인되지 않았습니다. 다시 선택하세요.",
++  "Состояние флага Android не подтверждено.": "Android 플래그 상태가 확인되지 않았습니다.",
++  "Android подтвердил включение FLAG_SECURE.": "Android가 FLAG_SECURE 활성화를 확인했습니다.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android가 FLAG_SECURE 비활성화를 확인했습니다.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "저장된 권한은 앱 전체에 적용됩니다. FLAG_SECURE는 루트 권한, 운영체제 우회 또는 외부 카메라에 대한 보호를 보장하지 않습니다.",
++  "Не удалось подтвердить настройку снимков экрана.": "스크린샷 설정을 확인하지 못했습니다.",
+   "Превышено время подключения (30 с)": "연결 시간이 초과되었습니다(30초)",
+   "Отключение VPN не завершено": "VPN 연결 해제가 완료되지 않았습니다",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "모든 도메인 규칙을 적용하지 못했습니다. DNS와 경로 수 제한을 확인하세요.",
+diff --git a/app/assets/l10n/pt.json b/app/assets/l10n/pt.json
+index e370d28..55a8478 100644
+--- a/app/assets/l10n/pt.json
++++ b/app/assets/l10n/pt.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "Nesta plataforma, o aplicativo não bloqueia capturas nem gravações de tela.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "O salvamento da permissão não foi confirmado. Selecione novamente.",
++  "Состояние флага Android не подтверждено.": "O estado do sinalizador do Android não foi confirmado.",
++  "Android подтвердил включение FLAG_SECURE.": "O Android confirmou a ativação de FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "O Android confirmou a desativação de FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "A permissão salva vale para todo o aplicativo. FLAG_SECURE não garante proteção contra root, contorno do sistema operacional ou uma câmera externa.",
++  "Не удалось подтвердить настройку снимков экрана.": "Não foi possível confirmar a configuração de capturas de tela.",
+   "Превышено время подключения (30 с)": "Tempo limite de conexão excedido (30 s)",
+   "Отключение VPN не завершено": "A desconexão da VPN não foi concluída",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Não foi possível aplicar todas as regras de domínio. Verifique o DNS e os limites de rotas.",
+diff --git a/app/assets/l10n/ru.json b/app/assets/l10n/ru.json
+index a549992..55801d9 100644
+--- a/app/assets/l10n/ru.json
++++ b/app/assets/l10n/ru.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "На этой платформе приложение не блокирует снимки и запись экрана.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "Сохранение разрешения не подтверждено. Повторите выбор.",
++  "Состояние флага Android не подтверждено.": "Состояние флага Android не подтверждено.",
++  "Android подтвердил включение FLAG_SECURE.": "Android подтвердил включение FLAG_SECURE.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android подтвердил отключение FLAG_SECURE.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.",
++  "Не удалось подтвердить настройку снимков экрана.": "Не удалось подтвердить настройку снимков экрана.",
+   "Превышено время подключения (30 с)": "Превышено время подключения (30 с)",
+   "Отключение VPN не завершено": "Отключение VPN не завершено",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.",
+diff --git a/app/assets/l10n/tr.json b/app/assets/l10n/tr.json
+index 8a53cd9..e5a3fc7 100644
+--- a/app/assets/l10n/tr.json
++++ b/app/assets/l10n/tr.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "Bu platformda uygulama ekran görüntülerini veya ekran kaydını engellemez.",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "İznin kaydedildiği doğrulanmadı. Yeniden seçin.",
++  "Состояние флага Android не подтверждено.": "Android bayrağının durumu doğrulanmadı.",
++  "Android подтвердил включение FLAG_SECURE.": "Android, FLAG_SECURE etkinleştirmesini onayladı.",
++  "Android подтвердил отключение FLAG_SECURE.": "Android, FLAG_SECURE devre dışı bırakılmasını onayladı.",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "Kaydedilen izin tüm uygulama için geçerlidir. FLAG_SECURE; root, işletim sisteminin aşılması veya harici kamera karşısında koruma garantisi vermez.",
++  "Не удалось подтвердить настройку снимков экрана.": "Ekran görüntüsü ayarı doğrulanamadı.",
+   "Превышено время подключения (30 с)": "Bağlantı zaman aşımına uğradı (30 sn)",
+   "Отключение VPN не завершено": "VPN bağlantısının kesilmesi tamamlanmadı",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Tüm alan adı kuralları uygulanamadı. DNS ve rota sınırlarını kontrol edin.",
+diff --git a/app/assets/l10n/zh.json b/app/assets/l10n/zh.json
+index 3136cb2..2a6b44c 100644
+--- a/app/assets/l10n/zh.json
++++ b/app/assets/l10n/zh.json
+@@ -1,4 +1,11 @@
+ {
++  "На этой платформе приложение не блокирует снимки и запись экрана.": "在此平台上，应用不会阻止屏幕截图或录屏。",
++  "Сохранение разрешения не подтверждено. Повторите выбор.": "尚未确认权限已保存。请重新选择。",
++  "Состояние флага Android не подтверждено.": "Android 标志状态尚未确认。",
++  "Android подтвердил включение FLAG_SECURE.": "Android 已确认启用 FLAG_SECURE。",
++  "Android подтвердил отключение FLAG_SECURE.": "Android 已确认停用 FLAG_SECURE。",
++  "Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.": "保存的权限适用于整个应用。FLAG_SECURE 无法保证防范 root、绕过操作系统或外部摄像头。",
++  "Не удалось подтвердить настройку снимков экрана.": "无法确认截图设置。",
+   "Превышено время подключения (30 с)": "连接超时（30 秒）",
+   "Отключение VPN не завершено": "VPN 断开尚未完成",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "无法应用全部域名规则。请检查 DNS 和路由数量限制。",
+diff --git a/app/lib/app_settings.dart b/app/lib/app_settings.dart
+index 643e235..abfc8bb 100644
+--- a/app/lib/app_settings.dart
++++ b/app/lib/app_settings.dart
+@@ -66,12 +66,31 @@ class AppBehaviorSettings extends StatelessWidget {
+         SwitchListTile(
+           contentPadding: EdgeInsets.zero,
+           value: store.allowScreenshots,
+-          onChanged: (v) =>
+-              _saveGuard(context, () => store.setAllowScreenshots(v)),
++          onChanged: store.screenSecuritySupported && !store.screenSecurityBusy
++              ? (v) => _saveGuard(context, () => store.setAllowScreenshots(v))
++              : null,
+           title: const LText('Разрешить скриншоты'),
+-          subtitle: const LText(
+-            'По умолчанию выключено: экраны с ключами, профилями и SSH-доступом защищены от снятия скриншота и записи экрана. Включение снимает защиту со всего приложения.',
+-          ),
++          subtitle: !store.screenSecuritySupported
++              ? const LText(
++                  'На этой платформе приложение не блокирует снимки и запись экрана.',
++                )
++              : Column(
++                  crossAxisAlignment: CrossAxisAlignment.start,
++                  children: [
++                    LText(
++                      !store.screenSecurityPreferenceKnown
++                          ? 'Сохранение разрешения не подтверждено. Повторите выбор.'
++                          : store.screenSecurityEnabled == null
++                          ? 'Состояние флага Android не подтверждено.'
++                          : store.screenSecurityEnabled!
++                          ? 'Android подтвердил включение FLAG_SECURE.'
++                          : 'Android подтвердил отключение FLAG_SECURE.',
++                    ),
++                    const LText(
++                      'Сохранённое разрешение действует для всего приложения. FLAG_SECURE не гарантирует защиту от root, обхода ОС или внешней камеры.',
++                    ),
++                  ],
++                ),
+         ),
+       ],
+     ),
+diff --git a/app/lib/client_policy.dart b/app/lib/client_policy.dart
+index 721512b..67953fe 100644
+--- a/app/lib/client_policy.dart
++++ b/app/lib/client_policy.dart
+@@ -12,6 +12,8 @@ const clientDisclosureRu = '''XIO Client использует Android VpnService
+ 
+ Раздельное туннелирование позволяет направлять через VPN только выбранные приложения либо исключать их; отдельно доступны правила IP/CIDR. Исключённый трафик идёт напрямую. Доменные правила не поддерживаются. Системная блокировка трафика без VPN может запретить обход. При переключении серверов старый туннель сначала отключается: в этот промежуток защита VPN отсутствует, если не включена системная блокировка. Приложение не обещает обход любых блокировок или анонимность.
+ 
++Android запускает окно с FLAG_SECURE; глобальная настройка «Разрешить скриншоты» может отключить этот флаг. Настройки различают сохранённое разрешение и подтверждение нативного запроса флага окна. Это не гарантия защиты от root, обхода ОС или захвата экрана, а также внешней камеры. В Windows и Linux блокировка снимков и записи экрана не реализована.
++
+ Перед первым подключением Android отдельно запросит разрешение VPN. Если вы не согласны, закройте приложение без подтверждения.''';
+ 
+ const clientDisclosureEn = '''XIO Client privacy policy
+@@ -23,7 +25,7 @@ VpnService encrypts selected traffic to the chosen endpoint. Its operator may ob
+ 
+ An explicitly issued account API token can check quota, create and revoke only its own subclients through the selected server HTTPS API with a pinned certificate. The token and unfinished operation are stored encrypted locally. Child exports contain only that child’s VPN keys; parent capability and SSH/root/admin keys are excluded. Subclient records also remain on the server.
+ 
+-This build has no VPS deployment or administration, SSH, VPN sharing, endpoint geolocation, background release checks, advertising or analytics SDK, or automatic crash reporting. A system document picker imports files without broad storage access. Launchable application names are read locally for routing selection and are not sent to the developer. Android FLAG_SECURE blocks application screenshots.
++This build has no VPS deployment or administration, SSH, VPN sharing, endpoint geolocation, background release checks, advertising or analytics SDK, or automatic crash reporting. A system document picker imports files without broad storage access. Launchable application names are read locally for routing selection and are not sent to the developer. Android starts with FLAG_SECURE requested; the global “Allow screenshots” preference can disable it. Settings distinguish the saved preference from acknowledgement of the native window-flag request. This is not proof against root, OS/capture bypass or an external camera. Windows and Linux do not implement screenshot or recording blocking.
+ 
+ Data remains until profiles are removed, application data is cleared or the application is uninstalled. Local deletion does not remove a server or revoke its credentials. The server operator controls access and server-side processing. Support contact is voluntary; never send passwords or private keys. Android separately requests VPN permission; a new connection requires consent.
+ ''';
+diff --git a/app/lib/core.dart b/app/lib/core.dart
+index b4b5145..e078b1d 100644
+--- a/app/lib/core.dart
++++ b/app/lib/core.dart
+@@ -639,6 +639,17 @@ class AppStore extends ChangeNotifier {
+   void setForeground(bool active) {
+     final changed = _foreground != active;
+     _foreground = active;
++    if (screenSecuritySupported && changed) {
++      if (!active) {
++        // An Activity/window may be recreated while hidden. Its old ACK is
++        // not evidence about the next window (which starts secure natively).
++        _screenSecurityRevision++;
++        screenSecurityEnabled = null;
++        if (!_disposed) notifyListeners();
++      } else if (ready) {
++        unawaited(applyScreenSecurity());
++      }
++    }
+     _timer?.cancel();
+     _timer = null;
+     if (active && ready) {
+@@ -719,8 +730,19 @@ class AppStore extends ChangeNotifier {
+   /// Автоподключение после запуска приложения.
+   bool autoConnectOnStart = false;
+ 
+-  /// Скриншоты по умолчанию запрещены: экраны с ключами закрывает FLAG_SECURE.
++  /// Desired persisted permission, NOT evidence that a window flag was applied.
+   bool allowScreenshots = false;
++  bool get screenSecuritySupported =>
++      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
++
++  /// Last acknowledged Android window-flag request; null means unknown.
++  /// This is not a guarantee against OS/root/capture bypass.
++  bool? screenSecurityEnabled;
++  bool screenSecurityPreferenceKnown = true;
++  Future<void> _screenSecurityQueue = Future<void>.value();
++  int _screenSecurityRevision = 0;
++  int _screenSecurityPending = 0;
++  bool get screenSecurityBusy => _screenSecurityPending != 0;
+   String? connectionCheck;
+   String? selectedId;
+ 
+@@ -1735,36 +1757,89 @@ class AppStore extends ChangeNotifier {
+     notifyListeners();
+   }
+ 
+-  /// «Разрешить скриншоты». Флаг инвертируется в FLAG_SECURE: при выключенном
+-  /// разрешении экран защищён от снятия скриншота и записи.
+-  Future<void> setAllowScreenshots(bool value) async {
+-    if (allowScreenshots == value) return;
+-    final previous = allowScreenshots;
+-    allowScreenshots = value;
++  /// Serialize preference writes AND native requests. A superseded ACK must
++  /// never describe a newer selection. Reapplications read the preference only
++  /// when their turn starts, not when a secret dialog enqueues them.
++  Future<void> _queueScreenSecurity(
++    Future<void> Function(int revision) action,
++  ) {
++    final revision = ++_screenSecurityRevision;
++    _screenSecurityPending++;
++    screenSecurityEnabled = null;
++    final result = _screenSecurityQueue.then((_) async {
++      if (_disposed) {
++        _screenSecurityPending--;
++        return;
++      }
++      notifyListeners();
++      try {
++        await action(revision);
++      } finally {
++        _screenSecurityPending--;
++        if (!_disposed) notifyListeners();
++      }
++    });
++    // Keep failures visible to the setter's caller, without poisoning the queue.
++    _screenSecurityQueue = result.then<void>((_) {}, onError: (Object _) {});
++    return result;
++  }
++
++  Future<bool> _ackScreenSecurity(int revision) async {
++    final enabled = !allowScreenshots;
+     try {
+-      await save();
++      // Android's existing contract is success(null), after addFlags/clearFlags.
++      await native.invokeMethod<void>('secureScreen', {'enabled': enabled});
++      if (!_disposed && revision == _screenSecurityRevision) {
++        screenSecurityEnabled = enabled;
++      }
++      return true;
+     } catch (_) {
+-      allowScreenshots = previous;
+-      rethrow;
++      if (revision == _screenSecurityRevision) screenSecurityEnabled = null;
++      return false;
+     }
+-    await applyScreenSecurity();
+-    notifyListeners();
+   }
+ 
+-  /// Применяет настройку «Разрешить скриншоты» к окну приложения.
+-  ///
+-  /// Экраны с ключами и профилями вызывают этот метод вместо безусловного
+-  /// `secureScreen(true)`, поэтому выбранный флаг соблюдается и при старте, и
+-  /// при открытии любого экрана.
+-  Future<void> applyScreenSecurity() async {
+-    if (!Platform.isAndroid && !Platform.isIOS) return;
+-    try {
+-      await native.invokeMethod<void>('secureScreen', {
+-        'enabled': !allowScreenshots,
+-      });
+-    } catch (_) {
+-      // Платформа без канала (тесты, десктоп) ничего не защищает.
++  Future<void> setAllowScreenshots(bool value) {
++    if (!screenSecuritySupported) {
++      return Future<void>.error(
++        StateError(
++          'На этой платформе приложение не блокирует снимки и запись экрана.',
++        ),
++      );
+     }
++    return _queueScreenSecurity((revision) async {
++      final previous = allowScreenshots;
++      allowScreenshots = value;
++      try {
++        await save();
++        screenSecurityPreferenceKnown = true;
++      } catch (_) {
++        allowScreenshots = previous;
++        // save() can fail AFTER rename (native-plan synchronization). Restore
++        // disk too; if that also fails, do not claim the preference is saved.
++        try {
++          await save();
++          screenSecurityPreferenceKnown = true;
++        } catch (_) {
++          screenSecurityPreferenceKnown = false;
++        }
++        await _ackScreenSecurity(revision);
++        throw StateError('Не удалось сохранить настройку');
++      }
++      if (!await _ackScreenSecurity(revision)) {
++        // Preserve the user's saved opt-in; retries/startup will reapply it.
++        throw StateError('Не удалось подтвердить настройку снимков экрана.');
++      }
++    });
++  }
++
++  /// Startup and secret dialogs safely reapply the global preference. Failures
++  /// are published as unknown, not thrown into fire-and-forget lifecycle code.
++  Future<void> applyScreenSecurity() {
++    if (!screenSecuritySupported) return Future<void>.value();
++    return _queueScreenSecurity((revision) async {
++      await _ackScreenSecurity(revision);
++    });
+   }
+ 
+   /// Confirms the tunnel without contacting a third-party website: a fresh
+diff --git a/app/test/app_settings_test.dart b/app/test/app_settings_test.dart
+index c7fe95c..209a407 100644
+--- a/app/test/app_settings_test.dart
++++ b/app/test/app_settings_test.dart
+@@ -1,7 +1,9 @@
+ import 'dart:convert';
+ import 'dart:io';
+ 
++import 'package:flutter/foundation.dart';
+ import 'package:flutter/material.dart';
++import 'package:flutter/services.dart';
+ import 'package:flutter_test/flutter_test.dart';
+ import 'package:xio/app_settings.dart';
+ import 'package:xio/core.dart';
+@@ -25,8 +27,16 @@ void main() {
+   late Directory directory;
+   setUp(() async {
+     directory = await Directory.systemTemp.createTemp('xio-app-settings-');
++    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++        .setMockMethodCallHandler(
++          const MethodChannel('app.xio/engine'),
++          (_) async => null,
++        );
+   });
+   tearDown(() async {
++    debugDefaultTargetPlatformOverride = null;
++    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++        .setMockMethodCallHandler(const MethodChannel('app.xio/engine'), null);
+     if (directory.existsSync()) await directory.delete(recursive: true);
+   });
+ 
+@@ -46,6 +56,7 @@ void main() {
+   test(
+     'dns, autostart, auto-connect and screenshots survive a restart',
+     () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+       final store = AppStore()..directory = directory;
+       await store.setDnsServers(['1.1.1.1', '2606:4700:4700::1111']);
+       await store.setAutostart(true);
+@@ -197,6 +208,7 @@ void main() {
+   testWidgets('the three settings switches persist immediately', (
+     tester,
+   ) async {
++    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+     final store = _MemoryStore();
+     await tester.pumpWidget(
+       MaterialApp(
+@@ -238,6 +250,7 @@ void main() {
+ 
+     await tester.pumpWidget(const SizedBox());
+     store.dispose();
++    debugDefaultTargetPlatformOverride = null;
+   });
+ 
+   testWidgets('resolver page saves a preset and rejects a bad custom address', (
+diff --git a/app/test/screen_security_test.dart b/app/test/screen_security_test.dart
+new file mode 100644
+index 0000000..df2771d
+--- /dev/null
++++ b/app/test/screen_security_test.dart
+@@ -0,0 +1,456 @@
++import 'dart:async';
++import 'dart:convert';
++import 'dart:io';
++
++import 'package:flutter/foundation.dart';
++import 'package:flutter/material.dart';
++import 'package:flutter/services.dart';
++import 'package:flutter_test/flutter_test.dart';
++import 'package:xio/app_settings.dart';
++import 'package:xio/core.dart';
++import 'package:xio/main.dart' show ImportDialog;
++import 'package:xio/client_main.dart' show ClientHome;
++import 'package:xio/l10n.dart';
++import 'package:xio/workspace_ui.dart' show WorkspaceShell;
++
++class MemoryStore extends AppStore {
++  bool failSave = false;
++  @override
++  Future<void> save() async {
++    if (failSave) throw StateError('save failed');
++  }
++}
++
++class SaveGateStore extends MemoryStore {
++  final gate = Completer<void>();
++  final saved = <bool>[];
++  int writes = 0;
++  @override
++  Future<void> save() async {
++    writes++;
++    if (writes == 1) {
++      await gate.future;
++      throw StateError('first save failed');
++    }
++    saved.add(allowScreenshots);
++  }
++}
++
++class PostRenameFailureStore extends AppStore {
++  bool failOnce = true;
++  @override
++  Future<void> saveNativePlan({bool? androidForTesting}) async {
++    if (failOnce) {
++      failOnce = false;
++      throw StateError('native plan failed after rename');
++    }
++  }
++}
++
++void main() {
++  TestWidgetsFlutterBinding.ensureInitialized();
++  const channel = MethodChannel('app.xio/engine');
++  final calls = <bool>[];
++  setUp(() {
++    calls.clear();
++    AppLanguages.set('ru');
++    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++        .setMockMethodCallHandler(channel, (call) async {
++          if (call.method == 'secureScreen') {
++            calls.add((call.arguments as Map)['enabled'] as bool);
++          }
++          return null; // The real Android handler ACKs with success(null).
++        });
++  });
++  tearDown(() {
++    debugDefaultTargetPlatformOverride = null;
++    AppLanguages.set(null);
++    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++        .setMockMethodCallHandler(channel, null);
++  });
++
++  for (final platform in [TargetPlatform.windows, TargetPlatform.linux]) {
++    testWidgets('$platform does not offer working capture protection', (
++      tester,
++    ) async {
++      debugDefaultTargetPlatformOverride = platform;
++      final store = MemoryStore();
++      await tester.pumpWidget(
++        MaterialApp(
++          home: Scaffold(body: AppBehaviorSettings(store: store)),
++        ),
++      );
++      final tile = tester.widget<SwitchListTile>(
++        find.widgetWithText(SwitchListTile, 'Разрешить скриншоты'),
++      );
++      expect(tile.onChanged, isNull);
++      expect(
++        find.text(
++          'На этой платформе приложение не блокирует снимки и запись экрана.',
++        ),
++        findsOneWidget,
++      );
++      await expectLater(store.setAllowScreenshots(true), throwsStateError);
++      expect(store.allowScreenshots, isFalse);
++      expect(calls, isEmpty);
++      await tester.pumpWidget(const SizedBox());
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    });
++  }
++
++  test(
++    'Android applies default, opt-in and opt-out using real Store/channel',
++    () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final store = MemoryStore();
++      expect(store.screenSecurityEnabled, isNull);
++      await store.applyScreenSecurity();
++      expect(store.screenSecurityEnabled, isTrue);
++      await store.setAllowScreenshots(true);
++      expect(store.screenSecurityEnabled, isFalse);
++      await store.setAllowScreenshots(false);
++      expect(store.screenSecurityEnabled, isTrue);
++      expect(calls, [true, false, true]);
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  test(
++    'Android missing channel is not successful setting application',
++    () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++          .setMockMethodCallHandler(channel, null);
++      final store = MemoryStore();
++      await expectLater(store.setAllowScreenshots(true), throwsStateError);
++      // Desired preference persists even when the native result is unknown.
++      expect(store.allowScreenshots, isTrue);
++      await store.applyScreenSecurity(); // Fire-and-forget callers remain safe.
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  test(
++    'Android setters and reapplication cannot overtake pending native ACK',
++    () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final pending = Completer<void>();
++      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++          .setMockMethodCallHandler(channel, (call) async {
++            if (call.method == 'secureScreen') {
++              calls.add((call.arguments as Map)['enabled'] as bool);
++              if (calls.length == 1) await pending.future;
++            }
++            return null;
++          });
++      final store = MemoryStore();
++      final published = <bool?>[];
++      store.addListener(() => published.add(store.screenSecurityEnabled));
++      final first = store.setAllowScreenshots(true);
++      await Future<void>.delayed(Duration.zero);
++      final second = store.setAllowScreenshots(false);
++      final reapply = store.applyScreenSecurity();
++      await Future<void>.delayed(Duration.zero);
++      expect(calls, [false]);
++      expect(store.screenSecurityEnabled, isNull);
++      pending.complete();
++      await Future.wait([first, second, reapply]);
++      expect(calls, [false, true, true]);
++      expect(published.whereType<bool>(), [true]);
++      expect(store.allowScreenshots, isFalse);
++      expect(store.screenSecurityEnabled, isTrue);
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  test(
++    'native default is installed before Flutter startup (source invariant)',
++    () {
++      final source = File(
++        'android/app/src/main/kotlin/app/xio/xio/MainActivity.kt',
++      ).readAsStringSync();
++      final start = source.indexOf('override fun onCreate(');
++      final secure = source.indexOf(
++        'window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)',
++        start,
++      );
++      final flutter = source.indexOf(
++        'super.onCreate(savedInstanceState)',
++        start,
++      );
++      expect(start, greaterThan(0));
++      expect(secure, greaterThan(start));
++      expect(flutter, greaterThan(secure));
++    },
++  );
++
++  test(
++    'failed older save cannot roll back newer queued selection or reapply',
++    () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final store = SaveGateStore();
++      final first = expectLater(
++        store.setAllowScreenshots(true),
++        throwsStateError,
++      );
++      await Future<void>.delayed(Duration.zero);
++      final second = store.setAllowScreenshots(true);
++      final reapply = store.applyScreenSecurity();
++      expect(store.screenSecurityEnabled, isNull);
++      expect(calls, isEmpty);
++      store.gate.complete();
++      await Future.wait([first, second, reapply]);
++      expect(store.saved, [false, true]);
++      expect(calls, [true, false, false]);
++      expect(store.allowScreenshots, isTrue);
++      expect(store.screenSecurityEnabled, isFalse);
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  test(
++    'failed save after rename rolls back actual persisted permission',
++    () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final dir = await Directory.systemTemp.createTemp('c7-rollback-');
++      final store = PostRenameFailureStore()..directory = dir;
++      try {
++        await expectLater(store.setAllowScreenshots(true), throwsStateError);
++        expect(store.allowScreenshots, isFalse);
++        expect(
++          jsonDecode(
++            await File('${dir.path}/profiles.json').readAsString(),
++          )['allowScreenshots'],
++          isFalse,
++        );
++        expect(store.screenSecurityPreferenceKnown, isTrue);
++        expect(calls, [
++          true,
++        ]); // Never clears security on a failed permission save.
++      } finally {
++        store.dispose();
++        debugDefaultTargetPlatformOverride = null;
++        await dir.delete(recursive: true);
++      }
++    },
++  );
++
++  test('real save/load preserves opt-in and obtains a fresh ACK', () async {
++    debugDefaultTargetPlatformOverride = TargetPlatform.android;
++    final dir = await Directory.systemTemp.createTemp('c7-reload-');
++    final store = AppStore()..directory = dir;
++    final loaded = AppStore()..directory = dir;
++    try {
++      await store.setAllowScreenshots(true);
++      expect(loaded.screenSecurityEnabled, isNull);
++      await loaded.load();
++      expect(loaded.allowScreenshots, isTrue);
++      expect(loaded.screenSecurityEnabled, isFalse);
++      expect(calls, [false, false]);
++    } finally {
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++      loaded.dispose();
++      await dir.delete(recursive: true);
++    }
++  });
++
++  testWidgets(
++    'Android UI says unknown on native error and shows saved preference',
++    (tester) async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final store = MemoryStore();
++      await tester.pumpWidget(
++        MaterialApp(
++          home: Scaffold(
++            body: SingleChildScrollView(
++              child: AppBehaviorSettings(store: store),
++            ),
++          ),
++        ),
++      );
++      expect(
++        find.text('Состояние флага Android не подтверждено.'),
++        findsOneWidget,
++      );
++      await store.applyScreenSecurity();
++      await tester.pump();
++      expect(
++        find.text('Android подтвердил включение FLAG_SECURE.'),
++        findsOneWidget,
++      );
++      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++          .setMockMethodCallHandler(
++            channel,
++            (_) async => throw PlatformException(code: 'FLAG'),
++          );
++      await tester.tap(find.text('Разрешить скриншоты'));
++      await tester.pumpAndSettle();
++      expect(store.allowScreenshots, isTrue);
++      expect(store.screenSecurityEnabled, isNull);
++      expect(
++        find.text('Состояние флага Android не подтверждено.'),
++        findsOneWidget,
++      );
++      expect(
++        find.text('Не удалось подтвердить настройку снимков экрана.'),
++        findsOneWidget,
++      );
++      expect(
++        find.text('Android подтвердил включение FLAG_SECURE.'),
++        findsNothing,
++      );
++      await tester.pumpWidget(const SizedBox());
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  testWidgets(
++    'persistent save/rollback failure is visible and retry recovers',
++    (tester) async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final store = MemoryStore()..failSave = true;
++      await tester.pumpWidget(
++        MaterialApp(
++          home: Scaffold(
++            body: SingleChildScrollView(
++              child: AppBehaviorSettings(store: store),
++            ),
++          ),
++        ),
++      );
++      await tester.tap(find.text('Разрешить скриншоты'));
++      await tester.pumpAndSettle();
++      expect(store.allowScreenshots, isFalse);
++      expect(store.screenSecurityPreferenceKnown, isFalse);
++      expect(
++        find.text('Сохранение разрешения не подтверждено. Повторите выбор.'),
++        findsOneWidget,
++      );
++      expect(find.text('Не удалось сохранить настройку'), findsOneWidget);
++      expect(calls, [true]);
++      store.failSave = false;
++      await tester.tap(find.text('Разрешить скриншоты'));
++      await tester.pumpAndSettle();
++      expect(store.screenSecurityPreferenceKnown, isTrue);
++      expect(store.allowScreenshots, isTrue);
++      expect(
++        find.text('Android подтвердил отключение FLAG_SECURE.'),
++        findsOneWidget,
++      );
++      await tester.pumpWidget(const SizedBox());
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  for (final allow in [false, true]) {
++    testWidgets(
++      'secret import dialog preserves global allow=$allow on open/close',
++      (tester) async {
++        debugDefaultTargetPlatformOverride = TargetPlatform.android;
++        final store = MemoryStore();
++        await store.setAllowScreenshots(allow);
++        calls.clear();
++        await tester.pumpWidget(
++          MaterialApp(
++            home: Scaffold(body: ImportDialog(store: store)),
++          ),
++        );
++        await tester.pumpAndSettle();
++        expect(calls, [!allow]);
++        await tester.pumpWidget(const SizedBox());
++        await tester.pumpAndSettle();
++        expect(calls, [!allow, !allow]);
++        expect(store.screenSecurityEnabled, !allow);
++        store.dispose();
++        debugDefaultTargetPlatformOverride = null;
++      },
++    );
++  }
++
++  test(
++    'background invalidates prior window ACK and resume reapplies opt-in',
++    () async {
++      debugDefaultTargetPlatformOverride = TargetPlatform.android;
++      final store = MemoryStore()..ready = true;
++      await store.setAllowScreenshots(true);
++      store.setForeground(false);
++      expect(store.screenSecurityEnabled, isNull);
++      store.setForeground(true);
++      await store.applyScreenSecurity();
++      expect(calls, [false, false, false]);
++      expect(store.screenSecurityEnabled, isFalse);
++      store.dispose();
++      debugDefaultTargetPlatformOverride = null;
++    },
++  );
++
++  testWidgets('Full settings route uses the shared unsupported settings UI', (
++    tester,
++  ) async {
++    debugDefaultTargetPlatformOverride = TargetPlatform.linux;
++    final store = MemoryStore()..ready = true;
++    await tester.pumpWidget(MaterialApp(home: WorkspaceShell(store: store)));
++    await tester.pumpAndSettle();
++    await tester.tap(find.byIcon(Icons.settings_outlined));
++    await tester.pumpAndSettle();
++    await tester.ensureVisible(find.text('Приложение'));
++    await tester.tap(find.text('Приложение'));
++    await tester.pumpAndSettle();
++    expect(find.byType(AppBehaviorSettings), findsOneWidget);
++    expect(
++      tester
++          .widget<SwitchListTile>(
++            find.widgetWithText(SwitchListTile, 'Разрешить скриншоты'),
++          )
++          .onChanged,
++      isNull,
++    );
++    expect(
++      find.text(
++        'На этой платформе приложение не блокирует снимки и запись экрана.',
++      ),
++      findsOneWidget,
++    );
++    await tester.pumpWidget(const SizedBox());
++    store.dispose();
++    debugDefaultTargetPlatformOverride = null;
++  });
++
++  testWidgets('Client settings route uses the shared unsupported settings UI', (
++    tester,
++  ) async {
++    debugDefaultTargetPlatformOverride = TargetPlatform.windows;
++    final store = MemoryStore()..ready = true;
++    await tester.pumpWidget(MaterialApp(home: ClientHome(store: store)));
++    await tester.pumpAndSettle();
++    await tester.scrollUntilVisible(find.text('Настройки приложения'), 250);
++    await tester.tap(find.text('Настройки приложения'));
++    await tester.pumpAndSettle();
++    expect(find.byType(AppBehaviorSettings), findsOneWidget);
++    expect(
++      tester
++          .widget<SwitchListTile>(
++            find.widgetWithText(SwitchListTile, 'Разрешить скриншоты'),
++          )
++          .onChanged,
++      isNull,
++    );
++    expect(
++      find.text(
++        'На этой платформе приложение не блокирует снимки и запись экрана.',
++      ),
++      findsOneWidget,
++    );
++    await tester.pumpWidget(const SizedBox());
++    store.dispose();
++    debugDefaultTargetPlatformOverride = null;
++  });
++}

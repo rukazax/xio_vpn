@@ -1,0 +1,20 @@
+app/android/app/src/main/java/app/xio/xio/PublicationLease.java: ЦЕЛ
+app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt: ЦЕЛ
+app/android/app/src/main/kotlin/app/xio/xio/OpenVpnBackend.kt: ЦЕЛ
+app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt: ЦЕЛ
+app/android/app/src/main/kotlin/app/xio/xio/VpnControlService.kt: ЦЕЛ
+app/android/app/src/main/kotlin/app/xio/xio/XioVpnService.kt: ЦЕЛ
+app/android/app/src/main/kotlin/app/xio/xio/XrayBackend.kt: ЦЕЛ
+app/android/app/src/test/java/app/xio/xio/ServiceDownWiringTest.java: ЦЕЛ
+protocol/rivet/internal/desktop/network_common.go: ЦЕЛ
+protocol/rivet/internal/desktop/network_linux.go: ЦЕЛ
+protocol/rivet/internal/desktop/network_windows.go: ЦЕЛ
+protocol/rivet/internal/desktop/runtime.go: ЦЕЛ
+protocol/rivet/internal/desktop/setup_lease_test.go: ЦЕЛ
+protocol/rivet/internal/desktop/setup_lease.go: ЦЕЛ
+protocol/rivet/internal/desktop/setup_network_linux_test.go: ЦЕЛ
+protocol/rivet/internal/desktop/setup_network_windows_test.go: ЦЕЛ
+protocol/rivet/internal/desktop/sharing_linux.go: ЦЕЛ
+protocol/rivet/internal/desktop/sharing_windows.go: ЦЕЛ
+protocol/rivet/internal/desktop/sharing.go: ЦЕЛ
+All final Android sources equal actually tested final-android snapshot: exit0

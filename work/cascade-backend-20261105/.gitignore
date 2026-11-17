@@ -1,0 +1,4 @@
+# Transfer snapshots are retained locally/on Debian, not duplicated in Git.
+sources*.tar.gz
+payload-generation.log
+payload-check.log

@@ -1,0 +1,355 @@
+
+UTC 2026-11-05T22:17:34Z COMMAND: dart format --output=none --set-exit-if-changed lib/managed_models.dart test/dns_contract_test.dart
+Formatted 2 files (0 changed) in 0.04 seconds.
+EXIT=0
+
+UTC 2026-11-05T22:17:34Z COMMAND: flutter --no-version-check analyze --no-pub lib/managed_models.dart lib/app_settings.dart lib/core.dart lib/managed_service.dart lib/subclients.dart test/dns_contract_test.dart test/app_settings_test.dart
+Analyzing 7 items...                                            
+No issues found! (ran in 6.0s)
+EXIT=0
+
+UTC 2026-11-05T22:17:42Z COMMAND: flutter --no-version-check test --no-pub --concurrency=1 --reporter expanded test/dns_contract_test.dart test/app_settings_test.dart test/managed_models_test.dart test/account_access_test.dart test/native_profile_readiness_test.dart test/domain_host_test.dart test/install_domain_security_test.dart test/server_address_test.dart test/managed_update_verification_test.dart test/l10n_test.dart
+00:00 +0: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart
+00:00 +0: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+00:00 +1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+00:00 +2: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS rejects every second-octet boundary in IPv6 fe80::/10
+00:00 +3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS accepts non-link-local fe00::/8 including site-local fec0::/10
+00:00 +4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: null
+00:00 +5: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: []
+00:00 +6: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: [,   ]
+00:00 +7: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:00 +8: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS 127.0.0.1 survives actual load-save and literal repair
+00:00 +9: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:00 +10: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS dns.example.org has zero remote effects
+00:01 +11: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS dns.example.org has zero effects with pending=false
+00:01 +12: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS dns.example.org has zero effects with pending=true
+00:01 +13: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS 127.0.0.1 has zero remote effects
+00:01 +14: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS 127.0.0.1 has zero effects with pending=false
+00:01 +15: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS 127.0.0.1 has zero effects with pending=true
+00:01 +16: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS ::ffff:192.0.2.53 has zero remote effects
+00:01 +17: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS ::ffff:192.0.2.53 has zero effects with pending=false
+00:01 +18: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS ::ffff:192.0.2.53 has zero effects with pending=true
+00:01 +19: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe80::1 has zero remote effects
+00:01 +20: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe80::1 has zero effects with pending=false
+00:01 +21: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe80::1 has zero effects with pending=true
+00:01 +22: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe81::1 has zero remote effects
+00:01 +23: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe81::1 has zero effects with pending=false
+00:01 +24: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe81::1 has zero effects with pending=true
+00:01 +25: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe82::1 has zero remote effects
+00:01 +26: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe82::1 has zero effects with pending=false
+00:01 +27: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe82::1 has zero effects with pending=true
+00:01 +28: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe83::1 has zero remote effects
+00:01 +29: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe83::1 has zero effects with pending=false
+00:01 +30: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe83::1 has zero effects with pending=true
+00:01 +31: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe84::1 has zero remote effects
+00:01 +32: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe84::1 has zero effects with pending=false
+00:01 +33: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe84::1 has zero effects with pending=true
+00:01 +34: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe85::1 has zero remote effects
+00:01 +35: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe85::1 has zero effects with pending=false
+00:01 +36: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe85::1 has zero effects with pending=true
+00:01 +37: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe86::1 has zero remote effects
+00:01 +38: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe86::1 has zero effects with pending=false
+00:01 +39: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe86::1 has zero effects with pending=true
+00:01 +40: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe87::1 has zero remote effects
+00:01 +41: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe87::1 has zero effects with pending=false
+00:01 +42: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe87::1 has zero effects with pending=true
+00:01 +43: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe88::1 has zero remote effects
+00:01 +44: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe88::1 has zero effects with pending=false
+00:01 +45: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe88::1 has zero effects with pending=true
+00:01 +46: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe89::1 has zero remote effects
+00:01 +47: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe89::1 has zero effects with pending=false
+00:01 +48: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe89::1 has zero effects with pending=true
+00:01 +49: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe8a::1 has zero remote effects
+00:01 +50: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8a::1 has zero effects with pending=false
+00:01 +51: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8a::1 has zero effects with pending=true
+00:01 +52: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe8b::1 has zero remote effects
+00:01 +53: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8b::1 has zero effects with pending=false
+00:01 +54: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8b::1 has zero effects with pending=true
+00:01 +55: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe8c::1 has zero remote effects
+00:01 +56: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8c::1 has zero effects with pending=false
+00:01 +57: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8c::1 has zero effects with pending=true
+00:01 +58: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe8d::1 has zero remote effects
+00:01 +59: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8d::1 has zero effects with pending=false
+00:01 +60: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8d::1 has zero effects with pending=true
+00:01 +61: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe8e::1 has zero remote effects
+00:01 +62: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8e::1 has zero effects with pending=false
+00:01 +63: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8e::1 has zero effects with pending=true
+00:01 +64: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe8f::1 has zero remote effects
+00:01 +65: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8f::1 has zero effects with pending=false
+00:01 +66: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe8f::1 has zero effects with pending=true
+00:01 +67: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe90::1 has zero remote effects
+00:01 +68: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe90::1 has zero effects with pending=false
+00:01 +69: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe90::1 has zero effects with pending=true
+00:01 +70: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe91::1 has zero remote effects
+00:01 +71: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe91::1 has zero effects with pending=false
+00:01 +72: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe91::1 has zero effects with pending=true
+00:01 +73: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe92::1 has zero remote effects
+00:01 +74: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe92::1 has zero effects with pending=false
+00:01 +75: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe92::1 has zero effects with pending=true
+00:01 +76: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe93::1 has zero remote effects
+00:01 +77: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe93::1 has zero effects with pending=false
+00:01 +78: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe93::1 has zero effects with pending=true
+00:01 +79: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe94::1 has zero remote effects
+00:01 +80: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe94::1 has zero effects with pending=false
+00:01 +81: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe94::1 has zero effects with pending=true
+00:01 +82: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe95::1 has zero remote effects
+00:01 +83: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe95::1 has zero effects with pending=false
+00:01 +84: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe95::1 has zero effects with pending=true
+00:01 +85: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe96::1 has zero remote effects
+00:01 +86: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe96::1 has zero effects with pending=false
+00:01 +87: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe96::1 has zero effects with pending=true
+00:01 +88: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe97::1 has zero remote effects
+00:01 +89: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe97::1 has zero effects with pending=false
+00:01 +90: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe97::1 has zero effects with pending=true
+00:01 +91: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe98::1 has zero remote effects
+00:01 +92: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe98::1 has zero effects with pending=false
+00:01 +93: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe98::1 has zero effects with pending=true
+00:01 +94: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe99::1 has zero remote effects
+00:01 +95: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe99::1 has zero effects with pending=false
+00:01 +96: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe99::1 has zero effects with pending=true
+00:01 +97: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe9a::1 has zero remote effects
+00:01 +98: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9a::1 has zero effects with pending=false
+00:01 +99: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9a::1 has zero effects with pending=true
+00:01 +100: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe9b::1 has zero remote effects
+00:01 +101: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9b::1 has zero effects with pending=false
+00:01 +102: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9b::1 has zero effects with pending=true
+00:01 +103: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe9c::1 has zero remote effects
+00:01 +104: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9c::1 has zero effects with pending=false
+00:01 +105: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9c::1 has zero effects with pending=true
+00:01 +106: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe9d::1 has zero remote effects
+00:01 +107: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9d::1 has zero effects with pending=false
+00:01 +108: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9d::1 has zero effects with pending=true
+00:01 +109: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe9e::1 has zero remote effects
+00:01 +110: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9e::1 has zero effects with pending=false
+00:01 +111: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9e::1 has zero effects with pending=true
+00:01 +112: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fe9f::1 has zero remote effects
+00:01 +113: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9f::1 has zero effects with pending=false
+00:01 +114: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fe9f::1 has zero effects with pending=true
+00:01 +115: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea0::1 has zero remote effects
+00:01 +116: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea0::1 has zero effects with pending=false
+00:01 +117: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea0::1 has zero effects with pending=true
+00:01 +118: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea1::1 has zero remote effects
+00:01 +119: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea1::1 has zero effects with pending=false
+00:01 +120: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea1::1 has zero effects with pending=true
+00:01 +121: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea2::1 has zero remote effects
+00:01 +122: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea2::1 has zero effects with pending=false
+00:01 +123: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea2::1 has zero effects with pending=true
+00:01 +124: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea3::1 has zero remote effects
+00:01 +125: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea3::1 has zero effects with pending=false
+00:01 +126: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea3::1 has zero effects with pending=true
+00:01 +127: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea4::1 has zero remote effects
+00:01 +128: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea4::1 has zero effects with pending=false
+00:01 +129: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea4::1 has zero effects with pending=true
+00:01 +130: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea5::1 has zero remote effects
+00:01 +131: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea5::1 has zero effects with pending=false
+00:01 +132: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea5::1 has zero effects with pending=true
+00:01 +133: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea6::1 has zero remote effects
+00:01 +134: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea6::1 has zero effects with pending=false
+00:01 +135: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea6::1 has zero effects with pending=true
+00:01 +136: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea7::1 has zero remote effects
+00:01 +137: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea7::1 has zero effects with pending=false
+00:01 +138: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea7::1 has zero effects with pending=true
+00:01 +139: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea8::1 has zero remote effects
+00:01 +140: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea8::1 has zero effects with pending=false
+00:01 +141: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea8::1 has zero effects with pending=true
+00:01 +142: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fea9::1 has zero remote effects
+00:01 +143: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea9::1 has zero effects with pending=false
+00:01 +144: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fea9::1 has zero effects with pending=true
+00:01 +145: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feaa::1 has zero remote effects
+00:01 +146: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feaa::1 has zero effects with pending=false
+00:01 +147: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feaa::1 has zero effects with pending=true
+00:01 +148: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feab::1 has zero remote effects
+00:01 +149: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feab::1 has zero effects with pending=false
+00:01 +150: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feab::1 has zero effects with pending=true
+00:01 +151: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feac::1 has zero remote effects
+00:01 +152: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feac::1 has zero effects with pending=false
+00:01 +153: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feac::1 has zero effects with pending=true
+00:01 +154: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS fead::1 has zero remote effects
+00:01 +155: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fead::1 has zero effects with pending=false
+00:01 +156: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS fead::1 has zero effects with pending=true
+00:01 +157: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feae::1 has zero remote effects
+00:01 +158: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feae::1 has zero effects with pending=false
+00:01 +159: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feae::1 has zero effects with pending=true
+00:01 +160: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feaf::1 has zero remote effects
+00:01 +161: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feaf::1 has zero effects with pending=false
+00:01 +162: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feaf::1 has zero effects with pending=true
+00:01 +163: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb0::1 has zero remote effects
+00:01 +164: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb0::1 has zero effects with pending=false
+00:01 +165: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb0::1 has zero effects with pending=true
+00:01 +166: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb1::1 has zero remote effects
+00:01 +167: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb1::1 has zero effects with pending=false
+00:01 +168: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb1::1 has zero effects with pending=true
+00:01 +169: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb2::1 has zero remote effects
+00:01 +170: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb2::1 has zero effects with pending=false
+00:01 +171: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb2::1 has zero effects with pending=true
+00:01 +172: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb3::1 has zero remote effects
+00:01 +173: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb3::1 has zero effects with pending=false
+00:01 +174: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb3::1 has zero effects with pending=true
+00:01 +175: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb4::1 has zero remote effects
+00:01 +176: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb4::1 has zero effects with pending=false
+00:01 +177: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb4::1 has zero effects with pending=true
+00:01 +178: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb5::1 has zero remote effects
+00:01 +179: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb5::1 has zero effects with pending=false
+00:01 +180: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb5::1 has zero effects with pending=true
+00:01 +181: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb6::1 has zero remote effects
+00:01 +182: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb6::1 has zero effects with pending=false
+00:01 +183: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb6::1 has zero effects with pending=true
+00:01 +184: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb7::1 has zero remote effects
+00:01 +185: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb7::1 has zero effects with pending=false
+00:01 +186: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb7::1 has zero effects with pending=true
+00:01 +187: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb8::1 has zero remote effects
+00:01 +188: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb8::1 has zero effects with pending=false
+00:01 +189: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb8::1 has zero effects with pending=true
+00:01 +190: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feb9::1 has zero remote effects
+00:01 +191: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb9::1 has zero effects with pending=false
+00:01 +192: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feb9::1 has zero effects with pending=true
+00:01 +193: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS feba::1 has zero remote effects
+00:01 +194: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feba::1 has zero effects with pending=false
+00:01 +195: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS feba::1 has zero effects with pending=true
+00:01 +196: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS febb::1 has zero remote effects
+00:01 +197: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febb::1 has zero effects with pending=false
+00:01 +198: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febb::1 has zero effects with pending=true
+00:01 +199: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS febc::1 has zero remote effects
+00:01 +200: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febc::1 has zero effects with pending=false
+00:01 +201: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febc::1 has zero effects with pending=true
+00:01 +202: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS febd::1 has zero remote effects
+00:01 +203: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febd::1 has zero effects with pending=false
+00:01 +204: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febd::1 has zero effects with pending=true
+00:01 +205: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS febe::1 has zero remote effects
+00:01 +206: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febe::1 has zero effects with pending=false
+00:01 +207: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febe::1 has zero effects with pending=true
+00:01 +208: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS febf::1 has zero remote effects
+00:01 +209: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febf::1 has zero effects with pending=false
+00:01 +210: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS febf::1 has zero effects with pending=true
+00:01 +211: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot 192.0.2.53
+00:01 +212: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot fec0::53
+00:01 +213: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+00:03 +214: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart
+00:04 +214: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: defaults: screenshots off, autostart off, Quad9 resolver
+00:04 +215: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:05 +216: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: custom DNS validation accepts unicast IPv4 and IPv6 literals
+00:05 +217: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: custom DNS validation rejects ports, schemes and extra entries
+00:05 +218: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: an unsupported resolver list is preserved for explicit repair
+00:05 +219: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+00:05 +220: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+00:05 +221: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:06 +222: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+00:07 +223: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart
+00:12 +223: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: bundle round trip carries both protocol keys without SSH credentials
+00:12 +224: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: invalid imported bundle cannot erase remotely discovered user metadata
+00:12 +225: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: check site normalization rejects credentials and non HTTPS schemes
+00:12 +226: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: settings and management metadata survive restart without private configs
+00:12 +227: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:14 +228: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:15 +229: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart
+00:16 +229: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: only a bounded HTTPS capability can enter schema 3
+00:16 +230: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: subclient material excludes parent API and administrator credentials
+00:16 +231: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: IPv6 DNS is issued only with an explicit gateway capability
+00:16 +232: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: unknown response retains exact operation and local keys for explicit reconciliation
+00:16 +233: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv4
+00:17 +234: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv6
+00:17 +235: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart
+00:18 +235: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: absent metadata preserves native legacy behavior
+00:18 +236: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: policy-only IPv6 readiness issues IPv6 despite no host default field
+00:18 +237: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: explicit IPv4-only overrides old IPv6 flag and resolver
+00:18 +238: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: explicit IPv6-only requires no IPv4 exit and retains RIVET identity
+00:18 +239: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: unselected transport and unsupported proxy configs are omitted
+00:18 +240: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: requested dual-family is never downgraded or recovered via legacy true
+00:18 +241: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: selected RIVET metadata cannot silently disappear
+00:18 +242: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: stale malformed missing and non-boolean metadata fail closed
+00:18 +243: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: readiness enforces 60-second age and TTL with five-second skew
+00:18 +244: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: oversized or old evidence fails issuance, not proxy/direct fallback
+00:18 +245: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: UTC and revision compatibility remain strict and compatible
+00:18 +246: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: owner issuance uses policy-only readiness and excludes proxy bypass
+00:18 +247: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: owner issuance failure compensates newly registered identity
+00:18 +248: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=false retains intent
+00:18 +249: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=true retains intent
+00:18 +250: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart
+00:20 +250: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary accepts real-shaped domain names and both IP families
+00:20 +251: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary rejects schemes, host:port and injection in a host field
+00:20 +252: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary parses endpoint hosts with explicit port and IPv6 brackets
+00:20 +253: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary SshTarget validates the same host before a socket exists
+00:20 +254: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary known-hosts keys a bracketed IPv6 by its raw host
+00:20 +255: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary managed metadata keeps the proxy and VPN host independent
+00:20 +256: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary DNS candidate resolution asks A and AAAA separately
+00:21 +257: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three A answers never starve the single AAAA answer
+00:21 +258: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three AAAA answers never starve the single A answer
+00:21 +259: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary socket attempts try the AAAA answer before extra A records
+00:21 +260: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary an established socket is never replaced by another address
+00:21 +261: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary a changed key for the domain aborts before authentication
+00:21 +262: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy install sends fr-host.fr while SSH stays on the proxy:9046
+00:21 +263: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy AWG and both RIVET profiles use the VPN domain and SNI
+00:21 +264: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy invalid public host performs no upload or init
+00:21 +265: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints AWG accepts a domain endpoint and rejects schemes or extra parts
+00:21 +266: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints RIVET keeps endpoint domain and independent TLS serverName
+00:21 +267: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints extended outbound keeps address domain and TLS SNI identity
+00:21 +268: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints subclient provisioning uses the same domain endpoint rules
+00:21 +269: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:22 +270: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart
+00:24 +270: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: server release manifest binds the exact archive bytes
+00:24 +271: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install uploads the manifest-matched archive and bootstrap verbatim
+00:24 +272: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a stale or corrupted archive is refused before any upload
+00:24 +273: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host fr-host.fr, not SSH proxy
+00:24 +274: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host xn--bcher-kva.example, not SSH proxy
+00:24 +275: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host XN--BCHER-KVA.example, not SSH proxy
+00:24 +276: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 198.51.100.42, not SSH proxy
+00:24 +277: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 2001:db8::42, not SSH proxy
+00:25 +278: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host [2001:db8::42], not SSH proxy
+00:25 +279: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: malformed hosts perform no inspect, upload, init or store write
+00:25 +280: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a ready installation is reused without uploading the old bundle
+00:25 +281: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a different explicit host on a ready server is refused before upload
+00:25 +282: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: an incomplete installation is a hard stop before upload
+00:25 +283: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a fresh init mismatch never registers a different VPN host
+00:25 +284: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a malicious server AWG extension is rejected and the user revoked
+00:25 +285: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: password is released only after the host key gate accepts
+00:25 +286: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: client factory wires pin verification before password release
+00:25 +287: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a pinned host rejects a different key before the password
+00:25 +288: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: case and trailing-dot aliases share one host-key pin
+00:25 +289: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: DNS resolution keeps a Punycode name, never substitutes an address
+00:25 +290: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart
+00:27 +290: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 198.51.100.42
+00:27 +291: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: vpn.example
+00:27 +292: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 2001:db8::42
+00:27 +293: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 
+00:27 +294: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: https://vpn.example
+00:27 +295: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: user@vpn.example
+00:27 +296: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example;id
+00:27 +297: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a b
+00:27 +298: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: :::
+00:27 +299: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [198.51.100.42]
+00:27 +300: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [::1
+00:27 +301: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 256.256.256.256
+00:27 +302: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: -vpn.example
+00:27 +303: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn..example
+00:27 +304: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a_1.example
+00:27 +305: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example:443
+00:27 +306: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject invalid endpoint ports
+00:27 +307: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: legacy management metadata retains its direct VPN host
+00:27 +308: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: proxy SSH and public IPv6 survive management export metadata
+00:27 +309: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: install sends public IPv6 to server init, retaining SSH proxy for control
+00:27 +310: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: invalid public host performs no upload or init
+00:27 +311: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 198.51.100.42
+00:27 +312: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: vpn.example
+00:27 +313: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 2001:db8::42
+00:27 +314: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart
+00:29 +314: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart: update awaits digest and advances only after acceptance
+00:29 +315: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart: update awaits digest and returns mismatch without side effects
+00:29 +316: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart: default service returns real digest mismatch before updater load
+00:29 +317: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart
+00:31 +317: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: (setUpAll)
+00:31 +317: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues
+00:31 +318: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:32 +319: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:32 +320: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: status rows are translated and never left as the Russian key
+00:32 +321: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: no catalogue reuses the English value while Russian is the source
+00:32 +322: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: system language resolution checks preferences and falls back to English
+00:32 +323: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: dynamic status keeps technical arguments and specific message templates
+00:32 +324: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: explicit and system language persist without changing profiles
+00:33 +325: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:36 +326: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:43 +327: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+00:45 +328: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: cascade screen fits 360×640 in every language, RTL included
+00:46 +329: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+00:46 +330: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: (tearDownAll)
+00:46 +330: All tests passed!
+EXIT=0

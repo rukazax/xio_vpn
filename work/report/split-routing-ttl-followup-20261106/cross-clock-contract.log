@@ -1,0 +1,3 @@
+OBSERVED actual gate: originalDNSage=660000ms originalDeadline=600000ms secondBegin=540000ms DartActualRemaining=540000ms readyAt11minutes=true
+Exception in thread "main" java.lang.IllegalStateException: CONTRACT FAILURE: cached DNS older than original10m remains activatable after backward wall-clock correction; actual Dart allowance + actual Kotlin gate, no native/clock mutation
+	at app.xio.xio.ReviewGate.main(ReviewGate.kt:21)

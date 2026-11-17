@@ -169,12 +169,33 @@ object Engine {
      */
     fun policyReserve(transactionId:String) {
         synchronized(publication) {
-            try { publication.reservePolicy(transactionId) }
-            catch(e:Exception) { throw PolicyFailure(PolicyFailure.BUSY, e.message ?: "Policy publication is busy") }
+            try {
+                publication.reservePolicy(transactionId)
+                Diag.append("policy-gate", "reserve ok ${transactionId.take(8)}")
+            } catch(e:Exception) {
+                Diag.append("policy-gate", "reserve refused ${transactionId.take(8)}: ${e.message}")
+                throw PolicyFailure(PolicyFailure.BUSY, e.message ?: "Policy publication is busy")
+            }
         }
     }
-    fun policyRevoke(transactionId:String) { synchronized(publication){ publication.revokePolicy(transactionId) } }
-    fun policyRelease(transactionId:String) { synchronized(publication){ publication.releasePolicy(transactionId) } }
+    fun policyRevoke(transactionId:String) {
+        synchronized(publication){ publication.revokePolicy(transactionId) }
+        Diag.append("policy-gate", "revoke ${transactionId.take(8)}")
+    }
+    fun policyRelease(transactionId:String) {
+        synchronized(publication){ publication.releasePolicy(transactionId) }
+        Diag.append("policy-gate", "release ${transactionId.take(8)}")
+    }
+    /**
+     * The activation of THIS round is established: the tunnel stays up, but it no
+     * longer blocks the policy lane. Without it the round that just confirmed a
+     * candidate could not publish its selection (automatic failover stopped with
+     * POLICY_BUSY right after the winning candidate connected).
+     */
+    fun settleActivation(roundId:String) {
+        synchronized(publication){ publication.settleActivation(roundId) }
+        Diag.append("policy-gate", "activation settled ${roundId.take(12)}")
+    }
     fun policyAdmissionOpen():Boolean = synchronized(publication){ publication.admissionOpen() }
     fun requirePolicyAdmissionOpen() = synchronized(publication) {
         if(!publication.admissionOpen()) throw PolicyFailure(PolicyFailure.BUSY, "Connection policy publication or settings write in progress")
@@ -271,7 +292,7 @@ object Engine {
             awaitNetworkReady(previousNetworks,budget)
             budget.remainingMillis()
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return publicationToken
+            VpnTileService.refresh(app);settleActivation(roundId);return publicationToken
         }
         if(id.startsWith("xr")){
             kind="xray"
@@ -282,7 +303,7 @@ object Engine {
             awaitNetworkReady(previousNetworks,budget)
             budget.remainingMillis()
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return publicationToken
+            VpnTileService.refresh(app);settleActivation(roundId);return publicationToken
         }
         if(id.startsWith("rvh")||id.startsWith("rvs")){
             val cfg=org.json.JSONObject(raw);kind=cfg.getString("protocol")
@@ -294,7 +315,7 @@ object Engine {
             awaitNetworkReady(previousNetworks,budget)
             budget.remainingMillis()
             lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
-            VpnTileService.refresh(app);return publicationToken
+            VpnTileService.refresh(app);settleActivation(roundId);return publicationToken
         }
         val config = Config.parse(ByteArrayInputStream(raw.toByteArray()))
         require(id.startsWith("awg"));kind = "awg"
@@ -316,17 +337,41 @@ object Engine {
         lastConnectMillis=android.os.SystemClock.elapsedRealtime()-started
         } catch(e:Exception) { cancelConnect(roundId,budget);throw e }
         finally { if(operationBudget === budget) operationBudget=null;releaseConnect(budget) }
+        settleActivation(roundId)
         return publicationToken
     }
 
 }
 
 class MainActivity : FlutterActivity() {
+    private val testCommands = java.util.ArrayDeque<String>()
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         // Secure before Flutter renders or reads the persisted global opt-in.
         // Each new Activity starts secure; Dart reapplies the owner's choice.
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // The diagnostic build deliberately starts without FLAG_SECURE so the
+        // screen can be captured while testing.
+        if (!BuildConfig.TEST_BUILD) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         super.onCreate(savedInstanceState)
+        Diag.init(this)
+        Diag.append("app", "activity onCreate test=${BuildConfig.TEST_BUILD}")
+        queueTestCommand(intent)
+    }
+    private fun queueTestCommand(intent: Intent?) {
+        if (!BuildConfig.TEST_BUILD) return
+        // The device shell strips double quotes from `--es`, so the supported
+        // form is a URL-safe base64 payload; the legacy plain extra stays for
+        // values without JSON punctuation.
+        val plain = intent?.getStringExtra("xioTest")
+        val encoded = intent?.getStringExtra("xioTest64")
+        val raw = plain ?: (encoded?.let {
+            try {
+                String(android.util.Base64.decode(it, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP))
+            } catch (_: Exception) { null }
+        }) ?: return
+        if (raw.isBlank() || raw.length > 262144) return
+        synchronized(testCommands) { testCommands.addLast(raw) }
+        Diag.append("test", "command queued")
+        if (::engineChannel.isInitialized) engineChannel.invokeMethod("testCommandPending", null)
     }
     private data class ConnectRequest(val id:String,val callback:MethodChannel.Result,
         val budget:ConnectionBudget,val round:ConnectionBudget,val policy:String,val roundId:String,
@@ -377,6 +422,50 @@ class MainActivity : FlutterActivity() {
                 return@setMethodCallHandler
             }
             when (call.method) {
+                "diagVersion" -> result.success(mapOf(
+                    "version" to BuildConfig.VERSION_NAME,
+                    "code" to BuildConfig.VERSION_CODE,
+                    "test" to BuildConfig.TEST_BUILD))
+                "diagLog" -> {
+                    Diag.append(call.argument<String>("tag") ?: "dart", call.argument<String>("message") ?: "")
+                    result.success(null)
+                }
+                "diagSnapshot" -> result.success(Diag.snapshot(call.argument<Number>("max")?.toInt() ?: 200000))
+                "diagBundle" -> result.success(Diag.bundle()?.absolutePath)
+                "shareTextFile" -> {
+                    try {
+                        val name = (call.argument<String>("name") ?: "xio.conf").replace(Regex("[^A-Za-z0-9._-]"), "-").take(80)
+                        val text = call.argument<String>("text") ?: ""
+                        require(text.isNotBlank() && text.length <= 65536)
+                        val dir = File(cacheDir, "shared_profiles").apply { mkdirs() }
+                        dir.listFiles()?.filter { System.currentTimeMillis() - it.lastModified() > 3600000 }?.forEach { it.delete() }
+                        val file = File(dir, if (name.contains('.')) name else "xio-$name.conf").apply { writeText(text) }
+                        val uri = androidx.core.content.FileProvider.getUriForFile(this, "$packageName.profiles", file)
+                        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                            type = "application/octet-stream"; putExtra(Intent.EXTRA_STREAM, uri)
+                            clipData = android.content.ClipData.newRawUri("XIO", uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }, "XIO"))
+                        android.os.Handler(mainLooper).postDelayed({ file.delete() }, 3600000)
+                        result.success(null)
+                    } catch (_: Exception) { result.error("SHARE", "Не удалось поделиться файлом", null) }
+                }
+                "shareDiag" -> {
+                    try {
+                        val path = call.argument<String>("path") ?: ""
+                        require(path.isNotBlank() && File(path).exists() && File(path).canonicalPath.startsWith(cacheDir.canonicalPath + "/"))
+                        val uri = androidx.core.content.FileProvider.getUriForFile(this, "$packageName.profiles", File(path))
+                        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                            type = "application/zip"; putExtra(Intent.EXTRA_STREAM, uri)
+                            clipData = android.content.ClipData.newRawUri("XIO", uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }, "XIO diagnostics"))
+                        result.success(null)
+                    } catch (_: Exception) { result.error("SHARE", "Не удалось поделиться журналом", null) }
+                }
+                "diagLogcat" -> result.success(Diag.logcat())
+                "consumeTestCommand" -> result.success(
+                    if (BuildConfig.TEST_BUILD) synchronized(testCommands) { testCommands.pollFirst() } else null)
                 "supportedProtocols" -> result.success(listOf("awg","rivet-h3","rivet-s1","xray"))
                 "sharingStatus" -> result.success(VpnSharing.status(this))
                 "sharingSet" -> Engine.worker.execute { try { val value=VpnSharing.set(this,call.argument<Boolean>("enabled")==true,call.argument<String>("interface")?:"");runOnUiThread{result.success(value)} } catch(e:Exception){runOnUiThread{result.error("SHARING",e.message?:"Не удалось настроить раздачу",null)}} }
@@ -474,8 +563,12 @@ class MainActivity : FlutterActivity() {
                     result.success(null)
                 }
                 "secureScreen" -> {
-                    if (call.argument<Boolean>("enabled") == true) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    // The diagnostic build keeps the window capturable: refuse
+                    // to re-enable FLAG_SECURE even if an old document asked.
+                    val enabled = !BuildConfig.TEST_BUILD && call.argument<Boolean>("enabled") == true
+                    if (enabled) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    Diag.append("app", "secureScreen enabled=$enabled")
                     result.success(null)
                 }
                 // Автозапуск после загрузки: Kotlin хранит копию флага для
@@ -511,6 +604,7 @@ class MainActivity : FlutterActivity() {
                             policyReceipt = call.argument<Map<String,Any?>>("policyReceipt"))
                     } catch(e:Exception) {
                         // A publication reservation or a settings write owns admission.
+                        Diag.append("policy-gate", "connect register refused: ${e.message}")
                         result.error("POLICY_BUSY","Connection policy is being updated",null);return@setMethodCallHandler
                     }
                     pending = request
@@ -751,6 +845,7 @@ class MainActivity : FlutterActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         if(intent.getBooleanExtra("checkUpdates",false) && ::engineChannel.isInitialized) engineChannel.invokeMethod("requestUpdates",null)
+        queueTestCommand(intent)
         handleTileIntent()
     }
     override fun onPostResume() {

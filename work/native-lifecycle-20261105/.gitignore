@@ -1,0 +1,6 @@
+lifecycle-sources*.tar.gz
+__pycache__/
+boot-host-invariance.log
+regression-host-invariance.log
+regression-status.log
+lifecycle-final-status.log

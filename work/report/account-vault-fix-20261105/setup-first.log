@@ -1,0 +1,11 @@
+
+UTC 2026-11-05T20:57:59Z COMMAND: flutter --version
+fatal: detected dubious ownership in repository at '/opt/flutter'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /opt/flutter
+fatal: detected dubious ownership in repository at '/opt/flutter'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /opt/flutter
+EXIT=128

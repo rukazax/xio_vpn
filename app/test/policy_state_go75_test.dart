@@ -143,22 +143,15 @@ void main() {
     expect(blocked.ready, isFalse);
   });
 
-  test('READY receipt bound to another controller is POLICY_STALE', () async {
-    final subject = channelFor(
-      caps: capsCase('ready'),
-      state: stateCase('ready'),
-    );
-    await subject.discover();
-    final wrong = channelFor(
-      caps: capsCase('ready'),
-      state: stateCase('ready'),
-      override: (method, arguments) => null,
-    );
-    // Replace the receipt controller with a foreign one.
+  test('a READY receipt bound to another controller is observed, never admitted',
+      () async {
+    // A previous process committed this READY envelope under another controller
+    // nonce. Refusing to look at it left the lane permanently STALE (the user had
+    // to wipe app data), so the contract is now: OBSERVE the envelope, keep its
+    // committed generation for CAS, and strip the receipt so nothing can admit a
+    // foreign envelope by accident.
     final foreign = Map<String, dynamic>.from(stateCase('ready'));
     (foreign['receipt'] as Map)['controllerNonce'] = 'f' * 32;
-    await wrong.discover();
-    expect(wrong.storeIdentity, _identities['storeIdentity']);
     final rebound = PolicyChannel(
       invoke: (method, arguments) async =>
           method == 'policyCapabilities' ? capsCase('ready') : foreign,
@@ -166,12 +159,16 @@ void main() {
       controllerNonce: _identities['controllerNonce']!,
     );
     await rebound.discover();
-    await expectLater(
-      rebound.queryState(),
-      throwsA(
-        isA<PolicyFailure>().having((e) => e.code, 'code', 'POLICY_STALE'),
-      ),
+    final observed = await rebound.queryState();
+    expect(observed.state, 'ready');
+    expect(observed.receipt, isNull, reason: 'a foreign receipt is stripped');
+    expect(
+      rebound.generation,
+      _identities['planGeneration'],
+      reason: 'the committed generation stays observable for CAS',
     );
+    expect(rebound.ready, isFalse, reason: 'observation is not admission');
+    expect(rebound.committed, isNull);
   });
 
   test('unknown state keys are still rejected', () async {

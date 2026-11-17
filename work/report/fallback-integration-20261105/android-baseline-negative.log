@@ -1,0 +1,5 @@
+Exception in thread "main" java.lang.AssertionError: DOWN must revoke before queue admission
+	at app.xio.xio.ServiceDownWiringTest.check(ServiceDownWiringTest.java:9)
+	at app.xio.xio.ServiceDownWiringTest.prequeue(ServiceDownWiringTest.java:17)
+	at app.xio.xio.ServiceDownWiringTest.main(ServiceDownWiringTest.java:27)
+baseline service-source invariant exit=1 (expected 1)

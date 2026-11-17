@@ -1,0 +1,28 @@
+test_active_receipt_needs_all_boot_files_links_even_after_reboot (__main__.LifecycleTests.test_active_receipt_needs_all_boot_files_links_even_after_reboot) ... ok
+test_all_three_native_listeners_require_after_guard (__main__.LifecycleTests.test_all_three_native_listeners_require_after_guard) ... ok
+test_custom_roots_cannot_bypass_production_lifecycle_in_host_namespace (__main__.LifecycleTests.test_custom_roots_cannot_bypass_production_lifecycle_in_host_namespace) ... ok
+test_exit_has_boot_peer_service_not_native_bridge_dependencies (__main__.LifecycleTests.test_exit_has_boot_peer_service_not_native_bridge_dependencies) ... ok
+test_failed_reload_rolls_back_only_new_unchanged_artifacts (__main__.LifecycleTests.test_failed_reload_rolls_back_only_new_unchanged_artifacts) ... ok
+test_foreign_concurrent_edit_preserved_during_install_rollback (__main__.LifecycleTests.test_foreign_concurrent_edit_preserved_during_install_rollback) ... ok
+test_foreign_lifecycle_edit_blocks_core_remove_before_network_effects (__main__.LifecycleTests.test_foreign_lifecycle_edit_blocks_core_remove_before_network_effects) ... ok
+test_foreign_other_dropins_preserved_on_install_remove (__main__.LifecycleTests.test_foreign_other_dropins_preserved_on_install_remove) ... ok
+test_foreign_reserved_file_or_enable_link_refused_before_effects (__main__.LifecycleTests.test_foreign_reserved_file_or_enable_link_refused_before_effects) ... ok
+test_guard_apply_failure_retains_opt_in_and_prevents_start (__main__.LifecycleTests.test_guard_apply_failure_retains_opt_in_and_prevents_start) ... ok
+test_guard_missing_or_disabled_receipt_is_failure_not_successful_skip (__main__.LifecycleTests.test_guard_missing_or_disabled_receipt_is_failure_not_successful_skip) ... ok
+test_install_idempotent_only_owned_symlinks_and_timer_activation (__main__.LifecycleTests.test_install_idempotent_only_owned_symlinks_and_timer_activation) ... ok
+test_lifecycle_install_failure_never_calls_apply (__main__.LifecycleTests.test_lifecycle_install_failure_never_calls_apply) ... ok
+test_mock_boot_guard_error_or_missing_helper_blocks_all_listeners (__main__.LifecycleTests.test_mock_boot_guard_error_or_missing_helper_blocks_all_listeners) ... ok
+test_mock_boot_timeline_no_listener_before_successful_guard (__main__.LifecycleTests.test_mock_boot_timeline_no_listener_before_successful_guard) ... ok
+test_modified_owned_file_refuses_remove_and_boot_guard (__main__.LifecycleTests.test_modified_owned_file_refuses_remove_and_boot_guard) ... ok
+test_no_opt_in_legacy_does_not_create_lifecycle_or_probe (__main__.LifecycleTests.test_no_opt_in_legacy_does_not_create_lifecycle_or_probe) ... ok
+test_periodic_action_reconciles_then_only_explicit_source_bound_probe (__main__.LifecycleTests.test_periodic_action_reconciles_then_only_explicit_source_bound_probe) ... ok
+test_periodic_unit_uses_safe_auto_stdin_and_sub_ttl_interval (__main__.LifecycleTests.test_periodic_unit_uses_safe_auto_stdin_and_sub_ttl_interval) ... ok
+test_production_configure_orders_lifecycle_before_apply_activation (__main__.LifecycleTests.test_production_configure_orders_lifecycle_before_apply_activation) ... ok
+test_symlinked_dropin_parent_rejected (__main__.LifecycleTests.test_symlinked_dropin_parent_rejected) ... ok
+test_systemd_analyze_verifies_generated_units_offline_without_manager (__main__.LifecycleTests.test_systemd_analyze_verifies_generated_units_offline_without_manager) ... ok
+test_timer_cli_no_stdin_eof_or_unowned_probe (__main__.LifecycleTests.test_timer_cli_no_stdin_eof_or_unowned_probe) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 13.994s
+
+OK

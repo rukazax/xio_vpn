@@ -171,22 +171,24 @@ class PolicyChannel {
       'version': 1,
       'instanceNonce': instance,
     });
-    final state = PolicyNativeState.parse(response, instance: instance);
+    var state = PolicyNativeState.parse(response, instance: instance);
     // READY authority is the NESTED receipt only, bound to this exact store,
     // controller and instance; top-level diagnostics are never an attachment.
+    // An UNBOUND READY envelope (a previous process committed it under another
+    // controller nonce) is still OBSERVED: recovery has to CAS against the
+    // generation the native journal holds, and refusing to look at it made the
+    // lane unrecoverable without wiping app data. The receipt itself is
+    // stripped from the observation so nothing can admit it by accident.
     final receipt = state.receipt;
-    if (receipt != null) {
-      if (receipt.storeIdentity != storeIdentity ||
-          receipt.controllerNonce != controllerNonce ||
-          receipt.instanceNonce != instance) {
-        throw const PolicyFailure(
-          'POLICY_STALE',
-          'The native READY receipt is not bound to this store/controller',
-        );
-      }
+    final bound = receipt != null &&
+        receipt.storeIdentity == storeIdentity &&
+        receipt.controllerNonce == controllerNonce &&
+        receipt.instanceNonce == instance;
+    if (receipt != null && !bound) {
+      state = state._withoutReceipt();
     }
     final admissible = state.state == 'ready' &&
-        receipt != null &&
+        bound &&
         state.resourceState == 'clean';
     if (admissible) {
       _receipt = receipt.toJson();
@@ -194,7 +196,11 @@ class PolicyChannel {
       _state = 'ready';
     } else {
       _receipt = null;
-      _generation = null;
+      // Keep the observed committed generation as the CAS value; it is what a
+      // reconcile/publication must name to replace a READY envelope.
+      _generation = state.state == 'ready'
+          ? (state.planGeneration ?? receipt?.planGeneration)
+          : null;
       _state = state.state == 'absent' ? 'blocked' : state.state;
     }
     _resourceState = state.resourceState;
@@ -487,6 +493,27 @@ class PolicyNativeState {
   static const _resources = {'clean', 'owned', 'unknown'};
   static const _phases = {'absent', 'pending', 'pendingUnknown', 'ready', 'blocked'};
   static final _hex32 = RegExp(r'^[a-f0-9]{32}$');
+
+  /// Observation copy without the nested receipt: used when a READY envelope
+  /// belongs to another controller/instance and must be readable for recovery
+  /// but never admissible.
+  PolicyNativeState _withoutReceipt() => PolicyNativeState._(
+        state: state,
+        phase: phase,
+        resourceState: resourceState,
+        receipt: null,
+        pendingTransaction: pendingTransaction,
+        casGeneration: casGeneration,
+        planSchema: planSchema,
+        validation: validation,
+        launchBound: launchBound,
+        resourceClaimed: resourceClaimed,
+        clientOnly: clientOnly,
+        busy: busy,
+        error: error,
+        transactionId: transactionId,
+        planGeneration: planGeneration,
+      );
 
   final String state;
   final String? phase;

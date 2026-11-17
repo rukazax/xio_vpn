@@ -1,0 +1,26 @@
+{
+  "compileCommand": [
+    "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+    "-Djava.io.tmpdir=/srv/archives/agent-split-routing-review-20261106/tmp",
+    "-cp",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.4.0/f1a24af8bd111a83950236b1aec7a6d72a97e92c/kotlin-compiler-embeddable-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.4.0/1de03f0ef3e208ab5f97ee6a587e9b8480447df6/kotlin-script-runtime-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-build-tools-api/2.4.0/46429d5887df2d02f33fe11a0c8444c5be5fd8da/kotlin-build-tools-api-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-embeddable/2.4.0/1ecabef3a8ba6a8e25654573d54edb7e4136e903/kotlin-daemon-embeddable-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.6.10/1cbe9c92c12a94eea200d23c2bbaedaf3daf5132/kotlin-reflect-1.6.10.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.8.0/ac1dc37a30a93150b704022f8d895ee1bd3a36b3/kotlinx-coroutines-core-jvm-1.8.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+    "-no-stdlib",
+    "-no-reflect",
+    "-jvm-target",
+    "17",
+    "-classpath",
+    "/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar",
+    "-d",
+    "/srv/archives/agent-split-routing-review-20261106/review-kotlin-classes",
+    "/srv/archives/agent-split-routing-review-20261106/source/app/android/app/src/main/kotlin/app/xio/xio/RoutingResolutionGate.kt",
+    "/srv/archives/agent-split-routing-review-20261106/ReviewGate.kt"
+  ],
+  "testCommand": [
+    "/usr/lib/jvm/java-21-openjdk-amd64/bin/java",
+    "-cp",
+    "/srv/archives/agent-split-routing-review-20261106/review-kotlin-classes:/root/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.4.0/4e9f4b531dce5c7dee58ed2de9a8b9a763c8dc6c/kotlin-stdlib-2.4.0.jar",
+    "app.xio.xio.ReviewGate"
+  ],
+  "reviewGateSHA256": "b0d030ea3efb78b188f57ffc9a00fd601bbc3a4976f5eba726ec9ba2b547dc99"
+}

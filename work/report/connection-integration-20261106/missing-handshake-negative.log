@@ -1,0 +1,15 @@
+started=0 missing=0 accepted=true
+started=0 missing=-1 accepted=true
+started=0 missing=-2 accepted=true
+started=0 missing=-3 accepted=true
+started=1000 missing=0 accepted=true
+started=1000 missing=-1 accepted=true
+started=1000 missing=-2 accepted=true
+started=1000 missing=-3 accepted=true
+started=2000 missing=0 accepted=true
+started=2000 missing=-1 accepted=false
+started=2000 missing=-2 accepted=false
+started=2000 missing=-3 accepted=false
+Exception in thread "main" java.lang.AssertionError: Missing/nonpositive handshake accepted in 9 cases
+	at app.xio.xio.ReviewMissingHandshake.main(ReviewMissingHandshake.java:17)
+EXIT=1

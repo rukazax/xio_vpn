@@ -1,0 +1,29 @@
+== go ==
+go version go1.27.3 linux/amd64
+== gomobile ==
+/root/go/bin/gomobile
+gomobile version unknown: cannot test gomobile binary: exit status 1, no required module provides package golang.org/x/mobile/cmd/gomobile: go.mod file not found in current directory or any parent directory; see 'go help modules'
+
+== gobind ==
+/root/go/bin/gobind
+-rwxr-xr-x 1 root root 9450964 ноя  4 10:39 /root/go/bin/gobind
+== ndk ==
+Pkg.Desc = Android NDK
+Pkg.Revision = 30.0.16248370
+Pkg.BaseRevision = 30.0.16248370
+Pkg.ReleaseName = r30
+== java ==
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+openjdk version "21.0.13" 2026-10-20
+OpenJDK Runtime Environment (build 21.0.13+9-1-deb13u2-Debian)
+OpenJDK 64-Bit Server VM (build 21.0.13+9-1-deb13u2-Debian, mixed mode, sharing)
+== go env ==
+linux
+amd64
+/srv/archives/agent-rivet-aar-20261106/go-private
+/srv/archives/agent-rivet-aar-20261106/go-path
+/srv/archives/agent-rivet-aar-20261106/go-mod
+/srv/archives/agent-rivet-aar-20261106/go-cache
+1
+off
+-mod=readonly -p=1

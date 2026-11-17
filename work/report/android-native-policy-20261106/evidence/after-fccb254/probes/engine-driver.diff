@@ -1,0 +1,19 @@
+--- /srv/archives/agent-review-android-policy-20261106/engine-probe.py	2026-11-06 09:18:08.427806403 +0300
++++ /srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/engine-owned/engine-probe-owned.py	2026-11-06 09:31:40.498427181 +0300
+@@ -1,6 +1,6 @@
+ from pathlib import Path
+ import shutil, subprocess, os, hashlib
+-R=Path('/srv/archives/agent-review-android-policy-20261106'); A=Path('/srv/archives/agent-policy-android-native-20261106')
++R=Path('/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/engine-owned'); A=Path('/srv/archives/agent-policy-android-native-20261106')
+ source=A/'src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio'; target=R/'bridge-artifact/app/xio/xio'
+ manifest=[]
+ for p in source.glob('Engine*.class'):
+@@ -40,7 +40,7 @@
+ for name,data in sources.items():
+  p=S/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(data)
+ C=R/'engine-probe-classes';C.mkdir()
+-cp=f'{R}/bridge-classes:{R}/classes:{R}/bridge-artifact:{R}/kotlin-stdlib.jar'
++cp=f'{R}/classes:/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/bridge-owned/bridge-classes:/srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug:{R}/kotlin-stdlib.jar'
+ env=os.environ.copy();env.update(HOME=str(R/'home'),TMPDIR=str(R/'tmp'),JAVA_TOOL_OPTIONS=f'-Duser.home={R}/home -Djava.io.tmpdir={R}/tmp')
+ with (R/'evidence/engine-javac.log').open('w') as out:
+  rc=subprocess.run(['javac','-cp',cp,'-d',str(C)]+[str(p) for p in S.rglob('*.java')],env=env,stdout=out,stderr=subprocess.STDOUT).returncode

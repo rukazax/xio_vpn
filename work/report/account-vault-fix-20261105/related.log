@@ -1,0 +1,42 @@
+
+UTC 2026-11-05T21:02:04Z COMMAND: flutter --version
+Flutter 3.47.7 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision abaf9c5237 (4 недели назад) • 2026-10-08 09:51:21 -0700
+Engine • hash d8a2d6c768c334d53e16277f837970ffa1e2de81 (revision deb287481e) (29 days ago) • 2026-10-07 17:09:12.000Z
+Tools • Dart 3.13.5 • DevTools 2.60.0
+EXIT=0
+
+UTC 2026-11-05T21:02:04Z COMMAND: flutter pub get --offline
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+EXIT=0
+
+UTC 2026-11-05T21:02:05Z COMMAND: flutter test --no-pub --reporter expanded test/account_access_test.dart test/native_cascade_journal_test.dart test/desktop_adapter_test.dart
+00:00 +0: loading /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart
+00:00 +0: /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart: only a bounded HTTPS capability can enter schema 3
+00:00 +1: /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart: subclient material excludes parent API and administrator credentials
+00:00 +2: /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart: IPv6 DNS is issued only with an explicit gateway capability
+00:00 +3: /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart: unknown response retains exact operation and local keys for explicit reconciliation
+00:00 +4: /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv4
+00:00 +5: /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv6
+00:02 +6: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: keys persist before open returns and restart reuses exactly the same intent
+00:02 +7: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: parallel instances cannot overwrite each others first key material
+00:02 +8: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: write is awaited and failed persistence never admits a returned intent
+00:02 +9: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: missing write readback fails and reordered maps remain valid
+00:02 +10: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: unknown remote outcomes preserve operation identity keys and pending action
+00:02 +11: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: stale caller cannot roll journal backwards or replace newer state
+00:02 +12: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: corrupt private record never regenerates or prints private contents
+00:02 +13: /srv/archives/agent-account-vault-fix-20261105/source/app/test/native_cascade_journal_test.dart: different target/configuration cannot be resumed under the old identity
+00:02 +14: /srv/archives/agent-account-vault-fix-20261105/source/app/test/desktop_adapter_test.dart: retired engines are absent from the supported catalogue
+00:02 +15: All tests passed!
+EXIT=0

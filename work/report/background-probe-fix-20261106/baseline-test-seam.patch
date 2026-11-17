@@ -1,0 +1,16 @@
+diff --git a/app/lib/core.dart b/app/lib/core.dart
+index a6d01c5..d88c9bd 100644
+--- a/app/lib/core.dart
++++ b/app/lib/core.dart
+@@ -1396,8 +1396,9 @@ class AppStore extends ChangeNotifier {
+     return ordered;
+   }
+ 
+-  Future<void> saveNativePlan() async {
+-    if (!Platform.isAndroid) return;
++  Future<void> saveNativePlan({bool? androidForTesting}) async {
++    // Exercise the actual channel payload in host tests; production stays Android-only.
++    if (!(androidForTesting ?? Platform.isAndroid)) return;
+     final candidates = connectionCandidates(selected);
+     await native.invokeMethod<void>(
+       'saveConnectionPlan',

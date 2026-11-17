@@ -1,0 +1,143 @@
+diff --git a/app/assets/l10n/ar.json b/app/assets/l10n/ar.json
+index 7d64d1b..d9b2f36 100644
+--- a/app/assets/l10n/ar.json
++++ b/app/assets/l10n/ar.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "انتهت مهلة الاتصال (30 ثانية)",
++  "Отключение VPN не завершено": "لم يكتمل قطع اتصال VPN",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "تعذر تطبيق جميع قواعد النطاقات. تحقق من DNS وحدود المسارات.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "لا يوجد خادم SSH وحيد مطابق لهذا الجسر: تحقق من العنوان والإدخالات المكررة",
+   "Проверка не подтвердила адрес выбранного exit": "لم يؤكد الفحص عنوان خادم الخروج المحدد",
+diff --git a/app/assets/l10n/de.json b/app/assets/l10n/de.json
+index 19e9882..fd66b1c 100644
+--- a/app/assets/l10n/de.json
++++ b/app/assets/l10n/de.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Zeitüberschreitung beim Verbindungsaufbau (30 s)",
++  "Отключение VPN не завершено": "Die VPN-Trennung wurde nicht abgeschlossen",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Nicht alle Domainregeln konnten angewendet werden. Prüfen Sie DNS und die Routenlimits.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Kein eindeutiger SSH-Server für diese Bridge: Adresse und doppelte Einträge prüfen",
+   "Проверка не подтвердила адрес выбранного exit": "Die Prüfung hat die Adresse des gewählten Exit-Servers nicht bestätigt",
+diff --git a/app/assets/l10n/en.json b/app/assets/l10n/en.json
+index 13dcd9c..6e12f1b 100644
+--- a/app/assets/l10n/en.json
++++ b/app/assets/l10n/en.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Connection timed out (30 s)",
++  "Отключение VPN не завершено": "VPN disconnection has not completed",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Could not apply all domain rules. Check DNS and route limits.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "No unique SSH server matches this bridge: check its address and duplicate entries",
+   "Проверка не подтвердила адрес выбранного exit": "The check did not confirm the selected exit address",
+diff --git a/app/assets/l10n/es.json b/app/assets/l10n/es.json
+index dcff478..b106162 100644
+--- a/app/assets/l10n/es.json
++++ b/app/assets/l10n/es.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Tiempo de conexión agotado (30 s)",
++  "Отключение VPN не завершено": "No se ha completado la desconexión de la VPN",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "No se pudieron aplicar todas las reglas de dominio. Comprueba el DNS y los límites de rutas.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "No hay un único servidor SSH para este bridge: comprueba la dirección y las entradas duplicadas",
+   "Проверка не подтвердила адрес выбранного exit": "La comprobación no confirmó la dirección del servidor de salida seleccionado",
+diff --git a/app/assets/l10n/fr.json b/app/assets/l10n/fr.json
+index 0c4df88..90e8c0d 100644
+--- a/app/assets/l10n/fr.json
++++ b/app/assets/l10n/fr.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Délai de connexion dépassé (30 s)",
++  "Отключение VPN не завершено": "La déconnexion du VPN n’est pas terminée",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Impossible d’appliquer toutes les règles de domaine. Vérifiez le DNS et les limites de routes.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Aucun serveur SSH unique ne correspond à ce bridge : vérifiez l’adresse et les doublons",
+   "Проверка не подтвердила адрес выбранного exit": "La vérification n’a pas confirmé l’adresse du serveur de sortie sélectionné",
+diff --git a/app/assets/l10n/hi.json b/app/assets/l10n/hi.json
+index bec0686..0689eb1 100644
+--- a/app/assets/l10n/hi.json
++++ b/app/assets/l10n/hi.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "कनेक्शन का समय समाप्त हो गया (30 सेकंड)",
++  "Отключение VPN не завершено": "VPN पूरी तरह डिस्कनेक्ट नहीं हुआ",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "सभी डोमेन नियम लागू नहीं हो सके। DNS और रूट की सीमाएँ जाँचें।",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "इस bridge के लिए एक निश्चित SSH सर्वर नहीं मिला: पता और डुप्लिकेट प्रविष्टियाँ जाँचें",
+   "Проверка не подтвердила адрес выбранного exit": "जाँच ने चुने गए exit सर्वर के पते की पुष्टि नहीं की",
+diff --git a/app/assets/l10n/it.json b/app/assets/l10n/it.json
+index 1660b3c..82ee305 100644
+--- a/app/assets/l10n/it.json
++++ b/app/assets/l10n/it.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Tempo di connessione scaduto (30 s)",
++  "Отключение VPN не завершено": "La disconnessione della VPN non è stata completata",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Impossibile applicare tutte le regole di dominio. Controlla il DNS e i limiti delle rotte.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Nessun server SSH univoco per questo bridge: controlla l’indirizzo e le voci duplicate",
+   "Проверка не подтвердила адрес выбранного exit": "La verifica non ha confermato l’indirizzo del server di uscita selezionato",
+diff --git a/app/assets/l10n/ja.json b/app/assets/l10n/ja.json
+index 100c33c..3cbf741 100644
+--- a/app/assets/l10n/ja.json
++++ b/app/assets/l10n/ja.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "接続がタイムアウトしました（30 秒）",
++  "Отключение VPN не завершено": "VPN の切断が完了していません",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "すべてのドメインルールを適用できませんでした。DNS とルート数の上限を確認してください。",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "このブリッジに対応する SSH サーバーを一意に特定できません。アドレスと重複登録を確認してください",
+   "Проверка не подтвердила адрес выбранного exit": "選択した出口サーバーのアドレスを確認できませんでした",
+diff --git a/app/assets/l10n/ko.json b/app/assets/l10n/ko.json
+index 60dad7a..c4ac8e4 100644
+--- a/app/assets/l10n/ko.json
++++ b/app/assets/l10n/ko.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "연결 시간이 초과되었습니다(30초)",
++  "Отключение VPN не завершено": "VPN 연결 해제가 완료되지 않았습니다",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "모든 도메인 규칙을 적용하지 못했습니다. DNS와 경로 수 제한을 확인하세요.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "이 브리지에 해당하는 SSH 서버를 하나로 특정할 수 없습니다. 주소와 중복 항목을 확인하세요",
+   "Проверка не подтвердила адрес выбранного exit": "검사에서 선택한 출구 서버의 주소를 확인하지 못했습니다",
+diff --git a/app/assets/l10n/pt.json b/app/assets/l10n/pt.json
+index 4dc2308..e370d28 100644
+--- a/app/assets/l10n/pt.json
++++ b/app/assets/l10n/pt.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Tempo limite de conexão excedido (30 s)",
++  "Отключение VPN не завершено": "A desconexão da VPN não foi concluída",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Não foi possível aplicar todas as regras de domínio. Verifique o DNS e os limites de rotas.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Não há um servidor SSH único para este bridge: verifique o endereço e as entradas duplicadas",
+   "Проверка не подтвердила адрес выбранного exit": "A verificação não confirmou o endereço do servidor de saída selecionado",
+diff --git a/app/assets/l10n/ru.json b/app/assets/l10n/ru.json
+index f077507..a549992 100644
+--- a/app/assets/l10n/ru.json
++++ b/app/assets/l10n/ru.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Превышено время подключения (30 с)",
++  "Отключение VPN не завершено": "Отключение VPN не завершено",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты",
+   "Проверка не подтвердила адрес выбранного exit": "Проверка не подтвердила адрес выбранного exit",
+diff --git a/app/assets/l10n/tr.json b/app/assets/l10n/tr.json
+index b12b9c3..8a53cd9 100644
+--- a/app/assets/l10n/tr.json
++++ b/app/assets/l10n/tr.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "Bağlantı zaman aşımına uğradı (30 sn)",
++  "Отключение VPN не завершено": "VPN bağlantısının kesilmesi tamamlanmadı",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "Tüm alan adı kuralları uygulanamadı. DNS ve rota sınırlarını kontrol edin.",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "Bu bridge için tek bir SSH sunucusu bulunamadı: adresi ve yinelenen kayıtları kontrol edin",
+   "Проверка не подтвердила адрес выбранного exit": "Denetim, seçilen çıkış sunucusunun adresini doğrulamadı",
+diff --git a/app/assets/l10n/zh.json b/app/assets/l10n/zh.json
+index e607f13..3136cb2 100644
+--- a/app/assets/l10n/zh.json
++++ b/app/assets/l10n/zh.json
+@@ -1,4 +1,6 @@
+ {
++  "Превышено время подключения (30 с)": "连接超时（30 秒）",
++  "Отключение VPN не завершено": "VPN 断开尚未完成",
+   "Не удалось полностью применить доменные правила. Проверьте DNS и лимиты маршрутов.": "无法应用全部域名规则。请检查 DNS 和路由数量限制。",
+   "Нет однозначного SSH-сервера для этого bridge: проверьте адрес и дубликаты": "无法为此桥接节点确定唯一的 SSH 服务器：请检查地址和重复条目",
+   "Проверка не подтвердила адрес выбранного exit": "检查未能确认所选出口服务器的地址",

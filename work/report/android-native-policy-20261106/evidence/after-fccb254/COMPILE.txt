@@ -1,0 +1,56 @@
+# AFTER candidate fccb254 — exact source + allABI 7e118
+archive=0c99d2448151440c318ae70cb96fe8ff9bb1ac24e071304e2cbbbbfed1e422fc
+candidate=fccb2544394026e04be881b14ccbad44d767c338
+overlay-diff-bytes=0
+archive=0c99d2448151440c318ae70cb96fe8ff9bb1ac24e071304e2cbbbbfed1e422fc
+candidate-commit=fccb2544394026e04be881b14ccbad44d767c338
+source-stability=SOURCE-UNCHANGED-DURING-RUNS
+pure=pure-rc=0 PURE NATIVE POLICY TESTS PASS
+
+7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c  src/app/android/app/libs/rivet.aar
+8f1849333170c09c3e874c740bfc932a89adb177f454d131cf7caa86d5741400  -
+    12290  1980-00-00 00:00   classes.jar
+ 32582984  1980-00-00 00:00   jni/arm64-v8a/libgojni.so
+ 31331504  1980-00-00 00:00   jni/armeabi-v7a/libgojni.so
+ 34766472  1980-00-00 00:00   jni/x86_64/libgojni.so
+
+Exits: full=0 client=0
+/srv/archives/agent-policy-android-native-20261106/logs/full-gradle.txt:> Task :app:compileDebugKotlin
+/srv/archives/agent-policy-android-native-20261106/logs/full-gradle.txt:> Task :app:compileDebugJavaWithJavac
+/srv/archives/agent-policy-android-native-20261106/logs/full-gradle.txt:BUILD SUCCESSFUL in 2m 43s
+/srv/archives/agent-policy-android-native-20261106/logs/full-gradle.txt:32 actionable tasks: 27 executed, 5 up-to-date
+/srv/archives/agent-policy-android-native-20261106/logs/client-gradle.txt:> Task :app:compileDebugKotlin
+/srv/archives/agent-policy-android-native-20261106/logs/client-gradle.txt:> Task :app:compileDebugJavaWithJavac
+/srv/archives/agent-policy-android-native-20261106/logs/client-gradle.txt:BUILD SUCCESSFUL in 1m 44s
+/srv/archives/agent-policy-android-native-20261106/logs/client-gradle.txt:32 actionable tasks: 6 executed, 26 up-to-date
+
+/srv/archives/agent-policy-android-native-20261106/after-fccb254/buildconfig/BuildConfig-full.java:  public static final String APPLICATION_ID = "app.xio.xio";
+/srv/archives/agent-policy-android-native-20261106/after-fccb254/buildconfig/BuildConfig-full.java:  public static final boolean CLIENT_ONLY = false;
+/srv/archives/agent-policy-android-native-20261106/after-fccb254/buildconfig/BuildConfig-client.java:  public static final String APPLICATION_ID = "app.xio.client";
+/srv/archives/agent-policy-android-native-20261106/after-fccb254/buildconfig/BuildConfig-client.java:  public static final boolean CLIENT_ONLY = true;
+
+kotlin=46 java=92
+86a58091713bf9c834c639f456c3cb680298947fb3e3d22b33bbdc38f232a6f8  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/Engine.class
+5d98a70e41db03b870a26577000a7fb99257d7fa8feaae1127706485830a074a  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/PolicyBridge.class
+c1aca5a69c129adf16acd36aeab4b6016ffab29a497b78ca575f4f50aaadf2fe  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/CapturedAdmission.class
+72d88d088c52c70b1e25185b723ae9db24b77a83786a060b6fe163a421371cf8  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/PolicyEnvelopes.class
+0f05e1b4186f2e9a95f321992ff013fbe554e2097c935dd97195de1e2d21d9fa  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyJournal.class
+b90a981976c6254e5f9f36aba665f50a2584a46f179d900b3661ebafa81b3ada  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/DurableAdmission.class
+8618c8828b7192b0ab7a32091ed5694ec7915c6c01fac355cb7b3bdc96e8400b  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/DurableDocument.class
+183f1178c329ff3629f2c09e5e0530154f8f1dc0dec391884b5e94adab9432e5  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PublicationLease.class
+03c5e0260d4e1ef302b7dedb6dc000907be24a58efe5c040c30b90a1d3fc87fb  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyPlan.class
+
+== Engine.connect admission before stop
+     176: invokevirtual #897                // Method requirePolicyAdmissionOpen:()V
+     189: invokevirtual #901                // Method app/xio/xio/PolicyBridge.requireAdmission:(Landroid/content/Context;Ljava/util/Map;Ljava/lang/String;)Lapp/xio/xio/CapturedAdmission;
+     195: invokevirtual #897                // Method requirePolicyAdmissionOpen:()V
+     226: invokestatic  #915                // Method app/xio/mobile/Mobile.stopWithTimeout:(J)V
+
+== commit identity before proposal
+      51: invokevirtual #374                // Method app/xio/xio/PolicyJournal.requireSameProposal:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lapp/xio/xio/PolicyPlan;)Lapp/xio/xio/PolicyJournal$Reservation;
+      64: invokespecial #378                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+      70: invokevirtual #381                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+
+== reconcile
+      64: invokespecial #378                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+      70: invokevirtual #381                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;

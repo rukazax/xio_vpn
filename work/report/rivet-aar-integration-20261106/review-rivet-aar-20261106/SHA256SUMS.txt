@@ -1,0 +1,7 @@
+bdc963ef86f1e5cc26dec463eab42f82ebc444dc621b36cc1f1666ab891cf609  REVIEW-RIVET-AAR-20261106.md
+3ce782ebaddc7f1e89524db89bc16b701d2419bd6d093d4bf1028a1e09bdc82a  review-rivet-aar-20261106/logs/full-gradle.txt
+312bfa631595f089d0319297e7f0fce869e0994d6ff379e9c0eccc6e31d42ac6  review-rivet-aar-20261106/logs/client-gradle.txt
+cd802f44842a630df53bc5968789cb46e9b61eb5dbebe7cc6881a7ea6a596b6b  review-rivet-aar-20261106/logs/independent-input-payload-check.json
+959ede7235b4f3200b11db47369e54a45c03772f1c9a40d74a07adb90d72c168  review-rivet-aar-20261106/logs/hash-verification.json
+01dd80a294153b342f07c26f5fd662e5a39a7a73cb0e75b1a78825db76d1c367  review-rivet-aar-20261106/source-pre.json
+0376f9b9ede04b376a280150d2f0e1ca90ba0f284e84c5322aaf6793aebab0e2  review-rivet-aar-20261106/source-post.json

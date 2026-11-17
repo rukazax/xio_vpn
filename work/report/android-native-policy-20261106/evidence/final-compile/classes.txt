@@ -1,0 +1,10 @@
+kotlin-classes=46
+java-classes=92
+03c5e0260d4e1ef302b7dedb6dc000907be24a58efe5c040c30b90a1d3fc87fb  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyPlan.class
+f2d3430babce717627f082694b13a8260bbd92e593c77de0cd6ef11de7ca4468  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyJournal.class
+c3c311c4c4034f30ce0739defdae7f513654d14502388217b62522a80667355a  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/DurableAdmission.class
+d928667a8bba1a829e328552fc76a0e5f28d91e3fd0116cf6f777996127906cd  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyEnvelope.class
+183f1178c329ff3629f2c09e5e0530154f8f1dc0dec391884b5e94adab9432e5  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PublicationLease.class
+4b0f97c352ac1dc211ba2353497358c125f2aff436bbcec872327be3db2d390a  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/PolicyBridge.class
+efdaf46bf8320da20bd8d173a45d648918539e3c9a801ab36d42befd7d095c00  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/PolicyEnvelopes.class
+c1aca5a69c129adf16acd36aeab4b6016ffab29a497b78ca575f4f50aaadf2fe  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/CapturedAdmission.class

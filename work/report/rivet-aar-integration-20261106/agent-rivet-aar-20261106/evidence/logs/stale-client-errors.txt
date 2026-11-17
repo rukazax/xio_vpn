@@ -1,0 +1,8 @@
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt:60:50 Unresolved reference 'cancelConnect'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt:198:22 Unresolved reference 'stopWithTimeout'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:16:61 Unresolved reference 'stopWithTimeout'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:30:33 Unresolved reference 'connectPolicyTimeout'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:31:17 Unresolved reference 'optBoolean'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:31:48 Unresolved reference 'optString'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:49:30 Unresolved reference 'cancelConnect'.
+FAILURE: Build failed with an exception.

@@ -1,0 +1,454 @@
+test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) ... 
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add', malformed=False) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add', malformed=False) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add', malformed=True) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add-awg', malformed=False) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add-awg', malformed=False) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add-awg', malformed=True) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='revoke', malformed=False) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='revoke', malformed=False) ... FAIL
+  test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='revoke', malformed=True) ... FAIL
+test_auth_and_identity_before_observations (test_admin_contract.ContractTests.test_auth_and_identity_before_observations) ... ok
+test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) ... 
+  test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=False, protocol='awg') ... FAIL
+  test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=False, protocol='wireguard') ... FAIL
+  test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=True, protocol='awg') ... FAIL
+  test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=True, protocol='wireguard') ... FAIL
+test_incoming_alias_of_existing (test_admin_contract.ContractTests.test_incoming_alias_of_existing) ... FAIL
+test_incoming_noncanonical_is_canonicalized_or_rejected (test_admin_contract.ContractTests.test_incoming_noncanonical_is_canonicalized_or_rejected) ... FAIL
+test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns (test_admin_contract.ContractTests.test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns) ... FAIL
+test_native_ipv6_only_cannot_remove_ipv4_capture (test_admin_contract.ContractTests.test_native_ipv6_only_cannot_remove_ipv4_capture) ... FAIL
+test_native_partial_selected_readiness_rejected (test_admin_contract.ContractTests.test_native_partial_selected_readiness_rejected) ... FAIL
+test_native_selected_families_dns_and_both_captures (test_admin_contract.ContractTests.test_native_selected_families_dns_and_both_captures) ... 
+  test_native_selected_families_dns_and_both_captures (test_admin_contract.ContractTests.test_native_selected_families_dns_and_both_captures) (v4=False, v6=True) ... FAIL
+  test_native_selected_families_dns_and_both_captures (test_admin_contract.ContractTests.test_native_selected_families_dns_and_both_captures) (v4=True, v6=True) ... FAIL
+test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) ... 
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='stale') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='down') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='malformed') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='identity') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='missing-intent') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='bad-intent') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='empty-intent') ... FAIL
+  test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='changed') ... FAIL
+test_normal_legacy_distinct_wg_awg_remains_valid (test_admin_contract.ContractTests.test_normal_legacy_distinct_wg_awg_remains_valid) ... ok
+test_observation_failure_before_effects_and_no_reobserve (test_admin_contract.ContractTests.test_observation_failure_before_effects_and_no_reobserve) ... FAIL
+test_ordinary_revoke_and_repeat_remain_valid (test_admin_contract.ContractTests.test_ordinary_revoke_and_repeat_remain_valid) ... ok
+test_within_request_duplicate (test_admin_contract.ContractTests.test_within_request_duplicate) ... FAIL
+test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) ... 
+  test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='zero') ... FAIL
+  test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='zero') ... FAIL
+  test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='server') ... FAIL
+  test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='server') ... FAIL
+  test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add-awg', case='server') ... FAIL
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add', malformed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add', malformed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add', malformed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 75, in reject
+    self.assertEqual(self.events, [], 'no persistence/render/UAPI before admission')
+AssertionError: Lists differ: ['save', 'render', 'save', 'render'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'save'
+
+- ['save', 'render', 'save', 'render']
++ [] : no persistence/render/UAPI before admission
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add-awg', malformed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add-awg', malformed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='add-awg', malformed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 75, in reject
+    self.assertEqual(self.events, [], 'no persistence/render/UAPI before admission')
+AssertionError: Lists differ: ['save', 'render', 'save'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'save'
+
+- ['save', 'render', 'save']
++ [] : no persistence/render/UAPI before admission
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='revoke', malformed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='revoke', malformed=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_ambiguous_or_malformed_existing_registry (test_admin_contract.ContractTests.test_ambiguous_or_malformed_existing_registry) (action='revoke', malformed=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 118, in test_ambiguous_or_malformed_existing_registry
+    self.reject(self.request(action, id=('1' if action == 'revoke' else '2')*32))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 75, in reject
+    self.assertEqual(self.events, [], 'no persistence/render/UAPI before admission')
+AssertionError: Lists differ: ['stats', 'save', 'render'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'stats'
+
+- ['stats', 'save', 'render']
++ [] : no persistence/render/UAPI before admission
+
+======================================================================
+FAIL: test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=False, protocol='awg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 94, in test_equivalent_existing_including_revoked_and_cross_protocol
+    self.reject(self.request(action))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=False, protocol='wireguard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 94, in test_equivalent_existing_including_revoked_and_cross_protocol
+    self.reject(self.request(action))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=True, protocol='awg')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 94, in test_equivalent_existing_including_revoked_and_cross_protocol
+    self.reject(self.request(action))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_equivalent_existing_including_revoked_and_cross_protocol (test_admin_contract.ContractTests.test_equivalent_existing_including_revoked_and_cross_protocol) (action='add', revoked=True, protocol='wireguard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 94, in test_equivalent_existing_including_revoked_and_cross_protocol
+    self.reject(self.request(action))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_incoming_alias_of_existing (test_admin_contract.ContractTests.test_incoming_alias_of_existing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 98, in test_incoming_alias_of_existing
+    self.reject(self.request(publicKeys={'awg': alias(key(2))}))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_incoming_noncanonical_is_canonicalized_or_rejected (test_admin_contract.ContractTests.test_incoming_noncanonical_is_canonicalized_or_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 137, in test_incoming_noncanonical_is_canonicalized_or_rejected
+    self.assertEqual(self.d['users']['2'*32]['keys']['awg'], key(2))
+AssertionError: 'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJ=' != 'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI='
+- AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJ=
+?                                           ^
++ AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=
+?                                           ^
+
+
+======================================================================
+FAIL: test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns (test_admin_contract.ContractTests.test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 190, in test_legacy_ipv6_only_requires_ipv6_and_no_v4_dns
+    self.reject(self.request('add-awg', ipv6Only=True))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_ipv6_only_cannot_remove_ipv4_capture (test_admin_contract.ContractTests.test_native_ipv6_only_cannot_remove_ipv4_capture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 182, in test_native_ipv6_only_cannot_remove_ipv4_capture
+    self.reject(self.request('add-awg', ipv6Only=True))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_partial_selected_readiness_rejected (test_admin_contract.ContractTests.test_native_partial_selected_readiness_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 187, in test_native_partial_selected_readiness_rejected
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_selected_families_dns_and_both_captures (test_admin_contract.ContractTests.test_native_selected_families_dns_and_both_captures) (v4=False, v6=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 159, in test_native_selected_families_dns_and_both_captures
+    self.assertIn('DNS = '+dns+'\n', result['config'])
+AssertionError: 'DNS = 2620:fe::fe\n' not found in '[Interface]\nPrivateKey = <client-private-key>\nAddress = 10.78.0.2/24, fd78:1::2/64\nDNS = 9.9.9.9\nMTU = 1280\n\n[Peer]\nPublicKey = WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo=\nEndpoint = 192.0.2.1:51821\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n'
+
+======================================================================
+FAIL: test_native_selected_families_dns_and_both_captures (test_admin_contract.ContractTests.test_native_selected_families_dns_and_both_captures) (v4=True, v6=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 159, in test_native_selected_families_dns_and_both_captures
+    self.assertIn('DNS = '+dns+'\n', result['config'])
+AssertionError: 'DNS = 9.9.9.9, 2620:fe::fe\n' not found in '[Interface]\nPrivateKey = <client-private-key>\nAddress = 10.78.0.2/24, fd78:1::2/64\nDNS = 9.9.9.9\nMTU = 1280\n\n[Peer]\nPublicKey = WlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlpaWlo=\nEndpoint = 192.0.2.1:51821\nAllowedIPs = 0.0.0.0/0, ::/0\nPersistentKeepalive = 25\n'
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='stale')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='down')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='malformed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='missing-intent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='bad-intent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='empty-intent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_native_stale_down_malformed_and_changed_identity_pre_effects (test_admin_contract.ContractTests.test_native_stale_down_malformed_and_changed_identity_pre_effects) (case='changed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 178, in test_native_stale_down_malformed_and_changed_identity_pre_effects
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_observation_failure_before_effects_and_no_reobserve (test_admin_contract.ContractTests.test_observation_failure_before_effects_and_no_reobserve)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 199, in test_observation_failure_before_effects_and_no_reobserve
+    self.reject(self.request('add-awg'))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 75, in reject
+    self.assertEqual(self.events, [], 'no persistence/render/UAPI before admission')
+AssertionError: Lists differ: ['save', 'render', 'uapi'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'save'
+
+- ['save', 'render', 'uapi']
++ [] : no persistence/render/UAPI before admission
+
+======================================================================
+FAIL: test_within_request_duplicate (test_admin_contract.ContractTests.test_within_request_duplicate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 110, in test_within_request_duplicate
+    self.reject(self.request(publicKeys={'awg': key(2), 'wireguard': alias(key(2))}))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 105, in test_zero_and_server_aliases
+    self.reject(self.request(action, **field))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='zero')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 105, in test_zero_and_server_aliases
+    self.reject(self.request(action, **field))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='server')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 105, in test_zero_and_server_aliases
+    self.reject(self.request(action, **field))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add', case='server')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 105, in test_zero_and_server_aliases
+    self.reject(self.request(action, **field))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+======================================================================
+FAIL: test_zero_and_server_aliases (test_admin_contract.ContractTests.test_zero_and_server_aliases) (action='add-awg', case='server')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 105, in test_zero_and_server_aliases
+    self.reject(self.request(action, **field))
+  File "C:\Users\er-ka\Documents\deepseek-harness\xio_vpn\work\agent-server-contract-fixes-20261105\work\report\server-contract-fixes-20261105\baseline\test_admin_contract.py", line 73, in reject
+    with self.assertRaises((AssertionError, RuntimeError, ValueError)):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'AssertionError'>, <class 'RuntimeError'>, <class 'ValueError'>) not raised
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.535s
+
+FAILED (failures=35)
+EXIT=1

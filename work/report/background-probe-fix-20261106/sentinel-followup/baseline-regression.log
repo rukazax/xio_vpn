@@ -1,0 +1,2 @@
+Exception in thread "main" java.lang.AssertionError: Missing handshake accepted: started=0 observed=0
+	at app.xio.xio.BackgroundVerificationOptionsTest.main(BackgroundVerificationOptionsTest.java:38)

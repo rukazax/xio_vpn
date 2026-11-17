@@ -1,0 +1,47 @@
+{
+  "commit": "595def6ab24590002458c0a5fa4f8020d5c8a86f",
+  "archiveSha256": "27148ceb51225e5f60894952e469a116ede930e41a310ee342c8192edd95b904",
+  "authorArchiveEqual": true,
+  "actualAuthorNativeFilesEqualToGitArchive": 1842,
+  "historicalNativeInputsEqual": true,
+  "aarSHA256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+  "aarBytes": 36548360,
+  "zipCRC": "PASS",
+  "uniqueEntries": [
+    "AndroidManifest.xml",
+    "proguard.txt",
+    "classes.jar",
+    "jni/arm64-v8a/libgojni.so",
+    "jni/armeabi-v7a/libgojni.so",
+    "jni/x86_64/libgojni.so",
+    "R.txt",
+    "res/"
+  ],
+  "entries": {
+    "jni/arm64-v8a/libgojni.so": {
+      "sha256": "990c84db1bb4142dcf68e1f112317d00b794719713f26680293eb1997b217ecd",
+      "bytes": 32582984,
+      "elfClass": 2,
+      "e_type": 3,
+      "e_machine": 183
+    },
+    "jni/armeabi-v7a/libgojni.so": {
+      "sha256": "18ac04444292b0e4a37b7d0a1b05105a5de13905cd5f2652df2e706e5c592ff1",
+      "bytes": 31331504,
+      "elfClass": 1,
+      "e_type": 3,
+      "e_machine": 40
+    },
+    "jni/x86_64/libgojni.so": {
+      "sha256": "ddb62423c7d4049ba860315f0b69f108b601897a4b6a82297687b58e08955cd6",
+      "bytes": 34766472,
+      "elfClass": 2,
+      "e_type": 3,
+      "e_machine": 62
+    }
+  },
+  "classesSHA256": "8f1849333170c09c3e874c740bfc932a89adb177f454d131cf7caa86d5741400",
+  "manifest": "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" package=\"go.mobile.gojni\">\n<uses-sdk android:minSdkVersion=\"26\"/></manifest>",
+  "javapExit": 0,
+  "gomobileRebuiltByVerifier": false
+}

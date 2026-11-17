@@ -23,6 +23,11 @@ val clientOnly = (project.findProperty("dart-defines") as String?).orEmpty().spl
     runCatching { String(Base64.getDecoder().decode(it)) == "XIO_CLIENT_ONLY=true" }.getOrDefault(false)
 }
 
+// Diagnostic ("test") build: screenshots stay possible and the app keeps a
+// persistent on-device log that can be uploaded to the panel. Off by default;
+// every release build must be produced without this property.
+val testBuild = (project.findProperty("xioTestBuild") as String?) == "true"
+
 // Registered once per variant so the task container is not mutated from inside
 // another task's configureEach (Gradle forbids that). The strip runs on the
 // Flutter asset output after compileFlutterBuild<Variant> and before the merge
@@ -188,6 +193,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = if (clientOnly) "app.xio.client" else "app.xio.xio"
         buildConfigField("boolean", "CLIENT_ONLY", clientOnly.toString())
+        buildConfigField("boolean", "TEST_BUILD", testBuild.toString())
         val playBuild = (project.findProperty("dart-defines") as String?).orEmpty().split(",").filter { it.isNotEmpty() }.any {
             runCatching { String(Base64.getDecoder().decode(it)) == "XIO_PLAY_BUILD=true" }.getOrDefault(false)
         }

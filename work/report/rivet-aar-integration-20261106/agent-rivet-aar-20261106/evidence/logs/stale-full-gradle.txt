@@ -1,0 +1,146 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/Deeplink.kt:13:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to property.
+- To opt in to applying to both value parameter and property, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/Deeplink.kt:15:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to property.
+- To opt in to applying to both value parameter and property, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/Deeplink.kt:17:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to property.
+- To opt in to applying to both value parameter and property, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/Deeplink.kt:19:5 This annotation is currently applied to the value parameter only, but in the future it will also be applied to property.
+- To opt in to applying to both value parameter and property, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/FlutterPlugin.kt:12:8 'interface ApkVariant : Any, BaseVariant, InstallableVariant, AndroidArtifactVariant, InternalBaseVariant' is deprecated. Deprecated in Java.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/FlutterPlugin.kt:664:69 'interface ApkVariant : Any, BaseVariant, InstallableVariant, AndroidArtifactVariant, InternalBaseVariant' is deprecated. Deprecated in Java.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/FlutterPluginUtils.kt:766:29 Condition is always 'true'.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/plugins/PluginHandler.kt:168:70 Unchecked cast of 'NamedDomainObjectContainer<out BuildType>' to 'NamedDomainObjectContainer<BuildType>'.
+w: file:///srv/archives/agent-rivet-aar-20261106/flutter/packages/flutter_tools/gradle/src/main/kotlin/plugins/PluginHandler.kt:169:75 Unchecked cast of 'NamedDomainObjectContainer<out BuildType>' to 'NamedDomainObjectContainer<BuildType>'.
+
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors
+> Task :gradle:processResources
+> Task :gradle:classes
+> Task :gradle:jar
+
+> Configure project :app
+WARNING: The option setting 'android.builtInKotlin=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+WARNING: The option setting 'android.newDsl=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+w: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/build.gradle.kts:15:1: 'fun Project.android(configure: Action<BaseAppModuleExtension>): Unit' is deprecated. Replaced by com.android.build.api.dsl.ApplicationExtension.
+This class is not used for the public extensions in AGP when android.newDsl=true, which is the default in AGP 9.0, and will be removed in AGP 10.0.
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':app' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Configure project :amneziawg
+w: file:///srv/archives/agent-rivet-aar-20261106/src/vendor/amneziawg/android/build.gradle.kts:3:1: 'fun Project.android(configure: Action<LibraryExtension>): Unit' is deprecated. Replaced by com.android.build.api.dsl.LibraryExtension.
+This class is not used for the public extensions in AGP when android.newDsl=true, which is the default in AGP 9.0, and will be removed in AGP 10.0.
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':amneziawg' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Configure project :integration_test
+w: file:///srv/archives/agent-rivet-aar-20261106/integration_test/android/build.gradle.kts:34:1: 'fun Project.android(configure: Action<LibraryExtension>): Unit' is deprecated. Replaced by com.android.build.api.dsl.LibraryExtension.
+This class is not used for the public extensions in AGP when android.newDsl=true, which is the default in AGP 9.0, and will be removed in AGP 10.0.
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':integration_test' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Task :amneziawg:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :amneziawg:preBuild UP-TO-DATE
+> Task :amneziawg:preDebugBuild UP-TO-DATE
+> Task :amneziawg:generateDebugResources
+> Task :amneziawg:packageDebugResources
+> Task :amneziawg:processDebugNavigationResources
+> Task :amneziawg:parseDebugLocalResources
+> Task :amneziawg:generateDebugRFile
+> Task :amneziawg:compileDebugKotlin NO-SOURCE
+> Task :amneziawg:javaPreCompileDebug
+
+> Task :amneziawg:compileDebugJavaWithJavac
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+
+Note: /srv/archives/agent-rivet-aar-20261106/src/vendor/amneziawg/android/src/main/java/org/amnezia/awg/backend/GoBackend.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :amneziawg:bundleLibCompileToJarDebug
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:validateCompileSdkVersion
+> Task :app:verifyLauncherAliases
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:generateDebugBuildConfig
+> Task :app:cleanMergeDebugAssets UP-TO-DATE
+> Task :app:copyFlutterAssetsDebug NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :integration_test:preBuild UP-TO-DATE
+> Task :integration_test:preDebugBuild UP-TO-DATE
+> Task :integration_test:processDebugNavigationResources
+> Task :app:processDebugNavigationResources
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugRFile
+> Task :integration_test:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :integration_test:generateDebugResources
+> Task :integration_test:packageDebugResources
+> Task :integration_test:parseDebugLocalResources
+> Task :integration_test:generateDebugRFile
+> Task :integration_test:compileDebugKotlin NO-SOURCE
+> Task :integration_test:javaPreCompileDebug
+> Task :integration_test:compileDebugJavaWithJavac
+> Task :integration_test:bundleLibCompileToJarDebug
+> Task :app:compileDebugKotlin
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt:60:50 Unresolved reference 'cancelConnect'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt:198:22 Unresolved reference 'stopWithTimeout'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:16:61 Unresolved reference 'stopWithTimeout'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:30:33 Unresolved reference 'connectPolicyTimeout'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:31:17 Unresolved reference 'optBoolean'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:31:48 Unresolved reference 'optString'.
+e: file:///srv/archives/agent-rivet-aar-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/RivetBackend.kt:49:30 Unresolved reference 'cancelConnect'.
+
+> Task :app:compileDebugKotlin FAILED
+
+[Incubating] Problems report is available at: file:///srv/archives/agent-rivet-aar-20261106/src/app/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 10m 53s
+30 actionable tasks: 29 executed, 1 up-to-date

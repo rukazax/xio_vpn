@@ -1,0 +1,27 @@
+00:00 +0: loading /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart
+00:00 +0: actual native plan serializes typed website opt-in false
+00:00 +0 -1: actual native plan serializes typed website opt-in false [E]
+  Expected: <Instance of 'bool'>
+    Actual: <null>
+     Which: is not an instance of 'bool'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/background_probe_plan_test.dart 37:9           main.<fn>
+  
+00:00 +0 -1: actual native plan serializes typed website opt-in true
+00:00 +0 -2: actual native plan serializes typed website opt-in true [E]
+  Expected: <Instance of 'bool'>
+    Actual: <null>
+     Which: is not an instance of 'bool'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/background_probe_plan_test.dart 37:9           main.<fn>
+  
+00:00 +0 -2: platform gate stays off when Android is not selected
+00:00 +1 -2: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in false
+  /srv/archives/agent-background-probe-fix-20261106/source/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in true

@@ -1,0 +1,17 @@
+== Engine.connect admission before Mobile.stopWithTimeout
+     176: invokevirtual #893                // Method requirePolicyAdmissionOpen:()V
+     189: invokevirtual #897                // Method app/xio/xio/PolicyBridge.requireAdmission:(Landroid/content/Context;Ljava/util/Map;Ljava/lang/String;)Lapp/xio/xio/CapturedAdmission;
+     195: invokevirtual #893                // Method requirePolicyAdmissionOpen:()V
+     226: invokestatic  #911                // Method app/xio/mobile/Mobile.stopWithTimeout:(J)V
+
+== commit
+     119: invokespecial #398                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+     125: invokevirtual #401                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+
+== reconcile
+      64: invokespecial #398                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+      70: invokevirtual #401                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+
+== FLAG_SECURE
+       7: invokevirtual #68                 // Method android/view/Window.addFlags:(I)V
+      12: invokespecial #70                 // Method io/flutter/embedding/android/FlutterActivity.onCreate:(Landroid/os/Bundle;)V

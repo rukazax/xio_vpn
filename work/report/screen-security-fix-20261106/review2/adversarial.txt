@@ -1,0 +1,27 @@
+00:00 +0: loading /srv/archives/agent-screen-security-review-20261106/app/test/reviewer_adversarial_test.dart
+00:00 +0: disposed store must not clear new store window after pending save
+00:00 +0 -1: disposed store must not clear new store window after pending save [E]
+  Expected: [true]
+    Actual: [true, false]
+     Which: at location [1] is [true, false] which longer than expected
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/reviewer_adversarial_test.dart 42:11           main.<fn>
+  
+00:00 +0 -1: failed load must not claim persisted screenshot preference known
+00:00 +0 -2: failed load must not claim persisted screenshot preference known [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/reviewer_adversarial_test.dart 52:7            main.<fn>
+  
+00:00 +0 -2: late ACK after background does not republish old window state
+00:00 +1 -2: disposed queued actions never issue new native calls
+00:00 +2 -2: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-screen-security-review-20261106/app/test/reviewer_adversarial_test.dart: disposed store must not clear new store window after pending save
+  /srv/archives/agent-screen-security-review-20261106/app/test/reviewer_adversarial_test.dart: failed load must not claim persisted screenshot preference known

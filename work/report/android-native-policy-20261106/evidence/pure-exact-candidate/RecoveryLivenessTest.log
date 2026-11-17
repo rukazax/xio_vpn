@@ -1,0 +1,1 @@
+PASS recovery liveness: persisted pending refuses begin, rejected reconcile writes durable BLOCKED, a fresh owned publication with a new receipt commits READY, and Tile/native capture admits it; no manual preference deletion and no native document write

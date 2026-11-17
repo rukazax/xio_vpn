@@ -1,0 +1,6 @@
+Analyzing 8 items...                                            
+
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1008:7 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1010:7 • curly_braces_in_flow_control_structures
+
+2 issues found. (ran in 13.4s)

@@ -1,0 +1,17 @@
+{
+  "snapshot": "/srv/archives/snapshots/native-plan-20261105",
+  "base": "a751864a38fe755018b716f6b42e6964fcac890b",
+  "updateSource": "e18980c87662c87602ff39c9c0096e626d641b0d",
+  "integrationHead": "264b3f7d72dd375b35bae4d889556087cedd669c",
+  "testCount": 100,
+  "sourceHashes": {
+    "app/lib/native_cascade_plan.dart": "edd826bd629838d969bd780fce9df8e98d1b21f28ce243d00ebb62b9fed04e1c",
+    "app/lib/native_cascade_journal.dart": "c76f24727c1908fef4ea93bad12347c7b790a9dbaa0962937bd4bb4b72ce4c74",
+    "app/test/native_cascade_plan_test.dart": "da629baec4808e8564952b8b39fce93da9c9f72fb80583ec76987b546e7066d9",
+    "app/test/native_cascade_journal_test.dart": "4627cfbe4017c35f007cbbb23cbcde7d2529bba727853288f379ef285449ecd0",
+    "app/lib/managed_service.dart": "5cf24c17c11d21644af44f22ce5a63ae0335169e658c81e78bd6a09c48c7d17c",
+    "app/test/managed_update_verification_test.dart": "95df55b466fc3b2725535a80cdfc25492eba07b2b822734b0cc90e06ca092d33"
+  },
+  "fullTreeAcceptance": false,
+  "deviceAcceptance": false
+}

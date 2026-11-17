@@ -157,7 +157,10 @@ class ContractTests(unittest.TestCase):
                 self.readiness(v4, v6)
                 result = self.ns['dispatch'](self.request('add-awg'))
                 self.assertIn('DNS = '+dns+'\n', result['config'])
-                self.assertIn('AllowedIPs = 0.0.0.0/0, ::/0\n', result['config'])
+                allowed=', '.join(value for family,value in
+                                 (('ipv4','0.0.0.0/0'),('ipv6','::/0'))
+                                 if (v4 if family=='ipv4' else v6))
+                self.assertIn('AllowedIPs = '+allowed+'\n', result['config'])
 
     def test_native_stale_down_malformed_and_changed_identity_pre_effects(self):
         for case in ('stale', 'down', 'malformed', 'identity', 'missing-intent', 'bad-intent', 'empty-intent', 'changed'):

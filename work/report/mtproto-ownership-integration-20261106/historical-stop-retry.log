@@ -1,0 +1,55 @@
+source_sha256=1289560cb84985abe344acdfbf88baeac2bb1e0459ed9c13a96e5444c563618c
+interruption: exit=88 phase=uninstalling stop=done unit+enablement-link still present
+retry_exit=0
+retry_phase=uninstalled
+runtime_still_active=True
+unit_exists=False
+payload_exists=False
+retry_trace:
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+systemctl daemon-reload
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rm fixture
+journal publication
+journal publication
+rmdir fixture
+journal publication
+journal publication
+rmdir fixture
+journal publication
+journal publication
+userdel xio-mtproto
+journal publication
+journal publication
+groupdel xio-mtproto
+journal publication
+systemctl daemon-reload
+journal publication
+
+COUNTEREXAMPLE CONFIRMED: actual uninstall reports success and removes payload without re-stopping active owned unit.

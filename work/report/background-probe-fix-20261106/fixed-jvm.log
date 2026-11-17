@@ -1,0 +1,2 @@
+BackgroundVerificationOptions: 29 checks PASS (offline; zero real HTTP/DNS/wait)
+ConnectionBudget: cumulative deadline, child cancellation/fallback, publication epochs, late success and cleanup reservation PASS

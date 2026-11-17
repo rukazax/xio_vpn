@@ -1,0 +1,24 @@
+== key class hashes (client-mode build dir, last configuration)
+03c5e0260d4e1ef302b7dedb6dc000907be24a58efe5c040c30b90a1d3fc87fb  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyPlan.class
+96fb024f305aaae10a77e8d48f1c8ebd92a90cac95bcc93eff9bd5bb00065809  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyJournal.class
+eb10b8aee2e7d08897e20ab70a02703401db46f5ae446d3854174884abd420ba  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/DurableAdmission.class
+d928667a8bba1a829e328552fc76a0e5f28d91e3fd0116cf6f777996127906cd  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PolicyEnvelope.class
+183f1178c329ff3629f2c09e5e0530154f8f1dc0dec391884b5e94adab9432e5  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/intermediates/javac/debug/compileDebugJavaWithJavac/classes/app/xio/xio/PublicationLease.class
+e608ee81341414b2c446c404a31cd5f1dff632d20545dd425bfc53411c714d71  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/PolicyBridge.class
+c1aca5a69c129adf16acd36aeab4b6016ffab29a497b78ca575f4f50aaadf2fe  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/CapturedAdmission.class
+efdaf46bf8320da20bd8d173a45d648918539e3c9a801ab36d42befd7d095c00  /srv/archives/agent-policy-android-native-20261106/src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio/PolicyEnvelopes.class
+
+== commit-before-ready bytecode
+584:     118: invokevirtual #396                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+648:      63: invokevirtual #396                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+695:      30: invokestatic  #427                // Method app/xio/xio/DurableAdmission.validateProposal:(Lapp/xio/xio/PolicyPlan;Ljava/lang/String;Ljava/lang/String;Lapp/xio/xio/DurableAdmission$RoutingSource;Lapp/xio/xio/DurableAdmission$ConfigSource;ZLjava/lang/String;Z)V
+
+== autonomous predicate bytecode
+11:  public final boolean ready(android.content.Context);
+85:      15: invokeinterface #89,  2           // InterfaceMethod android/content/SharedPreferences.contains:(Ljava/lang/String;)Z
+91:      27: invokevirtual #91                 // Method ready:(Landroid/content/Context;)Z
+95:      33: invokespecial #94                 // Method legacyAutonomous:(Landroid/content/Context;)Z
+98:  private final boolean legacyAutonomous(android.content.Context);
+133:      57: getfield      #126                // Field app/xio/xio/DurableDocument.hasConnectionPolicy:Z
+
+== MainActivity onCreate FLAG_SECURE ordering

@@ -1,0 +1,9 @@
+Analyzing core.dart, routing_domains.dart, routing_contract_invariants_test.dart, routing_resolution_completeness_test.dart, split_domains_store_test.dart, connection_users_test.dart...
+
+   info - lib/core.dart:1007:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/core.dart:1009:7 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/routing_domains.dart:241:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/routing_domains.dart:258:11 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - lib/routing_domains.dart:455:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+
+5 issues found.

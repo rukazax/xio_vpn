@@ -47,6 +47,7 @@ class XioVpnService : GoBackend.VpnService() {
                 if(token!=Engine.publicationToken())return@post
                 instance?.let { service ->
                     val publishUp=up && Engine.acceptsUpPublication(token)
+                    Diag.append("tunnel", "stateChanged up=$up publish=$publishUp")
                     service.isUp = publishUp
                     if (publishUp) service.getSystemService(NotificationManager::class.java).notify(ID, service.notification(true))
                     else service.stopForeground(STOP_FOREGROUND_REMOVE)
@@ -99,6 +100,8 @@ class XioVpnService : GoBackend.VpnService() {
     }
     override fun onCreate() {
         super.onCreate()
+        Diag.init(this)
+        Diag.append("service", "onCreate")
         synchronized(lifecycle){instance = this;lifecycle.notifyAll()}
         createChannel()
         phaseHandler.post(phaseWatch)
@@ -127,6 +130,7 @@ class XioVpnService : GoBackend.VpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         if (intent?.action == DISCONNECT) {
+            Diag.append("service", "onStartCommand disconnect")
             Engine.revokePublication()
             Engine.revokeLogicalPolicy()
             Engine.initialize(this)
@@ -145,6 +149,7 @@ class XioVpnService : GoBackend.VpnService() {
         super.onTaskRemoved(rootIntent)
     }
     override fun onRevoke() {
+        Diag.append("service", "onRevoke (system or another VPN)")
         Engine.revokePublication()
         Engine.revokeLogicalPolicy()
         isUp=false
@@ -152,6 +157,7 @@ class XioVpnService : GoBackend.VpnService() {
         super.onRevoke()
     }
     override fun onDestroy() {
+        Diag.append("service", "onDestroy")
         phaseHandler.removeCallbacks(phaseWatch)
         OpenVpnBackend.stop()
         XrayBackend.stop()

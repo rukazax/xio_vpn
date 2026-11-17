@@ -1,0 +1,4 @@
+Mock actual worker catch: AAcquiredOwner=false scopedCancelAccepted=false BStillPublishable=false
+Exception in thread "main" java.lang.AssertionError: DESIRED INVARIANT FAILED: obsolete queued A cleanup invalidated unrelated winning B despite never acquiring A's owner
+	at app.xio.xio.ReviewObsoleteCleanupInvariant.check(ReviewObsoleteCleanupInvariant.java:10)
+	at app.xio.xio.ReviewObsoleteCleanupInvariant.main(ReviewObsoleteCleanupInvariant.java:34)

@@ -1,0 +1,16 @@
+rollback/both-throw: ok=False threw=False public=True private=True receipt=False rule=False
+rollback/private-throw: ok=False threw=False public=False private=True receipt=False rule=False
+rollback/public-throw: ok=False threw=False public=True private=False receipt=False rule=False
+rollback/sticky-success: ok=False threw=False public=True private=False receipt=False rule=False
+rollback/success: ok=True threw=False public=False private=False receipt=False rule=False
+rollback/rule-failure: ok=True threw=True public=False private=False receipt=True rule=True
+rollback/already-disabled: ok=True threw=False public=False private=False receipt=False rule=False
+disable/both-throw: ok=True threw=True public=True private=True receipt=True rule=True
+disable/private-throw: ok=True threw=True public=False private=True receipt=True rule=True
+disable/public-throw: ok=True threw=True public=True private=True receipt=True rule=True
+disable/sticky-success: ok=False threw=False public=True private=False receipt=False rule=False
+disable/success: ok=True threw=False public=False private=False receipt=False rule=False
+disable/rule-failure: ok=True threw=True public=False private=False receipt=True rule=True
+disable/already-disabled: ok=True threw=False public=False private=False receipt=False rule=False
+Desired actual-source cleanup invariants FAILED: 5 cases
+expected baseline desired-invariant exit=1

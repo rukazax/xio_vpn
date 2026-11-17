@@ -1,0 +1,33 @@
+OWN_PROCESSES
+RECEIPTS {"analyze.exit": "1", "client-mode.exit": "0", "format.exit": "0", "full-suite.exit": "0", "source-after.exit": "0", "source-before.exit": "0", "targeted.exit": "0"}
+targeted.txt 00:21 +35: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+00:23 +36: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: cascade screen fits 360×640 in every language, RTL included
+00:24 +37: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+00:25 +38: /srv/archives/agent-screen-security-fix-20261106/app/test/l10n_test.dart: (tearDownAll)
+00:25 +38: loading /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart
+00:26 +38: /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+00:27 +39: /srv/archives/agent-screen-security-fix-20261106/app/test/status_poll_idle_test.dart: equal tunnel states compare equal
+00:27 +40: All tests passed!
+full-suite.txt 03:46 +731 ~15: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: раздельное туннелирование переехало в «Соединение»
+03:47 +732 ~15: /srv/archives/agent-screen-security-fix-20261106/app/test/routing_ui_test.dart: на вкладке «Настройка соединений» нет подзаголовка
+03:47 +733 ~15: loading /srv/archives/agent-screen-security-fix-20261106/app/test/asset_provenance_test.dart
+03:49 +733 ~15: /srv/archives/agent-screen-security-fix-20261106/app/test/asset_provenance_test.dart: bundled server archive and bootstrap match the server source tree
+03:49 +733 ~16: loading /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart
+03:50 +733 ~16: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart: live shared SSH client: pinned IPv4 DNS transport
+03:50 +733 ~17: /srv/archives/agent-screen-security-fix-20261106/app/test/ssh_dualstack_live_test.dart: live shared SSH client: pinned IPv4 literal transport
+03:50 +733 ~18: All tests passed!
+client-mode.txt 00:11 +25: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: client build is explicit and rejects administrative input before native IO
+00:11 +26: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: selected profile stays first; fallbacks follow it
+00:11 +27: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: same-endpoint variant goes before another endpoint profile
+00:11 +28: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: switch waits for stop and refuses failed stop: false
+00:13 +29: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: switch waits for stop and refuses failed stop: true
+00:14 +30: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: small display and large text keep client scrollable
+00:14 +31: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: shared home theme previews with test profiles
+00:14 +32: All tests passed!
+analyze.txt Analyzing app...                                                
+
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1030:7 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1032:7 • curly_braces_in_flow_control_structures
+
+2 issues found. (ran in 6.3s)
+LIVE_EXECUTED_FILES 528 MISMATCHES []

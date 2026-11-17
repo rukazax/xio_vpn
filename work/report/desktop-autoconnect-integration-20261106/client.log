@@ -1,0 +1,346 @@
+00:00 +0: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart
+00:00 +0: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: persisted enabled desktop startup connects exactly once
+00:00 +1: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: only boolean true authorizes startup: false
+00:00 +2: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: only boolean true authorizes startup: null
+00:00 +3: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: only boolean true authorizes startup: true
+00:00 +4: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: explicit DOWN before load supersedes persisted startup intent
+00:00 +5: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: missing storage does not imply intent
+00:00 +6: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: in-memory intent without persisted intent cannot auto-connect
+00:00 +7: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: actual desktop adapter without hydrated worker is unknown, not idle
+00:00 +8: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: already connected is not reconnected
+00:00 +9: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {}
+00:00 +10: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, rx: invalid}
+00:00 +11: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, phase: unknown}
+00:00 +12: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, phase: pending}
+00:00 +13: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, phase: connecting}
+00:00 +14: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, phase: reconnecting}
+00:00 +15: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, phase: stopping}
+00:00 +16: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, recoveryPending: true}
+00:00 +17: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, cleanupPending: true}
+00:00 +18: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, recoveryPending: invalid}
+00:00 +19: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown or pending status suppresses startup: {active: false, cleanupPending: invalid}
+00:00 +20: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: native status failure cannot activate startup
+00:00 +21: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: native activeId failure cannot activate startup
+00:00 +22: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: native supportedProtocols failure cannot activate startup
+00:00 +23: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: native connectionBusy failure cannot activate startup
+00:00 +24: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: native busy is not a second owner
+00:00 +25: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: unknown native busy state cannot authorize startup
+00:00 +26: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: UI busy suppresses startup
+00:00 +27: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: consent gate is preserved
+00:00 +28: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: current consent is required after startup awaits activeId
+00:00 +29: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: current consent is required after startup awaits status
+00:00 +30: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: current consent is required after startup awaits connectionBusy
+00:00 +31: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: consent enforcement changed during capabilities is rechecked
+00:00 +32: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: current consent is rechecked after startup candidate notification
+00:00 +33: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: late startup consent loss cannot tear down a newer manual owner
+00:01 +34: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: null capabilities are unknown
+00:01 +35: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: missing or unsupported profile cannot activate: []
+00:01 +36: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: missing or unsupported profile cannot activate: [{id: bad, name: unsupported, protocol: unknown, endpoint: 192.0.2.1:1}]
+00:01 +37: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: missing or unsupported profile cannot activate: [{id: 123, name: malformed, protocol: awg, endpoint: 192.0.2.1:1}]
+00:01 +38: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: revoked account has no allowed startup candidates
+00:01 +39: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: stale selected ID uses existing hydration fallback
+00:01 +40: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: load failure after reading intent fails closed and preserves bytes
+00:01 +41: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: duplicate concurrent and subsequent loads/status callbacks are one-shot
+00:01 +42: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: down while startup awaits supportedProtocols cannot activate later
+00:01 +43: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: intent while startup awaits supportedProtocols cannot activate later
+00:01 +44: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: dispose while startup awaits supportedProtocols cannot activate later
+00:01 +45: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: down while startup awaits activeId cannot activate later
+00:01 +46: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: intent while startup awaits activeId cannot activate later
+00:01 +47: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: dispose while startup awaits activeId cannot activate later
+00:01 +48: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: down while startup awaits status cannot activate later
+00:01 +49: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: intent while startup awaits status cannot activate later
+00:01 +50: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: dispose while startup awaits status cannot activate later
+00:01 +51: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: down while startup awaits connectionBusy cannot activate later
+00:01 +52: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: intent while startup awaits connectionBusy cannot activate later
+00:01 +53: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: dispose while startup awaits connectionBusy cannot activate later
+00:01 +54: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: explicit no-op intent before hydration cancels persisted true
+00:01 +55: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: new manual owner during old startup status is not duplicated
+00:01 +56: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: intent while startup verification awaits cannot publish stale success
+00:01 +57: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: downThenNewOwner while startup verification awaits cannot publish stale success
+00:02 +58: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: explicit new connect supersedes pending startup owner
+00:02 +59: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: DOWN then new owner supersedes startup native-busy await
+00:02 +60: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/desktop_autoconnect_test.dart: DOWN then new owner during startup status survives its late reply
+00:02 +61: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/legal_consent_test.dart
+00:08 +61: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/legal_consent_test.dart: acknowledgement is versioned, timestamped and invalid records require review
+00:08 +62: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/legal_consent_test.dart: first run needs two separate unchecked acknowledgements and persists receipt
+00:11 +63: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/legal_consent_test.dart: receipt persists in the ordinary app storage without changing GPL rights
+00:11 +64: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/legal_consent_test.dart: failed storage cannot acknowledge or unlock connection
+00:11 +65: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/background_probe_plan_test.dart
+00:12 +65: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in false
+00:12 +66: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/background_probe_plan_test.dart: actual native plan serializes typed website opt-in true
+00:12 +67: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/background_probe_plan_test.dart: platform gate stays off when Android is not selected
+00:12 +68: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart
+00:14 +68: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: automatic default retains selected first, selectedOnly is explicit
+00:14 +69: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: disposed disconnect success cannot publish or rearm
+00:14 +70: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: disposed activation success cannot publish or rearm
+00:14 +71: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: disposed disconnect error cannot publish or rearm
+00:14 +72: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: disposed activation error cannot publish or rearm
+00:15 +73: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: unjoined cleanup reserves activation after round expiry
+00:15 +74: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: repeated native recovery polls cannot renew the same lease
+00:15 +75: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: selectedOnly rejects missing native policy acknowledgement without fallback
+00:15 +76: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+00:15 +77: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart
+00:16 +77: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+00:17 +78: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+00:17 +79: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+00:17 +80: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+00:17 +81: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+00:17 +82: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+00:17 +83: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+00:17 +84: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:17 +85: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+00:17 +86: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+00:17 +87: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+00:17 +88: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart
+00:18 +88: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: 65 distinct rules refuse activation without installing a subset
+00:18 +89: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: 97 answers refuse activation with the 96 address budget intact
+00:18 +90: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: 128 manual networks leave no capacity for a domain answer
+00:18 +91: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: empty and partial DNS answers refuse an incomplete policy
+00:18 +92: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: failed native apply retries instead of reporting a fresh cache hit
+00:18 +93: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: failed clear preserves prior applied state and retries
+00:18 +94: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: expired provenance requires one fresh lookup then permits owned reuse
+00:18 +95: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: restart provenance requires one fresh lookup then permits owned reuse
+00:18 +96: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: policy edit provenance requires one fresh lookup then permits owned reuse
+00:18 +97: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: cache missing provenance requires one fresh lookup then permits owned reuse
+00:18 +98: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: force provenance requires one fresh lookup then permits owned reuse
+00:18 +99: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=false)
+00:18 +100: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=true)
+00:18 +101: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: late begin reply cannot start DNS or cancel a newer native lease
+00:18 +102: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: rule edit during apply rejects write and never commits stale cache
+00:18 +103: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: DOWN/new connect re-applies fresh cached DNS under a new native lease
+00:18 +104: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: empty domain standard policy needs no DNS and connects normally
+00:18 +105: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: a new admitted connect revokes an older standalone resolution
+00:18 +106: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_contract_invariants_test.dart: dispose revokes gated resolver even without a replacement refresh
+00:18 +107: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart
+00:20 +107: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: доменное правило принимает домен и wildcard в каноническом виде
+00:20 +108: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: доменное правило отвергает схему, слэши, порт и одиночную метку
+00:20 +109: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: проверка адресов IPv4, IPv6 и CIDR сохраняют прежнее поведение
+00:20 +110: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: проверка адресов домены в списке сетей не принимаются
+00:20 +111: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: ввод списка доменов разбирает строки, запятые и дубли
+00:20 +112: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: ввод списка доменов сообщает, какая именно запись некорректна
+00:20 +113: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: ввод списка доменов ограничивает число правил
+00:20 +114: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: разрешение доменов обычный домен превращается в свои адреса
+00:20 +115: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: разрешение доменов wildcard разрешает корень и известные поддомены, но не глубже
+00:20 +116: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: разрешение доменов сбои DNS и мусор в ответе не блокируют остальные правила
+00:20 +117: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: разрешение доменов таймаут передаётся резолверу и ограничивает обход
+00:20 +118: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: разрешение доменов число адресов ограничено запасом нативной политики
+00:20 +119: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: синхронизация адресов передаёт адреса нативной стороне и живёт по кэшу 10 минут
+00:20 +120: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: синхронизация адресов изменение списка разрешает заново, очистка снимает адреса
+00:20 +121: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: синхронизация адресов invalidate и force обходят кэш
+00:20 +122: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/routing_domains_test.dart: синхронизация адресов пустой список с самого начала ничего не пишет
+00:20 +123: loading /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart
+00:22 +123: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+00:22 +124: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+00:22 +125: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: DNS rejects every second-octet boundary in IPv6 fe80::/10
+00:22 +126: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: DNS accepts non-link-local fe00::/8 including site-local fec0::/10
+00:22 +127: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: null
+00:22 +128: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: []
+00:22 +129: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: missing/empty legacy DNS retains default: [,   ]
+00:23 +130: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:23 +131: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: legacy DNS 127.0.0.1 survives actual load-save and literal repair
+00:23 +132: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:23 +133: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS dns.example.org has zero remote effects
+00:23 +134: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS dns.example.org has zero effects with pending=false
+00:23 +135: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS dns.example.org has zero effects with pending=true
+00:23 +136: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS 127.0.0.1 has zero remote effects
+00:23 +137: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS 127.0.0.1 has zero effects with pending=false
+00:23 +138: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS 127.0.0.1 has zero effects with pending=true
+00:23 +139: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS ::ffff:192.0.2.53 has zero remote effects
+00:23 +140: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS ::ffff:192.0.2.53 has zero effects with pending=false
+00:23 +141: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS ::ffff:192.0.2.53 has zero effects with pending=true
+00:23 +142: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe80::1 has zero remote effects
+00:23 +143: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe80::1 has zero effects with pending=false
+00:23 +144: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe80::1 has zero effects with pending=true
+00:23 +145: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe81::1 has zero remote effects
+00:23 +146: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe81::1 has zero effects with pending=false
+00:23 +147: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe81::1 has zero effects with pending=true
+00:23 +148: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe82::1 has zero remote effects
+00:23 +149: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe82::1 has zero effects with pending=false
+00:23 +150: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe82::1 has zero effects with pending=true
+00:23 +151: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe83::1 has zero remote effects
+00:23 +152: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe83::1 has zero effects with pending=false
+00:23 +153: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe83::1 has zero effects with pending=true
+00:23 +154: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe84::1 has zero remote effects
+00:23 +155: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe84::1 has zero effects with pending=false
+00:23 +156: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe84::1 has zero effects with pending=true
+00:23 +157: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe85::1 has zero remote effects
+00:23 +158: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe85::1 has zero effects with pending=false
+00:23 +159: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe85::1 has zero effects with pending=true
+00:23 +160: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe86::1 has zero remote effects
+00:23 +161: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe86::1 has zero effects with pending=false
+00:23 +162: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe86::1 has zero effects with pending=true
+00:23 +163: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe87::1 has zero remote effects
+00:23 +164: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe87::1 has zero effects with pending=false
+00:23 +165: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe87::1 has zero effects with pending=true
+00:23 +166: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe88::1 has zero remote effects
+00:23 +167: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe88::1 has zero effects with pending=false
+00:23 +168: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe88::1 has zero effects with pending=true
+00:23 +169: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe89::1 has zero remote effects
+00:23 +170: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe89::1 has zero effects with pending=false
+00:23 +171: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe89::1 has zero effects with pending=true
+00:23 +172: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe8a::1 has zero remote effects
+00:23 +173: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8a::1 has zero effects with pending=false
+00:23 +174: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8a::1 has zero effects with pending=true
+00:23 +175: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe8b::1 has zero remote effects
+00:23 +176: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8b::1 has zero effects with pending=false
+00:23 +177: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8b::1 has zero effects with pending=true
+00:23 +178: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe8c::1 has zero remote effects
+00:23 +179: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8c::1 has zero effects with pending=false
+00:23 +180: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8c::1 has zero effects with pending=true
+00:23 +181: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe8d::1 has zero remote effects
+00:23 +182: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8d::1 has zero effects with pending=false
+00:23 +183: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8d::1 has zero effects with pending=true
+00:23 +184: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe8e::1 has zero remote effects
+00:23 +185: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8e::1 has zero effects with pending=false
+00:23 +186: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8e::1 has zero effects with pending=true
+00:23 +187: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe8f::1 has zero remote effects
+00:23 +188: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8f::1 has zero effects with pending=false
+00:23 +189: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe8f::1 has zero effects with pending=true
+00:23 +190: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe90::1 has zero remote effects
+00:23 +191: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe90::1 has zero effects with pending=false
+00:23 +192: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe90::1 has zero effects with pending=true
+00:23 +193: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe91::1 has zero remote effects
+00:23 +194: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe91::1 has zero effects with pending=false
+00:23 +195: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe91::1 has zero effects with pending=true
+00:23 +196: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe92::1 has zero remote effects
+00:23 +197: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe92::1 has zero effects with pending=false
+00:23 +198: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe92::1 has zero effects with pending=true
+00:23 +199: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe93::1 has zero remote effects
+00:23 +200: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe93::1 has zero effects with pending=false
+00:23 +201: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe93::1 has zero effects with pending=true
+00:23 +202: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe94::1 has zero remote effects
+00:23 +203: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe94::1 has zero effects with pending=false
+00:23 +204: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe94::1 has zero effects with pending=true
+00:23 +205: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe95::1 has zero remote effects
+00:23 +206: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe95::1 has zero effects with pending=false
+00:23 +207: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe95::1 has zero effects with pending=true
+00:23 +208: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe96::1 has zero remote effects
+00:23 +209: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe96::1 has zero effects with pending=false
+00:23 +210: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe96::1 has zero effects with pending=true
+00:23 +211: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe97::1 has zero remote effects
+00:23 +212: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe97::1 has zero effects with pending=false
+00:23 +213: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe97::1 has zero effects with pending=true
+00:23 +214: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe98::1 has zero remote effects
+00:23 +215: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe98::1 has zero effects with pending=false
+00:23 +216: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe98::1 has zero effects with pending=true
+00:23 +217: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe99::1 has zero remote effects
+00:23 +218: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe99::1 has zero effects with pending=false
+00:23 +219: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe99::1 has zero effects with pending=true
+00:23 +220: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe9a::1 has zero remote effects
+00:23 +221: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9a::1 has zero effects with pending=false
+00:23 +222: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9a::1 has zero effects with pending=true
+00:23 +223: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe9b::1 has zero remote effects
+00:23 +224: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9b::1 has zero effects with pending=false
+00:23 +225: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9b::1 has zero effects with pending=true
+00:23 +226: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe9c::1 has zero remote effects
+00:23 +227: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9c::1 has zero effects with pending=false
+00:23 +228: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9c::1 has zero effects with pending=true
+00:24 +229: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe9d::1 has zero remote effects
+00:24 +230: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9d::1 has zero effects with pending=false
+00:24 +231: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9d::1 has zero effects with pending=true
+00:24 +232: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe9e::1 has zero remote effects
+00:24 +233: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9e::1 has zero effects with pending=false
+00:24 +234: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9e::1 has zero effects with pending=true
+00:24 +235: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fe9f::1 has zero remote effects
+00:24 +236: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9f::1 has zero effects with pending=false
+00:24 +237: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fe9f::1 has zero effects with pending=true
+00:24 +238: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea0::1 has zero remote effects
+00:24 +239: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea0::1 has zero effects with pending=false
+00:24 +240: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea0::1 has zero effects with pending=true
+00:24 +241: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea1::1 has zero remote effects
+00:24 +242: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea1::1 has zero effects with pending=false
+00:24 +243: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea1::1 has zero effects with pending=true
+00:24 +244: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea2::1 has zero remote effects
+00:24 +245: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea2::1 has zero effects with pending=false
+00:24 +246: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea2::1 has zero effects with pending=true
+00:24 +247: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea3::1 has zero remote effects
+00:24 +248: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea3::1 has zero effects with pending=false
+00:24 +249: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea3::1 has zero effects with pending=true
+00:24 +250: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea4::1 has zero remote effects
+00:24 +251: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea4::1 has zero effects with pending=false
+00:24 +252: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea4::1 has zero effects with pending=true
+00:24 +253: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea5::1 has zero remote effects
+00:24 +254: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea5::1 has zero effects with pending=false
+00:24 +255: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea5::1 has zero effects with pending=true
+00:24 +256: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea6::1 has zero remote effects
+00:24 +257: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea6::1 has zero effects with pending=false
+00:24 +258: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea6::1 has zero effects with pending=true
+00:24 +259: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea7::1 has zero remote effects
+00:24 +260: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea7::1 has zero effects with pending=false
+00:24 +261: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea7::1 has zero effects with pending=true
+00:24 +262: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea8::1 has zero remote effects
+00:24 +263: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea8::1 has zero effects with pending=false
+00:24 +264: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea8::1 has zero effects with pending=true
+00:24 +265: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fea9::1 has zero remote effects
+00:24 +266: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea9::1 has zero effects with pending=false
+00:24 +267: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fea9::1 has zero effects with pending=true
+00:24 +268: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feaa::1 has zero remote effects
+00:24 +269: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feaa::1 has zero effects with pending=false
+00:24 +270: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feaa::1 has zero effects with pending=true
+00:24 +271: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feab::1 has zero remote effects
+00:24 +272: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feab::1 has zero effects with pending=false
+00:24 +273: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feab::1 has zero effects with pending=true
+00:24 +274: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feac::1 has zero remote effects
+00:24 +275: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feac::1 has zero effects with pending=false
+00:24 +276: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feac::1 has zero effects with pending=true
+00:24 +277: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS fead::1 has zero remote effects
+00:24 +278: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fead::1 has zero effects with pending=false
+00:24 +279: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS fead::1 has zero effects with pending=true
+00:24 +280: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feae::1 has zero remote effects
+00:24 +281: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feae::1 has zero effects with pending=false
+00:24 +282: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feae::1 has zero effects with pending=true
+00:24 +283: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feaf::1 has zero remote effects
+00:24 +284: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feaf::1 has zero effects with pending=false
+00:24 +285: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feaf::1 has zero effects with pending=true
+00:24 +286: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb0::1 has zero remote effects
+00:24 +287: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb0::1 has zero effects with pending=false
+00:24 +288: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb0::1 has zero effects with pending=true
+00:24 +289: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb1::1 has zero remote effects
+00:24 +290: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb1::1 has zero effects with pending=false
+00:24 +291: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb1::1 has zero effects with pending=true
+00:24 +292: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb2::1 has zero remote effects
+00:24 +293: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb2::1 has zero effects with pending=false
+00:24 +294: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb2::1 has zero effects with pending=true
+00:24 +295: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb3::1 has zero remote effects
+00:24 +296: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb3::1 has zero effects with pending=false
+00:24 +297: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb3::1 has zero effects with pending=true
+00:24 +298: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb4::1 has zero remote effects
+00:24 +299: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb4::1 has zero effects with pending=false
+00:24 +300: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb4::1 has zero effects with pending=true
+00:24 +301: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb5::1 has zero remote effects
+00:24 +302: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb5::1 has zero effects with pending=false
+00:24 +303: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb5::1 has zero effects with pending=true
+00:24 +304: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb6::1 has zero remote effects
+00:24 +305: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb6::1 has zero effects with pending=false
+00:24 +306: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb6::1 has zero effects with pending=true
+00:24 +307: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb7::1 has zero remote effects
+00:24 +308: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb7::1 has zero effects with pending=false
+00:24 +309: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb7::1 has zero effects with pending=true
+00:24 +310: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb8::1 has zero remote effects
+00:24 +311: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb8::1 has zero effects with pending=false
+00:24 +312: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb8::1 has zero effects with pending=true
+00:24 +313: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feb9::1 has zero remote effects
+00:24 +314: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb9::1 has zero effects with pending=false
+00:24 +315: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feb9::1 has zero effects with pending=true
+00:24 +316: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS feba::1 has zero remote effects
+00:24 +317: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feba::1 has zero effects with pending=false
+00:24 +318: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS feba::1 has zero effects with pending=true
+00:24 +319: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS febb::1 has zero remote effects
+00:24 +320: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febb::1 has zero effects with pending=false
+00:24 +321: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febb::1 has zero effects with pending=true
+00:24 +322: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS febc::1 has zero remote effects
+00:24 +323: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febc::1 has zero effects with pending=false
+00:24 +324: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febc::1 has zero effects with pending=true
+00:24 +325: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS febd::1 has zero remote effects
+00:24 +326: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febd::1 has zero effects with pending=false
+00:24 +327: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febd::1 has zero effects with pending=true
+00:24 +328: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS febe::1 has zero remote effects
+00:24 +329: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febe::1 has zero effects with pending=false
+00:24 +330: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febe::1 has zero effects with pending=true
+00:24 +331: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid owner DNS febf::1 has zero remote effects
+00:24 +332: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febf::1 has zero effects with pending=false
+00:24 +333: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: invalid delegated DNS febf::1 has zero effects with pending=true
+00:24 +334: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot 192.0.2.53
+00:24 +335: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot fec0::53
+00:24 +336: /srv/archives/agent-desktop-autoconnect-review-20261106/integration-1e24/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+00:26 +337: All tests passed!

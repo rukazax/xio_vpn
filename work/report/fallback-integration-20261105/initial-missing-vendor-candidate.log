@@ -1,0 +1,93 @@
+# xio.local/rivet/internal/desktop
+internal/desktop/runtime.go:7:2: github.com/amnezia-vpn/amneziawg-go/v3@v3.1.20260814: replacement directory ../../vendor/amneziawg-go does not exist
+# xio.local/rivet/internal/desktop
+internal/desktop/runtime.go:8:2: github.com/amnezia-vpn/amneziawg-go/v3@v3.1.20260814: replacement directory ../../vendor/amneziawg-go does not exist
+# xio.local/rivet/internal/desktop
+internal/desktop/runtime.go:9:2: github.com/amnezia-vpn/amneziawg-go/v3@v3.1.20260814: replacement directory ../../vendor/amneziawg-go does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/attach_device.go:5:2: github.com/amnezia-vpn/amnezia-tun2socks/v2@v2.5.6: replacement directory ../../vendor/tun2socks does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/client.go:9:2: github.com/amnezia-vpn/amnezia-tun2socks/v2@v2.5.6: replacement directory ../../vendor/tun2socks does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/client.go:10:2: github.com/amnezia-vpn/amnezia-tun2socks/v2@v2.5.6: replacement directory ../../vendor/tun2socks does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/attach_device.go:6:2: github.com/amnezia-vpn/amnezia-tun2socks/v2@v2.5.6: replacement directory ../../vendor/tun2socks does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:31:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:32:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:33:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:34:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/client.go:12:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:36:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:37:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:38:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:39:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:40:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/client.go:13:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:42:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:43:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:44:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:45:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:46:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/client.go:14:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:48:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:49:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:50:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:51:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:52:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:53:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:54:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:55:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayclient/xrayconf.go:56:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:6:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:8:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:9:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:10:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:11:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:12:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:13:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:14:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:16:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:18:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+internal/xrayregistry/registry.go:28:2: github.com/xtls/xray-core@v1.260724.0: replacement directory ../../vendor/xray does not exist
+# xio.local/rivet/internal/desktop
+mobile/cloak.go:7:2: github.com/cbeuw/Cloak@v1.1.2: replacement directory ../../vendor/cloak does not exist
+FAIL	xio.local/rivet/internal/desktop [setup failed]
+FAIL
+desktop all exit=1

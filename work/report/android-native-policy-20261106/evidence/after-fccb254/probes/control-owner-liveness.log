@@ -1,0 +1,1 @@
+PASS owner stays live/unrevoked through 3 foreign commits and the exact legitimate commit then succeeds

@@ -1,0 +1,15 @@
+--- /srv/archives/agent-review-android-policy-20261106/bridge-probe.py	2026-11-06 09:16:31.923021864 +0300
++++ /srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/bridge-owned/bridge-probe-repin.py	2026-11-06 09:31:02.042106437 +0300
+@@ -1,10 +1,10 @@
+ from pathlib import Path
+ import shutil, subprocess, os, hashlib
+-R=Path('/srv/archives/agent-review-android-policy-20261106')
++R=Path('/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/bridge-owned')
+ A=Path('/srv/archives/agent-policy-android-native-20261106')
+ B=R/'bridge-artifact'; B.mkdir()
+ classes=A/'src/app/build/app/tmp/kotlin-classes/debug/app/xio/xio'
+-assert hashlib.sha256((classes/'PolicyBridge.class').read_bytes()).hexdigest()=='27e3103e675fa37dbefcfdce3aa54fed7bea8be32a0c30e042c4b2c5526b7921'
++assert hashlib.sha256((classes/'PolicyBridge.class').read_bytes()).hexdigest()=='5d98a70e41db03b870a26577000a7fb99257d7fa8feaae1127706485830a074a'
+ target=B/'app/xio/xio'; target.mkdir(parents=True)
+ for p in list(classes.glob('PolicyBridge*.class'))+[classes/'CapturedAdmission.class']:
+  shutil.copy2(p,target/p.name)

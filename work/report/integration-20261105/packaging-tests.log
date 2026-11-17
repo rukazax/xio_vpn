@@ -1,0 +1,104 @@
+test_actual_release_assert_function_accepts_good_and_rejects_stale_payloads (test_linux_provenance.LinuxProvenanceTests.test_actual_release_assert_function_accepts_good_and_rejects_stale_payloads) ... ok
+test_bundle_preflight_detects_stale_assets (test_linux_provenance.LinuxProvenanceTests.test_bundle_preflight_detects_stale_assets) ... ok
+test_client_good_and_server_payload_exclusions_both (test_linux_provenance.LinuxProvenanceTests.test_client_good_and_server_payload_exclusions_both) ... ok
+test_client_server_payload_outside_flutter_assets_rejected (test_linux_provenance.LinuxProvenanceTests.test_client_server_payload_outside_flutter_assets_rejected) ... ok
+test_duplicate_traversal_and_symlink_assets_fail_both (test_linux_provenance.LinuxProvenanceTests.test_duplicate_traversal_and_symlink_assets_fail_both) ... ok
+test_full_and_client_final_deb_or_tar_tampering_fails_closed (test_linux_provenance.LinuxProvenanceTests.test_full_and_client_final_deb_or_tar_tampering_fails_closed) ... ok
+test_full_and_client_packagers_gate_both_real_containers (test_linux_provenance.LinuxProvenanceTests.test_full_and_client_packagers_gate_both_real_containers) ... ok
+test_good_staged_payload_passes_both_containers (test_linux_provenance.LinuxProvenanceTests.test_good_staged_payload_passes_both_containers) ... ok
+test_invalid_deb_is_rejected (test_linux_provenance.LinuxProvenanceTests.test_invalid_deb_is_rejected) ... ok
+test_manifest_bootstrap_updater_and_translation_bytes_all_gate (test_linux_provenance.LinuxProvenanceTests.test_manifest_bootstrap_updater_and_translation_bytes_all_gate) ... ok
+test_manifest_internally_inconsistent_source_fails_before_build (test_linux_provenance.LinuxProvenanceTests.test_manifest_internally_inconsistent_source_fails_before_build) ... ok
+test_missing_or_extra_localization_member_fails_both (test_linux_provenance.LinuxProvenanceTests.test_missing_or_extra_localization_member_fails_both) ... ok
+test_packager_rejects_source_mutation_during_packaging (test_linux_provenance.LinuxProvenanceTests.test_packager_rejects_source_mutation_during_packaging) ... ok
+test_real_dpkg_full_and_client_fixture_packages (test_linux_provenance.LinuxProvenanceTests.test_real_dpkg_full_and_client_fixture_packages) ... skipped 'real dpkg-deb requires Linux; fixture builds only'
+test_recipe_label_cannot_hide_stale_archive_admin (test_linux_provenance.LinuxProvenanceTests.test_recipe_label_cannot_hide_stale_archive_admin) ... ok
+test_same_named_stale_recipe_payload_fails_both (test_linux_provenance.LinuxProvenanceTests.test_same_named_stale_recipe_payload_fails_both) ... ok
+test_same_recipe_tampered_archive_fails_both (test_linux_provenance.LinuxProvenanceTests.test_same_recipe_tampered_archive_fails_both) ... ok
+test_source_change_after_snapshot_fails (test_linux_provenance.LinuxProvenanceTests.test_source_change_after_snapshot_fails) ... ok
+test_wrong_container_cannot_masquerade_as_other_output (test_linux_provenance.LinuxProvenanceTests.test_wrong_container_cannot_masquerade_as_other_output) ... ok
+test_actual_linux_step_both_copy_paths_preserve_finals_on_failure (test_package_hardening.LinuxHardeningTests.test_actual_linux_step_both_copy_paths_preserve_finals_on_failure) ... ok
+test_archive_count_aggregate_and_pre_yield_metadata_bounded (test_package_hardening.LinuxHardeningTests.test_archive_count_aggregate_and_pre_yield_metadata_bounded) ... ok
+test_canonical_tree_conflicts_in_either_order (test_package_hardening.LinuxHardeningTests.test_canonical_tree_conflicts_in_either_order) ... ok
+test_control_invalid_suffix_bytes_order_and_metadata (test_package_hardening.LinuxHardeningTests.test_control_invalid_suffix_bytes_order_and_metadata) ... ok
+test_inner_and_control_have_count_aggregate_and_metadata_budgets (test_package_hardening.LinuxHardeningTests.test_inner_and_control_have_count_aggregate_and_metadata_budgets) ... ok
+test_inner_directory_first_duplicate (test_package_hardening.LinuxHardeningTests.test_inner_directory_first_duplicate) ... ok
+test_inner_unwatched_size_bounded (test_package_hardening.LinuxHardeningTests.test_inner_unwatched_size_bounded) ... ok
+test_limits_reject_header_before_reading_irrelevant_body (test_package_hardening.LinuxHardeningTests.test_limits_reject_header_before_reading_irrelevant_body) ... ok
+test_pax_effective_size_sparse_and_extension_chains_fail_bounded (test_package_hardening.LinuxHardeningTests.test_pax_effective_size_sparse_and_extension_chains_fail_bounded) ... ok
+test_regular_watched_ancestor_and_legitimate_launcher (test_package_hardening.LinuxHardeningTests.test_regular_watched_ancestor_and_legitimate_launcher) ... ok
+test_supported_control_compressions_and_regular_metadata (test_package_hardening.LinuxHardeningTests.test_supported_control_compressions_and_regular_metadata) ... ok
+test_unwatched_sizes_bounded_before_skipping_both_containers (test_package_hardening.LinuxHardeningTests.test_unwatched_sizes_bounded_before_skipping_both_containers) ... ok
+test_xz_decoder_memory_is_bounded_before_payload_inspection (test_package_hardening.LinuxHardeningTests.test_xz_decoder_memory_is_bounded_before_payload_inspection) ... ok
+test_cli_growth_rejects_with_relink_exit_without_write (test_pe_version_hardening.PeResourceBoundTests.test_cli_growth_rejects_with_relink_exit_without_write) ... ok
+test_fresh_short_allocation_rejects_growth_without_write (test_pe_version_hardening.PeResourceBoundTests.test_fresh_short_allocation_rejects_growth_without_write) ... ok
+test_fresh_target_sized_resource_accepts_long_versions_both_callers (test_pe_version_hardening.PeResourceBoundTests.test_fresh_target_sized_resource_accepts_long_versions_both_callers) ... ok
+test_known_cached_pe_current_stamp_and_long_rejection_both_callers (test_pe_version_hardening.PeResourceBoundTests.test_known_cached_pe_current_stamp_and_long_rejection_both_callers) ... ok
+test_alternate_pubspec_is_not_hardcoded (test_windows_version.ClientWindowsVersionTests.test_alternate_pubspec_is_not_hardcoded) ... ok
+test_current_pubspec_drives_resource_stamp_and_package (test_windows_version.ClientWindowsVersionTests.test_current_pubspec_drives_resource_stamp_and_package) ... ok
+test_each_readback_field_is_required (test_windows_version.ClientWindowsVersionTests.test_each_readback_field_is_required) ... ok
+test_final_readback_failure_prevents_archive (test_windows_version.ClientWindowsVersionTests.test_final_readback_failure_prevents_archive) ... ok
+test_invalid_or_oversized_version_fails_before_processes (test_windows_version.ClientWindowsVersionTests.test_invalid_or_oversized_version_fails_before_processes) ... ok
+test_missing_build_normalizes_to_zero (test_windows_version.ClientWindowsVersionTests.test_missing_build_normalizes_to_zero) ... ok
+test_prepared_version_mismatch_fails_before_compilation (test_windows_version.ClientWindowsVersionTests.test_prepared_version_mismatch_fails_before_compilation) ... ok
+test_readback_failure_prevents_archive (test_windows_version.ClientWindowsVersionTests.test_readback_failure_prevents_archive) ... ok
+test_real_cached_pe_alternate_version_in_archive (test_windows_version.ClientWindowsVersionTests.test_real_cached_pe_alternate_version_in_archive) ... ok
+test_actual_zip_asset_bytes_and_client_exclusions (test_current_targets.CurrentTargetsTests.test_actual_zip_asset_bytes_and_client_exclusions) ... ok
+test_cli_requires_receipt_even_if_source_json_exists_for_uploader (test_current_targets.CurrentTargetsTests.test_cli_requires_receipt_even_if_source_json_exists_for_uploader) ... ok
+test_compile_proof_requires_both_outputs_and_never_claims_release (test_current_targets.CurrentTargetsTests.test_compile_proof_requires_both_outputs_and_never_claims_release) ... ok
+test_duplicate_artifact_name_in_other_directory_rejected (test_current_targets.CurrentTargetsTests.test_duplicate_artifact_name_in_other_directory_rejected) ... ok
+test_empty_missing_and_wrong_version_cannot_pass_any_target (test_current_targets.CurrentTargetsTests.test_empty_missing_and_wrong_version_cannot_pass_any_target) ... ok
+test_exact_apk_identity_version_and_client_policy (test_current_targets.CurrentTargetsTests.test_exact_apk_identity_version_and_client_policy) ... ok
+test_missing_named_secrets_never_generate_key_or_create_directory (test_current_targets.CurrentTargetsTests.test_missing_named_secrets_never_generate_key_or_create_directory) ... ok
+test_native_or_staged_source_not_ready_and_mutated_source_fail (test_current_targets.CurrentTargetsTests.test_native_or_staged_source_not_ready_and_mutated_source_fail) ... ok
+test_orchestration_invokes_every_content_verifier_not_just_names (test_current_targets.CurrentTargetsTests.test_orchestration_invokes_every_content_verifier_not_just_names) ... ok
+test_pe_identity_rejects_stale_fixed_strings_and_full_identity_in_client (test_current_targets.CurrentTargetsTests.test_pe_identity_rejects_stale_fixed_strings_and_full_identity_in_client) ... ok
+test_receipt_check_rejects_partial_wrong_mode_and_postverify_missing_packages (test_current_targets.CurrentTargetsTests.test_receipt_check_rejects_partial_wrong_mode_and_postverify_missing_packages) ... ok
+test_reviewed_matrix_keeps_both_phone_arm_targets_and_no_x86_32 (test_current_targets.CurrentTargetsTests.test_reviewed_matrix_keeps_both_phone_arm_targets_and_no_x86_32) ... ok
+test_sdk_cannot_be_omitted_and_content_failures_propagate (test_current_targets.CurrentTargetsTests.test_sdk_cannot_be_omitted_and_content_failures_propagate) ... ok
+test_temporary_material_is_owned_and_cleanup_preserves_foreign_directory (test_current_targets.CurrentTargetsTests.test_temporary_material_is_owned_and_cleanup_preserves_foreign_directory) ... ok
+test_wrong_or_missing_certificate_rejected_before_native_checks (test_current_targets.CurrentTargetsTests.test_wrong_or_missing_certificate_rejected_before_native_checks) ... ok
+test_actual_bash_steps_parse_without_running_builds (test_current_targets_yaml.WorkflowContractTests.test_actual_bash_steps_parse_without_running_builds) ... skipped 'PyYAML absent; actual actionlint/YAML validation also runs separately'
+test_actual_final_gate_does_not_turn_missing_or_skipped_builds_green (test_current_targets_yaml.WorkflowContractTests.test_actual_final_gate_does_not_turn_missing_or_skipped_builds_green) ... skipped 'PyYAML absent; actual actionlint/YAML validation also runs separately'
+test_actual_workflow_policy (test_current_targets_yaml.WorkflowContractTests.test_actual_workflow_policy) ... skipped 'PyYAML absent; actual actionlint/YAML validation also runs separately'
+test_dangerous_or_incomplete_structured_mutations_rejected (test_current_targets_yaml.WorkflowContractTests.test_dangerous_or_incomplete_structured_mutations_rejected) ... skipped 'PyYAML absent; actual actionlint/YAML validation also runs separately'
+test_30s_excess_is_rejected_and_prior_radios_restored (test_android_acceptance.AcceptanceTests.test_30s_excess_is_rejected_and_prior_radios_restored) ... ok
+test_airplane_cycle_restores_before_operator_observation (test_android_acceptance.AcceptanceTests.test_airplane_cycle_restores_before_operator_observation) ... ok
+test_airplane_cycle_without_exercise_fails_before_device_access (test_android_acceptance.AcceptanceTests.test_airplane_cycle_without_exercise_fails_before_device_access) ... ok
+test_all_manual_observations_at_30s_are_not_vpn_pass (test_android_acceptance.AcceptanceTests.test_all_manual_observations_at_30s_are_not_vpn_pass) ... ok
+test_apk_remote_path_traversal_is_rejected (test_android_acceptance.AcceptanceTests.test_apk_remote_path_traversal_is_rejected) ... ok
+test_bad_pins_cannot_accept_experimental_identity (test_android_acceptance.AcceptanceTests.test_bad_pins_cannot_accept_experimental_identity) ... ok
+test_cli_default_collect_only_has_no_mutation_focus_or_capture (test_android_acceptance.AcceptanceTests.test_cli_default_collect_only_has_no_mutation_focus_or_capture) ... ok
+test_exercise_requires_explicit_optin_and_identity_recheck (test_android_acceptance.AcceptanceTests.test_exercise_requires_explicit_optin_and_identity_recheck) ... ok
+test_foreign_wifi_details_are_not_persisted_during_exercise (test_android_acceptance.AcceptanceTests.test_foreign_wifi_details_are_not_persisted_during_exercise) ... ok
+test_full_and_client_exact_apk_gate (test_android_acceptance.AcceptanceTests.test_full_and_client_exact_apk_gate) ... ok
+test_installed_identity_variants_fail_without_mutation (test_android_acceptance.AcceptanceTests.test_installed_identity_variants_fail_without_mutation) ... ok
+test_memory_app_only_sum_and_safe_log_redaction (test_android_acceptance.AcceptanceTests.test_memory_app_only_sum_and_safe_log_redaction) ... ok
+test_memory_foreign_process_and_unknown_pss_rejected (test_android_acceptance.AcceptanceTests.test_memory_foreign_process_and_unknown_pss_rejected) ... ok
+test_missing_process_never_launches_app (test_android_acceptance.AcceptanceTests.test_missing_process_never_launches_app) ... ok
+test_multiple_signers_and_unsigned_apks_are_rejected (test_android_acceptance.AcceptanceTests.test_multiple_signers_and_unsigned_apks_are_rejected) ... ok
+test_only_strict_native_attempt_failure_is_retained (test_android_acceptance.AcceptanceTests.test_only_strict_native_attempt_failure_is_retained) ... ok
+test_prior_airplane_on_and_wifi_off_are_preserved (test_android_acceptance.AcceptanceTests.test_prior_airplane_on_and_wifi_off_are_preserved) ... ok
+test_radio_methods_are_disarmed_by_default_and_after_failure (test_android_acceptance.AcceptanceTests.test_radio_methods_are_disarmed_by_default_and_after_failure) ... ok
+test_restore_on_adb_failure_after_mutation (test_android_acceptance.AcceptanceTests.test_restore_on_adb_failure_after_mutation) ... ok
+test_restore_on_timeout_interrupt_and_observer_failure (test_android_acceptance.AcceptanceTests.test_restore_on_timeout_interrupt_and_observer_failure) ... ok
+test_split_installed_apk_is_rejected (test_android_acceptance.AcceptanceTests.test_split_installed_apk_is_rejected) ... ok
+test_stale_apk_after_consent_cannot_arm_radio_cycle (test_android_acceptance.AcceptanceTests.test_stale_apk_after_consent_cannot_arm_radio_cycle) ... ok
+test_tool_failures_do_not_echo_sensitive_output (test_android_acceptance.AcceptanceTests.test_tool_failures_do_not_echo_sensitive_output) ... ok
+test_unrecognized_memory_output_is_not_claimed_as_zero_usage (test_android_acceptance.AcceptanceTests.test_unrecognized_memory_output_is_not_claimed_as_zero_usage) ... ok
+test_unrestorable_device_fails_and_preserves_recovery_journal (test_android_acceptance.AcceptanceTests.test_unrestorable_device_fails_and_preserves_recovery_journal) ... ok
+test_unstable_radio_refused_before_mutation (test_android_acceptance.AcceptanceTests.test_unstable_radio_refused_before_mutation) ... ok
+test_wrong_local_hash_rejects_before_any_adb (test_android_acceptance.AcceptanceTests.test_wrong_local_hash_rejects_before_any_adb) ... ok
+test_wrong_local_package_or_certificate_rejects_before_adb (test_android_acceptance.AcceptanceTests.test_wrong_local_package_or_certificate_rejects_before_adb) ... ok
+
+----------------------------------------------------------------------
+Ran 92 tests in 19.083s
+
+OK (skipped=5)
+{"packaged": ["C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\XIO-9.9.9-ubuntu-amd64.deb", "C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\XIO-9.9.9-ubuntu-x64.tar.gz"], "provenance": [{"flavor": "full", "appVersion": "9.9.9+999", "recipeVersion": 28, "checkedAssets": 11, "artifact": "C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\XIO-9.9.9-ubuntu-amd64.deb.part", "container": "deb"}, {"flavor": "full", "appVersion": "9.9.9+999", "recipeVersion": 28, "checkedAssets": 11, "artifact": "C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\XIO-9.9.9-ubuntu-x64.tar.gz.part", "container": "tar"}]}
+{"packaged": ["C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\client-9.9.9\\XIO-Client-9.9.9-ubuntu-amd64.deb", "C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\client-9.9.9\\XIO-Client-9.9.9-ubuntu-x64.tar.gz"], "provenance": [{"flavor": "client", "appVersion": "9.9.9+999", "recipeVersion": null, "checkedAssets": 2, "artifact": "C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\client-9.9.9\\XIO-Client-9.9.9-ubuntu-amd64.deb.part", "container": "deb"}, {"flavor": "client", "appVersion": "9.9.9+999", "recipeVersion": null, "checkedAssets": 2, "artifact": "C:\\Users\\er-ka\\AppData\\Local\\Temp\\tmpum0zjq9v\\releases\\client-9.9.9\\XIO-Client-9.9.9-ubuntu-x64.tar.gz.part", "container": "tar"}], "installed": false, "vpnStarted": false}
+Windows Client 9.9.9+999 packaged: C:\Users\er-ka\AppData\Local\Temp\tmput1pb_gq\releases\client-9.9.9\XIO-Client-9.9.9-windows-x64.zip. Native Windows/driver acceptance NOT_EXECUTED.
+Windows Client 0.24.2+5019 packaged: C:\Users\er-ka\AppData\Local\Temp\tmpnj9f2l3s\releases\client-0.24.2\XIO-Client-0.24.2-windows-x64.zip. Native Windows/driver acceptance NOT_EXECUTED.
+Windows Client 1.2.3+0 packaged: C:\Users\er-ka\AppData\Local\Temp\tmpeqdzceju\releases\client-1.2.3\XIO-Client-1.2.3-windows-x64.zip. Native Windows/driver acceptance NOT_EXECUTED.
+Windows Client 9.9.9+999 packaged: C:\Users\er-ka\AppData\Local\Temp\tmp1vcay4yl\releases\client-9.9.9\XIO-Client-9.9.9-windows-x64.zip. Native Windows/driver acceptance NOT_EXECUTED.
+SUMMARY run 92 failures 0 errors 0 skips 5

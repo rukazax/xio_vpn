@@ -20,6 +20,11 @@ import 'cascade_model.dart';
 import 'cascade_probe.dart';
 import 'connection_mode_ui.dart';
 import 'core.dart';
+import 'awg_export.dart';
+import 'awg_export_ui.dart';
+import 'awg_issuance.dart';
+import 'diag.dart';
+import 'diag_ui.dart';
 import 'mtproto_ui.dart';
 import 'cascade_ui.dart';
 import 'cascade_wizard.dart';
@@ -365,7 +370,7 @@ class _WorkspaceShellState extends State<WorkspaceShell>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextButton.icon(
-                  onPressed: store.busy || store.status.active
+                  onPressed: store.busy
                       ? null
                       : () => showModalBottomSheet(
                           context: context,
@@ -394,7 +399,10 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                                         Navigator.pop(context);
                                         actionGuard(
                                           this.context,
-                                          () => store.select(profile.id),
+                                          () => store.status.active ||
+                                                  store.reconnecting
+                                              ? store.switchProfile(profile.id)
+                                              : store.select(profile.id),
                                         );
                                       },
                                     ),
@@ -677,6 +685,14 @@ class _WorkspaceShellState extends State<WorkspaceShell>
   );
   Widget diagnostics() => Column(
     children: [
+      if (xioTestBuild)
+        ListTile(
+          leading: const Icon(Icons.bug_report_outlined),
+          title: const LText('Диагностический журнал (тест)'),
+          subtitle: const LText('Текст, архив и отправка в панель'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => push('Диагностический журнал', const DiagScreen()),
+        ),
       LabPage(store: store),
       ExpansionTile(
         title: const LText('Журнал сеанса'),
@@ -1202,6 +1218,70 @@ class _SharingPageState extends State<SharingPage> {
     });
   }
 
+  /// One standalone AmneziaWG profile for a device that does not run XIO.
+  Future<void> exportAwg(ManagedUser user) async {
+    final id = user.profileIds['awg'];
+    if (id == null) {
+      throw StateError('У пользователя нет профиля AmneziaWG');
+    }
+    final server = widget.store.servers
+        .where((s) => s.id == user.serverId)
+        .firstOrNull;
+    final mode = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const LText('Профиль AmneziaWG'),
+        content: const LText(
+          'Отдельный ключ подходит для второго устройства: он не конфликтует с этим телефоном и отзывается отдельно. Ключ текущего профиля уже выдан вместе с XIO.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const LText('Отмена'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'current'),
+            child: const LText('Текущий ключ'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, 'new'),
+            child: const LText('Новое устройство'),
+          ),
+        ],
+      ),
+    );
+    if (mode == null || !mounted) return;
+    final AwgProfile exported;
+    if (mode == 'new') {
+      exported = await AwgIssuance.newDevice(
+        widget.store,
+        user,
+        '${user.name} AWG',
+      );
+    } else {
+      final raw = await widget.store.readProfileConfig(id);
+      exported = AwgProfile.parse(raw);
+    }
+    final bridge = widget.store.cascadeBridge;
+    final cascade = server != null &&
+        bridge.isNotEmpty &&
+        canonicalServerHost(server.publicHost) ==
+            canonicalServerHost(bridge);
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxWidth: (MediaQuery.sizeOf(context).width - 24).clamp(0, 880).toDouble(),
+      ),
+      builder: (_) => AwgExportSheet(
+        profile: exported,
+        name: user.name,
+        cascadeLikely: cascade,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final store = widget.store;
@@ -1354,6 +1434,18 @@ class _SharingPageState extends State<SharingPage> {
                                 : null,
                             child: const LText(
                               'Поделиться',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: TextButton(
+                            onPressed: !u.revoked && u.profileIds['awg'] != null
+                                ? () => actionGuard(context, () => exportAwg(u))
+                                : null,
+                            child: const LText(
+                              'AWG',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),

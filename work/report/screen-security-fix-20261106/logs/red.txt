@@ -1,0 +1,89 @@
+00:00 +0: loading /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart
+00:00 +0: TargetPlatform.windows does not offer working capture protection
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: null
+  Actual: <Closure: (bool) => void>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart:44:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart line 44
+The test description was:
+  TargetPlatform.windows does not offer working capture protection
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: TargetPlatform.windows does not offer working capture protection [E]
+  Test failed. See exception logs above.
+  The test description was: TargetPlatform.windows does not offer working capture protection
+  
+00:01 +0 -1: TargetPlatform.linux does not offer working capture protection
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: null
+  Actual: <Closure: (bool) => void>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart:44:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart line 44
+The test description was:
+  TargetPlatform.linux does not offer working capture protection
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -2: TargetPlatform.linux does not offer working capture protection [E]
+  Test failed. See exception logs above.
+  The test description was: TargetPlatform.linux does not offer working capture protection
+  
+00:01 +0 -2: Android applies default, opt-in and opt-out using real Store/channel
+00:01 +0 -3: Android applies default, opt-in and opt-out using real Store/channel [E]
+  Expected: [true, false, true]
+    Actual: []
+     Which: at location [0] is [] which shorter than expected
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/screen_security_test.dart 60:5                 main.<fn>
+  
+00:01 +0 -3: Android missing channel is not successful setting application
+00:01 +0 -4: Android missing channel is not successful setting application [E]
+  Expected: throws <Instance of 'StateError'>
+    Actual: <Instance of 'Future<void>'>
+     Which: emitted <null>
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/screen_security_test.dart 69:11               main.<fn>
+  
+00:01 +0 -4: Android setters and reapplication cannot overtake pending native ACK
+00:01 +0 -5: Android setters and reapplication cannot overtake pending native ACK [E]
+  Expected: [false]
+    Actual: []
+     Which: at location [0] is [] which shorter than expected
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/screen_security_test.dart 93:5                 main.<fn>
+  
+00:01 +0 -5: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android applies default, opt-in and opt-out using real Store/channel
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android missing channel is not successful setting application
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android setters and reapplication cannot overtake pending native ACK
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.linux does not offer working capture protection
+  /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.windows does not offer working capture protection

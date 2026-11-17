@@ -1,0 +1,5 @@
+EARLY GUARD userspace before any native ingress interface exists
+{"backend": "userspace", "guardBeforeAnyIngress": true, "lateAwgIpv4Blocked": true, "lateAwgIpv6Blocked": true, "lateRivetIpv4Blocked": true, "lateRivetIpv6Blocked": true, "lateIifTerminalFenceSurvives": true, "managementDirect": true, "explicitRemoveRestoresDirect": true, "scope": "actual private packet guard + separate mocked systemd dependency ordering, NOT real host reboot"}
+EARLY GUARD kernel before any native ingress interface exists
+{"backend": "kernel", "guardBeforeAnyIngress": true, "lateAwgIpv4Blocked": true, "lateAwgIpv6Blocked": true, "lateRivetIpv4Blocked": true, "lateRivetIpv6Blocked": true, "lateIifTerminalFenceSurvives": true, "managementDirect": true, "explicitRemoveRestoresDirect": true, "scope": "actual private packet guard + separate mocked systemd dependency ordering, NOT real host reboot"}
+PASS early guards with late native interfaces; no host systemd mutation

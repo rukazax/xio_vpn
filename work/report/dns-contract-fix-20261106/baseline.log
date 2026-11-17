@@ -1,0 +1,159 @@
+
+UTC 2026-11-05T21:32:19Z COMMAND: flutter --no-version-check pub get --offline
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+EXIT=0
+
+UTC 2026-11-05T21:32:22Z COMMAND: flutter --no-version-check test --no-pub --no-test-assets --concurrency=1 --reporter expanded test/dns_contract_test.dart
+00:00 +0: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart
+00:00 +0: DNS setting and AWG writer reject hostname and mixed selections
+00:00 +0 -1: DNS setting and AWG writer reject hostname and mixed selections [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Closure: () => List<String>>
+     Which: returned ['dns.example.org']
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/dns_contract_test.dart 47:7                    main.<fn>
+  
+00:00 +0 -1: DNS setting matches native unicast address policy without lookup
+00:00 +0 -2: DNS setting matches native unicast address policy without lookup [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Closure: () => String>
+     Which: returned '0.0.0.0'
+  0.0.0.0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/dns_contract_test.dart 58:7                    main.<fn>
+  
+00:00 +0 -2: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:00 +0 -3: legacy DNS DNS.Example.ORG survives actual load-save and literal repair [E]
+  Expected: ['1.1.1.1', 'DNS.Example.ORG']
+    Actual: ['1.1.1.1', 'dns.example.org']
+     Which: at location [1] is 'dns.example.org' instead of 'DNS.Example.ORG'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/dns_contract_test.dart 75:5                    main.<fn>
+  
+00:00 +0 -3: legacy DNS 127.0.0.1 survives actual load-save and literal repair
+00:00 +0 -4: legacy DNS 127.0.0.1 survives actual load-save and literal repair [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Closure: () => String>
+     Which: returned '1.1.1.1, 127.0.0.1'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/dns_contract_test.dart 77:5                    main.<fn>
+  
+00:00 +0 -4: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:00 +0 -5: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Closure: () => String>
+     Which: returned '1.1.1.1'
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/dns_contract_test.dart 77:5                    main.<fn>
+  
+00:00 +0 -5: invalid owner DNS has zero remote effects
+00:00 +0 -6: invalid owner DNS has zero remote effects [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Instance of 'Future<ManagedUser>'>
+     Which: threw StateError:<Bad state: Unexpected remote effect>
+            stack test/dns_contract_test.dart 20:5                   _Owner.command
+                  package:xio/managed_service.dart 469:28            ManagedService.createUser
+                  ===== asynchronous gap ===========================
+                  package:matcher                                    expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+                  test/dns_contract_test.dart 98:11                  main.<fn>
+                  
+            which is not an instance of 'FormatException'
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/dns_contract_test.dart 98:11                  main.<fn>
+  
+00:00 +0 -6: invalid delegated DNS has zero effects with pending=false
+00:00 +0 -7: invalid delegated DNS has zero effects with pending=false [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Instance of 'Future<UserBundle>'>
+     Which: threw StateError:<Bad state: Unexpected remote effect>
+            stack test/dns_contract_test.dart 30:5                   _Api.call
+                  package:xio/subclients.dart 175:41                 Subclients.create
+                  ===== asynchronous gap ===========================
+                  package:matcher                                    expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+                  test/dns_contract_test.dart 117:13                 main.<fn>
+                  
+            which is not an instance of 'FormatException'
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/dns_contract_test.dart 117:13                 main.<fn>
+  
+00:00 +0 -7: invalid delegated DNS has zero effects with pending=true
+00:00 +0 -8: invalid delegated DNS has zero effects with pending=true [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Instance of 'Future<UserBundle>'>
+     Which: threw StateError:<Bad state: Unexpected remote effect>
+            stack test/dns_contract_test.dart 30:5                   _Api.call
+                  package:xio/subclients.dart 175:41                 Subclients.create
+                  ===== asynchronous gap ===========================
+                  package:matcher                                    expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+                  test/dns_contract_test.dart 117:13                 main.<fn>
+                  
+            which is not an instance of 'FormatException'
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test/dns_contract_test.dart 117:13                 main.<fn>
+  
+00:00 +0 -8: legacy DNS remains visible with unsupported error and can be repaired
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "DNS: укажите IPv4 или IPv6 — без домена,
+порта, схемы и пути": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart:130:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1953:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart line 130
+The test description was:
+  legacy DNS remains visible with unsupported error and can be repaired
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:02 +0 -9: legacy DNS remains visible with unsupported error and can be repaired [E]
+  Test failed. See exception logs above.
+  The test description was: legacy DNS remains visible with unsupported error and can be repaired
+  
+00:02 +0 -9: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS has zero effects with pending=false
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS has zero effects with pending=true
+  ... and 5 more
+EXIT=1

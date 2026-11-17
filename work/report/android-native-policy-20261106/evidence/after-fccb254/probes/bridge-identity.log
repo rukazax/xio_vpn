@@ -1,0 +1,5 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/bridge-owned/home -Djava.io.tmpdir=/srv/archives/agent-policy-android-native-20261106/after-fccb254/probes/bridge-owned/tmp
+PASS exact identity control READY
+PASS rejected controllerNonce code=POLICY_STALE
+PASS rejected storeIdentity code=POLICY_STALE
+PASS rejected expectedGeneration code=POLICY_STALE

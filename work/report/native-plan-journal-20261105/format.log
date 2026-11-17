@@ -1,0 +1,7 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+Formatted lib/native_cascade_journal.dart
+Formatted test/native_cascade_journal_test.dart
+Formatted 4 files (2 changed) in 0.16 seconds.

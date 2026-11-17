@@ -1,0 +1,21 @@
+== Engine.connect admission before Mobile.stopWithTimeout
+     176: invokevirtual #907                // Method requirePolicyAdmissionOpen:()V
+     189: invokevirtual #911                // Method app/xio/xio/PolicyBridge.requireAdmission:(Landroid/content/Context;Ljava/util/Map;Ljava/lang/String;)Lapp/xio/xio/CapturedAdmission;
+     195: invokevirtual #907                // Method requirePolicyAdmissionOpen:()V
+     226: invokestatic  #925                // Method app/xio/mobile/Mobile.stopWithTimeout:(J)V
+
+== PolicyBridge.commit requireProposal before readyJson
+     119: invokespecial #398                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+     125: invokevirtual #401                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+     159: invokevirtual #404                // Method app/xio/xio/PolicyJournal.settleReady:(Lapp/xio/xio/PolicyJournal$Reservation;Z)Lapp/xio/xio/PolicyJournal$Settle;
+     163: ldc_w         #406                // String settleReady(...)
+
+== PolicyBridge.reconcile requireProposal before readyJson
+      64: invokespecial #398                // Method requireProposal:(Lapp/xio/xio/PolicyJournal$Reservation;)V
+      70: invokevirtual #401                // Method app/xio/xio/PolicyJournal.readyJson:(Lapp/xio/xio/PolicyJournal$Reservation;)Ljava/lang/String;
+     104: invokevirtual #404                // Method app/xio/xio/PolicyJournal.settleReady:(Lapp/xio/xio/PolicyJournal$Reservation;Z)Lapp/xio/xio/PolicyJournal$Settle;
+     108: ldc_w         #406                // String settleReady(...)
+
+== MainActivity FLAG_SECURE before Flutter
+       7: invokevirtual #68                 // Method android/view/Window.addFlags:(I)V
+      12: invokespecial #70                 // Method io/flutter/embedding/android/FlutterActivity.onCreate:(Landroid/os/Bundle;)V

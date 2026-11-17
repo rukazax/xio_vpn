@@ -1,0 +1,16 @@
+=== RUN   TestRecoveryExplicitPolicyValidation
+--- PASS: TestRecoveryExplicitPolicyValidation (0.00s)
+=== RUN   TestRecoverySelectedFirstAndStrictNeverSwitches
+--- PASS: TestRecoverySelectedFirstAndStrictNeverSwitches (0.00s)
+=== RUN   TestRecoveryOneThirtySecondRoundClosesLateSessions
+--- PASS: TestRecoveryOneThirtySecondRoundClosesLateSessions (0.00s)
+=== RUN   TestRecoveryAttachPacketFlowStopJoinsAndDoesNotCloseCallerSink
+--- PASS: TestRecoveryAttachPacketFlowStopJoinsAndDoesNotCloseCallerSink (0.00s)
+=== RUN   TestRecoveryAttachTunTransfersOnlyAcceptedDescriptor
+--- PASS: TestRecoveryAttachTunTransfersOnlyAcceptedDescriptor (0.00s)
+=== RUN   TestRecoveryMonitorBoundedExhaustionAndInactivePhases
+--- PASS: TestRecoveryMonitorBoundedExhaustionAndInactivePhases (0.00s)
+=== RUN   TestRecoveryLateStartupDialCannotCommitAndUnjoinedCleanupReservesOwner
+--- PASS: TestRecoveryLateStartupDialCannotCommitAndUnjoinedCleanupReservesOwner (0.00s)
+PASS
+ok  	xio.local/rivet/mobile	0.027s

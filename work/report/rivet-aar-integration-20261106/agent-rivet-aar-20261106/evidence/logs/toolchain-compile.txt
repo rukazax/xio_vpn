@@ -1,0 +1,30 @@
+== java ==
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+openjdk version "21.0.13" 2026-10-20
+OpenJDK Runtime Environment (build 21.0.13+9-1-deb13u2-Debian)
+OpenJDK 64-Bit Server VM (build 21.0.13+9-1-deb13u2-Debian, mixed mode, sharing)
+== gradle ==
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-rivet-aar-20261106/home -Djava.io.tmpdir=/srv/archives/agent-rivet-aar-20261106/tmp
+
+------------------------------------------------------------
+Gradle 9.3.1
+------------------------------------------------------------
+
+Build time:    2026-01-29 14:15:01 UTC
+Revision:      44f4e8d3122ee6e7cbf5a248d7e20b4ca666bda3
+
+Kotlin:        2.2.21
+Groovy:        4.0.29
+Ant:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024
+== sdk/ndk ==
+/opt/android-sdk/ndk/30.0.16248370/source.properties:Pkg.Revision = 30.0.16248370
+/opt/android-sdk/platforms/android-36/source.properties:Pkg.Revision=2
+/opt/android-sdk/platforms/android-36/source.properties:AndroidVersion.ApiLevel=36
+/opt/android-sdk/platforms/android-36/source.properties:AndroidVersion.ExtensionLevel=17
+/opt/android-sdk/platforms/android-36/source.properties:AndroidVersion.IsBaseSdk=true
+== flutter ==
+Dart SDK version: 3.13.5 (stable) (Tue Sep 29 01:00:52 2026 -0700) on "linux_x64"
+== flutter revision ==
+abaf9c523780a608bd46686fd5e53740a07077f8
+== go ==
+go version go1.27.3 linux/amd64

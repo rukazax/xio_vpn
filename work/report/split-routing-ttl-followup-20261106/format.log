@@ -1,0 +1,6 @@
+Formatted lib/core.dart
+Formatted lib/routing_domains.dart
+Formatted test/routing_contract_invariants_test.dart
+Formatted test/routing_native_clock_test.dart
+Formatted test/split_domains_store_test.dart
+Formatted 7 files (5 changed) in 0.17 seconds.

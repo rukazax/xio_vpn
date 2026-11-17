@@ -1,0 +1,52 @@
+{
+  "commit": "595def6ab24590002458c0a5fa4f8020d5c8a86f",
+  "archiveSha256": "27148ceb51225e5f60894952e469a116ede930e41a310ee342c8192edd95b904",
+  "archiveBytes": 220733440,
+  "extractedFileCount": 2598,
+  "gomobileInputRoots": [
+    "protocol/",
+    "vendor/",
+    "tools/",
+    "tooling/"
+  ],
+  "gomobileInputFileCount": 1842,
+  "gomobileInputAggregateSha256": "d0dcd5926a9a09ef0c4e7b5311aedaef7209e532679fc15dc2ff2646b414c20a",
+  "historicalInputFileCount": 1842,
+  "inputsIdenticalToHistoricalEA891": true,
+  "mobilePackageFiles": {
+    "protocol/rivet/mobile/awg_fallback.go": "f0d7f8e1b25d09a59e2381ed2c57cb081537fe1f1e7e2457f4f5894fb7275e81",
+    "protocol/rivet/mobile/awg_fallback_harness_test.go": "939b860fb5479fd50de75e39ef03ca1e43239514cd7277698848f2a4a6619a04",
+    "protocol/rivet/mobile/awg_fallback_test.go": "324eff29e89542a9a598d2115f5ed75889529540bf2aa9389c568f4167d25a57",
+    "protocol/rivet/mobile/awg_handshake_unix.go": "851f37ee370b82588fdfd4d0485f915c4685157fafd5753fb7aefe9e464fd801",
+    "protocol/rivet/mobile/awg_registry.go": "1dfb70288be7e4e4189cca49f3a2fab81f68e2054ccc150452b2f2e886816798",
+    "protocol/rivet/mobile/awg_registry_test.go": "a1f2d4d12d2a458873d66294a7898f505367fe1949d24b714eaf6695c2beeadb",
+    "protocol/rivet/mobile/awg_test.go": "b45841d436dfcbe2cb886261ebbea03702f47b4002910dd2e91b029161ea6b37",
+    "protocol/rivet/mobile/awg_unix.go": "5cee69d972bf24cc4a6c3758ac69296a3922dd56b6aef5ae58c2e756634da9b7",
+    "protocol/rivet/mobile/cloak.go": "e33122c26446d9864ede45759a473e366c4f762a80a94b62538139fdf8296e1f",
+    "protocol/rivet/mobile/cloak_awg_regression_test.go": "faa060d3397a307403c87e24b2147bf9aa4542eeed09002d6776d0b72e8a3cd8",
+    "protocol/rivet/mobile/cloak_roundtrip_test.go": "ebcfe2a80770ac1ee27f733bbf74ecc133ddf96b647e9beb3aeb02b94e5641a0",
+    "protocol/rivet/mobile/cloak_test.go": "64db556ffb6a1dc573b5094d4ad4fc150afc8e4ae86d8df7bacee874a2e32bd3",
+    "protocol/rivet/mobile/cloak_vps_test.go": "201e9013dda0058d6f8c4ab5ec7f78baa78d6045de538acfce62b3709519b0b8",
+    "protocol/rivet/mobile/cloak_xray_demo_test.go": "f4ff65f8c0efccda97b48b4e6df872bc92774d96173a2471377ecb29d7d6a2ba",
+    "protocol/rivet/mobile/hostname_test.go": "3a710af1a9977c99f9f2cbc0866dd6ab36de3ca049a18f25410978c956167e75",
+    "protocol/rivet/mobile/lifecycle.go": "325e579ba3b291fc3d90ccdef024677e9b472b4ef9d5bd66a7ed5e0577d0b24c",
+    "protocol/rivet/mobile/lifecycle_regression_test.go": "ee07bcc6bd74f36608f1b3f3a3d8b5b1ef961424347b8c0dff9e4429a5adaa2c",
+    "protocol/rivet/mobile/mobile.go": "47621fb6cbb607cf486af30bcc1610ef56930a8b74b5c2712b1a97131a7188b6",
+    "protocol/rivet/mobile/packetflow.go": "97cf885ec54fc0b3f768475e622e27b64d5ede6fc6d8b11244f11ce529118404",
+    "protocol/rivet/mobile/reclaim.go": "d167fc3b8e255e25160ba8e5210e54c8716a8bc89f996b185c5d13bd2b4ff731",
+    "protocol/rivet/mobile/reclaim_test.go": "7314fba44cf4fd1c02a0329a5e857a9c79fd1c7063a4b503b170a5b23ded25d4",
+    "protocol/rivet/mobile/reconnect_policy.go": "26d55fbe7d744250def920c2cb0e70c0c9171abb3a66de2f1f486fd548fc552b",
+    "protocol/rivet/mobile/reconnect_policy_test.go": "e5aedbc22770a3019001e04222ea2ca922571059dc86dee7971ecbcb9cbbad84",
+    "protocol/rivet/mobile/resolve_test.go": "1116892a1015e719d7dadf7eaa1a168cf48f0e31fa17112cedca5dffbb52346b",
+    "protocol/rivet/mobile/retirement_budget_test.go": "912175067b0b6e05630deb0d7b22839a4149063eafeab330784822c962f34327",
+    "protocol/rivet/mobile/retirement_epoch_test.go": "84865433d941bb08e2d16d9d8ecdee98662696b2b532900805761271d1615fd9",
+    "protocol/rivet/mobile/xray.go": "e9d1ec35fde964715f5996df5b451e3f3679542fc19f0fd35485d10ff5b639f7"
+  },
+  "goModSha256": "37db580b124f0fffb41d9f5c6039597876ee6efb90edbc8b87283f355aef9aea",
+  "goSumSha256": "15234f1d520b63f18a332d20b9008dd4dc5526e3ed84af15483f91f2a0417892",
+  "pubspecLockSha256": "f1dd7110b607ef3f0010bcea47b7e8fdfe7878f7410be2b5879fc731a51223f4",
+  "javaKotlinSourceCounts": {
+    "kotlin": 21,
+    "java": 80
+  }
+}

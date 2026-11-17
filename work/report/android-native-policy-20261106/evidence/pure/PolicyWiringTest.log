@@ -1,0 +1,1 @@
+PASS native policy wiring: admission before stop/UP, receipt carried through every tile candidate, no raw-plan tile/xray/restart consumer, synchronous config/routing fence, real gate+journal DOWN/late-write ownership, pendingUnknown, C7 FLAG_SECURE ordering

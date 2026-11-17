@@ -1,0 +1,22 @@
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+--- PASS: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.21s)
+PASS
+ok  	xio.local/rivet/mobile	2.080s

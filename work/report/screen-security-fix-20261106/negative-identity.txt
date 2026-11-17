@@ -1,0 +1,2 @@
+PASS: instrumented baseline 528 files exactly equal original archive except ONE explicitly TEST-ONLY platform gate substitution
+Negative fixture SHA256 7a905542026fdf80490b8805cabbcdf9b93287cebc9e5339ca104da28a271389

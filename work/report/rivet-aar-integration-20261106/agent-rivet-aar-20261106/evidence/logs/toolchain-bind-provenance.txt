@@ -1,0 +1,21 @@
+== gomobile binary ==
+d94feb54079a2556e34c9f890c556b19d3a3b8f487e9a1176616b8d075701e1b  /root/go/bin/gomobile
+95d48502e3966dfd6fe7588620e1f68a3cc350f2e3c64a00facac359188068c8  /root/go/bin/gobind
+/root/go/bin/gomobile: go1.27.3
+	path	golang.org/x/mobile/cmd/gomobile
+	mod	golang.org/x/mobile	v0.0.0-20261011034528-197770444867	h1:rav73cdd7OQUPgt1aIFbZQTiPNnjfueKXvfOiLCY0Ss=
+	dep	golang.org/x/mod	v0.42.0	h1:ICeL3t2L30ljSPHHxDnR4fqVcBt/zR2zJAb9juavmQg=
+	dep	golang.org/x/sync	v0.24.0	h1:iqiDrGoDgyuvAKrhLQthUEzU/R378N78gXbBjxed7oA=
+	dep	golang.org/x/tools	v0.52.0	h1:ryxg4U63oaUYk7uOLTF37n43f4qgtGvqV4Ioit1BaEs=
+	build	-buildmode=exe
+	build	-compiler=gc
+== gobind binary ==
+/root/go/bin/gobind: go1.27.3
+	path	golang.org/x/mobile/cmd/gobind
+	mod	golang.org/x/mobile	v0.0.0-20261011034528-197770444867	h1:rav73cdd7OQUPgt1aIFbZQTiPNnjfueKXvfOiLCY0Ss=
+	dep	golang.org/x/mod	v0.42.0	h1:ICeL3t2L30ljSPHHxDnR4fqVcBt/zR2zJAb9juavmQg=
+	dep	golang.org/x/sync	v0.24.0	h1:iqiDrGoDgyuvAKrhLQthUEzU/R378N78gXbBjxed7oA=
+== private go patch marker ==
+CLOCK_BOOTTIME on arm/arm64/amd64
+17:#define CLOCK_BOOTTIME 7
+355:	MOVW	$CLOCK_BOOTTIME, R0

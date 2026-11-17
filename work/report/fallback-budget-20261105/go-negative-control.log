@@ -1,0 +1,15 @@
+=== RUN   TestRecoveryStartupWinnerSurvivesLeaseReturnAndStopCancelsLifetime
+    lifecycle_regression_test.go:47: winner died with lease: context canceled
+--- FAIL: TestRecoveryStartupWinnerSurvivesLeaseReturnAndStopCancelsLifetime (0.00s)
+=== RUN   TestRecoveryRecoveredWinnerSurvivesRoundAndStopJoins
+    lifecycle_regression_test.go:74: recovery winner died on return: context canceled
+--- FAIL: TestRecoveryRecoveredWinnerSurvivesRoundAndStopJoins (0.00s)
+=== RUN   TestRecoveryTerminalPacketSinkFailureRevokesAndJoins
+    lifecycle_regression_test.go:144: terminal owner still advertises live session: map[active:true cleanupPending:false handshake:0 interfaceUp:true ip:10.79.0.2 phase:connected policyMode:automatic protocol:rivet-h3 recoveryId:0 recoveryPending:false recoveryRemainingMillis:0 rx:0 secure:true tx:0]
+--- FAIL: TestRecoveryTerminalPacketSinkFailureRevokesAndJoins (0.00s)
+=== RUN   TestRecoveryTerminalTunEOFRevokesAndJoins
+    lifecycle_regression_test.go:161: terminal owner still advertises live session: map[active:true cleanupPending:false handshake:0 interfaceUp:true ip:10.79.0.2 phase:connected policyMode:automatic protocol:rivet-h3 recoveryId:0 recoveryPending:false recoveryRemainingMillis:0 rx:0 secure:true tx:0]
+--- FAIL: TestRecoveryTerminalTunEOFRevokesAndJoins (0.00s)
+FAIL
+FAIL	xio.local/rivet/mobile	0.023s
+FAIL

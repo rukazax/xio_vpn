@@ -1,0 +1,96 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=/srv/archives/agent-policy-android-native-20261106/home -Djava.io.tmpdir=/srv/archives/agent-policy-android-native-20261106/tmp
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Configure project :app
+WARNING: The option setting 'android.builtInKotlin=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+WARNING: The option setting 'android.newDsl=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':app' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Configure project :amneziawg
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':amneziawg' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Configure project :integration_test
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':integration_test' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Task :amneziawg:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :amneziawg:preBuild UP-TO-DATE
+> Task :amneziawg:preDebugBuild UP-TO-DATE
+> Task :amneziawg:generateDebugResources
+> Task :amneziawg:packageDebugResources
+> Task :amneziawg:processDebugNavigationResources
+> Task :amneziawg:parseDebugLocalResources
+> Task :amneziawg:generateDebugRFile
+> Task :amneziawg:compileDebugKotlin NO-SOURCE
+> Task :amneziawg:javaPreCompileDebug
+
+> Task :amneziawg:compileDebugJavaWithJavac
+Note: /srv/archives/agent-policy-android-native-20261106/src/vendor/amneziawg/android/src/main/java/org/amnezia/awg/backend/GoBackend.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :amneziawg:bundleLibCompileToJarDebug
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:validateCompileSdkVersion
+> Task :app:verifyLauncherAliases
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:generateDebugBuildConfig
+> Task :app:cleanMergeDebugAssets UP-TO-DATE
+> Task :app:copyFlutterAssetsDebug NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :integration_test:preBuild UP-TO-DATE
+> Task :integration_test:preDebugBuild UP-TO-DATE
+> Task :integration_test:processDebugNavigationResources
+> Task :app:processDebugNavigationResources
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugRFile
+> Task :integration_test:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :integration_test:generateDebugResources
+> Task :integration_test:packageDebugResources
+> Task :integration_test:parseDebugLocalResources
+> Task :integration_test:generateDebugRFile
+> Task :integration_test:compileDebugKotlin NO-SOURCE
+> Task :integration_test:javaPreCompileDebug
+> Task :integration_test:compileDebugJavaWithJavac
+> Task :integration_test:bundleLibCompileToJarDebug
+
+> Task :app:compileDebugKotlin
+w: file:///srv/archives/agent-policy-android-native-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt:211:19 'val allNetworks: Array<(out) Network!>' is deprecated. Deprecated in Java.
+w: file:///srv/archives/agent-policy-android-native-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/OpenVpnBackend.kt:17:25 This class is not recommended for use in Kotlin. Use 'kotlin.Any' instead.
+w: file:///srv/archives/agent-policy-android-native-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/PhysicalNetwork.kt:28:45 'val allNetworks: Array<(out) Network!>' is deprecated. Deprecated in Java.
+w: file:///srv/archives/agent-policy-android-native-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/VpnSharing.kt:26:19 'val allNetworks: Array<(out) Network!>' is deprecated. Deprecated in Java.
+w: file:///srv/archives/agent-policy-android-native-20261106/src/app/android/app/src/main/kotlin/app/xio/xio/XioVpnService.kt:18:33 This class is not recommended for use in Kotlin. Use 'kotlin.Any' instead.
+
+> Task :app:javaPreCompileDebug
+> Task :app:compileDebugJavaWithJavac
+
+[Incubating] Problems report is available at: file:///srv/archives/agent-policy-android-native-20261106/src/app/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 2m 43s
+32 actionable tasks: 27 executed, 5 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.3.1/userguide/configuration_cache_enabling.html

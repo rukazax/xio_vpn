@@ -1,0 +1,36 @@
+00:00 +0: loading /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart
+00:00 +0: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.windows does not offer working capture protection
+00:01 +1: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: TargetPlatform.linux does not offer working capture protection
+00:01 +2: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android applies default, opt-in and opt-out using real Store/channel
+00:01 +3: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android missing channel is not successful setting application
+00:01 +4: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android setters and reapplication cannot overtake pending native ACK
+00:01 +5: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: native default is installed before Flutter startup (source invariant)
+00:01 +6: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: failed older save cannot roll back newer queued selection or reapply
+00:01 +7: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: failed save after rename rolls back actual persisted permission
+00:01 +8: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: real save/load preserves opt-in and obtains a fresh ACK
+00:01 +9: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Android UI says unknown on native error and shows saved preference
+00:01 +10: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: persistent save/rollback failure is visible and retry recovers
+00:02 +11: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=false on open/close
+00:02 +12: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: secret import dialog preserves global allow=true on open/close
+00:02 +13: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: background invalidates prior window ACK and resume reapplies opt-in
+00:02 +14: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Full settings route uses the shared unsupported settings UI
+00:03 +15: /srv/archives/agent-screen-security-fix-20261106/app/test/screen_security_test.dart: Client settings route uses the shared unsupported settings UI
+00:03 +16: loading /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart
+00:05 +16: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: defaults: screenshots off, autostart off, Quad9 resolver
+00:05 +17: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:05 +18: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: custom DNS validation accepts unicast IPv4 and IPv6 literals
+00:05 +19: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: custom DNS validation rejects ports, schemes and extra entries
+00:05 +20: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: an unsupported resolver list is preserved for explicit repair
+00:05 +21: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+00:05 +22: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+00:05 +23: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +24: /srv/archives/agent-screen-security-fix-20261106/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+00:08 +25: loading /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart
+00:09 +25: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: client build is explicit and rejects administrative input before native IO
+00:09 +26: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: selected profile stays first; fallbacks follow it
+00:09 +27: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: same-endpoint variant goes before another endpoint profile
+00:09 +28: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: switch waits for stop and refuses failed stop: false
+00:11 +29: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: switch waits for stop and refuses failed stop: true
+00:12 +30: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: small display and large text keep client scrollable
+00:12 +31: /srv/archives/agent-screen-security-fix-20261106/app/test/client_only_test.dart: shared home theme previews with test profiles
+00:12 +32: All tests passed!

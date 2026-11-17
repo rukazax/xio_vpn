@@ -1,0 +1,78 @@
+00:00 +0: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart
+00:00 +0: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: 65 distinct rules refuse activation without installing a subset
+00:00 +1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: 97 answers refuse activation with the 96 address budget intact
+00:00 +2: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: 128 manual networks leave no capacity for a domain answer
+00:00 +3: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: empty and partial DNS answers refuse an incomplete policy
+00:00 +4: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: failed native apply retries instead of reporting a fresh cache hit
+00:00 +5: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: failed clear preserves prior applied state and retries
+00:00 +6: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=false)
+00:00 +7: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: old gated connect never applies after DOWN (new policy=true)
+00:00 +8: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: late begin reply cannot start DNS or cancel a newer native lease
+00:00 +9: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: rule edit during apply rejects write and never commits stale cache
+00:00 +10: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_contract_invariants_test.dart: dispose revokes gated resolver even without a replacement refresh
+00:00 +11: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart
+00:01 +11: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: доменное правило принимает домен и wildcard в каноническом виде
+00:02 +12: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: доменное правило отвергает схему, слэши, порт и одиночную метку
+00:02 +13: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: проверка адресов IPv4, IPv6 и CIDR сохраняют прежнее поведение
+00:02 +14: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: проверка адресов домены в списке сетей не принимаются
+00:02 +15: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: ввод списка доменов разбирает строки, запятые и дубли
+00:02 +16: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: ввод списка доменов сообщает, какая именно запись некорректна
+00:02 +17: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: ввод списка доменов ограничивает число правил
+00:02 +18: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: разрешение доменов обычный домен превращается в свои адреса
+00:02 +19: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: разрешение доменов wildcard разрешает корень и известные поддомены, но не глубже
+00:02 +20: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: разрешение доменов сбои DNS и мусор в ответе не блокируют остальные правила
+00:02 +21: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: разрешение доменов таймаут передаётся резолверу и ограничивает обход
+00:02 +22: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: разрешение доменов число адресов ограничено запасом нативной политики
+00:02 +23: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов передаёт адреса нативной стороне и живёт по кэшу 10 минут
+00:02 +24: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов изменение списка разрешает заново, очистка снимает адреса
+00:02 +25: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов invalidate и force обходят кэш
+00:02 +26: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/routing_domains_test.dart: синхронизация адресов пустой список с самого начала ничего не пишет
+00:02 +27: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart
+00:03 +27: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+00:04 +28: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+00:04 +29: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+00:04 +30: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+00:04 +31: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+00:04 +32: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+00:04 +33: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+00:04 +34: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:04 +35: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+00:04 +36: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+00:04 +37: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+00:04 +38: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_poll_idle_test.dart
+00:06 +38: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+00:06 +39: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/status_poll_idle_test.dart: equal tunnel states compare equal
+00:06 +40: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/background_polling_test.dart
+00:11 +40: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/background_polling_test.dart: UI lifecycle stops status polling in background and refreshes on resume
+00:13 +41: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/watchdog_interval_test.dart
+00:14 +41: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/watchdog_interval_test.dart: watchdog halves its cadence only after a stable run
+00:14 +42: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/connection_users_test.dart
+00:16 +42: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/connection_users_test.dart: (setUpAll)
+00:16 +42 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/connection_users_test.dart: (setUpAll) [E]
+  Unable to load asset: "assets/l10n/ru.json".
+  The asset does not exist or has empty data.
+  package:flutter/src/services/asset_bundle.dart 340:7   PlatformAssetBundle.load
+  package:flutter/src/services/asset_bundle.dart 92:33   AssetBundle.loadString
+  package:flutter/src/services/asset_bundle.dart 193:56  CachingAssetBundle.loadString.<fn>
+  dart:_compact_hash                                     _LinkedHashMapMixin.putIfAbsent
+  package:flutter/src/services/asset_bundle.dart 193:27  CachingAssetBundle.loadString
+  package:xio/l10n.dart 57:41                            AppLanguages.load.<fn>
+  dart:async                                             Future.wait
+  package:xio/l10n.dart 52:34                            AppLanguages.load
+  test/connection_users_test.dart 31:24                  main.<fn>
+  
+00:16 +42 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/connection_users_test.dart: (tearDownAll)
+00:16 +42 -1: loading /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart
+00:18 +42 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: automatic default retains selected first, selectedOnly is explicit
+00:18 +43 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: disposed disconnect success cannot publish or rearm
+00:18 +44 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: disposed activation success cannot publish or rearm
+00:18 +45 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: disposed disconnect error cannot publish or rearm
+00:18 +46 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: disposed activation error cannot publish or rearm
+00:18 +47 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: unjoined cleanup reserves activation after round expiry
+00:18 +48 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: repeated native recovery polls cannot renew the same lease
+00:18 +49 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: selectedOnly rejects missing native policy acknowledgement without fallback
+00:18 +50 -1: /srv/archives/agent-split-routing-fixes-20261106/final/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+00:19 +51 -1: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-split-routing-fixes-20261106/final/app/test/connection_users_test.dart: (setUpAll)

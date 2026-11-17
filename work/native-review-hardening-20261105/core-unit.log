@@ -1,0 +1,24 @@
+test_apply_failure_retains_intent_without_unproved_guard_claim (__main__.NativeTests.test_apply_failure_retains_intent_without_unproved_guard_claim) ... ok
+test_capability_requires_fresh_matching_proof_and_live_state (__main__.NativeTests.test_capability_requires_fresh_matching_proof_and_live_state) ... ok
+test_dedicated_hops_cannot_steal_management_addresses_or_routes (__main__.NativeTests.test_dedicated_hops_cannot_steal_management_addresses_or_routes) ... ok
+test_default_and_normalized_authoritative_map_have_identical_plan (__main__.NativeTests.test_default_and_normalized_authoritative_map_have_identical_plan) ... ok
+test_desired_families_are_not_capabilities (__main__.NativeTests.test_desired_families_are_not_capabilities) ... ok
+test_foreign_rule_inside_owned_chain_not_flushed (__main__.NativeTests.test_foreign_rule_inside_owned_chain_not_flushed) ... ok
+test_hop_snat_and_preserve_exact_return_contract (__main__.NativeTests.test_hop_snat_and_preserve_exact_return_contract) ... ok
+test_linux_policy_json_normalization (__main__.NativeTests.test_linux_policy_json_normalization) ... ok
+test_literal_and_control_rejection_before_effects (__main__.NativeTests.test_literal_and_control_rejection_before_effects) ... ok
+test_non_authoritative_ingress_maps_rejected_before_all_effects (__main__.NativeTests.test_non_authoritative_ingress_maps_rejected_before_all_effects) ... ok
+test_none_no_opt_in_or_exit_scope_and_no_side_effects (__main__.NativeTests.test_none_no_opt_in_or_exit_scope_and_no_side_effects) ... ok
+test_preserve_collision_rejected_but_explicit_hop_mode_coexists (__main__.NativeTests.test_preserve_collision_rejected_but_explicit_hop_mode_coexists) ... ok
+test_receipt_ownership_and_hash_rejection (__main__.NativeTests.test_receipt_ownership_and_hash_rejection) ... ok
+test_reconcile_does_not_reset_unchanged_peer_handshake (__main__.NativeTests.test_reconcile_does_not_reset_unchanged_peer_handshake) ... ok
+test_remove_requires_explicit_restore_direct_confirmation (__main__.NativeTests.test_remove_requires_explicit_restore_direct_confirmation) ... ok
+test_runtime_pin_no_unpinned_fallback (__main__.NativeTests.test_runtime_pin_no_unpinned_fallback) ... ok
+test_terminal_fences_and_no_management_output_policy (__main__.NativeTests.test_terminal_fences_and_no_management_output_policy) ... ok
+test_unrequested_family_is_prohibited_not_direct (__main__.NativeTests.test_unrequested_family_is_prohibited_not_direct) ... ok
+test_validation_and_plan_are_pure_and_secret_free (__main__.NativeTests.test_validation_and_plan_are_pure_and_secret_free) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 3.772s
+
+OK

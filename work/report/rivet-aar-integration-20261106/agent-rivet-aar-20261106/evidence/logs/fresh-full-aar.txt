@@ -1,0 +1,1 @@
+AAR /srv/archives/agent-rivet-aar-20261106/fresh-binding/rivet.aar sha256 7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c

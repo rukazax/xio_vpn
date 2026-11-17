@@ -1,0 +1,21 @@
+test_all_and_split_routing (__main__.CascadeTests.test_all_and_split_routing) ... ok
+test_bash_syntax (__main__.CascadeTests.test_bash_syntax) ... ok
+test_bootstrap_hash_mismatch_no_exec (__main__.CascadeTests.test_bootstrap_hash_mismatch_no_exec) ... ok
+test_bootstrap_missing_or_tampered_dependency_no_exec (__main__.CascadeTests.test_bootstrap_missing_or_tampered_dependency_no_exec) ... ok
+test_bootstrap_no_unpinned_or_http_or_forwarded_data (__main__.CascadeTests.test_bootstrap_no_unpinned_or_http_or_forwarded_data) ... ok
+test_bootstrap_success_argv_persistence_and_cleanup (__main__.CascadeTests.test_bootstrap_success_argv_persistence_and_cleanup) ... ok
+test_both_real_two_way_registration (__main__.CascadeTests.test_both_real_two_way_registration) ... ok
+test_cleanup_does_not_follow_replaced_directory (__main__.CascadeTests.test_cleanup_does_not_follow_replaced_directory) ... ok
+test_deterministic_complete_payload (__main__.CascadeTests.test_deterministic_complete_payload) ... ok
+test_exit_nat44_dualstack_and_ipv6_only (__main__.CascadeTests.test_exit_nat44_dualstack_and_ipv6_only) ... ok
+test_health_family_and_scope_are_honest (__main__.CascadeTests.test_health_family_and_scope_are_honest) ... ok
+test_invalid_controls_and_root_paths_fail_before_mutation (__main__.CascadeTests.test_invalid_controls_and_root_paths_fail_before_mutation) ... ok
+test_pin_mismatch_no_mutation (__main__.CascadeTests.test_pin_mismatch_no_mutation) ... ok
+test_psk_and_peer_paths_and_owned_cleanup (__main__.CascadeTests.test_psk_and_peer_paths_and_owned_cleanup) ... ok
+test_reject_bad_literals_before_side_effects (__main__.CascadeTests.test_reject_bad_literals_before_side_effects) ... ok
+test_render_endpoint_both_families (__main__.CascadeTests.test_render_endpoint_both_families) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 11.448s
+
+OK

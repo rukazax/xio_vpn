@@ -19,6 +19,8 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/services.dart';
 
 import 'cascade_probe.dart';
+import 'diag.dart';
+import 'test_driver.dart';
 import 'cascade_ui.dart';
 import 'client_policy.dart';
 import 'connection_mode_ui.dart';
@@ -36,6 +38,7 @@ extension XioColors on BuildContext {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  XioDiag.install();
   if (Platform.isLinux || Platform.isWindows) await DesktopEngine.initialise();
   LicenseRegistry.addLicense(() async* {
     for (final license in [
@@ -92,6 +95,9 @@ Future<void> main() async {
   // lifetime: the mode control is never hidden behind a null source in a
   // production entry point.
   final modeSource = StoreConnectionModeSource(store);
+  if (xioTestBuild) {
+    XioTestDriver.start((json) => TestCommands.run(store, json));
+  }
   runApp(XioApp(store: store, modeSource: modeSource, requireConsent: true));
   final statistics = StartupStatistics();
   void refreshAfterConsent() {

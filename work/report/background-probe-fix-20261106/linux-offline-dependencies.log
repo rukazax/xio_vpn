@@ -1,0 +1,8 @@
+fatal: detected dubious ownership in repository at '/srv/archives/agent-background-probe-fix-20261106/cache/flutter'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /srv/archives/agent-background-probe-fix-20261106/cache/flutter
+fatal: detected dubious ownership in repository at '/srv/archives/agent-background-probe-fix-20261106/cache/flutter'
+To add an exception for this directory, call:
+
+	git config --global --add safe.directory /srv/archives/agent-background-probe-fix-20261106/cache/flutter

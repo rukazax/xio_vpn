@@ -1,0 +1,6 @@
+=== RUN   TestRecoveryOldRetirementObserverCannotFailNewerLease
+    retirement_epoch_test.go:80: old canceled retirement observer revoked newer lease id=2
+--- FAIL: TestRecoveryOldRetirementObserverCannotFailNewerLease (0.00s)
+FAIL
+FAIL	xio.local/rivet/mobile	0.020s
+FAIL

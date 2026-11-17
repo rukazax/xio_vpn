@@ -1,0 +1,35 @@
+PING 198.19.0.2 (198.19.0.2) 56(84) bytes of data.
+64 bytes from 198.19.0.2: icmp_seq=1 ttl=62 time=1.03 ms
+64 bytes from 198.19.0.2: icmp_seq=2 ttl=62 time=1.11 ms
+64 bytes from 198.19.0.2: icmp_seq=3 ttl=62 time=1.44 ms
+
+--- 198.19.0.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 1.033/1.194/1.437/0.174 ms
+PING fd00:ee::2 (fd00:ee::2) 56 data bytes
+64 bytes from fd00:ee::2: icmp_seq=1 ttl=62 time=1.05 ms
+64 bytes from fd00:ee::2: icmp_seq=2 ttl=62 time=1.54 ms
+64 bytes from fd00:ee::2: icmp_seq=3 ttl=62 time=1.12 ms
+
+--- fd00:ee::2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 1.052/1.236/1.539/0.215 ms
+{"transport": "ipv4", "kernel_wireguard_handshake": true, "ipv4_nat44_ping": "3/3", "ipv6_nat66_ping": "3/3", "all_mode_no_direct_fallback": true, "evidence_scope": "private synthetic namespaces ONLY, not Internet/VPS/native app"}
+PING 198.19.0.2 (198.19.0.2) 56(84) bytes of data.
+64 bytes from 198.19.0.2: icmp_seq=1 ttl=62 time=1.20 ms
+64 bytes from 198.19.0.2: icmp_seq=2 ttl=62 time=1.11 ms
+64 bytes from 198.19.0.2: icmp_seq=3 ttl=62 time=1.44 ms
+
+--- 198.19.0.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 1.114/1.253/1.443/0.138 ms
+PING fd00:ee::2 (fd00:ee::2) 56 data bytes
+64 bytes from fd00:ee::2: icmp_seq=1 ttl=62 time=1.13 ms
+64 bytes from fd00:ee::2: icmp_seq=2 ttl=62 time=1.54 ms
+64 bytes from fd00:ee::2: icmp_seq=3 ttl=62 time=1.23 ms
+
+--- fd00:ee::2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 1.131/1.301/1.543/0.175 ms
+{"transport": "ipv6", "kernel_wireguard_handshake": true, "ipv4_nat44_ping": "3/3", "ipv6_nat66_ping": "3/3", "all_mode_no_direct_fallback": true, "evidence_scope": "private synthetic namespaces ONLY, not Internet/VPS/native app"}
+PASS: two underlay families, real kernel WG and synthetic NAT44/NAT66; host unchanged

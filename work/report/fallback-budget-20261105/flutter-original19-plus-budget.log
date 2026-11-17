@@ -1,0 +1,35 @@
+00:00 +0: loading /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart
+00:00 +0: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: late status success cannot overwrite completed disconnect
+00:00 +1: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: status started during teardown success cannot survive its completion
+00:00 +2: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: dispose fences in-flight status success and queued fresh reads
+00:00 +3: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: late status failure cannot overwrite completed disconnect
+00:00 +4: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: status started during teardown failure cannot survive its completion
+00:00 +5: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: dispose fences in-flight status failure and queued fresh reads
+00:00 +6: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: connect invalidates old snapshot while new fresh verification still advances
+00:00 +7: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: disposed live controller cannot re-arm watchdog from a late identical snapshot
+00:00 +8: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: disconnect owns watchdog cancellation even when the last poll is discarded
+00:00 +9: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: failed native teardown still invalidates older status errors
+00:00 +10: /srv/archives/agent-fallback-finish-20261105/app/test/status_lifecycle_test.dart: current status changes and current errors are still published, identical reads coalesce
+00:00 +11: loading /srv/archives/agent-fallback-finish-20261105/app/test/status_poll_idle_test.dart
+00:01 +11: /srv/archives/agent-fallback-finish-20261105/app/test/status_poll_idle_test.dart: an idle status poll does not notify listeners
+00:02 +12: /srv/archives/agent-fallback-finish-20261105/app/test/status_poll_idle_test.dart: equal tunnel states compare equal
+00:02 +13: loading /srv/archives/agent-fallback-finish-20261105/app/test/background_polling_test.dart
+00:06 +13: /srv/archives/agent-fallback-finish-20261105/app/test/background_polling_test.dart: UI lifecycle stops status polling in background and refreshes on resume
+00:08 +14: loading /srv/archives/agent-fallback-finish-20261105/app/test/watchdog_interval_test.dart
+00:09 +14: /srv/archives/agent-fallback-finish-20261105/app/test/watchdog_interval_test.dart: watchdog halves its cadence only after a stable run
+00:09 +15: loading /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart
+00:11 +15: /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart: (setUpAll)
+00:12 +15: /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart: fresh poll waits for older interface read and then reads the new interface
+00:12 +16: /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart: startup statistics runs once despite repeat callers and one unavailable server
+00:12 +17: /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart: stalled probe falls back; late first result cannot replace success
+00:12 +18: /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart: compact user cards in thirteen languages and two themes
+00:14 +19: /srv/archives/agent-fallback-finish-20261105/app/test/connection_users_test.dart: (tearDownAll)
+00:14 +19: loading /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart
+00:16 +19: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: automatic default retains selected first, selectedOnly is explicit
+00:16 +20: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: disposed disconnect success cannot publish or rearm
+00:16 +21: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: disposed activation success cannot publish or rearm
+00:16 +22: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: disposed disconnect error cannot publish or rearm
+00:16 +23: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: disposed activation error cannot publish or rearm
+00:16 +24: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: selectedOnly rejects missing native policy acknowledgement without fallback
+00:16 +25: /srv/archives/agent-fallback-finish-20261105/app/test/fallback_budget_test.dart: one foreground round ends at 30 seconds, not 15 seconds per candidate
+00:16 +26: All tests passed!

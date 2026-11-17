@@ -1,0 +1,14 @@
+commit=5801b32da95a8e86b9949dec03dca430374b92e4
+source_sha256=fda86965e827652e0df86e76a4f1562f4a602a578c598c0c3b6443e1d1836ff3
+test_absent_unit_foreign_loaded_inactive_or_unknown_refuses_without_effects (__main__.IndependentRegressions.test_absent_unit_foreign_loaded_inactive_or_unknown_refuses_without_effects) ... ok
+test_absent_unit_unknown_runtime_state_never_authorizes_cleanup (__main__.IndependentRegressions.test_absent_unit_unknown_runtime_state_never_authorizes_cleanup) ... ok
+original-counterexample DESIRED invariant: PASS (re-stop before removal)
+test_original_counterexample_now_requires_live_stop_before_removal (__main__.IndependentRegressions.test_original_counterexample_now_requires_live_stop_before_removal) ... ok
+test_stale_inactive_loaded_former_fragment_must_disappear_after_reload (__main__.IndependentRegressions.test_stale_inactive_loaded_former_fragment_must_disappear_after_reload) ... ok
+test_tombstone_active_runtime_does_not_report_already_uninstalled (__main__.IndependentRegressions.test_tombstone_active_runtime_does_not_report_already_uninstalled) ... ok
+test_vendor_alias_before_effects_absolute_and_relative (__main__.IndependentRegressions.test_vendor_alias_before_effects_absolute_and_relative) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 60.259s
+
+OK

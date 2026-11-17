@@ -1,0 +1,28 @@
+Historical candidate overlay: 142 files; differs from final frozen index: ['app/lib/core.dart', 'app/test/app_settings_test.dart', 'app/test/screen_security_test.dart']
+Archive is historical transfer evidence, NOT final executed byte identity proof.
+PASS: all 528 manifest files match frozen Git index, including tests/MainActivity/catalogues
+PASS: pristine baseline archive 527 tracked files byte-identical to base; added negative test is not production source
+baseline negative test sha256 7a905542026fdf80490b8805cabbcdf9b93287cebc9e5339ca104da28a271389
+PASS: same 7 nonempty new messages in all 13 catalogues; all existing entries unchanged
+PASS: l10n assertions unchanged
+HEAD ba3566b6b2cd63ecedee8de11a5e549b5eb89958
+source paths: app/android/app/src/main/kotlin/app/xio/xio/MainActivity.kt
+app/assets/l10n/ar.json
+app/assets/l10n/de.json
+app/assets/l10n/en.json
+app/assets/l10n/es.json
+app/assets/l10n/fr.json
+app/assets/l10n/hi.json
+app/assets/l10n/it.json
+app/assets/l10n/ja.json
+app/assets/l10n/ko.json
+app/assets/l10n/pt.json
+app/assets/l10n/ru.json
+app/assets/l10n/tr.json
+app/assets/l10n/zh.json
+app/lib/app_settings.dart
+app/lib/client_policy.dart
+app/lib/core.dart
+app/test/app_settings_test.dart
+app/test/screen_security_test.dart
+

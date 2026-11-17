@@ -1,0 +1,30 @@
+   Woah! You appear to be trying to run flutter as root.
+   We strongly recommend running the flutter tool without superuser privileges.
+  /
+📎
+00:00 +0: loading /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart
+00:00 +0: /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart: update awaits digest and advances only after acceptance
+00:00 +1: /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart: update awaits digest and returns mismatch without side effects
+00:00 +2: /srv/archives/agent-server-verify-20261105/app/test/managed_update_verification_test.dart: default service returns real digest mismatch before updater load
+00:00 +3: loading /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart
+00:01 +3: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: server release manifest binds the exact archive bytes
+00:01 +4: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install uploads the manifest-matched archive and bootstrap verbatim
+00:02 +5: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: a stale or corrupted archive is refused before any upload
+00:02 +6: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host fr-host.fr, not SSH proxy
+00:02 +7: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host xn--bcher-kva.example, not SSH proxy
+00:02 +8: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host XN--BCHER-KVA.example, not SSH proxy
+00:02 +9: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 198.51.100.42, not SSH proxy
+00:03 +10: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 2001:db8::42, not SSH proxy
+00:03 +11: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: install and generated profiles use VPN host [2001:db8::42], not SSH proxy
+00:03 +12: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: malformed hosts perform no inspect, upload, init or store write
+00:03 +13: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: a ready installation is reused without uploading the old bundle
+00:03 +14: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: a different explicit host on a ready server is refused before upload
+00:03 +15: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: an incomplete installation is a hard stop before upload
+00:03 +16: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: a fresh init mismatch never registers a different VPN host
+00:03 +17: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: a malicious server AWG extension is rejected and the user revoked
+00:03 +18: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: password is released only after the host key gate accepts
+00:03 +19: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: client factory wires pin verification before password release
+00:03 +20: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: a pinned host rejects a different key before the password
+00:03 +21: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: case and trailing-dot aliases share one host-key pin
+00:03 +22: /srv/archives/agent-server-verify-20261105/app/test/install_domain_security_test.dart: DNS resolution keeps a Punycode name, never substitutes an address
+00:03 +23: All tests passed!

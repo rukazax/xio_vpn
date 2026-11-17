@@ -91,3 +91,4 @@ replace tailscale.com => ../../vendor/tailscale
 replace github.com/amnezia-vpn/amnezia-tun2socks/v2 => ../../vendor/tun2socks
 
 replace github.com/amnezia-vpn/amneziawg-go/v3 => ../../vendor/amneziawg-go
+replace github.com/xtls/reality => ../../vendor/reality

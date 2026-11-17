@@ -1,0 +1,1 @@
+PASS policy wire: schema2 plan, golden config digests (trailing LF), exact types/budget, ids/profiles identity, manual/automatic selection rules, canonical sorted routing, verbatim priority, C5 site, envelope/receipt strictness

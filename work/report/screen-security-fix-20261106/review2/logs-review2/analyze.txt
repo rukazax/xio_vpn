@@ -1,0 +1,7 @@
+Analyzing app...                                                
+
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1033:7 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/core.dart:1035:7 • curly_braces_in_flow_control_structures
+warning • This function has a nullable return type of 'FutureOr<Object?>', but ends without returning a value. Try adding a return statement, or if no value is ever returned, try changing the return type to 'void' • test/screen_security_review_regression_test.dart:204:57 • body_might_complete_normally_nullable
+
+3 issues found. (ran in 6.0s)

@@ -1,0 +1,100 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:xio/app_settings.dart';
+import 'package:xio/core.dart';
+
+class MemoryStore extends AppStore {
+  bool failSave = false;
+  @override
+  Future<void> save() async {
+    if (failSave) throw StateError('save failed');
+  }
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('app.xio/engine');
+  final calls = <bool>[];
+  setUp(() {
+    calls.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          if (call.method == 'secureScreen') {
+            calls.add((call.arguments as Map)['enabled'] as bool);
+          }
+          return null; // The real Android handler ACKs with success(null).
+        });
+  });
+  tearDown(() {
+    debugDefaultTargetPlatformOverride = null;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+  });
+
+  for (final platform in [TargetPlatform.windows, TargetPlatform.linux]) {
+    testWidgets('$platform does not offer working capture protection', (tester) async {
+      debugDefaultTargetPlatformOverride = platform;
+      final store = MemoryStore();
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: AppBehaviorSettings(store: store))));
+      final tile = tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, 'Разрешить скриншоты'));
+      expect(tile.onChanged, isNull);
+      expect(find.text('На этой платформе приложение не блокирует снимки и запись экрана.'), findsOneWidget);
+      await expectLater(store.setAllowScreenshots(true), throwsStateError);
+      expect(store.allowScreenshots, isFalse);
+      expect(calls, isEmpty);
+      await tester.pumpWidget(const SizedBox());
+      store.dispose();
+    });
+  }
+
+  test('Android applies default, opt-in and opt-out using real Store/channel', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final store = MemoryStore();
+    await store.applyScreenSecurity();
+    await store.setAllowScreenshots(true);
+    await store.setAllowScreenshots(false);
+    expect(calls, [true, false, true]);
+    store.dispose();
+  });
+
+  test('Android missing channel is not successful setting application', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, null);
+    final store = MemoryStore();
+    await expectLater(store.setAllowScreenshots(true), throwsStateError);
+    // Desired preference persists even when the native result is unknown.
+    expect(store.allowScreenshots, isTrue);
+    await store.applyScreenSecurity(); // Fire-and-forget callers remain safe.
+    store.dispose();
+  });
+
+  test('Android setters and reapplication cannot overtake pending native ACK', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final pending = Completer<void>();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          if (call.method == 'secureScreen') {
+            calls.add((call.arguments as Map)['enabled'] as bool);
+            if (calls.length == 1) await pending.future;
+          }
+          return null;
+        });
+    final store = MemoryStore();
+    final first = store.setAllowScreenshots(true);
+    await Future<void>.delayed(Duration.zero);
+    final second = store.setAllowScreenshots(false);
+    final reapply = store.applyScreenSecurity();
+    await Future<void>.delayed(Duration.zero);
+    expect(calls, [false]);
+    pending.complete();
+    await Future.wait([first, second, reapply]);
+    expect(calls, [false, true, true]);
+    expect(store.allowScreenshots, isFalse);
+    store.dispose();
+  });
+}

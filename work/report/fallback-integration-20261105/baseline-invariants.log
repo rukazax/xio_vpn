@@ -1,0 +1,10 @@
+=== RUN   TestBaselineInvariantNoPostRevokePlanEffects
+    baseline_invariants_test.go:18: desired invariant FAIL: err=<nil> calls=10 after-revoke=9
+--- FAIL: TestBaselineInvariantNoPostRevokePlanEffects (0.00s)
+=== RUN   TestBaselineInvariantCanceledDNSReturns
+    baseline_invariants_test.go:29: desired invariant FAIL: original resolver ignores setup cancellation until independently released
+--- FAIL: TestBaselineInvariantCanceledDNSReturns (0.02s)
+FAIL
+FAIL	xio.local/rivet/internal/desktop	0.035s
+FAIL
+baseline desired invariants exit=1 (expected 1)

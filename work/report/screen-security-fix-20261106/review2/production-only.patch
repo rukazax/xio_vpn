@@ -1,0 +1,67 @@
+diff --git a/app/lib/core.dart b/app/lib/core.dart
+index e078b1d..795d408 100644
+--- a/app/lib/core.dart
++++ b/app/lib/core.dart
+@@ -957,8 +957,11 @@ class AppStore extends ChangeNotifier {
+         );
+       }
+       await refresh();
++      screenSecurityPreferenceKnown = true;
+     } catch (_) {
+       _storageHealthy = false;
++      // A default in memory is not proof of the unreadable persisted choice.
++      screenSecurityPreferenceKnown = false;
+       error = 'Не удалось прочитать состояние приложения. Сохранённые данные не перезаписаны.';
+     }
+     try {
+@@ -1785,6 +1788,9 @@ class AppStore extends ChangeNotifier {
+   }
+ 
+   Future<bool> _ackScreenSecurity(int revision) async {
++    // The store may have been disposed while its preference write was pending.
++    // Never let that obsolete owner alter a replacement store's window.
++    if (_disposed) return false;
+     final enabled = !allowScreenshots;
+     try {
+       // Android's existing contract is success(null), after addFlags/clearFlags.
+@@ -1794,7 +1800,9 @@ class AppStore extends ChangeNotifier {
+       }
+       return true;
+     } catch (_) {
+-      if (revision == _screenSecurityRevision) screenSecurityEnabled = null;
++      if (!_disposed && revision == _screenSecurityRevision) {
++        screenSecurityEnabled = null;
++      }
+       return false;
+     }
+   }
+@@ -1812,21 +1820,28 @@ class AppStore extends ChangeNotifier {
+       allowScreenshots = value;
+       try {
+         await save();
++        if (_disposed) return;
+         screenSecurityPreferenceKnown = true;
+       } catch (_) {
++        if (_disposed) return;
+         allowScreenshots = previous;
+         // save() can fail AFTER rename (native-plan synchronization). Restore
+         // disk too; if that also fails, do not claim the preference is saved.
+         try {
+           await save();
++          if (_disposed) return;
+           screenSecurityPreferenceKnown = true;
+         } catch (_) {
++          if (_disposed) return;
+           screenSecurityPreferenceKnown = false;
+         }
+         await _ackScreenSecurity(revision);
++        if (_disposed) return;
+         throw StateError('Не удалось сохранить настройку');
+       }
+-      if (!await _ackScreenSecurity(revision)) {
++      final acknowledged = await _ackScreenSecurity(revision);
++      if (_disposed) return;
++      if (!acknowledged) {
+         // Preserve the user's saved opt-in; retries/startup will reapply it.
+         throw StateError('Не удалось подтвердить настройку снимков экрана.');
+       }

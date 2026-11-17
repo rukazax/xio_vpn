@@ -1,0 +1,105 @@
+{
+  "artifact": {
+    "path": "/srv/archives/agent-rivet-aar-20261106/artifacts/rivet-fresh-595def6a-allabi.aar",
+    "canonicalCopy": "/srv/archives/agent-rivet-aar-20261106/fresh-binding/rivet.aar",
+    "sha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+    "bytes": 36548360,
+    "classesJarSha256": "8f1849333170c09c3e874c740bfc932a89adb177f454d131cf7caa86d5741400",
+    "classesJarIdenticalToHistoricalArm64Build": true,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "nativeLibs": {
+      "jni/arm64-v8a/libgojni.so": {
+        "sha256": "990c84db1bb4142dcf68e1f112317d00b794719713f26680293eb1997b217ecd",
+        "bytes": 32582984
+      },
+      "jni/armeabi-v7a/libgojni.so": {
+        "sha256": "18ac04444292b0e4a37b7d0a1b05105a5de13905cd5f2652df2e706e5c592ff1",
+        "bytes": 31331504
+      },
+      "jni/x86_64/libgojni.so": {
+        "sha256": "ddb62423c7d4049ba860315f0b69f108b601897a4b6a82297687b58e08955cd6",
+        "bytes": 34766472
+      }
+    },
+    "javap": "/srv/archives/agent-rivet-aar-20261106/artifacts/surface/fresh/fresh-javap.txt",
+    "elfHeaders": "/srv/archives/agent-rivet-aar-20261106/artifacts/elf",
+    "methodsRequired": [
+      "cancelConnect",
+      "stopWithTimeout",
+      "connectPolicyTimeout"
+    ],
+    "methodsPresent": {
+      "cancelConnect": true,
+      "stopWithTimeout": true,
+      "connectPolicyTimeout": true
+    },
+    "androidManifest": "<manifest package=\"go.mobile.gojni\"><uses-sdk android:minSdkVersion=\"26\"/></manifest>"
+  },
+  "compiles": {
+    "command": "gradle --offline --no-daemon --no-build-cache --max-workers=1 -Dorg.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=512m -Pkotlin.daemon.jvmargs=-Xmx1024m :app:compileDebugKotlin :app:compileDebugJavaWithJavac -Ptarget-platform=android-arm64 -x :app:compileFlutterBuildDebug -x :app:mergeDebugAssets",
+    "fresh-full": {
+      "exit": 0,
+      "durationSeconds": 71,
+      "aarSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+      "audit": {
+        "run": "fresh-full",
+        "mode": "full",
+        "applicationId": "app.xio.xio",
+        "clientOnly": "false",
+        "compiledClasses": 98,
+        "buildConfigSha256": "21e4a9c6ee212b98f4d30b47322a5ac907f8cf40e6305dff353fc89767bb2008",
+        "mainActivitySha256": "4ac50cba4dc3ba0e8716b7c500b5ee7965b7075097e43dfa2c6f11299dce7d00"
+      }
+    },
+    "fresh-client": {
+      "exit": 0,
+      "durationSeconds": 60,
+      "aarSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+      "audit": {
+        "run": "fresh-client",
+        "mode": "client",
+        "applicationId": "app.xio.client",
+        "clientOnly": "true",
+        "compiledClasses": 98,
+        "buildConfigSha256": "8cefcb10b89a8acdb4ab71807fbaf7123c5cecf3bb274166447e5da7197be210",
+        "mainActivitySha256": "0570cde798e699f5db8346d57e11163433c440b4becfef3293d6fb9434db5a0e"
+      }
+    }
+  },
+  "negativeControl": {
+    "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+    "methodsPresent": {
+      "cancelConnect": false,
+      "stopWithTimeout": false,
+      "connectPolicyTimeout": false
+    },
+    "stale-full": {
+      "exit": 1,
+      "durationSeconds": 656,
+      "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+      "audit": null
+    },
+    "stale-client": {
+      "exit": 1,
+      "durationSeconds": 585,
+      "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+      "audit": null
+    }
+  },
+  "integrity": {
+    "archiveUnchanged": true,
+    "onlyArchivedFileChanged": {
+      "app/android/app/libs/rivet.aar": {
+        "before": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+        "after": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c"
+      }
+    },
+    "addedFilesAreGeneratedOnlyCount": 439,
+    "aarArtifactUnchangedAfterCompiles": true,
+    "aarInTreeSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c"
+  }
+}

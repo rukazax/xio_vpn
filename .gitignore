@@ -3,3 +3,15 @@ __pycache__/
 work/.stage-server-assets/
 # The full CJK master font is only needed to rebuild the subset (see app/fonts-src/README.md).
 app/fonts-src/*.otf
+# Local build, cache and release artifacts. They are reproducible from source
+# and must never inflate the repository or leak a signed APK from a laptop.
+.dart_tool/
+app/.dart_tool/
+app/build/
+app/android/.gradle/
+app/android/local.properties
+.pytest_cache/
+dist/
+releases/
+vendor-server/
+.signing/

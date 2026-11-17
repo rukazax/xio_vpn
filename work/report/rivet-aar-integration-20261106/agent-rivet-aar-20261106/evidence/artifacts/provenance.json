@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "commit": "595def6ab24590002458c0a5fa4f8020d5c8a86f",
+  "commitSubjects": "merge: independently accepted bounded WebUI contract repair (C6+C7+D10 at c946c920 plus S3 server-only WebUI repair)",
+  "sourceArchive": {
+    "path": "/srv/archives/agent-rivet-aar-20261106/source-main-595def6a.tar",
+    "sha256": "27148ceb51225e5f60894952e469a116ede930e41a310ee342c8192edd95b904",
+    "bytes": 220733440,
+    "command": "git archive --format=tar 595def6ab24590002458c0a5fa4f8020d5c8a86f app client CONTRIBUTING.md docs legal patches protocol tooling tools vendor vendor-metadata",
+    "producedOn": "Windows work/repo-merge (authorized source of MAIN), transferred by scp, hash re-verified on host"
+  },
+  "gitTreeIds": {
+    "app": "7854a372a7f0148e6890645171baf8e48a19984f",
+    "client": "f14d5f23685b6eb47c5382228312df3676afd767",
+    "protocol": "31f1a7d461bddf5e912e9de27a7a4a3141972522",
+    "tooling": "c8ca36cf3fb268518219d4fde67a94840642fff3",
+    "tools": "24386867c9b5baecc7f77730c9f20bdad1a06647",
+    "vendor": "c32b7204e067669841f7554cf2a66b1dc7a29515"
+  },
+  "gomobileInputs": {
+    "roots": [
+      "protocol/",
+      "vendor/",
+      "tools/",
+      "tooling/"
+    ],
+    "fileCount": 1842,
+    "aggregateSha256": "d0dcd5926a9a09ef0c4e7b5311aedaef7209e532679fc15dc2ff2646b414c20a",
+    "byteIdenticalToHistoricalEA891Inputs": true,
+    "goModSha256": "37db580b124f0fffb41d9f5c6039597876ee6efb90edbc8b87283f355aef9aea",
+    "goSumSha256": "15234f1d520b63f18a332d20b9008dd4dc5526e3ed84af15483f91f2a0417892",
+    "pubspecLockSha256": "f1dd7110b607ef3f0010bcea47b7e8fdfe7878f7410be2b5879fc731a51223f4",
+    "verifiedAgainAfterCompiles": true
+  },
+  "recipe": {
+    "origin": "tools/build-rivet.py:20-23 (project canonical AAR recipe), private Go from tools/prepare-mobile-go.py",
+    "cwd": "src/protocol/rivet",
+    "command": "gomobile bind -target=android/arm64,android/arm,android/amd64 -androidapi 26 -trimpath '-ldflags=-s -w' -javapkg app.xio -o <out>/rivet.aar ./mobile",
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "androidApi": 26,
+    "gomobileBinaries": {
+      "gomobileSha256": "d94feb54079a2556e34c9f890c556b19d3a3b8f487e9a1176616b8d075701e1b",
+      "gobindSha256": "95d48502e3966dfd6fe7588620e1f68a3cc350f2e3c64a00facac359188068c8",
+      "module": "golang.org/x/mobile v0.0.0-20261011034528-197770444867"
+    },
+    "privateGoPatch": "CLOCK_BOOTTIME on arm/arm64/amd64 (tools/prepare-mobile-go.py)"
+  },
+  "toolchain": {
+    "go": "go1.27.3 linux/amd64",
+    "gomobileModule": "golang.org/x/mobile v0.0.0-20261011034528-197770444867",
+    "jdk": "OpenJDK 21.0.13+9-1-deb13u2",
+    "gradle": "9.3.1",
+    "agp": "9.1.0",
+    "kotlinAndroidPlugin": "2.4.0",
+    "androidSdk": 36,
+    "ndk": "30.0.16248370 (r30)",
+    "flutter": "3.47.7 revision abaf9c523780a608bd46686fd5e53740a07077f8",
+    "dart": "3.13.5"
+  },
+  "artifact": {
+    "path": "/srv/archives/agent-rivet-aar-20261106/artifacts/rivet-fresh-595def6a-allabi.aar",
+    "canonicalCopy": "/srv/archives/agent-rivet-aar-20261106/fresh-binding/rivet.aar",
+    "sha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+    "bytes": 36548360,
+    "classesJarSha256": "8f1849333170c09c3e874c740bfc932a89adb177f454d131cf7caa86d5741400",
+    "classesJarIdenticalToHistoricalArm64Build": true,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "nativeLibs": {
+      "jni/arm64-v8a/libgojni.so": {
+        "sha256": "990c84db1bb4142dcf68e1f112317d00b794719713f26680293eb1997b217ecd",
+        "bytes": 32582984
+      },
+      "jni/armeabi-v7a/libgojni.so": {
+        "sha256": "18ac04444292b0e4a37b7d0a1b05105a5de13905cd5f2652df2e706e5c592ff1",
+        "bytes": 31331504
+      },
+      "jni/x86_64/libgojni.so": {
+        "sha256": "ddb62423c7d4049ba860315f0b69f108b601897a4b6a82297687b58e08955cd6",
+        "bytes": 34766472
+      }
+    },
+    "javap": "/srv/archives/agent-rivet-aar-20261106/artifacts/surface/fresh/fresh-javap.txt",
+    "elfHeaders": "/srv/archives/agent-rivet-aar-20261106/artifacts/elf",
+    "methodsRequired": [
+      "cancelConnect",
+      "stopWithTimeout",
+      "connectPolicyTimeout"
+    ],
+    "methodsPresent": {
+      "cancelConnect": true,
+      "stopWithTimeout": true,
+      "connectPolicyTimeout": true
+    },
+    "androidManifest": "<manifest package=\"go.mobile.gojni\"><uses-sdk android:minSdkVersion=\"26\"/></manifest>"
+  },
+  "compiles": {
+    "command": "gradle --offline --no-daemon --no-build-cache --max-workers=1 -Dorg.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=512m -Pkotlin.daemon.jvmargs=-Xmx1024m :app:compileDebugKotlin :app:compileDebugJavaWithJavac -Ptarget-platform=android-arm64 -x :app:compileFlutterBuildDebug -x :app:mergeDebugAssets",
+    "fresh-full": {
+      "exit": 0,
+      "durationSeconds": 71,
+      "aarSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+      "audit": {
+        "run": "fresh-full",
+        "mode": "full",
+        "applicationId": "app.xio.xio",
+        "clientOnly": "false",
+        "compiledClasses": 98,
+        "buildConfigSha256": "21e4a9c6ee212b98f4d30b47322a5ac907f8cf40e6305dff353fc89767bb2008",
+        "mainActivitySha256": "4ac50cba4dc3ba0e8716b7c500b5ee7965b7075097e43dfa2c6f11299dce7d00"
+      }
+    },
+    "fresh-client": {
+      "exit": 0,
+      "durationSeconds": 60,
+      "aarSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c",
+      "audit": {
+        "run": "fresh-client",
+        "mode": "client",
+        "applicationId": "app.xio.client",
+        "clientOnly": "true",
+        "compiledClasses": 98,
+        "buildConfigSha256": "8cefcb10b89a8acdb4ab71807fbaf7123c5cecf3bb274166447e5da7197be210",
+        "mainActivitySha256": "0570cde798e699f5db8346d57e11163433c440b4becfef3293d6fb9434db5a0e"
+      }
+    }
+  },
+  "negativeControl": {
+    "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+    "methodsPresent": {
+      "cancelConnect": false,
+      "stopWithTimeout": false,
+      "connectPolicyTimeout": false
+    },
+    "stale-full": {
+      "exit": 1,
+      "durationSeconds": 656,
+      "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+      "audit": null
+    },
+    "stale-client": {
+      "exit": 1,
+      "durationSeconds": 585,
+      "aarSha256": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+      "audit": null
+    }
+  },
+  "integrity": {
+    "archiveUnchanged": true,
+    "onlyArchivedFileChanged": {
+      "app/android/app/libs/rivet.aar": {
+        "before": "cfc336c936c06f0d08b73fca77768f31a23afcb7f915354e5d78e61995e27de7",
+        "after": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c"
+      }
+    },
+    "addedFilesAreGeneratedOnlyCount": 439,
+    "aarArtifactUnchangedAfterCompiles": true,
+    "aarInTreeSha256": "7e11803667f85980f2d35b35c7474b19987936101f3b9564472017cc5858370c"
+  },
+  "reproducibility": {
+    "classesJar": "byte-identical to the historical EA891 arm64 binding",
+    "nativeLibraries": "NOT byte-identical to the historical arm64-only AAR. Different build roots are a CONFIRMED CONTRIBUTOR: Go records replace-directive absolute paths in build info, and the fresh libs embed /srv/archives/agent-rivet-aar-20261106/src/... while the historical ones embed /srv/archives/agent-android-compile-preflight-20261106/src/... . Complete binary equivalence/reproducibility of the .so was NOT established; this non-identity is specific to this pair of builds and is not a general claim.",
+    "historicalArm64SoSha256": "777c70cfb803222a69a66289668d912769edfaecee52b01072986c2b4a4a8bac",
+    "freshArm64SoSha256": "990c84db1bb4142dcf68e1f112317d00b794719713f26680293eb1997b217ecd"
+  },
+  "limits": [
+    "Compiler proof only: no APK/AAB, no signing, no install, no device, no runtime or route/VPN behaviour.",
+    "Dart compilation and asset merging were excluded (-x :app:compileFlutterBuildDebug -x :app:mergeDebugAssets); app/pubspec.lock and Dart/assets untouched.",
+    "Only the three ABIs actually built are claimed (arm64-v8a, armeabi-v7a, x86_64). No other ABI is claimed.",
+    "The bundled AAR in the repository was NOT replaced and nothing was committed or pushed.",
+    "OpenVPN/AmneziaWG JNI payloads, separate Client manifest/assets staging and macOS/iOS remain out of scope."
+  ]
+}

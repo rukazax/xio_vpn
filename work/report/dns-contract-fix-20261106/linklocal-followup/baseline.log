@@ -1,0 +1,26 @@
+
+UTC 2026-11-05T22:16:30Z COMMAND: flutter --no-version-check test --no-pub --no-test-assets --concurrency=1 --reporter expanded test/dns_contract_test.dart --name DNS\ \(rejects\ every\|accepts\ non-link-local\)
+00:00 +0: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart
+00:00 +0: DNS rejects every second-octet boundary in IPv6 fe80::/10
+00:00 +0 -1: DNS rejects every second-octet boundary in IPv6 fe80::/10 [E]
+  Expected: throws <Instance of 'FormatException'>
+    Actual: <Closure: () => String>
+     Which: returned 'fe90::53'
+  fe90::53
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/dns_contract_test.dart 155:7                   main.<fn>
+  
+00:00 +0 -1: DNS accepts non-link-local fe00::/8 including site-local fec0::/10
+00:00 +0 -2: DNS accepts non-link-local fe00::/8 including site-local fec0::/10 [E]
+  FormatException: DNS: укажите IPv4 или IPv6 — без домена, порта, схемы и пути
+  package:xio/managed_models.dart 91:3  validateDnsServer
+  test/dns_contract_test.dart 164:14    main.<fn>
+  
+00:00 +0 -2: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS accepts non-link-local fe00::/8 including site-local fec0::/10
+  /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS rejects every second-octet boundary in IPv6 fe80::/10
+EXIT=1

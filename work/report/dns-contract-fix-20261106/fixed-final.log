@@ -1,0 +1,162 @@
+
+UTC 2026-11-05T21:38:17Z COMMAND: flutter --no-version-check pub get --offline
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+EXIT=0
+
+UTC 2026-11-05T21:38:17Z COMMAND: flutter --no-version-check analyze --no-pub lib/managed_models.dart lib/app_settings.dart lib/core.dart lib/managed_service.dart lib/subclients.dart test/dns_contract_test.dart test/app_settings_test.dart
+Analyzing 7 items...                                            
+No issues found! (ran in 11.1s)
+EXIT=0
+
+UTC 2026-11-05T21:38:29Z COMMAND: flutter --no-version-check test --no-pub --concurrency=1 --reporter expanded test/dns_contract_test.dart test/app_settings_test.dart test/managed_models_test.dart test/account_access_test.dart test/native_profile_readiness_test.dart test/domain_host_test.dart test/install_domain_security_test.dart test/server_address_test.dart test/managed_update_verification_test.dart test/l10n_test.dart
+00:00 +0: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart
+00:00 +0: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting and AWG writer reject hostname and mixed selections
+00:00 +1: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: DNS setting matches native unicast address policy without lookup
+00:00 +2: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS DNS.Example.ORG survives actual load-save and literal repair
+00:00 +3: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS 127.0.0.1 survives actual load-save and literal repair
+00:00 +4: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS ::ffff:192.0.2.53 survives actual load-save and literal repair
+00:01 +5: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid owner DNS has zero remote effects
+00:01 +6: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS has zero effects with pending=false
+00:01 +7: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: invalid delegated DNS has zero effects with pending=true
+00:01 +8: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: owner and delegated issuance use pre-effect DNS snapshot
+00:01 +9: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/dns_contract_test.dart: legacy DNS remains visible with unsupported error and can be repaired
+00:03 +10: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart
+00:05 +10: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: defaults: screenshots off, autostart off, Quad9 resolver
+00:05 +11: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: dns, autostart, auto-connect and screenshots survive a restart
+00:06 +12: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: custom DNS validation accepts unicast IPv4 and IPv6 literals
+00:06 +13: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: custom DNS validation rejects ports, schemes and extra entries
+00:06 +14: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: an unsupported resolver list is preserved for explicit repair
+00:06 +15: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: AWG profile DNS follows the selection and the IPv6 capability
+00:06 +16: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: preset id and label follow the selected addresses
+00:06 +17: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: the three settings switches persist immediately
+00:07 +18: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/app_settings_test.dart: resolver page saves a preset and rejects a bad custom address
+00:08 +19: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart
+00:11 +19: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: bundle round trip carries both protocol keys without SSH credentials
+00:11 +20: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: invalid imported bundle cannot erase remotely discovered user metadata
+00:11 +21: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: check site normalization rejects credentials and non HTTPS schemes
+00:11 +22: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: settings and management metadata survive restart without private configs
+00:11 +23: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: site check is off by default and saves the chosen HTTPS site when enabled
+00:13 +24: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_models_test.dart: SSH dialog does not restore the user-name keyboard on return
+00:14 +25: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart
+00:16 +25: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: only a bounded HTTPS capability can enter schema 3
+00:16 +26: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: subclient material excludes parent API and administrator credentials
+00:16 +27: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: IPv6 DNS is issued only with an explicit gateway capability
+00:16 +28: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: unknown response retains exact operation and local keys for explicit reconciliation
+00:16 +29: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv4
+00:16 +30: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/account_access_test.dart: TLS pin and redirect protection on IPv6
+00:16 +31: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart
+00:18 +31: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: absent metadata preserves native legacy behavior
+00:18 +32: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: policy-only IPv6 readiness issues IPv6 despite no host default field
+00:18 +33: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: explicit IPv4-only overrides old IPv6 flag and resolver
+00:18 +34: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: explicit IPv6-only requires no IPv4 exit and retains RIVET identity
+00:18 +35: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: unselected transport and unsupported proxy configs are omitted
+00:18 +36: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: requested dual-family is never downgraded or recovered via legacy true
+00:18 +37: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: selected RIVET metadata cannot silently disappear
+00:18 +38: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: stale malformed missing and non-boolean metadata fail closed
+00:18 +39: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: readiness enforces 60-second age and TTL with five-second skew
+00:18 +40: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: oversized or old evidence fails issuance, not proxy/direct fallback
+00:18 +41: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: UTC and revision compatibility remain strict and compatible
+00:18 +42: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: owner issuance uses policy-only readiness and excludes proxy bypass
+00:18 +43: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: owner issuance failure compensates newly registered identity
+00:18 +44: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=false retains intent
+00:18 +45: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/native_profile_readiness_test.dart: delegated readiness rejection compensates; unknown=true retains intent
+00:18 +46: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart
+00:20 +46: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary accepts real-shaped domain names and both IP families
+00:20 +47: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary rejects schemes, host:port and injection in a host field
+00:20 +48: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary parses endpoint hosts with explicit port and IPv6 brackets
+00:20 +49: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary SshTarget validates the same host before a socket exists
+00:20 +50: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary known-hosts keys a bracketed IPv6 by its raw host
+00:21 +51: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary managed metadata keeps the proxy and VPN host independent
+00:21 +52: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary DNS candidate resolution asks A and AAAA separately
+00:21 +53: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three A answers never starve the single AAAA answer
+00:21 +54: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary three AAAA answers never starve the single A answer
+00:21 +55: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary socket attempts try the AAAA answer before extra A records
+00:21 +56: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary an established socket is never replaced by another address
+00:21 +57: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: domain, IPv4 and IPv6 share one validated host boundary a changed key for the domain aborts before authentication
+00:21 +58: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy install sends fr-host.fr while SSH stays on the proxy:9046
+00:21 +59: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy AWG and both RIVET profiles use the VPN domain and SNI
+00:21 +60: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: managed install and profiles use the VPN domain, not the proxy invalid public host performs no upload or init
+00:21 +61: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints AWG accepts a domain endpoint and rejects schemes or extra parts
+00:21 +62: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints RIVET keeps endpoint domain and independent TLS serverName
+00:21 +63: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints extended outbound keeps address domain and TLS SNI identity
+00:21 +64: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: profile parsers preserve a domain and reject ambiguous endpoints subclient provisioning uses the same domain endpoint rules
+00:21 +65: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/domain_host_test.dart: server wizard names domain, IPv4 and IPv6 together
+00:22 +66: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart
+00:24 +66: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: server release manifest binds the exact archive bytes
+00:24 +67: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install uploads the manifest-matched archive and bootstrap verbatim
+00:24 +68: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a stale or corrupted archive is refused before any upload
+00:24 +69: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host fr-host.fr, not SSH proxy
+00:24 +70: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host xn--bcher-kva.example, not SSH proxy
+00:25 +71: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host XN--BCHER-KVA.example, not SSH proxy
+00:25 +72: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 198.51.100.42, not SSH proxy
+00:26 +73: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host 2001:db8::42, not SSH proxy
+00:26 +74: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: install and generated profiles use VPN host [2001:db8::42], not SSH proxy
+00:26 +75: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: malformed hosts perform no inspect, upload, init or store write
+00:26 +76: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a ready installation is reused without uploading the old bundle
+00:27 +77: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a different explicit host on a ready server is refused before upload
+00:27 +78: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: an incomplete installation is a hard stop before upload
+00:27 +79: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a fresh init mismatch never registers a different VPN host
+00:27 +80: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a malicious server AWG extension is rejected and the user revoked
+00:27 +81: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: password is released only after the host key gate accepts
+00:27 +82: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: client factory wires pin verification before password release
+00:27 +83: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: a pinned host rejects a different key before the password
+00:27 +84: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: case and trailing-dot aliases share one host-key pin
+00:27 +85: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/install_domain_security_test.dart: DNS resolution keeps a Punycode name, never substitutes an address
+00:27 +86: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart
+00:29 +86: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 198.51.100.42
+00:29 +87: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: vpn.example
+00:29 +88: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary raw host remains separate from port: 2001:db8::42
+00:29 +89: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 
+00:29 +90: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: https://vpn.example
+00:29 +91: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: user@vpn.example
+00:29 +92: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example;id
+00:29 +93: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a b
+00:29 +94: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: :::
+00:29 +95: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [198.51.100.42]
+00:29 +96: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: [::1
+00:29 +97: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: 256.256.256.256
+00:29 +98: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: -vpn.example
+00:29 +99: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn..example
+00:29 +100: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: a_1.example
+00:29 +101: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject malformed address before installation: vpn.example:443
+00:29 +102: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: IPv4/IPv6 host and endpoint boundary reject invalid endpoint ports
+00:29 +103: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: legacy management metadata retains its direct VPN host
+00:29 +104: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: proxy SSH and public IPv6 survive management export metadata
+00:29 +105: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: install sends public IPv6 to server init, retaining SSH proxy for control
+00:29 +106: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: invalid public host performs no upload or init
+00:29 +107: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 198.51.100.42
+00:29 +108: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: vpn.example
+00:29 +109: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/server_address_test.dart: AWG and both RIVET profiles use public host not SSH proxy: 2001:db8::42
+00:29 +110: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart
+00:30 +110: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart: update awaits digest and advances only after acceptance
+00:30 +111: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart: update awaits digest and returns mismatch without side effects
+00:30 +112: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/managed_update_verification_test.dart: default service returns real digest mismatch before updater load
+00:30 +113: loading /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart
+00:33 +113: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: (setUpAll)
+00:33 +113: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: every Russian literal in lib is a key in all 13 catalogues
+00:34 +114: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: all 13 catalogues are complete and preserve placeholder identities
+00:34 +115: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: no catalogue keeps a known machine-translation defect
+00:34 +116: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: status rows are translated and never left as the Russian key
+00:34 +117: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: no catalogue reuses the English value while Russian is the source
+00:34 +118: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: system language resolution checks preferences and falls back to English
+00:34 +119: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: dynamic status keeps technical arguments and specific message templates
+00:34 +120: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: explicit and system language persist without changing profiles
+00:35 +121: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: language picker updates an open route, retains tab and form input
+00:38 +122: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: 13 languages cover-sized and unfolded layouts with real fonts and RTL swipes
+00:44 +123: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: licence and VPN acknowledgement screens fit 360×640 in all 13 languages
+00:46 +124: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: cascade screen fits 360×640 in every language, RTL included
+00:47 +125: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: MTProto screen fits 360×640 in every language, RTL included
+00:48 +126: /srv/archives/agent-dns-contract-fix-20261106/source/app/test/l10n_test.dart: (tearDownAll)
+00:48 +126: All tests passed!
+EXIT=0

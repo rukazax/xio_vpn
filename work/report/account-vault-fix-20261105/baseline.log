@@ -1,0 +1,39 @@
+
+UTC 2026-11-05T20:58:38Z COMMAND: flutter --version
+Flutter 3.47.7 • channel stable • https://github.com/flutter/flutter.git
+Framework • revision abaf9c5237 (4 недели назад) • 2026-10-08 09:51:21 -0700
+Engine • hash d8a2d6c768c334d53e16277f837970ffa1e2de81 (revision deb287481e) (29 days ago) • 2026-10-07 17:09:12.000Z
+Tools • Dart 3.13.5 • DevTools 2.60.0
+EXIT=0
+
+UTC 2026-11-05T20:58:38Z COMMAND: flutter pub get --offline
+Resolving dependencies...
+Downloading packages...
+  archive 4.5.2 (4.6.0 available)
+  asn1lib 1.6.5 (1.6.8 available)
+  crypto 3.0.7 (3.0.8 available)
+  meta 1.18.3 (1.19.0 available)
+  posix 6.5.2 (6.5.4 available)
+  vector_math 2.4.0 (2.4.4 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+7 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+EXIT=0
+
+UTC 2026-11-05T20:58:44Z COMMAND: flutter test --no-pub --reporter expanded test/account_vault_desktop_test.dart --plain-name AccountVault\ real\ desktop\ roundtrip\ and\ protected\ modes
+00:00 +0: loading /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_vault_desktop_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: AccountVault real desktop roundtrip and protected modes
+00:00 +0 -1: AccountVault real desktop roundtrip and protected modes [E]
+  FormatException: Invalid credential id
+  package:xio/credentials.dart 73:7           CredentialVault.write
+  package:xio/account_access.dart 90:29       AccountVault.write
+  test/account_vault_desktop_test.dart 53:24  main.<fn>
+
+00:00 +0 -1: (tearDownAll)
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  /srv/archives/agent-account-vault-fix-20261105/source/app/test/account_vault_desktop_test.dart: AccountVault real desktop roundtrip and protected modes
+EXIT=1
