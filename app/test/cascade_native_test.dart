@@ -34,12 +34,34 @@ class _FakeSsh extends VpsService {
     commands.add(command);
     stdin[command] = List<int>.from(input);
     if (command.contains('cat /root/.ssh/xio_cascade.pub')) {
-      return utf8.encode('ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFAKEKEY xio-cascade\n');
+      return utf8.encode(
+        'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFAKEKEY xio-cascade\n',
+      );
     }
     for (final entry in responses.entries) {
       if (command.contains(entry.key)) return utf8.encode(entry.value);
     }
     return const <int>[];
+  }
+}
+
+/// A host that refuses to install the tools a stage needs: the wizard must name
+/// them instead of failing later with a restart storm and a generic message.
+class _ToolsMissingSsh extends _FakeSsh {
+  @override
+  Future<List<int>> executeInput(
+    String command,
+    List<int> input, {
+    Duration timeout = const Duration(minutes: 6),
+  }) async {
+    if (command.contains('tools=missing')) {
+      throw SshCommandFailure(
+        3,
+        utf8.encode('tools=missing: iptables'),
+        const [],
+      );
+    }
+    return super.executeInput(command, input, timeout: timeout);
   }
 }
 
@@ -76,7 +98,7 @@ void main() {
   group('Каскад: этап 1 — exit', () {
     test('ставит unit и подтверждает адреса только по маркеру', () async {
       final ssh = _FakeSsh();
-      ssh.responses['systemctl enable --now xio-cascade-exit.service'] =
+      ssh.responses['systemctl restart xio-cascade-exit.service'] =
           'XIO_CASCADE_EXIT_READY addr=10.250.0.2/30 forward=1 v6=1\n';
       final evidence = await CascadeInstaller(ssh).installExit();
 
@@ -115,11 +137,51 @@ void main() {
 
     test('команды этапа не содержат пароля и ключей', () async {
       final ssh = _FakeSsh();
-      ssh.responses['systemctl enable --now xio-cascade-exit.service'] =
+      ssh.responses['systemctl restart xio-cascade-exit.service'] =
           'XIO_CASCADE_EXIT_READY addr=10.250.0.2/30 forward=1 v6=1\n';
       await CascadeInstaller(ssh).installExit();
       expect(ssh.commands.join('\n'), isNot(contains('password')));
     });
+
+    test('недостающие инструменты ставятся до записи скриптов', () async {
+      final ssh = _FakeSsh();
+      ssh.responses['apt-get install -y -qq'] =
+          'tools=installed:iptables,iputils-ping\n';
+      ssh.responses['systemctl restart xio-cascade-exit.service'] =
+          'XIO_CASCADE_EXIT_READY addr=10.250.0.2/30 forward=1 v6=1\n';
+      final evidence = await CascadeInstaller(ssh).installExit();
+
+      expect(evidence.join(' '), contains('installed prerequisites'));
+      expect(evidence.join(' '), contains('iptables'));
+      final tools = ssh.commands.indexWhere(
+        (c) => c.contains('command -v iptables'),
+      );
+      final firstWrite = ssh.commands.indexWhere(
+        (c) => c.contains('xio-cascade-exit-up.sh'),
+      );
+      expect(tools, isNonNegative);
+      expect(tools, lessThan(firstWrite));
+    });
+
+    test(
+      'если инструменты не установились — этап падает с их именами',
+      () async {
+        final ssh = _ToolsMissingSsh();
+        await expectLater(
+          CascadeInstaller(ssh).installExit(),
+          throwsA(
+            isA<CascadeStageFailure>()
+                .having((e) => e.stage, 'stage', 'exit')
+                .having((e) => e.message, 'message', contains('iptables')),
+          ),
+        );
+        expect(
+          ssh.written,
+          isEmpty,
+          reason: 'ничего не пишется, пока не подтверждены инструменты',
+        );
+      },
+    );
   });
 
   group('Каскад: этап 2 — bridge', () {
@@ -133,19 +195,58 @@ void main() {
       expect(ssh.written, isEmpty);
     });
 
-    test('bridge.env получает проверенный exit, туннель подтверждается', () async {
+    test(
+      'bridge.env получает проверенный exit, туннель подтверждается',
+      () async {
+        final ssh = _FakeSsh();
+        ssh.responses['xio-cascade-bridge.service'] =
+            'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
+        final evidence = await CascadeInstaller(ssh)
+            .installBridge('203.0.113.7');
+
+        expect(
+          ssh.uploaded['/etc/xio-cascade/bridge.env'],
+          'XIO_CASCADE_EXIT_HOST=203.0.113.7\n',
+        );
+        expect(evidence.join(' '), contains('203.0.113.7'));
+        expect(evidence.join(' '), contains('10.250.0.1/30'));
+        expect(evidence.join(' '), contains('ping'));
+      },
+    );
+
+    test('этап 2 проверяет инструменты раньше ключа и unit', () async {
       final ssh = _FakeSsh();
-      ssh.responses['xio-cascade-bridge.service'] =
+      ssh.responses['apt-get install -y -qq'] = 'tools=installed:iptables\n';
+      ssh.responses['systemctl restart xio-cascade-bridge.service'] =
           'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
       final evidence = await CascadeInstaller(ssh).installBridge('203.0.113.7');
 
-      expect(
-        ssh.uploaded['/etc/xio-cascade/bridge.env'],
-        'XIO_CASCADE_EXIT_HOST=203.0.113.7\n',
+      expect(evidence.join(' '), contains('installed prerequisites'));
+      final tools = ssh.commands.indexWhere(
+        (c) => c.contains('command -v iptables'),
       );
-      expect(evidence.join(' '), contains('203.0.113.7'));
-      expect(evidence.join(' '), contains('10.250.0.1/30'));
-      expect(evidence.join(' '), contains('ping'));
+      final key = ssh.commands.indexWhere(
+        (c) => c.contains('cat /root/.ssh/xio_cascade.pub'),
+      );
+      expect(tools, isNonNegative);
+      expect(tools, lessThan(key));
+    });
+
+    test('причина падения unit попадает в сообщение, а не теряется', () async {
+      final ssh = _FakeSsh();
+      ssh.responses['systemctl restart xio-cascade-bridge.service'] =
+          'bridge did not come up\n'
+          'xio-cascade-bridge-up.sh: line 48: iptables: command not found\n';
+      await expectLater(
+        CascadeInstaller(ssh).installBridge('203.0.113.7'),
+        throwsA(
+          isA<CascadeStageFailure>().having(
+            (e) => e.message,
+            'message',
+            contains('iptables: command not found'),
+          ),
+        ),
+      );
     });
 
     test('IPv6-exit передаётся без квадратных скобок', () async {
@@ -196,9 +297,15 @@ void main() {
   group('Очистка сервера', () {
     test('запрос уходит с подтверждением и возвращает чистый сервер', () async {
       final ssh = _FakeSsh();
-      final service = _PurgeService(ssh, _FakeAssets({
-        'assets/xio-admin.py': utf8.encode('print(1)'),
-      }), {'purged': true, 'clean': true, 'removed': ['/etc/xio-managed']});
+      final service = _PurgeService(
+        ssh,
+        _FakeAssets({'assets/xio-admin.py': utf8.encode('print(1)')}),
+        {
+          'purged': true,
+          'clean': true,
+          'removed': ['/etc/xio-managed'],
+        },
+      );
       final store = AppStore();
       final result = await service.purge(store);
       expect(result['clean'], isTrue);
@@ -208,22 +315,26 @@ void main() {
       expect(request['dryRun'], isFalse);
       expect(request.containsKey('serverId'), isFalse);
       final write = ssh.stdin.entries.singleWhere(
-        (entry) => entry.key.contains('/usr/local/lib/xio-managed/admin.py.next'),
-        orElse: () => throw StateError('admin.py должен загружаться даже без XIO'),
+        (entry) =>
+            entry.key.contains('/usr/local/lib/xio-managed/admin.py.next'),
+        orElse: () =>
+            throw StateError('admin.py должен загружаться даже без XIO'),
       );
       expect(utf8.decode(write.value), 'print(1)');
     });
 
     test('неполная очистка — это ошибка, а не «сервер очищен»', () async {
       final ssh = _FakeSsh();
-      final service = _PurgeService(ssh, _FakeAssets({
-        'assets/xio-admin.py': utf8.encode('print(1)'),
-      }), {
-        'purged': true,
-        'clean': false,
-        'removed': <String>[],
-        'remaining': ['/etc/xio-stack'],
-      });
+      final service = _PurgeService(
+        ssh,
+        _FakeAssets({'assets/xio-admin.py': utf8.encode('print(1)')}),
+        {
+          'purged': true,
+          'clean': false,
+          'removed': <String>[],
+          'remaining': ['/etc/xio-stack'],
+        },
+      );
       await expectLater(
         service.purge(AppStore()),
         throwsA(

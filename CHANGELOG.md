@@ -1,5 +1,44 @@
 # XIO changes / Изменения
 
+## 0.24.12+5029 — 17.11.2026
+
+### Второй этап каскада ставится на сервер, который очистили перед установкой
+
+- Следы на bridge `81.177.142.37`: в 18:35:58 очистка с галочкой «Очистить
+  сервер перед установкой» выполнила `apt-get purge iptables libip6tc2 …
+  openvpn` (эти пакеты пришли с управляемой установкой 16.11 и были записаны
+  в квитанцию), после чего `xio-cascade-bridge-up.sh` упал на строке 48 с
+  `iptables: command not found` (код 127), unit ушёл в `Restart=always`, а
+  мастер показал общий отказ этапа.
+- Оба этапа каскада теперь проверяют `ip`, `iptables`, `ip6tables`, `ssh`,
+  `ping`, `sysctl` до записи файлов и ставят недостающее штатным менеджером
+  (`apt-get` с `DPkg::Lock::Timeout=60`, `dnf` на RHEL-семействе), затем
+  проверяют повторно. Не удалось — этап падает с именем инструмента.
+- Проверка готовности этапа выполняет `exec 2>&1` и печатает хвост
+  `journalctl`/`systemctl`, поэтому в сообщении видна настоящая причина
+  (`iptables: command not found`, отказ unit), а не «bridge did not confirm
+  readiness». Хвост вывода обрезается до шести непустых строк.
+- `purge_packages` учитывает `SHARED_PACKAGES`: `iptables`, `ip6tables`,
+  `iproute2`, `iproute`, `ca-certificates`, `openssh-client`,
+  `openssh-server`, `curl` не удаляются, даже если их поставила предыдущая
+  установка XIO. Принадлежащие XIO `wireguard-tools` и `openvpn` по-прежнему
+  снимаются. Правка внесена в `server/managed/admin.py` и в ассет
+  `app/assets/xio-admin.py`, регрессия закрыта тестом `test_host_tooling_survives_purge`.
+
+### Проверки
+
+- Живой этап 2 на паре `79e.ru` (bridge без `iptables`) → `103.102.135.124`
+  (exit): `installed prerequisites: iptables`; `tun0 10.250.0.1/30 up`;
+  `SSH TUN to 103.102.135.124: OK`; `ping 10.250.0.2: OK`.
+- Трафик через каскад: помеченный сокет (`SO_MARK` `0x518`) выходит с адресом
+  exit `103.102.135.124`.
+- Повторный запуск этапа идемпотентен: `tools=ok`, туннель перезапускается,
+  ping проходит.
+- `flutter test` — 1167 passed, 27 skipped, 0 failed.
+- `flutter analyze` — 0 ошибок; 3 предупреждения в файлах вне каскада
+  (`lib/core.dart:3831`, `tool/issuance_vault_isolate.dart`,
+  `test_legacy_reviewer_fixtures/`), существовали до выпуска.
+
 ## 0.24.11+5028 — 17.11.2026
 
 ### Установка: APK содержит движок ровно одной ABI

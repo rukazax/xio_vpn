@@ -54,6 +54,19 @@ class InstallerTests(unittest.TestCase):
    result=m.purge_packages({'platform':{'manager':'apt'},'packagesAdded':['wireguard-tools','shared-lib']})
   self.assertEqual(result['packagesRemoved'],['wireguard-tools']);self.assertEqual(result['packagesRetained'],['shared-lib'])
   self.assertFalse(any('foreign-app' in args for args in calls))
+ def test_host_tooling_survives_purge(self):
+  calls=[]
+  def command(*args,**kwargs):
+   calls.append(args)
+   if args[:3]==('apt-get','-s','purge'):
+    return '\n'.join('Purg '+p for p in args[3:])
+   return ''
+  with patch.object(m,'installed_packages',return_value={'wireguard-tools','iptables','iproute2'}),patch.object(m,'foreign_wireguard_configs',return_value=[]),patch.object(m,'run',side_effect=command):
+   result=m.purge_packages({'platform':{'manager':'apt'},'packagesAdded':['wireguard-tools','iptables','iproute2']})
+  self.assertEqual(result['packagesRemoved'],['wireguard-tools'])
+  self.assertEqual(result['packagesRetained'],['iproute2','iptables'])
+  purged=[args[args.index('purge')+2:] for args in calls if args[:3]==('env','DEBIAN_FRONTEND=noninteractive','apt-get')]
+  self.assertEqual(purged,[('wireguard-tools',)],'shared host tooling must never be purged')
  def test_foreign_wireguard_configuration_protects_tools(self):
   with patch.object(m,'installed_packages',return_value={'wireguard-tools'}),patch.object(m,'foreign_wireguard_configs',return_value=[]),patch.object(m,'run') as command:
    result=m.purge_packages({'platform':{'manager':'apt'},'packagesAdded':['wireguard-tools'],'preserveWireGuardTools':True})

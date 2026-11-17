@@ -204,6 +204,37 @@ systemctl reload ssh 2>/dev/null || systemctl reload sshd 2>/dev/null || true
 echo "permit-tunnel yes"
 ''';
 
+/// Tools both stages call. A host may have lost one of them: purging a previous
+/// XIO install removes the packages that install added, and `iptables` is one of
+/// them, so a bridge that worked a minute ago answers "command not found" and
+/// the wizard shows a generic failure. Missing tools are installed before any
+/// script is written and re-probed before the stage is allowed to continue.
+const String cascadeToolsScript = r'''set -u
+need=""
+command -v ip >/dev/null 2>&1 || need="$need iproute2"
+command -v iptables >/dev/null 2>&1 || need="$need iptables"
+command -v ip6tables >/dev/null 2>&1 || need="$need iptables"
+command -v ssh >/dev/null 2>&1 || need="$need openssh-client"
+command -v ping >/dev/null 2>&1 || need="$need iputils-ping"
+command -v sysctl >/dev/null 2>&1 || need="$need procps"
+if [ -z "$need" ]; then echo "tools=ok"; exit 0; fi
+if command -v apt-get >/dev/null 2>&1; then
+  DEBIAN_FRONTEND=noninteractive apt-get update -qq >/dev/null 2>&1 || true
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq -o DPkg::Lock::Timeout=60 --no-install-recommends $need >/dev/null 2>&1 || true
+elif command -v dnf >/dev/null 2>&1; then
+  dnf install -y -q iproute iptables iputils openssh-clients procps-ng >/dev/null 2>&1 || true
+else
+  echo "tools=no-package-manager"
+  exit 2
+fi
+still=""
+for tool in ip iptables ip6tables ssh sysctl ping; do
+  command -v "$tool" >/dev/null 2>&1 || still="$still $tool"
+done
+[ -z "$still" ] || { echo "tools=missing:$still"; exit 3; }
+echo "tools=installed:$(echo $need | tr ' ' ',')"
+''';
+
 /// Success markers. A stage returns these only after it read the state back.
 const String exitReadyMarker = 'XIO_CASCADE_EXIT_READY';
 const String bridgeReadyMarker = 'XIO_CASCADE_BRIDGE_READY';
@@ -242,7 +273,9 @@ class CascadeInstaller {
       );
       return utf8.decode(bytes, allowMalformed: true).trim();
     } on SshCommandFailure catch (failure) {
-      final tail = utf8.decode(failure.stdoutBytes, allowMalformed: true).trim();
+      final tail = utf8
+          .decode(failure.stdoutBytes, allowMalformed: true)
+          .trim();
       throw StateError(tail.isEmpty ? 'remote command failed' : tail);
     }
   }
@@ -258,12 +291,65 @@ class CascadeInstaller {
     await _run('set -eu\nchmod $mode $quoted\nchown root:root $quoted');
   }
 
+  /// Last non-empty lines of a failed stage, joined for the error message. The
+  /// verification scripts merge stderr into stdout, so this carries the real
+  /// reason (`iptables: command not found`, a unit failure) instead of leaving
+  /// the operator with "did not confirm readiness".
+  static String _tail(String text, {int lines = 6}) {
+    final all = [
+      for (final line in text.split('\n'))
+        if (line.trim().isNotEmpty) line.trim(),
+    ];
+    if (all.isEmpty) return '';
+    return all.length <= lines
+        ? all.join(' | ')
+        : all.sublist(all.length - lines).join(' | ');
+  }
+
+  /// Installs what both stages call when the host has lost it, then re-probes.
+  /// Returns an evidence line when something was installed, or null when the
+  /// host already had everything.
+  Future<String?> _ensureTools(String stage, List<String> evidence) async {
+    String out;
+    try {
+      out = await _run(cascadeToolsScript);
+    } on StateError catch (error) {
+      throw CascadeStageFailure(
+        stage,
+        'prerequisites: ${error.message}',
+        evidence: evidence,
+      );
+    }
+    if (!out.contains('tools=installed:')) return null;
+    final tools = {
+      for (final tool
+          in out
+              .substring(
+                out.indexOf('tools=installed:') + 'tools=installed:'.length,
+              )
+              .trim()
+              .split(','))
+        if (tool.trim().isNotEmpty) tool.trim(),
+    }.toList()..sort();
+    return 'installed prerequisites: ${tools.join(', ')}';
+  }
+
   /// Stage 1: the exit terminates the tunnel and NATs client traffic.
   Future<List<String>> installExit() async {
     final evidence = <String>[];
     try {
-      await _put('/usr/local/sbin/xio-cascade-exit-up.sh', cascadeExitUpScript, '700');
-      await _put('/usr/local/sbin/xio-cascade-exit-down.sh', cascadeExitDownScript, '700');
+      final tools = await _ensureTools('exit', evidence);
+      if (tools != null) evidence.add(tools);
+      await _put(
+        '/usr/local/sbin/xio-cascade-exit-up.sh',
+        cascadeExitUpScript,
+        '700',
+      );
+      await _put(
+        '/usr/local/sbin/xio-cascade-exit-down.sh',
+        cascadeExitDownScript,
+        '700',
+      );
       await _put(
         '/etc/systemd/system/xio-cascade-exit.service',
         cascadeExitUnit,
@@ -272,26 +358,42 @@ class CascadeInstaller {
       await _run(cascadePermitTunnelScript);
       evidence.add('PermitTunnel yes (drop-in, sshd -t)');
       final out = await _run(r'''set -eu
+exec 2>&1
 systemctl daemon-reload
-systemctl enable --now xio-cascade-exit.service >/dev/null 2>&1
-systemctl is-active --quiet xio-cascade-exit.service
-ip -4 addr show tun0 | grep -Fq '10.250.0.2/30'
-ip -6 addr show tun0 | grep -Fq 'fd78:2::2/64'
+systemctl enable xio-cascade-exit.service >/dev/null 2>&1 || true
+systemctl restart xio-cascade-exit.service
+systemctl is-active --quiet xio-cascade-exit.service || {
+  echo "exit unit is not active"; journalctl -u xio-cascade-exit.service -n 10 --no-pager || true; exit 1; }
+ip -4 addr show tun0 | grep -Fq '10.250.0.2/30' || {
+  echo "tun0 has no 10.250.0.2/30"; ip -4 -o addr show tun0 || true; exit 1; }
+ip -6 addr show tun0 | grep -Fq 'fd78:2::2/64' || {
+  echo "tun0 has no fd78:2::2/64"; ip -6 -o addr show tun0 || true; exit 1; }
 printf '%s addr=%s forward=%s v6=%s\n' XIO_CASCADE_EXIT_READY \
   "$(ip -4 -o addr show tun0 | awk '{print $4}')" \
   "$(sysctl -n net.ipv4.ip_forward)" \
   "$(sysctl -n net.ipv6.conf.all.forwarding)"
 ''');
       if (!out.contains(exitReadyMarker)) {
-        throw StateError('exit did not confirm readiness');
+        final tail = _tail(out);
+        throw StateError(
+          tail.isEmpty
+              ? 'exit did not confirm readiness'
+              : 'exit did not confirm readiness: $tail',
+        );
       }
       final line = out
           .split('\n')
           .firstWhere((l) => l.contains(exitReadyMarker), orElse: () => out);
       final fields = line.split(' ');
-      evidence.add('tun0 ${fields.firstWhere((f) => f.startsWith('addr='), orElse: () => 'addr=?')}');
-      evidence.add('IPv4 forwarding ${fields.firstWhere((f) => f.startsWith('forward='), orElse: () => 'forward=?')}');
-      evidence.add('IPv6 forwarding ${fields.firstWhere((f) => f.startsWith('v6='), orElse: () => 'v6=?')}');
+      evidence.add(
+        'tun0 ${fields.firstWhere((f) => f.startsWith('addr='), orElse: () => 'addr=?')}',
+      );
+      evidence.add(
+        'IPv4 forwarding ${fields.firstWhere((f) => f.startsWith('forward='), orElse: () => 'forward=?')}',
+      );
+      evidence.add(
+        'IPv6 forwarding ${fields.firstWhere((f) => f.startsWith('v6='), orElse: () => 'v6=?')}',
+      );
       final nat = await _run(
         'iptables -t nat -S POSTROUTING | grep -Fc -- \'10.78.0.0/24\' || true',
       );
@@ -311,6 +413,8 @@ printf '%s addr=%s forward=%s v6=%s\n' XIO_CASCADE_EXIT_READY \
     }
     final evidence = <String>[];
     try {
+      final tools = await _ensureTools('bridge', evidence);
+      if (tools != null) evidence.add(tools);
       var pubkey = '';
       try {
         pubkey = await _run(r'''set -eu
@@ -322,21 +426,46 @@ fi
 cat /root/.ssh/xio_cascade.pub
 ''');
       } on StateError catch (error) {
-        throw CascadeStageFailure('bridge', 'key creation failed: ${error.message}', evidence: evidence);
+        throw CascadeStageFailure(
+          'bridge',
+          'key creation failed: ${error.message}',
+          evidence: evidence,
+        );
       }
       if (pubkey.isEmpty || !pubkey.startsWith('ssh-ed25519 ')) {
-        throw CascadeStageFailure('bridge', 'cascade key was not created', evidence: evidence);
+        throw CascadeStageFailure(
+          'bridge',
+          'cascade key was not created',
+          evidence: evidence,
+        );
       }
       evidence.add('key /root/.ssh/xio_cascade ready');
-      await _put('/etc/xio-cascade/bridge.env', 'XIO_CASCADE_EXIT_HOST=$exit\n', '600');
+      await _put(
+        '/etc/xio-cascade/bridge.env',
+        'XIO_CASCADE_EXIT_HOST=$exit\n',
+        '600',
+      );
       evidence.add('/etc/xio-cascade/bridge.env -> $exit');
-      await _put('/usr/local/sbin/xio-cascade-bridge-up.sh', cascadeBridgeUpScript, '700');
-      await _put('/usr/local/sbin/xio-cascade-bridge-down.sh', cascadeBridgeDownScript, '700');
-      await _put('/etc/systemd/system/xio-cascade-bridge.service', cascadeBridgeUnit, '644');
+      await _put(
+        '/usr/local/sbin/xio-cascade-bridge-up.sh',
+        cascadeBridgeUpScript,
+        '700',
+      );
+      await _put(
+        '/usr/local/sbin/xio-cascade-bridge-down.sh',
+        cascadeBridgeDownScript,
+        '700',
+      );
+      await _put(
+        '/etc/systemd/system/xio-cascade-bridge.service',
+        cascadeBridgeUnit,
+        '644',
+      );
       // A restart, not just `enable --now`: the unit is Restart=always, so it
       // may be mid-restart (an exit reinstall breaks the tunnel) and a bare
       // `is-active` would race it. The wait loop makes the check deterministic.
       final out = await _run(r'''set -eu
+exec 2>&1
 . /etc/xio-cascade/bridge.env
 systemctl daemon-reload
 systemctl enable xio-cascade-bridge.service >/dev/null 2>&1 || true
@@ -347,7 +476,7 @@ for _ in $(seq 1 30); do
      ip -4 addr show tun0 2>/dev/null | grep -Fq '10.250.0.1/30'; then up=yes; break; fi
   sleep 1
 done
-[ "$up" = yes ] || { echo "bridge did not come up" >&2; systemctl status xio-cascade-bridge.service --no-pager -n 5 >&2 || true; exit 1; }
+[ "$up" = yes ] || { echo "bridge did not come up"; journalctl -u xio-cascade-bridge.service -n 10 --no-pager || true; exit 1; }
 ssh -i /root/.ssh/xio_cascade -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
   -o ConnectTimeout=8 -o ExitOnForwardFailure=yes root@"$XIO_CASCADE_EXIT_HOST" true
 for _ in $(seq 1 10); do ping -c 1 -W 3 10.250.0.2 >/dev/null 2>&1 && break; sleep 1; done
@@ -356,18 +485,21 @@ printf '%s tun=%s ssh=ok ping=ok\n' XIO_CASCADE_BRIDGE_READY \
   "$(ip -4 -o addr show tun0 | awk '{print $4}')"
 ''');
       if (!out.contains(bridgeReadyMarker)) {
-        throw CascadeStageFailure('bridge', 'bridge did not confirm readiness', evidence: evidence);
+        final tail = _tail(out);
+        throw CascadeStageFailure(
+          'bridge',
+          tail.isEmpty
+              ? 'bridge did not confirm readiness'
+              : 'bridge did not confirm readiness: $tail',
+          evidence: evidence,
+        );
       }
       evidence.add('tun0 10.250.0.1/30 up');
       evidence.add('SSH TUN to $exit: OK');
       evidence.add('ping 10.250.0.2: OK');
       return evidence;
     } on StateError catch (error) {
-      throw CascadeStageFailure(
-        'bridge',
-        error.message,
-        evidence: evidence,
-      );
+      throw CascadeStageFailure('bridge', error.message, evidence: evidence);
     }
   }
 }
@@ -397,7 +529,9 @@ printf 'authorized %s\n' "$(printf '%s' "$key" | cut -d' ' -f1)"
     );
   } on SshCommandFailure catch (failure) {
     final tail = utf8.decode(failure.stdoutBytes, allowMalformed: true).trim();
-    throw StateError(tail.isEmpty ? 'failed to authorize the key on exit' : tail);
+    throw StateError(
+      tail.isEmpty ? 'failed to authorize the key on exit' : tail,
+    );
   }
 }
 

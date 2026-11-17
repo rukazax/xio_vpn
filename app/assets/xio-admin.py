@@ -57,6 +57,12 @@ def foreign_wireguard_configs():
  # and tests can see (and substitute) this single fact.
  return list(Path('/etc/wireguard').glob('*.conf'))
 
+# Packages that belong to the host rather than to this deployment. The cascade
+# bridge runs `iptables`, every stage of the cascade installer runs `ip`, and a
+# host without a TLS store or an SSH client is broken for its owner. Purging a
+# previous XIO install must not take them away: the next cascade install then
+# dies with a bare "iptables: command not found" and a generic wizard error.
+SHARED_PACKAGES={'iptables','ip6tables','iproute2','iproute','ca-certificates','openssh-client','openssh-server','curl'}
 def purge_packages(d):
  manager=d.get('platform',{}).get('manager','apt')
  owned=set(d.get('packagesAdded', ['wireguard-tools'] if d.get('packageOwned') else []))
@@ -66,7 +72,7 @@ def purge_packages(d):
  owned &= installed_packages(manager);removed=[]
  # Existing WireGuard configurations make the tooling shared, even without declared package dependencies.
  protected={'wireguard-tools'} if d.get('preserveWireGuardTools') or foreign_wireguard_configs() else set()
- candidates=owned-protected
+ candidates=owned-protected-SHARED_PACKAGES
  if manager=='apt' and candidates:
   def plan(names):
    text=run('apt-get','-s','purge',*sorted(names))
