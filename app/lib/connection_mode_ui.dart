@@ -53,9 +53,9 @@ abstract class ConnectionModeSource implements Listenable {
   bool get canChangeConnectionMode;
 
   /// Stable blocker code ([AppStore.connectionPolicyError]): `loading`,
-  /// `corrupt`, `publishPending`, `persistence`, `busy`, `reconcileRequired`,
-  /// `disposed`, or null when a mode edit is admissible. Null does NOT mean
-  /// confirmed: only [connectionModeConfirmed] does.
+  /// `corrupt`, `publishPending`, `persistence`, `busy`, `connected`,
+  /// `reconcileRequired`, `disposed`, or null when a mode edit is admissible.
+  /// Null does NOT mean confirmed: only [connectionModeConfirmed] does.
   String? get connectionPolicyError;
 
   /// True when the durable profile selection resolves to a usable candidate.
@@ -142,16 +142,14 @@ class ConnectionModeText {
   /// (`connectionPolicyError`). The codes are the Store contract; the sentences
   /// are UI keys. Unknown codes fall back to [modeUnavailable].
   static String blocker(String? code) => switch (code) {
-    'loading' => 'Режим ещё загружается. Дождитесь окончания загрузки настроек.',
-    'persistence' =>
-      'Ещё одно сохранение не завершено. Дождитесь его окончания, прежде чем менять режим.',
+    'loading' =>
+      'Режим ещё загружается. Дождитесь окончания загрузки настроек.',
+    'persistence' => 'Ещё одно сохранение не завершено. Дождитесь его окончания, прежде чем менять режим.',
     'busy' => modeUnavailable,
-    'publishPending' =>
-      'Сохранение или согласование режима не завершено. Подтверждение ещё не получено.',
-    'reconcileRequired' =>
-      'Режим требует согласования с движком. Подключение заблокировано до согласования.',
-    'corrupt' =>
-      'Сохранённый режим повреждён. Подключение заблокировано до явного восстановления; обычное переключение режима недоступно.',
+    'connected' => 'Туннель активен. Сначала отключите VPN: пока соединение поднято, режим менять нельзя.',
+    'publishPending' => 'Сохранение или согласование режима не завершено. Подтверждение ещё не получено.',
+    'reconcileRequired' => 'Режим требует согласования с движком. Подключение заблокировано до согласования.',
+    'corrupt' => 'Сохранённый режим повреждён. Подключение заблокировано до явного восстановления; обычное переключение режима недоступно.',
     'disposed' => 'Настройки закрыты. Откройте их заново.',
     _ => modeUnavailable,
   };
@@ -187,19 +185,14 @@ class ConnectionModeText {
     if (error is PolicyFailure) {
       return switch (error.code) {
         'POLICY_BUSY' => modeUnavailable,
-        'POLICY_PENDING' =>
-          'Сохранение или согласование режима не завершено. Подтверждение ещё не получено.',
-        'POLICY_INVALID' =>
-          'Сохранённый режим повреждён. Подключение заблокировано до явного восстановления; обычное переключение режима недоступно.',
-        'POLICY_UNKNOWN' =>
-          'Режим требует согласования с движком. Подключение заблокировано до согласования.',
-        'POLICY_UNSUPPORTED' =>
-          'Этот движок не подтверждает выбранный режим. Ручной режим недоступен до обновления движка.',
+        'POLICY_PENDING' => 'Сохранение или согласование режима не завершено. Подтверждение ещё не получено.',
+        'POLICY_INVALID' => 'Сохранённый режим повреждён. Подключение заблокировано до явного восстановления; обычное переключение режима недоступно.',
+        'POLICY_UNKNOWN' => 'Режим требует согласования с движком. Подключение заблокировано до согласования.',
+        'POLICY_UNSUPPORTED' => 'Этот движок не подтверждает выбранный режим. Ручной режим недоступен до обновления движка.',
         // Controller-local preflight (core `policy_channel`): the frozen
         // validation bundle is too large. Localized, never the English
         // diagnostic.
-        'POLICY_OVERSIZE' =>
-          'Слишком большой объём данных для публикации настроек. Уменьшите размер профилей и повторите.',
+        'POLICY_OVERSIZE' => 'Слишком большой объём данных для публикации настроек. Уменьшите размер профилей и повторите.',
         _ => 'Операция не завершена. Проверьте профиль и разрешения.',
       };
     }
@@ -207,16 +200,14 @@ class ConnectionModeText {
       return switch (error.phase) {
         // The rename did not happen. That is NOT proof the previous mode is
         // still confirmed: a begin may already have fenced native READY.
-        PublicationPhase.beforeRename =>
-          'Файл не изменён: переименование не произошло. Движок режим не подтвердил, требуется согласование.',
+        PublicationPhase.beforeRename => 'Файл не изменён: переименование не произошло. Движок режим не подтвердил, требуется согласование.',
         // The document may be renamed and the native commit may even have
         // succeeded with a lost ACK: "unconfirmed", never "not applied".
-        PublicationPhase.renamedNativeUnconfirmed =>
-          'Настройки сохранены; движок не подтвердил режим. Требуется согласование.',
+        PublicationPhase.renamedNativeUnconfirmed => 'Настройки сохранены; движок не подтвердил режим. Требуется согласование.',
         // Neither the durable file nor the native state is proven either way.
-        PublicationPhase.pendingUnknown =>
-          'Результат неизвестен: не подтверждены ни файл, ни режим в движке. Требуется согласование.',
-        PublicationPhase.committed => 'Операция не завершена. Проверьте профиль и разрешения.',
+        PublicationPhase.pendingUnknown => 'Результат неизвестен: не подтверждены ни файл, ни режим в движке. Требуется согласование.',
+        PublicationPhase.committed =>
+          'Операция не завершена. Проверьте профиль и разрешения.',
       };
     }
     return 'Операция не завершена. Проверьте профиль и разрешения.';
@@ -301,7 +292,8 @@ class _ConnectionModeControlState extends State<ConnectionModeControl> {
     // Only the Store's positive native receipt may show the badge.
     final confirmed =
         source.connectionModeConfirmed &&
-        source.connectionModeConfirmation == ConnectionModeConfirmation.native &&
+        source.connectionModeConfirmation ==
+            ConnectionModeConfirmation.native &&
         !busy;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -382,7 +374,7 @@ class _ConnectionModeControlState extends State<ConnectionModeControl> {
           ),
         // Explicit recovery paths: only the Store decides whether they apply,
         // and none of them publishes a mode on its own.
-        if (!actionBusy && blocker == 'corrupt')
+        if (!recoveryLocked && blocker == 'corrupt')
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: OutlinedButton(
@@ -392,7 +384,7 @@ class _ConnectionModeControlState extends State<ConnectionModeControl> {
               child: const LText(ConnectionModeText.repairAction),
             ),
           ),
-        if (!actionBusy &&
+        if (!recoveryLocked &&
             (blocker == 'publishPending' || blocker == 'reconcileRequired'))
           Padding(
             padding: const EdgeInsets.only(top: 8),

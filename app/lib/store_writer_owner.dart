@@ -20,7 +20,6 @@ class ProductStoreWriterOwner {
   int _pending = 0;
   int _nativePending = 0;
   bool _closing = false, _releaseStarted = false;
-  bool _claimRemoved = false;
   final _released = Completer<void>();
   bool get acceptsWrites => !_closing;
   int get pendingWrites => _pending;
@@ -101,7 +100,6 @@ class ProductStoreWriterOwner {
       try {
         await _file.unlock();
         await _file.close();
-        _claimRemoved = true;
         _localClaims.remove(_key);
         _released.complete();
       } catch (error, stack) {

@@ -469,6 +469,7 @@ void scenariosFor({
     'loading',
     'persistence',
     'busy',
+    'connected',
     'publishPending',
     'reconcileRequired',
     'corrupt',
@@ -603,29 +604,30 @@ void scenariosFor({
     await tester.pumpWidget(const SizedBox());
   });
 
-  testWidgets('$product: a failed recovery is localized and keeps the blocker', (
-    tester,
-  ) async {
-    sizeSurface(tester, const Size(1400, 2000));
-    final store = fixtureStore();
-    final source = FakeModeSource()
-      ..blocker = 'corrupt'
-      ..confirmation = ConnectionModeConfirmation.none
-      ..actionFailure = const PolicyFailure('POLICY_INVALID', 'still corrupt');
-    addTearDown(store.dispose);
-    addTearDown(source.dispose);
-    await open(tester, store, source);
-    await tapKey(tester, repairKey);
-    await tester.pumpAndSettle();
-    expect(source.repairs, 1);
-    expect(source.blocker, 'corrupt');
-    expect(
-      find.text(t(ConnectionModeText.recoveryFailed)),
-      findsOneWidget,
-    );
-    expect(find.textContaining('PolicyFailure'), findsNothing);
-    await tester.pumpWidget(const SizedBox());
-  });
+  testWidgets(
+    '$product: a failed recovery is localized and keeps the blocker',
+    (tester) async {
+      sizeSurface(tester, const Size(1400, 2000));
+      final store = fixtureStore();
+      final source = FakeModeSource()
+        ..blocker = 'corrupt'
+        ..confirmation = ConnectionModeConfirmation.none
+        ..actionFailure = const PolicyFailure(
+          'POLICY_INVALID',
+          'still corrupt',
+        );
+      addTearDown(store.dispose);
+      addTearDown(source.dispose);
+      await open(tester, store, source);
+      await tapKey(tester, repairKey);
+      await tester.pumpAndSettle();
+      expect(source.repairs, 1);
+      expect(source.blocker, 'corrupt');
+      expect(find.text(t(ConnectionModeText.recoveryFailed)), findsOneWidget);
+      expect(find.textContaining('PolicyFailure'), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
 
   testWidgets('$product: manual without a usable profile never repairs it', (
     tester,
@@ -779,9 +781,7 @@ void main() {
       }
       // The two modes must never share one explanation in any language.
       expect(
-        entry.value[ConnectionModeText.explanation(
-          ConnectionPolicy.automatic,
-        )],
+        entry.value[ConnectionModeText.explanation(ConnectionPolicy.automatic)],
         isNot(
           entry.value[ConnectionModeText.explanation(
             ConnectionPolicy.selectedOnly,

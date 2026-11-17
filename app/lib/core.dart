@@ -23,13 +23,13 @@ import 'policy_channel.dart';
 import 'policy_publication.dart';
 import 'store_writer_owner.dart';
 export 'connection_attempt.dart';
-export 'policy_channel.dart' show PolicyFailure;
 import 'l10n.dart';
 import 'routing_domains.dart';
 
 import 'dart:async';
 
 import 'diag.dart';
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -732,6 +732,7 @@ class AppStore extends ChangeNotifier {
   void changed() {
     if (!_disposed) notifyListeners();
   }
+
   final List<Profile> profiles = [];
   final List<String> events = [];
   final List<ManagedServer> servers = [];
@@ -923,20 +924,37 @@ class AppStore extends ChangeNotifier {
     if (_policyUnconfirmed) return 'publishPending';
     if (_recoveryInFlight) return 'persistence';
     if (_documentAdmission.busy) return 'persistence';
+    final work = _liveWorkBlocker();
+    if (work != null) return work;
+    // Native safety is unknown after a restart/failed reply: block edits until
+    // an explicit reconcile proves the durable snapshot.
+    if (_policyReconcileRequired) return 'reconcileRequired';
+    return null;
+  }
+
+  /// Refusal caused by connection work rather than by the policy document.
+  ///
+  /// Two distinct codes: `busy` means something is actually in flight (wait),
+  /// `connected` means a live tunnel with no negotiation running (disconnect).
+  /// Folding them into one code made the UI claim "another operation has not
+  /// finished" while the only obstacle was the active connection.
+  ///
+  /// The reconnect watchdog is deliberately absent: it runs for as long as the
+  /// owner wants the tunnel, so counting it here reproduced the same lie in a
+  /// different place — a healthy connection always has a live watchdog.
+  String? _liveWorkBlocker() {
     if (busy ||
-        status.active ||
-        _desired ||
         reconnecting ||
         cleanupIncomplete ||
         _connectRound != null ||
         _retry != null ||
-        _watchdog != null ||
         _nativeRecoveryLease != null) {
       return 'busy';
     }
-    // Native safety is unknown after a restart/failed reply: block edits until
-    // an explicit reconcile proves the durable snapshot.
-    if (_policyReconcileRequired) return 'reconcileRequired';
+    if (status.active) return 'connected';
+    // A connection the owner wants but does not have yet is converging work,
+    // not a live tunnel: never claim "tunnel is active" for it.
+    if (_desired) return 'busy';
     return null;
   }
 
@@ -948,6 +966,7 @@ class AppStore extends ChangeNotifier {
     'corrupt': 'POLICY_INVALID',
     'publishPending': 'POLICY_PENDING',
     'reconcileRequired': 'POLICY_UNKNOWN',
+    'connected': 'POLICY_BUSY',
   };
 
   bool _restoreAllowed(Object error) =>
@@ -959,6 +978,7 @@ class AppStore extends ChangeNotifier {
     _policyReconcileRequired = true;
     if (!_disposed) notifyListeners();
   }
+
   void _notifySafe() {
     if (!_disposed) notifyListeners();
   }
@@ -980,6 +1000,7 @@ class AppStore extends ChangeNotifier {
     _policyFailureCode = null;
     _policyFailureMessage = null;
   }
+
   /// The setter lets a newer publication supersede an in-flight recovery; the
   /// epoch/CAS abort in the recovery prevents a stale overwrite. The UI reads
   /// the stricter getter, so controls stay disabled while a recovery runs.
@@ -990,25 +1011,16 @@ class AppStore extends ChangeNotifier {
     if (_policyInvalid) return 'corrupt';
     if (_policyUnconfirmed) return 'publishPending';
     if (_documentAdmission.busy) return 'persistence';
-    if (busy ||
-        status.active ||
-        _desired ||
-        reconnecting ||
-        cleanupIncomplete ||
-        _connectRound != null ||
-        _retry != null ||
-        _watchdog != null ||
-        _nativeRecoveryLease != null) {
-      return 'busy';
-    }
+    final work = _liveWorkBlocker();
+    if (work != null) return work;
     if (_policyReconcileRequired) return 'reconcileRequired';
     return null;
   }
+
   PolicyFailure _modeFailure(String blocker) => PolicyFailure(
     _modeBusyCodes[blocker] ?? 'POLICY_UNKNOWN',
     'Connection mode cannot change now: $blocker',
   );
-
 
   /// Сторонние DNS-резолверы из настроек: до двух адресов (IPv4/IPv6/домен).
   /// По умолчанию Quad9 — то же значение, что раньше писалось в AWG-профили.
@@ -1023,7 +1035,9 @@ class AppStore extends ChangeNotifier {
   /// Desired persisted permission, NOT evidence that a window flag was applied.
   bool allowScreenshots = xioTestBuild;
   bool get screenSecuritySupported =>
-      !xioTestBuild && !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+      !xioTestBuild &&
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.android;
 
   /// Last acknowledged Android window-flag request; null means unknown.
   /// This is not a guarantee against OS/root/capture bypass.
@@ -1308,8 +1322,8 @@ class AppStore extends ChangeNotifier {
               'Saved protocol priority has the wrong type; connection is '
               'blocked until an explicit recovery.';
         }
-        priorityProtocol = storedPriority is String &&
-                nativeProtocols.contains(storedPriority)
+        priorityProtocol =
+            storedPriority is String && nativeProtocols.contains(storedPriority)
             ? storedPriority
             : Platform.isIOS
             ? 'rivet-s1'
@@ -1324,7 +1338,8 @@ class AppStore extends ChangeNotifier {
           _activeId = id;
           // Native active state never rewrites a manual (or blocked) durable
           // selection: the user's chosen id stays the admission target.
-          if (connectionPolicy == ConnectionPolicy.automatic && !_policyInvalid) {
+          if (connectionPolicy == ConnectionPolicy.automatic &&
+              !_policyInvalid) {
             selectedId = id;
           }
         }
@@ -1475,8 +1490,7 @@ class AppStore extends ChangeNotifier {
         const Duration(seconds: 6),
       );
       if (response.statusCode != 200) return null;
-      final text = await utf8
-          .decoder
+      final text = await utf8.decoder
           .bind(response)
           .join()
           .timeout(const Duration(seconds: 6));
@@ -1498,7 +1512,9 @@ class AppStore extends ChangeNotifier {
 
   /// Сохраняет адреса каскада. Пустая строка допустима и означает «не настроено».
   Future<bool> setCascadeServers({String? bridge, String? exit}) =>
-      withDocumentMutation(() => _setCascadeServers(bridge: bridge, exit: exit));
+      withDocumentMutation(
+        () => _setCascadeServers(bridge: bridge, exit: exit),
+      );
 
   Future<bool> _setCascadeServers({String? bridge, String? exit}) async {
     final nextBridge = bridge == null
@@ -1720,10 +1736,12 @@ class AppStore extends ChangeNotifier {
     // while a document write is in flight, not only after it succeeds.
     if (_productWriter != null && !_productWriter!.acceptsWrites) {
       intent.release();
-      return Future<T>.error(const PolicyFailure(
-        'POLICY_UNKNOWN',
-        'The product store writer is closed',
-      ));
+      return Future<T>.error(
+        const PolicyFailure(
+          'POLICY_UNKNOWN',
+          'The product store writer is closed',
+        ),
+      );
     }
     // Ordinary admitted mutations may perform native config/delete/vault
     // effects after the document rename; the physical owner must cover those
@@ -1748,9 +1766,11 @@ class AppStore extends ChangeNotifier {
   /// durable issuance journal is a separate owner). Acquire the ticket before
   /// the first await, pass it to the commit, and treat a [PublicationFailure]
   /// phase as WIRE-V2 §5 says: only `beforeRename` may compensate.
-  StoreMutationIntent beginOwnedDocumentMutation() => _documentAdmission.ordinary();
+  StoreMutationIntent beginOwnedDocumentMutation() =>
+      _documentAdmission.ordinary();
 
-  void releaseOwnedDocumentMutation(StoreMutationIntent ticket) => ticket.release();
+  void releaseOwnedDocumentMutation(StoreMutationIntent ticket) =>
+      ticket.release();
 
   /// Commits one frozen document through an already-owned ticket. Refuses a
   /// revoked or FOREIGN ticket (issued by another Store) instead of writing
@@ -1796,10 +1816,12 @@ class AppStore extends ChangeNotifier {
     final writer = _productWriter;
     if (writer == null) return action();
     if (!writer.acceptsWrites) {
-      return Future<T>.error(const PublicationFailure(
-        PublicationPhase.beforeRename,
-        PolicyFailure('POLICY_UNKNOWN', 'The product store writer is closed'),
-      ));
+      return Future<T>.error(
+        const PublicationFailure(
+          PublicationPhase.beforeRename,
+          PolicyFailure('POLICY_UNKNOWN', 'The product store writer is closed'),
+        ),
+      );
     }
     return writer.io(action);
   }
@@ -1839,7 +1861,8 @@ class AppStore extends ChangeNotifier {
   /// the live receipt describes (or versioned state exists without a receipt).
   Future<bool> _planDiffersFromCommitted() async {
     final snapshot = _committedPlan;
-    if (snapshot == null) return policyReceiptRequired || _hasRawConnectionPolicy;
+    if (snapshot == null)
+      return policyReceiptRequired || _hasRawConnectionPolicy;
     try {
       // The native receipt binds the whole durable document, not only the
       // derived plan. A settings field that is stored in profiles.json (for
@@ -1980,7 +2003,7 @@ class AppStore extends ChangeNotifier {
           await transaction.validate(validation);
         }
         await transaction.commit();
-        await _verifyFreshNativeReady(transaction.channel, snapshot!);
+        await _verifyFreshNativeReady(transaction.channel, snapshot);
         final receipt = transaction.channel.committed;
         if (receipt == null) {
           throw const PolicyFailure(
@@ -2005,7 +2028,10 @@ class AppStore extends ChangeNotifier {
         _recordPolicyFailure(error);
         throw error is PublicationFailure
             ? error
-            : PublicationFailure(PublicationPhase.renamedNativeUnconfirmed, error);
+            : PublicationFailure(
+                PublicationPhase.renamedNativeUnconfirmed,
+                error,
+              );
       }
       if (!_disposed) notifyListeners();
     } finally {
@@ -2015,6 +2041,7 @@ class AppStore extends ChangeNotifier {
       ticket?.release();
     }
   }
+
   /// Desktop: after a successful commit/reconcile ACK, require a FRESH native
   /// state proving exact CLEAN READY for this snapshot's six-field identity.
   /// The six-field ACK alone carries no resource proof, so [_adoptAck] stays
@@ -2038,7 +2065,8 @@ class AppStore extends ChangeNotifier {
       );
     }
     final receipt = state.receipt;
-    final exact = state.readyForAdmission &&
+    final exact =
+        state.readyForAdmission &&
         receipt != null &&
         receipt.storeIdentity == channel.storeIdentity &&
         receipt.controllerNonce == channel.controllerNonce &&
@@ -2059,6 +2087,7 @@ class AppStore extends ChangeNotifier {
       );
     }
   }
+
   Object? _durableReceiptTransaction() {
     final live = _committedPlan?.transactionId;
     if (live != null) return live;
@@ -2073,8 +2102,9 @@ class AppStore extends ChangeNotifier {
     if (directory == null) return false;
     try {
       final document = Map<String, dynamic>.from(
-        jsonDecode(await File('${directory!.path}/profiles.json').readAsString())
-            as Map,
+        jsonDecode(
+          await File('${directory!.path}/profiles.json').readAsString(),
+        ) as Map,
       );
       final receipt = document['connectionPlanReceipt'];
       final current = receipt is Map ? receipt['transactionId'] : null;
@@ -2083,16 +2113,20 @@ class AppStore extends ChangeNotifier {
       return true;
     }
   }
+
   /// Aborts before the rename when another writer changed the durable plan
   /// receipt while this write was outstanding (stale overwrite guard).
-  Future<void> _assertDurableReceiptUnchanged([Object? expectedOverride]) async {
+  Future<void> _assertDurableReceiptUnchanged([
+    Object? expectedOverride,
+  ]) async {
     final expected = expectedOverride ?? _durableReceiptTransaction();
     if (expected == null || directory == null) return;
     Object? current;
     try {
       final document = Map<String, dynamic>.from(
-        jsonDecode(await File('${directory!.path}/profiles.json').readAsString())
-            as Map,
+        jsonDecode(
+          await File('${directory!.path}/profiles.json').readAsString(),
+        ) as Map,
       );
       final receipt = document['connectionPlanReceipt'];
       if (receipt is Map) current = receipt['transactionId'];
@@ -2110,6 +2144,7 @@ class AppStore extends ChangeNotifier {
       );
     }
   }
+
   static const _ticketRevoked = PolicyFailure(
     'POLICY_STALE',
     'The document mutation ticket was revoked before the write could commit',
@@ -2205,7 +2240,8 @@ class AppStore extends ChangeNotifier {
               ),
             );
           }
-          if (expectedPolicyEpoch != null && _policyEpoch != expectedPolicyEpoch) {
+          if (expectedPolicyEpoch != null &&
+              _policyEpoch != expectedPolicyEpoch) {
             throw const PublicationFailure(
               PublicationPhase.beforeRename,
               PolicyFailure(
@@ -2292,7 +2328,6 @@ class AppStore extends ChangeNotifier {
       'connectionPlanReceipt': _rawConnectionPlanReceipt,
   };
 
-
   Future<void> setLanguage(String? code) =>
       withDocumentMutation(() => _setLanguage(code));
 
@@ -2320,8 +2355,7 @@ class AppStore extends ChangeNotifier {
     XioDiag.log('event', event);
   }
 
-  Future<void> select(String id) =>
-      withDocumentMutation(() => _select(id));
+  Future<void> select(String id) => withDocumentMutation(() => _select(id));
 
   /// Switches the active tunnel to another profile without a manual disconnect.
   ///
@@ -2336,11 +2370,16 @@ class AppStore extends ChangeNotifier {
     final target = profiles.where((p) => p.id == id).firstOrNull;
     if (target == null) throw StateError('Профиль не найден');
     if (!nativeProtocols.contains(target.protocol)) {
-      throw StateError('Протокол ${target.protocol} недоступен на этом устройстве');
+      throw StateError(
+        'Протокол ${target.protocol} недоступен на этом устройстве',
+      );
     }
     final wasActive = status.active || _desired;
     final started = DateTime.now().millisecondsSinceEpoch;
-    XioDiag.log('switch', 'begin -> ${target.protocol} endpoint=${target.endpoint} active=$wasActive');
+    XioDiag.log(
+      'switch',
+      'begin -> ${target.protocol} endpoint=${target.endpoint} active=$wasActive',
+    );
     if (status.active) await disconnect();
     await select(id);
     if (!wasActive) {
@@ -2351,9 +2390,14 @@ class AppStore extends ChangeNotifier {
     final ms = DateTime.now().millisecondsSinceEpoch - started;
     if (status.active && status.path == target.protocol) {
       XioDiag.log('switch', 'done -> ${target.protocol} in $ms ms');
-      log('Переключено на ${target.protocol} за ${(ms / 1000).toStringAsFixed(1)} с');
+      log(
+        'Переключено на ${target.protocol} за ${(ms / 1000).toStringAsFixed(1)} с',
+      );
     } else {
-      XioDiag.log('switch', 'failed -> ${target.protocol} after $ms ms: ${error ?? status.state}');
+      XioDiag.log(
+        'switch',
+        'failed -> ${target.protocol} after $ms ms: ${error ?? status.state}',
+      );
       throw StateError(error ?? 'Переключение не подтверждено');
     }
   }
@@ -2583,7 +2627,10 @@ class AppStore extends ChangeNotifier {
     if (!(androidForTesting ?? Platform.isAndroid)) return;
     // Invalid durable policy has no admissible plan: fail closed, do not guess.
     if (_policyInvalid) return;
-    final plan = await _derivePlan(document ?? documentPayload(), android: true);
+    final plan = await _derivePlan(
+      document ?? documentPayload(),
+      android: true,
+    );
     await native.invokeMethod<void>('saveConnectionPlan', plan.bytes);
   }
 
@@ -2593,7 +2640,9 @@ class AppStore extends ChangeNotifier {
     final result = <String, String?>{};
     for (final id in ids) {
       try {
-        result[id] = await native.invokeMethod<String>('readConfig', {'id': id});
+        result[id] = await native.invokeMethod<String>('readConfig', {
+          'id': id,
+        });
       } catch (_) {
         result[id] = null;
       }
@@ -2610,7 +2659,8 @@ class AppStore extends ChangeNotifier {
     Map<String, dynamic> plan, {
     String? documentBytes,
   }) async {
-    final bytes = documentBytes ??
+    final bytes =
+        documentBytes ??
         await File('${directory!.path}/profiles.json').readAsString();
     final ids = (plan['ids'] as List).cast<String>();
     final configs = <String, String?>{};
@@ -2794,7 +2844,8 @@ class AppStore extends ChangeNotifier {
     // Any observed non-READY/stale native identity synchronously clears the
     // confirmation: it must not survive an inspection that disproved it.
     final observedNotReady = state.state != 'ready';
-    final staleTransaction = _policyReceipt != null &&
+    final staleTransaction =
+        _policyReceipt != null &&
         state.transactionId != null &&
         state.transactionId != _policyReceipt!.transactionId;
     if (observedNotReady || staleTransaction) {
@@ -2875,284 +2926,294 @@ class AppStore extends ChangeNotifier {
       desktop: _desktopSession,
     );
     final normalExpectedGeneration = _desktopSession
-        ? (settledNative?.casGeneration ?? settledNative?.receipt?.planGeneration)
+        ? (settledNative?.casGeneration ??
+              settledNative?.receipt?.planGeneration)
         : null;
     // Hold the physical product writer for the WHOLE native publication, not
     // just the tmp/rename: dispose must not release it before native settles.
     final hold = _beginWriterHold();
     try {
       return await () async {
-    final snapshotDocument = Map<String, dynamic>.from(
-      document ?? documentPayload(),
-    );
-    final transactionId = policyNonce();
-    final generation = policyNonce();
-    final plan = await _derivePlan(
-      snapshotDocument,
-      android: Platform.isAndroid,
-    );
-    // Native READY requires a durable connectionPlanReceipt matching THIS
-    // proposal (Android §4). The app owns that document write; native never
-    // writes the app document.
-    snapshotDocument['connectionPlanReceipt'] = {
-      'schema': 1,
-      'transactionId': transactionId,
-      'planGeneration': generation,
-      'plan': plan.json,
-    };
-    final snapshot = PublicationSnapshot(
-      transactionId: transactionId,
-      generation: generation,
-      document: snapshotDocument,
-      plan: plan.json,
-    );
-    final nativeReadyBound = _desktopSession &&
-        settledNative != null &&
-        settledNative.readyForAdmission &&
-        channel.committed != null &&
-        channel.committed!.storeIdentity == channel.storeIdentity &&
-        channel.committed!.controllerNonce == channel.controllerNonce &&
-        channel.committed!.instanceNonce == channel.instanceNonce;
-    if (nativeReadyBound &&
-        (settledNative!.casGeneration == null ||
-            settledNative.casGeneration !=
-                settledNative.receipt!.planGeneration)) {
-      // READY must carry the same generation in CAS metadata and its own
-      // nested receipt; a change is rejected BEFORE begin/rename.
-      throw const PublicationFailure(
-        PublicationPhase.beforeRename,
-        PolicyFailure(
-          'POLICY_STALE',
-          'The native READY identity/generation changed before recovery',
-        ),
-      );
-    }
-    final normalRoute = nativeReadyBound;
-    final transaction = normalRoute
-        ? channel.transaction(
-            snapshot,
-            expectedGeneration: normalExpectedGeneration,
-          )
-        : channel.reconciliation(
-            snapshot,
-            expectedGeneration: reconcileExpectedGeneration,
+        final snapshotDocument = Map<String, dynamic>.from(
+          document ?? documentPayload(),
+        );
+        final transactionId = policyNonce();
+        final generation = policyNonce();
+        final plan = await _derivePlan(
+          snapshotDocument,
+          android: Platform.isAndroid,
+        );
+        // Native READY requires a durable connectionPlanReceipt matching THIS
+        // proposal (Android §4). The app owns that document write; native never
+        // writes the app document.
+        snapshotDocument['connectionPlanReceipt'] = {
+          'schema': 1,
+          'transactionId': transactionId,
+          'planGeneration': generation,
+          'plan': plan.json,
+        };
+        final snapshot = PublicationSnapshot(
+          transactionId: transactionId,
+          generation: generation,
+          document: snapshotDocument,
+          plan: plan.json,
+        );
+        final nativeReadyBound =
+            _desktopSession &&
+            settledNative != null &&
+            settledNative.readyForAdmission &&
+            channel.committed != null &&
+            channel.committed!.storeIdentity == channel.storeIdentity &&
+            channel.committed!.controllerNonce == channel.controllerNonce &&
+            channel.committed!.instanceNonce == channel.instanceNonce;
+        if (nativeReadyBound &&
+            (settledNative.casGeneration == null ||
+                settledNative.casGeneration !=
+                    settledNative.receipt!.planGeneration)) {
+          // READY must carry the same generation in CAS metadata and its own
+          // nested receipt; a change is rejected BEFORE begin/rename.
+          throw const PublicationFailure(
+            PublicationPhase.beforeRename,
+            PolicyFailure(
+              'POLICY_STALE',
+              'The native READY identity/generation changed before recovery',
+            ),
           );
-    // Preflight the validation caps BEFORE the app rename: an oversized
-    // document must not replace the old durable bytes or fence native READY.
-    final validation = _desktopSession
-        ? await _buildValidation(
-            plan.json,
-            documentBytes: jsonEncode(snapshotDocument),
-          )
-        : null;
-    if (expectedPolicyEpoch != null && _policyEpoch != expectedPolicyEpoch) {
-      // A newer publication was adopted after this recovery captured its
-      // snapshot: abort BEFORE the rename so it cannot overwrite that winner.
-      _policyReconcileRequired = false;
-      throw const PublicationFailure(
-        PublicationPhase.beforeRename,
-        PolicyFailure(
-          'POLICY_STALE',
-          'A newer policy publication won before this recovery could commit',
-        ),
-      );
-    }
-    if (_disposed) {
-      throw const PublicationFailure(
-        PublicationPhase.beforeRename,
-        PolicyFailure(
-          'POLICY_STALE',
-          'The store was disposed during recovery',
-        ),
-      );
-    }
-    if (expectedDurableTransaction != null) {
-      // CAS against the durable receipt captured before this recovery: a newer
-      // publication that committed meanwhile must win, never be overwritten by
-      // an older recovery snapshot.
-      final currentFile = File('${directory!.path}/profiles.json');
-      Object? durableTransaction;
-      try {
-        final current = Map<String, dynamic>.from(
-          jsonDecode(await currentFile.readAsString()) as Map,
-        );
-        final receipt = current['connectionPlanReceipt'];
-        if (receipt is Map) durableTransaction = receipt['transactionId'];
-      } catch (_) {}
-      if (durableTransaction != expectedDurableTransaction) {
-        _policyReconcileRequired = false;
-        throw const PublicationFailure(
-          PublicationPhase.beforeRename,
-          PolicyFailure(
-            'POLICY_STALE',
-            'The durable snapshot changed by a newer publication',
-          ),
-        );
-      }
-    }
-    // Capture the ORIGINAL pre-BEGIN receipt/CAS and epoch. Nothing sampled
-    // after the BEGIN await may legitimize a newer document for this reserved
-    // transaction.
-    //
-    // Without an explicit expectation the DURABLE document is the CAS authority:
-    // a failed publication can rename the document (new receipt on disk) and
-    // still fail to ACK, leaving the in-memory receipt pointing at the previous
-    // transaction. Reconciling against memory then failed every time with
-    // "the durable snapshot changed by a newer publication" and the lane stayed
-    // unreconcilable. The file is read BEFORE begin and re-CASed by _saveDocument
-    // under the writer hold, so a concurrent winner is still fenced.
-    Object? discoveredDurableTransaction;
-    if (expectedDurableTransaction == null && directory != null) {
-      try {
-        final current = Map<String, dynamic>.from(
-          jsonDecode(await File('${directory!.path}/profiles.json').readAsString())
-              as Map,
-        );
-        final receipt = current['connectionPlanReceipt'];
-        if (receipt is Map) discoveredDurableTransaction = receipt['transactionId'];
-      } catch (_) {}
-    }
-    final previousRawReceipt = _rawConnectionPlanReceipt;
-    final originalDurableTransaction = expectedDurableTransaction ??
-        discoveredDurableTransaction ??
-        (previousRawReceipt is Map
-            ? previousRawReceipt['transactionId']
-            : null);
-    var begun = false;
-    if (normalRoute) {
-      // READY+CLEAN+bound receipt: use the normal begin→rename→validate→commit
-      // route. Go's begin authority still fences current/cleanup races; any
-      // STALE fails BEFORE the rename and the document stays untouched.
-      try {
-        await transaction.begin();
-        begun = true;
-      } catch (error) {
-        _policyReconcileRequired = true;
-        throw PublicationFailure(PublicationPhase.beforeRename, error);
-      }
-      // The BEGIN await is the race window: read the durable CAS FIRST, then
-      // take fresh synchronous dispose/epoch/ticket guards immediately after
-      // that await and before touching the raw receipt or renaming. A newer
-      // winner must survive; abort the SAME reserved transaction.
-      final durableChanged =
-          await _durableReceiptDiffers(originalDurableTransaction);
-      if (_disposed ||
-          (expectedPolicyEpoch != null && _policyEpoch != expectedPolicyEpoch) ||
-          durableChanged) {
+        }
+        final normalRoute = nativeReadyBound;
+        final transaction = normalRoute
+            ? channel.transaction(
+                snapshot,
+                expectedGeneration: normalExpectedGeneration,
+              )
+            : channel.reconciliation(
+                snapshot,
+                expectedGeneration: reconcileExpectedGeneration,
+              );
+        // Preflight the validation caps BEFORE the app rename: an oversized
+        // document must not replace the old durable bytes or fence native READY.
+        final validation = _desktopSession
+            ? await _buildValidation(
+                plan.json,
+                documentBytes: jsonEncode(snapshotDocument),
+              )
+            : null;
+        if (expectedPolicyEpoch != null &&
+            _policyEpoch != expectedPolicyEpoch) {
+          // A newer publication was adopted after this recovery captured its
+          // snapshot: abort BEFORE the rename so it cannot overwrite that winner.
+          _policyReconcileRequired = false;
+          throw const PublicationFailure(
+            PublicationPhase.beforeRename,
+            PolicyFailure(
+              'POLICY_STALE',
+              'A newer policy publication won before this recovery could commit',
+            ),
+          );
+        }
+        if (_disposed) {
+          throw const PublicationFailure(
+            PublicationPhase.beforeRename,
+            PolicyFailure(
+              'POLICY_STALE',
+              'The store was disposed during recovery',
+            ),
+          );
+        }
+        if (expectedDurableTransaction != null) {
+          // CAS against the durable receipt captured before this recovery: a newer
+          // publication that committed meanwhile must win, never be overwritten by
+          // an older recovery snapshot.
+          final currentFile = File('${directory!.path}/profiles.json');
+          Object? durableTransaction;
+          try {
+            final current = Map<String, dynamic>.from(
+              jsonDecode(await currentFile.readAsString()) as Map,
+            );
+            final receipt = current['connectionPlanReceipt'];
+            if (receipt is Map) durableTransaction = receipt['transactionId'];
+          } catch (_) {}
+          if (durableTransaction != expectedDurableTransaction) {
+            _policyReconcileRequired = false;
+            throw const PublicationFailure(
+              PublicationPhase.beforeRename,
+              PolicyFailure(
+                'POLICY_STALE',
+                'The durable snapshot changed by a newer publication',
+              ),
+            );
+          }
+        }
+        // Capture the ORIGINAL pre-BEGIN receipt/CAS and epoch. Nothing sampled
+        // after the BEGIN await may legitimize a newer document for this reserved
+        // transaction.
+        //
+        // Without an explicit expectation the DURABLE document is the CAS authority:
+        // a failed publication can rename the document (new receipt on disk) and
+        // still fail to ACK, leaving the in-memory receipt pointing at the previous
+        // transaction. Reconciling against memory then failed every time with
+        // "the durable snapshot changed by a newer publication" and the lane stayed
+        // unreconcilable. The file is read BEFORE begin and re-CASed by _saveDocument
+        // under the writer hold, so a concurrent winner is still fenced.
+        Object? discoveredDurableTransaction;
+        if (expectedDurableTransaction == null && directory != null) {
+          try {
+            final current = Map<String, dynamic>.from(
+              jsonDecode(
+                await File('${directory!.path}/profiles.json').readAsString(),
+              ) as Map,
+            );
+            final receipt = current['connectionPlanReceipt'];
+            if (receipt is Map)
+              discoveredDurableTransaction = receipt['transactionId'];
+          } catch (_) {}
+        }
+        final previousRawReceipt = _rawConnectionPlanReceipt;
+        final originalDurableTransaction =
+            expectedDurableTransaction ??
+            discoveredDurableTransaction ??
+            (previousRawReceipt is Map
+                ? previousRawReceipt['transactionId']
+                : null);
+        var begun = false;
+        if (normalRoute) {
+          // READY+CLEAN+bound receipt: use the normal begin→rename→validate→commit
+          // route. Go's begin authority still fences current/cleanup races; any
+          // STALE fails BEFORE the rename and the document stays untouched.
+          try {
+            await transaction.begin();
+            begun = true;
+          } catch (error) {
+            _policyReconcileRequired = true;
+            throw PublicationFailure(PublicationPhase.beforeRename, error);
+          }
+          // The BEGIN await is the race window: read the durable CAS FIRST, then
+          // take fresh synchronous dispose/epoch/ticket guards immediately after
+          // that await and before touching the raw receipt or renaming. A newer
+          // winner must survive; abort the SAME reserved transaction.
+          final durableChanged = await _durableReceiptDiffers(
+            originalDurableTransaction,
+          );
+          if (_disposed ||
+              (expectedPolicyEpoch != null &&
+                  _policyEpoch != expectedPolicyEpoch) ||
+              durableChanged) {
+            try {
+              await transaction.block();
+            } catch (_) {}
+            _policyReconcileRequired = true;
+            throw const PublicationFailure(
+              PublicationPhase.beforeRename,
+              PolicyFailure(
+                'POLICY_STALE',
+                'A newer publication superseded the reserved recovery transaction',
+              ),
+            );
+          }
+        }
+        // Ordinary saves that slip in before this publication ACKs must re-emit the
+        // same new receipt instead of the previous one.
+        _rawConnectionPlanReceipt = snapshotDocument['connectionPlanReceipt'];
         try {
-          await transaction.block();
-        } catch (_) {}
-        _policyReconcileRequired = true;
-        throw const PublicationFailure(
-          PublicationPhase.beforeRename,
-          PolicyFailure(
-            'POLICY_STALE',
-            'A newer publication superseded the reserved recovery transaction',
-          ),
-        );
-      }
-    }
-    // Ordinary saves that slip in before this publication ACKs must re-emit the
-    // same new receipt instead of the previous one.
-    _rawConnectionPlanReceipt = snapshotDocument['connectionPlanReceipt'];
-    try {
-      await _saveDocument(
-        documentOverride: snapshotDocument,
-        ticket: ticket,
-        expectedDurableTransaction: originalDurableTransaction,
-        expectedPolicyEpoch: expectedPolicyEpoch,
-      );
-    } catch (error) {
-      if (begun) {
+          await _saveDocument(
+            documentOverride: snapshotDocument,
+            ticket: ticket,
+            expectedDurableTransaction: originalDurableTransaction,
+            expectedPolicyEpoch: expectedPolicyEpoch,
+          );
+        } catch (error) {
+          if (begun) {
+            try {
+              await transaction.block();
+            } catch (_) {}
+          }
+          final durableChangedNow = await _durableReceiptDiffers(
+            originalDurableTransaction,
+          );
+          final epochChangedNow =
+              expectedPolicyEpoch != null &&
+              _policyEpoch != expectedPolicyEpoch;
+          if ((error is! PublicationFailure ||
+                  error.phase == PublicationPhase.beforeRename) &&
+              !durableChangedNow &&
+              !epochChangedNow &&
+              !_disposed) {
+            // Restore the old raw receipt only when no newer winner/epoch/dispose
+            // exists; a stale abort must not clobber newer authority in memory.
+            _rawConnectionPlanReceipt = previousRawReceipt;
+          }
+          _policyReconcileRequired = true;
+          throw error is PublicationFailure
+              ? error
+              : PublicationFailure(PublicationPhase.beforeRename, error);
+        }
+        if (validation != null) {
+          try {
+            // Durability is proven by the readback; the validated bytes are the
+            // exact frozen snapshot this reconcile commits.
+            await _ensureDurableSnapshot(snapshot, ticket: ticket);
+            await transaction.validate(validation);
+          } catch (error) {
+            try {
+              await transaction.block();
+            } catch (_) {}
+            _policyReconcileRequired = true;
+            throw PublicationFailure(
+              PublicationPhase.renamedNativeUnconfirmed,
+              error,
+            );
+          }
+        }
         try {
-          await transaction.block();
-        } catch (_) {}
-      }
-      final durableChangedNow =
-          await _durableReceiptDiffers(originalDurableTransaction);
-      final epochChangedNow =
-          expectedPolicyEpoch != null && _policyEpoch != expectedPolicyEpoch;
-      if ((error is! PublicationFailure ||
-              error.phase == PublicationPhase.beforeRename) &&
-          !durableChangedNow &&
-          !epochChangedNow &&
-          !_disposed) {
-        // Restore the old raw receipt only when no newer winner/epoch/dispose
-        // exists; a stale abort must not clobber newer authority in memory.
-        _rawConnectionPlanReceipt = previousRawReceipt;
-      }
-      _policyReconcileRequired = true;
-      throw error is PublicationFailure
-          ? error
-          : PublicationFailure(PublicationPhase.beforeRename, error);
-    }
-    if (validation != null) {
-      try {
-        // Durability is proven by the readback; the validated bytes are the
-        // exact frozen snapshot this reconcile commits.
+          await transaction.commit().timeout(wait);
+        } catch (error) {
+          try {
+            // The native lane keeps physical ownership until it can ACK a block.
+            await transaction.block();
+          } catch (_) {}
+          _policyReceipt = null;
+          _committedPlan = null;
+          _policyReconcileRequired = true;
+          // A rejected reconcile may have persisted BLOCKED (recoverable) or may
+          // still own the lane; inspect instead of assuming a safe release.
+          final settled = await _policyChannel!.queryState();
+          if (const {'pending', 'pendingUnknown'}.contains(settled.phase)) {
+            throw const PolicyFailure(
+              'POLICY_BUSY',
+              'The native policy lane still owns its previous publication',
+            );
+          }
+          throw PublicationFailure(
+            PublicationPhase.renamedNativeUnconfirmed,
+            error,
+          );
+        }
+        await _verifyFreshNativeReady(channel, snapshot);
+        final receipt = channel.committed;
+        if (receipt == null) {
+          _policyReconcileRequired = true;
+          throw const PolicyFailure(
+            'POLICY_UNKNOWN',
+            'No ready receipt after reconciliation',
+          );
+        }
+        if (_disposed) {
+          throw const PublicationFailure(
+            PublicationPhase.renamedNativeUnconfirmed,
+            PolicyFailure(
+              'POLICY_STALE',
+              'The store was disposed before reconciliation was adopted',
+            ),
+          );
+        }
+        adoptCommittedPolicy(snapshot: snapshot, receipt: receipt);
+        _clearPolicyFailure();
         await _ensureDurableSnapshot(snapshot, ticket: ticket);
-        await transaction.validate(validation);
-      } catch (error) {
-        try {
-          await transaction.block();
-        } catch (_) {}
-        _policyReconcileRequired = true;
-        throw PublicationFailure(
-          PublicationPhase.renamedNativeUnconfirmed,
-          error,
-        );
-      }
-    }
-    try {
-      await transaction.commit().timeout(wait);
-    } catch (error) {
-      try {
-        // The native lane keeps physical ownership until it can ACK a block.
-        await transaction.block();
-      } catch (_) {}
-      _policyReceipt = null;
-      _committedPlan = null;
-      _policyReconcileRequired = true;
-      // A rejected reconcile may have persisted BLOCKED (recoverable) or may
-      // still own the lane; inspect instead of assuming a safe release.
-      final settled = await _policyChannel!.queryState();
-      if (const {'pending', 'pendingUnknown'}.contains(settled.phase)) {
-        throw const PolicyFailure(
-          'POLICY_BUSY',
-          'The native policy lane still owns its previous publication',
-        );
-      }
-      throw PublicationFailure(
-        PublicationPhase.renamedNativeUnconfirmed,
-        error,
-      );
-    }
-    await _verifyFreshNativeReady(channel, snapshot);
-    final receipt = channel.committed;
-    if (receipt == null) {
-      _policyReconcileRequired = true;
-      throw const PolicyFailure(
-        'POLICY_UNKNOWN',
-        'No ready receipt after reconciliation',
-      );
-    }
-    if (_disposed) {
-      throw const PublicationFailure(
-        PublicationPhase.renamedNativeUnconfirmed,
-        PolicyFailure(
-          'POLICY_STALE',
-          'The store was disposed before reconciliation was adopted',
-        ),
-      );
-    }
-    adoptCommittedPolicy(snapshot: snapshot, receipt: receipt);
-    _clearPolicyFailure();
-    await _ensureDurableSnapshot(snapshot, ticket: ticket);
-    _policyReconcileRequired = false;
-    _policyUnconfirmed = false;
-    _clearPolicyFailure();
-    if (!_policyInvalid) policyError = null;
-    _notifySafe();
+        _policyReconcileRequired = false;
+        _policyUnconfirmed = false;
+        _clearPolicyFailure();
+        if (!_policyInvalid) policyError = null;
+        _notifySafe();
       }();
     } finally {
       _endWriterHold(hold);
@@ -3177,7 +3238,8 @@ class AppStore extends ChangeNotifier {
             : PolicyPlatform.desktop,
       );
     }
-    if (connectionPolicy == ConnectionPolicy.selectedOnly && _policyCapability) {
+    if (connectionPolicy == ConnectionPolicy.selectedOnly &&
+        _policyCapability) {
       throw const PolicyFailure(
         'POLICY_UNSUPPORTED',
         'Manual mode requires a reconciled committed plan',
@@ -3209,17 +3271,8 @@ class AppStore extends ChangeNotifier {
       return;
     }
     if (!ready) throw _modeFailure('loading');
-    if (busy ||
-        status.active ||
-        _desired ||
-        reconnecting ||
-        cleanupIncomplete ||
-        _connectRound != null ||
-        _retry != null ||
-        _watchdog != null ||
-        _nativeRecoveryLease != null) {
-      throw _modeFailure('busy');
-    }
+    final work = _liveWorkBlocker();
+    if (work != null) throw _modeFailure(work);
     late final StoreMutationIntent ticket;
     try {
       ticket = _documentAdmission.policy();
@@ -3292,31 +3345,31 @@ class AppStore extends ChangeNotifier {
       hold = _beginWriterHold();
       final file = File('${dir.path}/profiles.json');
       if (!await file.exists()) {
-      throw const PolicyFailure(
-        'POLICY_UNKNOWN',
-        'No durable document to reconcile',
-      );
-    }
-    final Map<String, dynamic> durable;
-    try {
-      durable = Map<String, dynamic>.from(
-        jsonDecode(await file.readAsString()) as Map,
-      );
-    } catch (_) {
-      throw const PolicyFailure(
-        'POLICY_UNKNOWN',
-        'The durable document could not be read',
-      );
-    }
+        throw const PolicyFailure(
+          'POLICY_UNKNOWN',
+          'No durable document to reconcile',
+        );
+      }
+      final Map<String, dynamic> durable;
+      try {
+        durable = Map<String, dynamic>.from(
+          jsonDecode(await file.readAsString()) as Map,
+        );
+      } catch (_) {
+        throw const PolicyFailure(
+          'POLICY_UNKNOWN',
+          'The durable document could not be read',
+        );
+      }
       // Re-validate the actual durable state, not the in-memory claim.
       if (durable.containsKey('connectionPolicy')) {
         ConnectionPolicy.parse(durable['connectionPolicy']);
       }
       Object? durableTransaction;
       if (durable.containsKey('connectionPlanReceipt')) {
-        durableTransaction =
-            DocumentPlanReceipt.parse(durable['connectionPlanReceipt'])
-                .transactionId;
+        durableTransaction = DocumentPlanReceipt.parse(
+          durable['connectionPlanReceipt'],
+        ).transactionId;
       }
       if (_policyCapability) {
         try {
@@ -3393,7 +3446,6 @@ class AppStore extends ChangeNotifier {
       _notifySafe(); // settlement
     }
   }
-
 
   Future<void> importConnection(String raw, {String name = ''}) =>
       withDocumentMutation(() => _importConnection(raw, name: name));
@@ -3513,13 +3565,8 @@ class AppStore extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  Future<void> addWireGuard(
-    String name,
-    String raw, {
-    bool amnezia = true,
-  }) => withDocumentMutation(
-    () => _addWireGuard(name, raw, amnezia: amnezia),
-  );
+  Future<void> addWireGuard(String name, String raw, {bool amnezia = true}) =>
+      withDocumentMutation(() => _addWireGuard(name, raw, amnezia: amnezia));
 
   Future<void> _addWireGuard(
     String name,
@@ -3708,10 +3755,7 @@ class AppStore extends ChangeNotifier {
         final transactionId = policyNonce();
         final generation = policyNonce();
         final document = Map<String, dynamic>.from(documentPayload());
-        final plan = await _derivePlan(
-          document,
-          android: Platform.isAndroid,
-        );
+        final plan = await _derivePlan(document, android: Platform.isAndroid);
         // The durable receipt written by this rename must describe exactly the
         // transaction native is about to commit/reconcile (Android 4).
         document['connectionPlanReceipt'] = {
@@ -3761,7 +3805,8 @@ class AppStore extends ChangeNotifier {
         expectedDurableTransaction: previousReceipt,
       );
     } catch (error) {
-      final afterRename = error is PublicationFailure &&
+      final afterRename =
+          error is PublicationFailure &&
           error.phase != PublicationPhase.beforeRename;
       if (!afterRename) restore();
       if (transaction != null) {
@@ -4448,8 +4493,7 @@ class AppStore extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  Future<void> remove(String id) =>
-      withDocumentMutation(() => _remove(id));
+  Future<void> remove(String id) => withDocumentMutation(() => _remove(id));
 
   Future<void> _remove(String id) async {
     if (busy || _activeId == id) throw StateError('Сначала отключите профиль');
@@ -4475,7 +4519,8 @@ class AppStore extends ChangeNotifier {
     try {
       await save();
     } catch (error) {
-      final afterRename = error is PublicationFailure &&
+      final afterRename =
+          error is PublicationFailure &&
           error.phase != PublicationPhase.beforeRename;
       if (afterRename) {
         // Disk may already contain the removal: never restore the old whole
@@ -4544,7 +4589,8 @@ class AppStore extends ChangeNotifier {
             if (identical(_nativeCleanup, owned)) {
               _nativeCleanup = null;
               cleanupIncomplete = true;
-              if (!_disposed && operation == _operationEpoch) if (!_disposed) notifyListeners();
+              if (!_disposed && operation == _operationEpoch)
+                if (!_disposed) notifyListeners();
             }
           },
         ),
@@ -4604,9 +4650,9 @@ class AppStore extends ChangeNotifier {
     }
     final initial = selected;
     if (initial == null) {
-      if (connectionPolicy == ConnectionPolicy.selectedOnly && !_policyInvalid) {
-        error =
-            'Manual mode: the selected profile is unavailable. Choose a profile again.';
+      if (connectionPolicy == ConnectionPolicy.selectedOnly &&
+          !_policyInvalid) {
+        error = 'Manual mode: the selected profile is unavailable. Choose a profile again.';
         if (!_disposed) notifyListeners();
       }
       return;
@@ -4624,13 +4670,15 @@ class AppStore extends ChangeNotifier {
     }
     final candidates = connectionCandidates(initial);
     final policy = connectionPolicy;
-    XioDiag.log('connect', 'start selected=${initial.protocol} candidates=${candidates.map((p) => p.protocol).join(",")} mode=${policy.name}');
+    XioDiag.log(
+      'connect',
+      'start selected=${initial.protocol} candidates=${candidates.map((p) => p.protocol).join(",")} mode=${policy.name}',
+    );
     if (candidates.isEmpty && policy == ConnectionPolicy.selectedOnly) {
       // Missing, deleted, unsupported or revoked manual selection: no other
       // profile is tried and no auto-repair happens. Legacy native layers that
       // cannot acknowledge selectedOnly fail closed at activation instead.
-      error =
-          'Manual mode: the selected profile is unavailable. Choose a profile again.';
+      error = 'Manual mode: the selected profile is unavailable. Choose a profile again.';
       if (!_disposed) notifyListeners();
       return;
     }
@@ -4683,6 +4731,7 @@ class AppStore extends ChangeNotifier {
       if (current() && identical(_connectRound, round)) _desired = false;
       return false;
     }
+
     try {
       if (nativeTunnel) {
         final nativeBusy = await round.run(
@@ -4819,7 +4868,10 @@ class AppStore extends ChangeNotifier {
           }
           accepted = true;
           _retryCount = 0;
-          XioDiag.log('connect', 'accepted ${p.protocol} in ${DateTime.now().millisecondsSinceEpoch - started} ms');
+          XioDiag.log(
+            'connect',
+            'accepted ${p.protocol} in ${DateTime.now().millisecondsSinceEpoch - started} ms',
+          );
           log(
             siteCheckEnabled
                 ? 'Автоматически выбран ${p.protocol}; сайт доступен'
@@ -4846,19 +4898,23 @@ class AppStore extends ChangeNotifier {
           XioDiag.log(
             'connect',
             'failed ${p.protocol}: '
-                '${e is PlatformException ? '${e.code}: ${e.message}' : e is PolicyFailure ? '${e.code}: ${e.message}' : '$e'}',
+                '${e is PlatformException
+                    ? '${e.code}: ${e.message}'
+                    : e is PolicyFailure
+                    ? '${e.code}: ${e.message}'
+                    : '$e'}',
           );
           log('Проверка ${p.protocol} не пройдена');
           final policyCode = e is PolicyFailure
               ? e.code
               : e is PlatformException &&
-                      const {
-                          'POLICY_BUSY',
-                          'POLICY_UNSUPPORTED',
-                          'POLICY_STALE',
-                        }.contains(e.code)
-                  ? e.code
-                  : null;
+                    const {
+                      'POLICY_BUSY',
+                      'POLICY_UNSUPPORTED',
+                      'POLICY_STALE',
+                    }.contains(e.code)
+              ? e.code
+              : null;
           if (policyCode != null && !recoveredCandidate) {
             // The candidate could not be activated because the lane lost its
             // receipt. Reconcile once and let the remaining candidates try;
@@ -4897,7 +4953,10 @@ class AppStore extends ChangeNotifier {
         'Ни один доступный маршрут не подтвердил туннель. Проверьте точку входа и доступность сервера.',
       );
     } catch (e) {
-      XioDiag.log('connect', 'aborted: ${e is PlatformException ? e.code : e.runtimeType}: $e');
+      XioDiag.log(
+        'connect',
+        'aborted: ${e is PlatformException ? e.code : e.runtimeType}: $e',
+      );
       if (current()) {
         _invalidateConnectionStatus();
         _activeId = null;
@@ -5011,7 +5070,8 @@ class AppStore extends ChangeNotifier {
         if (_disposed || epoch != _statusEpoch) return;
         // Absence/errors are not proof of an idle desktop helper. Older desktop
         // helpers explicitly return active:false without a phase when idle.
-        _startupStatusIdle = j['active'] == false &&
+        _startupStatusIdle =
+            j['active'] == false &&
             (j['phase'] == null || j['phase'] == 'disconnected') &&
             (j['recoveryPending'] == null || j['recoveryPending'] == false) &&
             (j['cleanupPending'] == null || j['cleanupPending'] == false);

@@ -44,9 +44,8 @@ class Harness {
   static Future<Harness> create({String? policyJson}) async {
     final directory = await Directory.systemTemp.createTemp('xio-mode-store-');
     if (policyJson != null) {
-      await File(
-        '${directory.path}/profiles.json',
-      ).writeAsString(policyJson, flush: true);
+      await File('${directory.path}/profiles.json')
+          .writeAsString(policyJson, flush: true);
     }
     final writer = await ProductStoreWriterOwner.acquire(directory);
     final store = AppStore(nativeTunnelOverride: false)..directory = directory;
@@ -216,7 +215,10 @@ void scenariosFor({
     expect(find.byType(ConnectionModeControl), findsOneWidget);
     expect(find.text(t('Подтверждённый режим')), findsNothing);
     expect(find.text(t(ConnectionModeText.storedSetting)), findsOneWidget);
-    expect(find.text(t(ConnectionModeText.storedSettingNotice)), findsOneWidget);
+    expect(
+      find.text(t(ConnectionModeText.storedSettingNotice)),
+      findsOneWidget,
+    );
     await closeHarness(tester, harness);
   });
 
@@ -300,8 +302,14 @@ void scenariosFor({
       ..changed();
     await tester.pumpAndSettle();
     expect(harness.store.canChangeConnectionMode, isFalse);
-    expect(harness.store.connectionPolicyError, 'busy');
-    expect(find.text(t(ConnectionModeText.blocker('busy'))), findsOneWidget);
+    // A live tunnel is `connected`, not `busy`: the remedy is disconnecting,
+    // and the sentence must say so instead of naming an operation that ran.
+    expect(harness.store.connectionPolicyError, 'connected');
+    expect(
+      find.text(t(ConnectionModeText.blocker('connected'))),
+      findsOneWidget,
+    );
+    expect(find.text(t(ConnectionModeText.blocker('busy'))), findsNothing);
     expect(draftEnabled(tester), isFalse);
     expect(saveEnabled(tester), isFalse);
     // The Store refuses the same attempt with its own code.
@@ -394,9 +402,8 @@ void scenariosFor({
     // Explicit recovery through the real Store, with an explicit choice.
     final repaired = await real(
       tester,
-      () => harness.source.repairConnectionPolicy(
-        ConnectionPolicy.selectedOnly,
-      ),
+      () =>
+          harness.source.repairConnectionPolicy(ConnectionPolicy.selectedOnly),
     );
     expect(repaired.error, isNull);
     expect(harness.store.connectionPolicy, ConnectionPolicy.selectedOnly);
@@ -496,9 +503,11 @@ void scenariosFor({
     store.dispose();
     expect(writer.acceptsWrites, isFalse);
     var closed = false;
-    final close = writer.closeWhenSettled()
-      ..whenComplete(() => closed = true);
-    await real(tester, () => Future<void>.delayed(const Duration(milliseconds: 60)));
+    final close = writer.closeWhenSettled()..whenComplete(() => closed = true);
+    await real(
+      tester,
+      () => Future<void>.delayed(const Duration(milliseconds: 60)),
+    );
     expect(closed, isFalse);
 
     // Child BUSY: a second controller cannot acquire while the lock is held.
