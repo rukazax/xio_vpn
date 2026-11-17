@@ -89,20 +89,47 @@ bridge → exit действительно завершается. На exit о�
 ### Транспорты в каскаде: найденный разрыв и что сделано
 
 Правило каскада было `iif xioawg0` — то есть в туннель уходил **только
-AmneziaWG**. У Xray и у RIVET-gateway нет входного интерфейса: они завершают
-соединение сами и открывают исходящие с bridge, поэтому их трафик шёл напрямую
-из РФ.
+AmneziaWG**. Xray и RIVET-gateway открывают исходящие с bridge, поэтому их
+трафик шёл напрямую из РФ.
 
-- В `xio-cascade-bridge-up.sh` (и в том же скрипте внутри приложения) добавлены
+- В `xio-cascade-bridge-up.sh` (и в том же скрипте внутри приложения) список
+  входных интерфейсов больше не зашит: он обнаруживается по префиксу `xio*`,
+  и для каждого ставится `ip rule add iif <if> lookup 51888` плюс FORWARD-ACCEPT
+  в обе стороны. Для локально созданного трафика добавлены
   `ip rule add fwmark ${XIO_CASCADE_MARK:-0x518} lookup 51888` и SNAT
-  `-o tun0 -j MASQUERADE` для локально созданного трафика; в `-down.sh` —
-  симметричное удаление.
+  `-o tun0 -j MASQUERADE`; в `-down.sh` — симметричное удаление.
 - Проверено: без правила помеченный сокет выходил `81.177.142.37`, после —
-  `103.102.135.124` при неизменном прямом выходе bridge.
-- **Что ещё не сделано:** Xray и RIVET должны сами ставить метку на свои
-  исходящие сокеты (`sockopt.mark` у Xray, соответствующая опция у RIVET
-  gateway). Пока метка не выставлена, их трафик по-прежнему выходит из РФ.
-  Это следующий шаг, а не выполненная работа.
+  `103.102.135.124` при неизменном прямом выходе bridge. На живой паре
+  сейчас: `iif xioawg0`, `iif xiorivet`, `iif xioovpn1`, `fwmark 0x518`;
+  счётчик `iifname "xioawg0" oifname "tun0"` растёт (2,2 МБ за прогон).
+
+#### Уточнение: RIVET и Xray устроены по-разному
+
+Раньше здесь было написано, что метка нужна и RIVET. Это верно только для
+трафика, который gateway открывает сам. Клиентский трафик RIVET приходит на
+kernel-TUN `xiorivet` и дальше форвардится — значит его закрывает правило
+`iif xiorivet`, ровно как у AWG. Разница в другом:
+
+| Транспорт | Как уходит клиентский трафик | Что нужно |
+|---|---|---|
+| AWG | kernel-TUN `xioawg0` | `iif xioawg0` |
+| RIVET | kernel-TUN `xiorivet` | `iif xiorivet` |
+| Xray | userspace-прокси, своего TUN нет | `sockopt.mark` в outbound |
+
+- Xray: в `server/managed/stack.py` (и в зеркале `app/assets/xio-stack.py`)
+  добавлены `cascade_mark()` и `unit_text()`. При заданном `XIO_CASCADE_MARK`
+  freedom-outbound получает `{"sockopt":{"mark":1304}}`, а юнит —
+  `AmbientCapabilities=CAP_NET_ADMIN` и `CapabilityBoundingSet=CAP_NET_ADMIN`.
+  Без переменной поведение прежнее: метки нет, bounding set пуст.
+- На bridge включено: в конфиге `"outbounds":[{"protocol":"freedom",
+  "streamSettings":{"sockopt":{"mark":1304}}}]`, юнит с `cap_net_admin`,
+  сервис `active`. Приём доказывает отдельный прогон ровно в тех же условиях,
+  в которых работает Xray (DynamicUser, `NoNewPrivileges=yes`,
+  `PrivateTmp=yes`, `ProtectSystem=strict`, единственная capability —
+  `CAP_NET_ADMIN`): помеченный сокет вышел `103.102.135.124`.
+- **Что осталось:** сквозной прогон именно Xray-клиента через каскад не
+  снимался — на момент проверки к шлюзу не было подключено ни одного
+  Xray-пользователя (`stats.json` пуст, счётчик `iif xiorivet` = 0).
 
 ### Телефон
 

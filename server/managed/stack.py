@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Owned Xray/SS deployment, called only by the SSH-authorized manager."""
-import base64,ipaddress,json,secrets,shutil,socket,subprocess,uuid
+import base64,ipaddress,json,os,secrets,shutil,socket,subprocess,uuid
 from pathlib import Path
 ROOT=Path('/etc/xio-stack');STATE=Path('/var/lib/xio-stack');LIB=Path('/usr/local/lib/xio-managed');OWNER='xio-stack-v1'
 import importlib.util
@@ -59,13 +59,58 @@ def firewall(r,remove=False):
     if remove and exists:run(tool,'-w','5','-D',*args)
     elif not remove and not exists:run(tool,'-w','5','-I',*args)
 
+def cascade_mark():
+ # On a cascade bridge the only way to move Xray's own outbound sockets into the
+ # SSH tunnel is SO_MARK: the ip rule is `fwmark 0x518 lookup 51888`, and unlike
+ # AWG/RIVET (kernel TUNs, matched by iif) a userspace proxy has no input
+ # interface. Unset means "no cascade here, exit directly".
+ raw=(os.environ.get('XIO_CASCADE_MARK') or '').strip()
+ if not raw:return None
+ try:mark=int(raw,0)
+ except ValueError:raise ValueError('XIO_CASCADE_MARK must be an integer such as 0x518')
+ if not 0<mark<=0xffffffff:raise ValueError('XIO_CASCADE_MARK out of range')
+ return mark
+def unit_text():
+ # SO_MARK requires CAP_NET_ADMIN, so the bounding set is only opened when a
+ # cascade mark is actually configured; otherwise it stays empty.
+ cap='CAP_NET_ADMIN' if cascade_mark() else ''
+ return '''[Unit]
+Description=XIO Xray and Shadowsocks gateway
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=xio-stack
+StateDirectoryMode=0700
+LoadCredential=config:/etc/xio-stack/config.json
+ExecStart=/usr/local/bin/xio-stack ${CREDENTIALS_DIRECTORY}/config /var/lib/xio-stack/stats.json
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=%s
+AmbientCapabilities=%s
+UMask=0077
+[Install]
+WantedBy=multi-user.target
+''' % (cap,cap)
+def write_unit():
+ dest=Path('/etc/systemd/system/xio-stack.service');text=unit_text()
+ if dest.exists() and dest.read_text()==text:return
+ write(dest,text,0o644);run('systemctl','daemon-reload')
 def config(d):
  r=receipt();users=[(uid,u['stack']) for uid,u in d['users'].items() if not u.get('revoked') and u.get('stack')]
  clients=[{'id':u['uuid'],'email':uid+'@xio','flow':'xtls-rprx-vision','level':0} for uid,u in users]
  ssclients=[{'password':u['ssKey'],'email':uid+'@xio','level':0} for uid,u in users]
  if not ssclients:ssclients=[{'password':r['inactiveKey'],'email':'inactive@xio'}]
  listen=network.dualstack().listener()
- j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':listen,'port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':listen,'port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[{'protocol':'freedom'}]}
+ outbound={'protocol':'freedom'};mark=cascade_mark()
+ if mark:outbound['streamSettings']={'sockopt':{'mark':mark}}
+ j={'log':{'loglevel':'none'},'stats':{},'policy':{'levels':{'0':{'statsUserUplink':True,'statsUserDownlink':True,'statsUserOnline':True,'handshake':10,'connIdle':180}}},'inbounds':[{'listen':listen,'port':4443,'protocol':'vless','settings':{'clients':clients,'decryption':'none'},'streamSettings':{'network':'tcp','security':'reality','realitySettings':{'show':False,'target':r['target'],'xver':0,'serverNames':[r['serverName']],'privateKey':r['privateKey'],'shortIds':[r['shortId']]}}},{'listen':listen,'port':8388,'protocol':'shadowsocks','settings':{'method':'2022-blake3-aes-256-gcm','password':r['ssKey'],'clients':ssclients,'network':'tcp,udp'}}],'outbounds':[outbound]}
  if d.get('restrictedNetwork'):j['inbounds']=[inbound for inbound in j['inbounds'] if inbound['protocol']!='shadowsocks']
  write(ROOT/'config.json',json.dumps(j))
 def apply(d):
@@ -95,29 +140,7 @@ def install(d):
  r['restrictedNetwork']=d.get('restrictedNetwork',False);write(ROOT/'receipt.json',json.dumps(r))
  firewall(r)
  config(d)
- write('/etc/systemd/system/xio-stack.service','''[Unit]
-Description=XIO Xray and Shadowsocks gateway
-After=network-online.target
-Wants=network-online.target
-[Service]
-Type=simple
-DynamicUser=yes
-StateDirectory=xio-stack
-StateDirectoryMode=0700
-LoadCredential=config:/etc/xio-stack/config.json
-ExecStart=/usr/local/bin/xio-stack ${CREDENTIALS_DIRECTORY}/config /var/lib/xio-stack/stats.json
-Restart=on-failure
-RestartSec=2
-NoNewPrivileges=yes
-PrivateTmp=yes
-ProtectHome=yes
-ProtectSystem=strict
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
-CapabilityBoundingSet=
-UMask=0077
-[Install]
-WantedBy=multi-user.target
-''',0o644)
+ write_unit()
  run('systemctl','daemon-reload');subprocess.run(['systemctl','reset-failed','xio-stack'],capture_output=True);run('systemctl','enable','--now','xio-stack');run('systemctl','restart','xio-stack');run('systemctl','is-active','--quiet','xio-stack')
  network.install(d);network.cloak_install(d)
  if not d.get('restrictedNetwork'):network.ike_install(d);_mesh().install(d)
