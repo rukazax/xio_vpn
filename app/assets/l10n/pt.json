@@ -882,5 +882,9 @@
   "Адрес панели не задан в сборке": "O endereço do painel não está definido nesta compilação",
   "Отправлено: {0}": "Enviado: {0}",
   "Тестовая сборка: скриншоты разрешены, журнал пишется в файл и может отправляться в панель. Не используйте для постоянной работы.": "Compilação de teste: as capturas de ecrã são permitidas, o registo é escrito num ficheiro e pode ser enviado para o painel. Não use para uso diário.",
-  "Отправить": "Enviar"
+  "Отправить": "Enviar",
+  "Мастер каскада": "Assistente de cascata",
+  "Установить каскад": "Instalar cascata",
+  "Логи": "Registro",
+  "Логи скопированы": "Registro copiado"
 }

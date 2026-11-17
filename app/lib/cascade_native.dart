@@ -238,21 +238,127 @@ echo "tools=installed:$(echo $need | tr ' ' ',')"
 /// Success markers. A stage returns these only after it read the state back.
 const String exitReadyMarker = 'XIO_CASCADE_EXIT_READY';
 const String bridgeReadyMarker = 'XIO_CASCADE_BRIDGE_READY';
+const String tunnelReadyMarker = 'XIO_CASCADE_TUNNEL_READY';
+
+/// Unit names, used both to restart a stage and to read its journal back when a
+/// step fails.
+const String cascadeExitUnitName = 'xio-cascade-exit.service';
+const String cascadeBridgeUnitName = 'xio-cascade-bridge.service';
 
 class CascadeStageFailure implements Exception {
-  CascadeStageFailure(this.stage, this.message, {this.evidence = const []});
+  CascadeStageFailure(
+    this.stage,
+    this.message, {
+    this.evidence = const [],
+    this.logs = const [],
+    this.step = '',
+  });
+
+  /// `exit` or `bridge`: the server that was being changed.
   final String stage;
+
+  /// What the host refused to confirm, in its own words.
   final String message;
+
+  /// Evidence the stage had already proven before it failed.
   final List<String> evidence;
+
+  /// Remote output of the failing step and the service journal, collected while
+  /// the connection is still open. Empty when the failure happened before any
+  /// command reached the host.
+  final List<String> logs;
+
+  /// Visible plan step that failed, empty when the failure came earlier, for
+  /// example while the SSH connection was being opened.
+  final String step;
+
   @override
-  String toString() => '$stage: $message';
+  String toString() =>
+      step.isEmpty ? '$stage: $message' : '$stage · $step: $message';
 }
 
-/// Stages of the two-step install, in the order the wizard runs them.
+/// Stages of the install, in the order the wizard applies them: the exit first
+/// (it terminates the tunnel), the bridge second (its key must be authorized on
+/// the exit before its own unit starts).
 enum CascadeInstallStage { exit, bridge }
 
-String cascadeStageTitle(CascadeInstallStage stage) =>
-    stage == CascadeInstallStage.exit ? 'exit' : 'bridge';
+String cascadeStageTitle(CascadeInstallStage stage) => switch (stage) {
+  CascadeInstallStage.exit => 'exit',
+  CascadeInstallStage.bridge => 'bridge',
+};
+
+/// One step of the plan as the wizard draws it.
+class CascadePlanStep {
+  const CascadePlanStep(this.stage, this.id, this.label);
+
+  final CascadeInstallStage stage;
+  final String id;
+  final String label;
+}
+
+/// Progress of one step.
+enum CascadeStepState { running, done, failed }
+
+/// A step event: `running` when the server starts being changed, then `done`
+/// with the line that proves the step, or `failed` with the reason.
+class CascadeStepEvent {
+  const CascadeStepEvent(this.stage, this.id, this.state, {this.detail});
+
+  final CascadeInstallStage stage;
+  final String id;
+  final CascadeStepState state;
+  final String? detail;
+}
+
+typedef CascadeStepCallback = void Function(CascadeStepEvent event);
+
+/// The complete plan for one server, in execution order.
+///
+/// The wizard draws this list before anything is changed, so the operator sees
+/// what will be applied to each server and where a failure stopped instead of a
+/// single opaque "installing" spinner. A test keeps the emitted step ids equal to
+/// this list, so the picture cannot drift from what actually runs.
+List<CascadePlanStep> cascadePlanSteps(
+  CascadeInstallStage stage, {
+  bool clean = false,
+  bool trust = true,
+}) => <CascadePlanStep>[
+  if (clean) CascadePlanStep(stage, 'clean', 'remove the previous XIO install'),
+  CascadePlanStep(stage, 'tools', 'prerequisites'),
+  if (stage == CascadeInstallStage.exit) ...<CascadePlanStep>[
+    CascadePlanStep(stage, 'scripts', 'tunnel scripts, unit, PermitTunnel'),
+    CascadePlanStep(stage, 'unit', 'addresses and forwarding'),
+    CascadePlanStep(stage, 'nat', 'NAT for client networks'),
+  ] else ...<CascadePlanStep>[
+    CascadePlanStep(stage, 'key', 'cascade key'),
+    if (trust) CascadePlanStep(stage, 'trust', 'key authorized on exit'),
+    CascadePlanStep(stage, 'scripts', 'env, scripts, unit'),
+    CascadePlanStep(stage, 'tunnel', 'SSH TUN and addresses'),
+    CascadePlanStep(stage, 'reach', 'SSH and ping to exit'),
+  ],
+];
+
+/// Human title of a step id, used by failure messages.
+String cascadeStepLabel(CascadeInstallStage stage, String id) {
+  for (final step in <CascadePlanStep>[
+    ...cascadePlanSteps(stage),
+    ...cascadePlanSteps(stage, clean: true),
+  ]) {
+    if (step.id == id) return step.label;
+  }
+  return id;
+}
+
+/// What each server proved during one install.
+class CascadeInstallResult {
+  const CascadeInstallResult({
+    required this.exitEvidence,
+    required this.bridgeEvidence,
+  });
+
+  final List<String> exitEvidence;
+  final List<String> bridgeEvidence;
+}
 
 /// One connection to one host, used by both stages.
 ///
@@ -264,18 +370,24 @@ class CascadeInstaller {
   final VpsService ssh;
   final Duration runTimeout;
 
+  /// Last command and its output. Kept so a failed step can show the host's own
+  /// words in the wizard instead of a generic sentence.
+  String _lastCommand = '';
+  String _lastOutput = '';
+
   Future<String> _run(String command) async {
+    _lastCommand = command;
     try {
       final bytes = await ssh.executeInput(
         command,
         const <int>[],
         timeout: runTimeout,
       );
-      return utf8.decode(bytes, allowMalformed: true).trim();
+      _lastOutput = utf8.decode(bytes, allowMalformed: true);
+      return _lastOutput.trim();
     } on SshCommandFailure catch (failure) {
-      final tail = utf8
-          .decode(failure.stdoutBytes, allowMalformed: true)
-          .trim();
+      _lastOutput = utf8.decode(failure.stdoutBytes, allowMalformed: true);
+      final tail = _lastOutput.trim();
       throw StateError(tail.isEmpty ? 'remote command failed' : tail);
     }
   }
@@ -309,16 +421,12 @@ class CascadeInstaller {
   /// Installs what both stages call when the host has lost it, then re-probes.
   /// Returns an evidence line when something was installed, or null when the
   /// host already had everything.
-  Future<String?> _ensureTools(String stage, List<String> evidence) async {
+  Future<String?> _ensureTools() async {
     String out;
     try {
       out = await _run(cascadeToolsScript);
     } on StateError catch (error) {
-      throw CascadeStageFailure(
-        stage,
-        'prerequisites: ${error.message}',
-        evidence: evidence,
-      );
+      throw StateError('prerequisites: ${error.message}');
     }
     if (!out.contains('tools=installed:')) return null;
     final tools = {
@@ -334,12 +442,106 @@ class CascadeInstaller {
     return 'installed prerequisites: ${tools.join(', ')}';
   }
 
-  /// Stage 1: the exit terminates the tunnel and NATs client traffic.
-  Future<List<String>> installExit() async {
-    final evidence = <String>[];
+  /// Runs one visible step: emits `running`, then `done` with the line that
+  /// proves it — or `failed` and throws [CascadeStageFailure] carrying the host
+  /// output and, when [unit] is given, the journal of that service.
+  Future<void> _step(
+    _StageRun run,
+    String id,
+    Future<String?> Function() body, {
+    String unit = '',
+  }) async {
+    run.onStep?.call(CascadeStepEvent(run.stage, id, CascadeStepState.running));
     try {
-      final tools = await _ensureTools('exit', evidence);
+      final detail = await body();
+      run.onStep?.call(
+        CascadeStepEvent(run.stage, id, CascadeStepState.done, detail: detail),
+      );
+    } catch (error) {
+      if (error is CascadeStageFailure) rethrow;
+      final message = switch (error) {
+        StateError(:final message) => message,
+        FormatException(:final message) => message,
+        _ => '$error',
+      };
+      final logs = await _collectLogs(unit);
+      run.onStep?.call(
+        CascadeStepEvent(
+          run.stage,
+          id,
+          CascadeStepState.failed,
+          detail: message,
+        ),
+      );
+      throw CascadeStageFailure(
+        cascadeStageTitle(run.stage),
+        message,
+        evidence: run.evidence,
+        logs: logs,
+        step: cascadeStepLabel(run.stage, id),
+      );
+    }
+  }
+
+  /// Output of the failing command plus the unit journal, read while the
+  /// connection is still open: the wizard shows both, so "what was applied" and
+  /// "what exactly refused" are answerable without a second SSH session.
+  Future<List<String>> _collectLogs(String unit) async {
+    final logs = <String>[];
+    final command = _lastCommand.trim();
+    if (command.isNotEmpty &&
+        !command.contains('\n') &&
+        command.length <= 200) {
+      logs.add(r'$ $command');
+    }
+    for (final line in _lastOutput.split('\n')) {
+      if (line.trim().isEmpty) continue;
+      logs.add(line.trimRight());
+    }
+    if (unit.isNotEmpty) {
+      try {
+        final bytes = await ssh.executeInput(
+          'journalctl -u $unit -n 40 --no-pager 2>&1 || true',
+          const <int>[],
+          timeout: const Duration(seconds: 40),
+        );
+        final text = utf8.decode(bytes, allowMalformed: true).trim();
+        if (text.isNotEmpty) {
+          logs.add('--- journalctl -u $unit -n 40 ---');
+          for (final line in text.split('\n')) {
+            logs.add(line.trimRight());
+          }
+        }
+      } catch (_) {
+        // A host without journald still reports the step's own output.
+      }
+    }
+    return logs.length <= 160 ? logs : logs.sublist(logs.length - 160);
+  }
+
+  /// Stage 1: the exit terminates the tunnel and NATs client traffic.
+  ///
+  /// [clean] removes a previous XIO install from the same host before anything
+  /// is written, so the removal is one visible step instead of a hidden prelude.
+  Future<List<String>> installExit({
+    Future<void> Function()? clean,
+    CascadeStepCallback? onStep,
+  }) async {
+    final run = _StageRun(CascadeInstallStage.exit, onStep);
+    final evidence = run.evidence;
+    if (clean != null) {
+      await _step(run, 'clean', () async {
+        await clean();
+        evidence.add('previous XIO install removed');
+        return 'previous XIO install removed';
+      });
+    }
+    await _step(run, 'tools', () async {
+      final tools = await _ensureTools();
       if (tools != null) evidence.add(tools);
+      return tools;
+    });
+    await _step(run, 'scripts', () async {
       await _put(
         '/usr/local/sbin/xio-cascade-exit-up.sh',
         cascadeExitUpScript,
@@ -357,6 +559,9 @@ class CascadeInstaller {
       );
       await _run(cascadePermitTunnelScript);
       evidence.add('PermitTunnel yes (drop-in, sshd -t)');
+      return 'PermitTunnel yes, unit written';
+    }, unit: cascadeExitUnitName);
+    await _step(run, 'unit', () async {
       final out = await _run(r'''set -eu
 exec 2>&1
 systemctl daemon-reload
@@ -385,37 +590,68 @@ printf '%s addr=%s forward=%s v6=%s\n' XIO_CASCADE_EXIT_READY \
           .split('\n')
           .firstWhere((l) => l.contains(exitReadyMarker), orElse: () => out);
       final fields = line.split(' ');
-      evidence.add(
-        'tun0 ${fields.firstWhere((f) => f.startsWith('addr='), orElse: () => 'addr=?')}',
+      final addr = fields.firstWhere(
+        (f) => f.startsWith('addr='),
+        orElse: () => 'addr=?',
       );
-      evidence.add(
-        'IPv4 forwarding ${fields.firstWhere((f) => f.startsWith('forward='), orElse: () => 'forward=?')}',
+      final forward = fields.firstWhere(
+        (f) => f.startsWith('forward='),
+        orElse: () => 'forward=?',
       );
-      evidence.add(
-        'IPv6 forwarding ${fields.firstWhere((f) => f.startsWith('v6='), orElse: () => 'v6=?')}',
+      final v6 = fields.firstWhere(
+        (f) => f.startsWith('v6='),
+        orElse: () => 'v6=?',
       );
+      evidence.add('tun0 $addr');
+      evidence.add('$forward (net.ipv4.ip_forward)');
+      evidence.add('$v6 (net.ipv6.conf.all.forwarding)');
+      return 'tun0 ${addr.substring('addr='.length)} · forwarding '
+          '${forward.substring('forward='.length)}/'
+          '${v6.substring('v6='.length)}';
+    }, unit: cascadeExitUnitName);
+    await _step(run, 'nat', () async {
       final nat = await _run(
         'iptables -t nat -S POSTROUTING | grep -Fc -- \'10.78.0.0/24\' || true',
       );
       evidence.add('NAT rules for clients: ${nat.isEmpty ? '?' : nat}');
-      return evidence;
-    } on StateError catch (error) {
-      throw CascadeStageFailure('exit', error.message, evidence: evidence);
-    }
+      return 'NAT rules for clients: ${nat.isEmpty ? '?' : nat}';
+    });
+    return evidence;
   }
 
   /// Stage 2: the bridge gets a key, the exit authorizes it, and the SSH TUN
   /// unit is started and verified from the bridge side.
-  Future<List<String>> installBridge(String exitHost) async {
+  ///
+  /// [authorize] receives the bridge public key and installs it on the exit
+  /// through the exit connection; the wizard passes [authorizeCascadeKey]. When
+  /// it is absent the step is not part of the plan
+  /// (`cascadePlanSteps(..., trust: false)`), which is what the live test does.
+  Future<List<String>> installBridge(
+    String exitHost, {
+    Future<void> Function(String publicKey)? authorize,
+    Future<void> Function()? clean,
+    CascadeStepCallback? onStep,
+  }) async {
     final exit = validateCascadeExit(exitHost);
     if (exit == null) {
       throw CascadeStageFailure('bridge', 'exit address must be IPv4 or IPv6');
     }
-    final evidence = <String>[];
-    try {
-      final tools = await _ensureTools('bridge', evidence);
+    final run = _StageRun(CascadeInstallStage.bridge, onStep);
+    final evidence = run.evidence;
+    var pubkey = '';
+    if (clean != null) {
+      await _step(run, 'clean', () async {
+        await clean();
+        evidence.add('previous XIO install removed');
+        return 'previous XIO install removed';
+      });
+    }
+    await _step(run, 'tools', () async {
+      final tools = await _ensureTools();
       if (tools != null) evidence.add(tools);
-      var pubkey = '';
+      return tools;
+    });
+    await _step(run, 'key', () async {
       try {
         pubkey = await _run(r'''set -eu
 umask 077
@@ -426,20 +662,22 @@ fi
 cat /root/.ssh/xio_cascade.pub
 ''');
       } on StateError catch (error) {
-        throw CascadeStageFailure(
-          'bridge',
-          'key creation failed: ${error.message}',
-          evidence: evidence,
-        );
+        throw StateError('key creation failed: ${error.message}');
       }
       if (pubkey.isEmpty || !pubkey.startsWith('ssh-ed25519 ')) {
-        throw CascadeStageFailure(
-          'bridge',
-          'cascade key was not created',
-          evidence: evidence,
-        );
+        throw StateError('cascade key was not created');
       }
       evidence.add('key /root/.ssh/xio_cascade ready');
+      return 'key /root/.ssh/xio_cascade ready';
+    });
+    if (authorize != null) {
+      await _step(run, 'trust', () async {
+        await authorize(pubkey);
+        evidence.add('public key authorized on $exit');
+        return 'public key authorized on $exit';
+      });
+    }
+    await _step(run, 'scripts', () async {
       await _put(
         '/etc/xio-cascade/bridge.env',
         'XIO_CASCADE_EXIT_HOST=$exit\n',
@@ -461,9 +699,12 @@ cat /root/.ssh/xio_cascade.pub
         cascadeBridgeUnit,
         '644',
       );
-      // A restart, not just `enable --now`: the unit is Restart=always, so it
-      // may be mid-restart (an exit reinstall breaks the tunnel) and a bare
-      // `is-active` would race it. The wait loop makes the check deterministic.
+      return 'env -> $exit, unit written';
+    }, unit: cascadeBridgeUnitName);
+    // A restart, not just `enable --now`: the unit is Restart=always, so it may
+    // be mid-restart (an exit reinstall breaks the tunnel) and a bare `is-active`
+    // would race it. The wait loop makes the check deterministic.
+    await _step(run, 'tunnel', () async {
       final out = await _run(r'''set -eu
 exec 2>&1
 . /etc/xio-cascade/bridge.env
@@ -477,31 +718,87 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 [ "$up" = yes ] || { echo "bridge did not come up"; journalctl -u xio-cascade-bridge.service -n 10 --no-pager || true; exit 1; }
+printf '%s tun=%s\n' XIO_CASCADE_TUNNEL_READY "$(ip -4 -o addr show tun0 | awk '{print $4}')"
+''');
+      if (!out.contains(tunnelReadyMarker)) {
+        final tail = _tail(out);
+        throw StateError(
+          tail.isEmpty
+              ? 'bridge did not confirm the tunnel'
+              : 'bridge did not confirm the tunnel: $tail',
+        );
+      }
+      final line = out
+          .split('\n')
+          .firstWhere((l) => l.contains(tunnelReadyMarker), orElse: () => out);
+      final tun = line
+          .split(' ')
+          .firstWhere((f) => f.startsWith('tun='), orElse: () => 'tun=?');
+      evidence.add('tun0 ${tun.substring('tun='.length)} up');
+      return 'tun0 ${tun.substring('tun='.length)} up';
+    }, unit: cascadeBridgeUnitName);
+    await _step(run, 'reach', () async {
+      final out = await _run(r'''set -eu
+exec 2>&1
+. /etc/xio-cascade/bridge.env
 ssh -i /root/.ssh/xio_cascade -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
   -o ConnectTimeout=8 -o ExitOnForwardFailure=yes root@"$XIO_CASCADE_EXIT_HOST" true
 for _ in $(seq 1 10); do ping -c 1 -W 3 10.250.0.2 >/dev/null 2>&1 && break; sleep 1; done
 ping -c 2 -W 3 10.250.0.2 >/dev/null
-printf '%s tun=%s ssh=ok ping=ok\n' XIO_CASCADE_BRIDGE_READY \
-  "$(ip -4 -o addr show tun0 | awk '{print $4}')"
+printf '%s ssh=ok ping=ok\n' XIO_CASCADE_BRIDGE_READY
 ''');
       if (!out.contains(bridgeReadyMarker)) {
         final tail = _tail(out);
-        throw CascadeStageFailure(
-          'bridge',
+        throw StateError(
           tail.isEmpty
-              ? 'bridge did not confirm readiness'
-              : 'bridge did not confirm readiness: $tail',
-          evidence: evidence,
+              ? 'bridge did not reach the exit'
+              : 'bridge did not reach the exit: $tail',
         );
       }
-      evidence.add('tun0 10.250.0.1/30 up');
       evidence.add('SSH TUN to $exit: OK');
       evidence.add('ping 10.250.0.2: OK');
-      return evidence;
-    } on StateError catch (error) {
-      throw CascadeStageFailure('bridge', error.message, evidence: evidence);
-    }
+      return 'SSH TUN to $exit, ping 10.250.0.2';
+    }, unit: cascadeBridgeUnitName);
+    return evidence;
   }
+}
+
+/// Runs the whole install in one action: the exit first, then the bridge, whose
+/// key is authorized on the exit before its own unit starts. Both connections
+/// are already open and owned by the caller, so a failure leaves them usable for
+/// another attempt and the wizard can close them when it goes away.
+Future<CascadeInstallResult> installCascade({
+  required VpsService exitSsh,
+  required VpsService bridgeSsh,
+  required String exitHost,
+  Future<void> Function(VpsService ssh)? cleanExit,
+  Future<void> Function(VpsService ssh)? cleanBridge,
+  CascadeStepCallback? onStep,
+}) async {
+  final exitEvidence = await CascadeInstaller(exitSsh).installExit(
+    clean: cleanExit == null ? null : () => cleanExit(exitSsh),
+    onStep: onStep,
+  );
+  final bridgeEvidence = await CascadeInstaller(bridgeSsh).installBridge(
+    exitHost,
+    authorize: (key) => authorizeCascadeKey(exitSsh, key),
+    clean: cleanBridge == null ? null : () => cleanBridge(bridgeSsh),
+    onStep: onStep,
+  );
+  return CascadeInstallResult(
+    exitEvidence: exitEvidence,
+    bridgeEvidence: bridgeEvidence,
+  );
+}
+
+/// Per-stage bookkeeping the steps share: the proof lines they collect and the
+/// listener that turns them into wizard progress.
+class _StageRun {
+  _StageRun(this.stage, this.onStep);
+
+  final CascadeInstallStage stage;
+  final CascadeStepCallback? onStep;
+  final List<String> evidence = <String>[];
 }
 
 /// Authorizes the bridge key on the exit. Split out because the key material is

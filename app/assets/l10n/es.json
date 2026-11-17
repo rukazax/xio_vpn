@@ -882,5 +882,9 @@
   "Адрес панели не задан в сборке": "La dirección del panel no está definida en esta compilación",
   "Отправлено: {0}": "Enviado: {0}",
   "Тестовая сборка: скриншоты разрешены, журнал пишется в файл и может отправляться в панель. Не используйте для постоянной работы.": "Compilación de prueba: se permiten capturas, el registro se escribe en un archivo y puede enviarse al panel. No la uses para el uso diario.",
-  "Отправить": "Enviar"
+  "Отправить": "Enviar",
+  "Мастер каскада": "Asistente de cascada",
+  "Установить каскад": "Instalar cascada",
+  "Логи": "Registro",
+  "Логи скопированы": "Registro copiado"
 }

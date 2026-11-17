@@ -882,5 +882,9 @@
   "Адрес панели не задан в сборке": "L’indirizzo del pannello non è impostato nella build",
   "Отправлено: {0}": "Inviato: {0}",
   "Тестовая сборка: скриншоты разрешены, журнал пишется в файл и может отправляться в панель. Не используйте для постоянной работы.": "Build di test: gli screenshot sono consentiti, il registro viene scritto in un file e può essere inviato al pannello. Non usare per l’uso quotidiano.",
-  "Отправить": "Invia"
+  "Отправить": "Invia",
+  "Мастер каскада": "Procedura guidata cascata",
+  "Установить каскад": "Installa cascata",
+  "Логи": "Registro",
+  "Логи скопированы": "Registro copiato"
 }

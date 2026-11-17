@@ -882,5 +882,9 @@
   "Адрес панели не задан в сборке": "Paneladresse ist im Build nicht gesetzt",
   "Отправлено: {0}": "Gesendet: {0}",
   "Тестовая сборка: скриншоты разрешены, журнал пишется в файл и может отправляться в панель. Не используйте для постоянной работы.": "Test-Build: Screenshots sind erlaubt, das Protokoll wird in eine Datei geschrieben und kann an das Panel gesendet werden. Nicht für den dauerhaften Einsatz verwenden.",
-  "Отправить": "Senden"
+  "Отправить": "Senden",
+  "Мастер каскада": "Kaskaden-Assistent",
+  "Установить каскад": "Kaskade installieren",
+  "Логи": "Protokoll",
+  "Логи скопированы": "Protokoll kopiert"
 }

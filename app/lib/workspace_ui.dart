@@ -489,8 +489,8 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           'Вход на IPv4-VPS, выход на втором сервере',
         ),
         trailing: const Icon(Icons.chevron_right),
-        // Мастер, а не общий диалог сервера: каскад ставится двумя этапами и
-        // доступен даже без сохранённого управляемого сервера.
+        // Мастер, а не общий диалог сервера: каскад ставится одним проходом
+        // по двум серверам и доступен даже без сохранённого управляемого.
         onTap: () => CascadeWizardDialog.open(
           context,
           store,
@@ -2199,7 +2199,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                                   : server!.publicHost,
                             ),
                       icon: const Icon(Icons.hub_outlined),
-                      label: Text(tr(context, 'Мастер каскада · 2 этапа')),
+                      label: Text(tr(context, 'Мастер каскада')),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton(

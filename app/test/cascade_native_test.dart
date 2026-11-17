@@ -199,8 +199,10 @@ void main() {
       'bridge.env получает проверенный exit, туннель подтверждается',
       () async {
         final ssh = _FakeSsh();
-        ssh.responses['xio-cascade-bridge.service'] =
-            'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
+        ssh.responses['XIO_CASCADE_TUNNEL_READY'] =
+            'XIO_CASCADE_TUNNEL_READY tun=10.250.0.1/30\n';
+        ssh.responses['XIO_CASCADE_BRIDGE_READY'] =
+            'XIO_CASCADE_BRIDGE_READY ssh=ok ping=ok\n';
         final evidence = await CascadeInstaller(ssh)
             .installBridge('203.0.113.7');
 
@@ -217,8 +219,10 @@ void main() {
     test('этап 2 проверяет инструменты раньше ключа и unit', () async {
       final ssh = _FakeSsh();
       ssh.responses['apt-get install -y -qq'] = 'tools=installed:iptables\n';
-      ssh.responses['systemctl restart xio-cascade-bridge.service'] =
-          'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
+      ssh.responses['XIO_CASCADE_TUNNEL_READY'] =
+          'XIO_CASCADE_TUNNEL_READY tun=10.250.0.1/30\n';
+      ssh.responses['XIO_CASCADE_BRIDGE_READY'] =
+          'XIO_CASCADE_BRIDGE_READY ssh=ok ping=ok\n';
       final evidence = await CascadeInstaller(ssh).installBridge('203.0.113.7');
 
       expect(evidence.join(' '), contains('installed prerequisites'));
@@ -251,8 +255,10 @@ void main() {
 
     test('IPv6-exit передаётся без квадратных скобок', () async {
       final ssh = _FakeSsh();
-      ssh.responses['xio-cascade-bridge.service'] =
-          'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
+      ssh.responses['XIO_CASCADE_TUNNEL_READY'] =
+          'XIO_CASCADE_TUNNEL_READY tun=10.250.0.1/30\n';
+      ssh.responses['XIO_CASCADE_BRIDGE_READY'] =
+          'XIO_CASCADE_BRIDGE_READY ssh=ok ping=ok\n';
       await CascadeInstaller(ssh).installBridge('[fd79:1::fe]');
       expect(
         ssh.uploaded['/etc/xio-cascade/bridge.env'],
@@ -269,15 +275,160 @@ void main() {
     });
   });
 
-  group('Ключ каскада', () {
-    test('публичный ключ уходит на exit через stdin, не в命令行', () async {
-      final exit = _FakeSsh();
-      const key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFAKEKEY xio-cascade';
-      await authorizeCascadeKey(exit, key);
-      final entry = exit.stdin.entries.single;
-      expect(utf8.decode(entry.value), '$key\n');
-      expect(entry.key, isNot(contains('AAAAC3NzaC1lZDI1NTE5AAAAIFAKEKEY')));
+  group('Установка в один проход', () {
+    _FakeSsh exitHost() {
+      final ssh = _FakeSsh();
+      ssh.responses['XIO_CASCADE_EXIT_READY'] =
+          'XIO_CASCADE_EXIT_READY addr=10.250.0.2/30 forward=1 v6=1\n';
+      return ssh;
+    }
+
+    _FakeSsh bridgeHost() {
+      final ssh = _FakeSsh();
+      ssh.responses['XIO_CASCADE_TUNNEL_READY'] =
+          'XIO_CASCADE_TUNNEL_READY tun=10.250.0.1/30\n';
+      ssh.responses['XIO_CASCADE_BRIDGE_READY'] =
+          'XIO_CASCADE_BRIDGE_READY ssh=ok ping=ok\n';
+      return ssh;
+    }
+
+    test(
+      'один вызов ставит exit, затем bridge, и события идут по плану',
+      () async {
+        final exit = exitHost();
+        final bridge = bridgeHost();
+        final events = <CascadeStepEvent>[];
+
+        final result = await installCascade(
+          exitSsh: exit,
+          bridgeSsh: bridge,
+          exitHost: '203.0.113.7',
+          onStep: events.add,
+        );
+
+        expect(result.exitEvidence.join(' '), contains('10.250.0.2/30'));
+        expect(result.bridgeEvidence.join(' '), contains('10.250.0.1/30'));
+
+        final done = <String>[
+          for (final event in events)
+            if (event.state == CascadeStepState.done)
+              '${event.stage.name}:${event.id}',
+        ];
+        expect(done, <String>[
+          for (final step in <CascadePlanStep>[
+            ...cascadePlanSteps(CascadeInstallStage.exit),
+            ...cascadePlanSteps(CascadeInstallStage.bridge),
+          ])
+            '${step.stage.name}:${step.id}',
+        ], reason: 'картинка шагов должна совпадать с тем, что выполняется');
+
+        expect(events.first.state, CascadeStepState.running);
+        final lastExitDone = events.lastIndexWhere(
+          (e) =>
+              e.stage == CascadeInstallStage.exit &&
+              e.state == CascadeStepState.done,
+        );
+        final firstBridgeStep = events.indexWhere(
+          (e) => e.stage == CascadeInstallStage.bridge,
+        );
+        expect(
+          lastExitDone,
+          lessThan(firstBridgeStep),
+          reason: 'exit должен завершиться до первого шага bridge',
+        );
+        expect(
+          exit.stdin.values.any(
+            (value) => utf8.decode(value).startsWith('ssh-ed25519 '),
+          ),
+          isTrue,
+          reason: 'ключ bridge должен попасть на exit через exit-соединение',
+        );
+      },
+    );
+
+    test(
+      'очистка становится первым шагом, а не скрытым предисловием',
+      () async {
+        final exit = exitHost();
+        final bridge = bridgeHost();
+        final cleaned = <String>[];
+        final events = <CascadeStepEvent>[];
+
+        await installCascade(
+          exitSsh: exit,
+          bridgeSsh: bridge,
+          exitHost: '203.0.113.7',
+          cleanExit: (ssh) async => cleaned.add('exit'),
+          cleanBridge: (ssh) async => cleaned.add('bridge'),
+          onStep: events.add,
+        );
+
+        expect(events.first.id, 'clean');
+        expect(events.first.stage, CascadeInstallStage.exit);
+        expect(cleaned, <String>['exit', 'bridge']);
+        expect(
+          events.where(
+            (e) => e.id == 'clean' && e.state == CascadeStepState.done,
+          ),
+          hasLength(2),
+        );
+        expect(
+          cascadePlanSteps(CascadeInstallStage.exit, clean: true).first.id,
+          'clean',
+          reason: 'план с очисткой должен начинаться с этого шага',
+        );
+      },
+    );
+
+    test('падение отдаёт описание шага, вывод хоста и журнал юнита', () async {
+      final exit = exitHost();
+      // A bridge whose tunnel step fails: the success marker is deliberately
+      // absent, so the step under test is the one that reports the reason.
+      final bridge = _FakeSsh();
+      bridge.responses['systemctl restart xio-cascade-bridge.service'] =
+          'bridge did not come up\n'
+          'xio-cascade-bridge-up.sh: line 48: iptables: command not found\n';
+      bridge.responses['journalctl -u xio-cascade-bridge.service -n 40'] =
+          'xio-cascade-bridge.service: status=127/INVALIDARGUMENT\n';
+
+      Object? failure;
+      try {
+        await installCascade(
+          exitSsh: exit,
+          bridgeSsh: bridge,
+          exitHost: '203.0.113.7',
+        );
+      } catch (error) {
+        failure = error;
+      }
+
+      expect(failure, isA<CascadeStageFailure>());
+      final failed = failure! as CascadeStageFailure;
+      expect(failed.stage, 'bridge');
+      expect(failed.step, 'SSH TUN and addresses');
+      expect(failed.message, contains('iptables: command not found'));
+      expect(failed.logs.join('\n'), contains('iptables: command not found'));
+      expect(
+        failed.logs.join('\n'),
+        contains('--- journalctl -u xio-cascade-bridge.service -n 40 ---'),
+      );
+      expect(failed.logs.join('\n'), contains('status=127'));
+      expect(failed.toString(), contains('SSH TUN and addresses'));
     });
+  });
+
+  group('Ключ каскада', () {
+    test(
+      'публичный ключ уходит на exit через stdin, не в командной строке',
+      () async {
+        final exit = _FakeSsh();
+        const key = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFAKEKEY xio-cascade';
+        await authorizeCascadeKey(exit, key);
+        final entry = exit.stdin.entries.single;
+        expect(utf8.decode(entry.value), '$key\n');
+        expect(entry.key, isNot(contains('AAAAC3NzaC1lZDI1NTE5AAAAIFAKEKEY')));
+      },
+    );
 
     test('посторонняя строка вместо ключа отвергается', () async {
       final exit = _FakeSsh();

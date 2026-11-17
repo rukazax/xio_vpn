@@ -882,5 +882,9 @@
   "Адрес панели не задан в сборке": "Panel address is not set in this build",
   "Отправлено: {0}": "Sent: {0}",
   "Тестовая сборка: скриншоты разрешены, журнал пишется в файл и может отправляться в панель. Не используйте для постоянной работы.": "Test build: screenshots are allowed, the log is written to a file and can be uploaded to the panel. Do not use for everyday work.",
-  "Отправить": "Send"
+  "Отправить": "Send",
+  "Мастер каскада": "Cascade wizard",
+  "Установить каскад": "Install cascade",
+  "Логи": "Logs",
+  "Логи скопированы": "Logs copied"
 }
