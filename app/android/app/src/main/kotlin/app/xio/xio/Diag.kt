@@ -2,7 +2,6 @@ package app.xio.xio
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -34,6 +33,9 @@ object Diag {
     @Volatile private var started = false
 
     fun init(context: Context) {
+        // A release build must not create a log directory, a log file or a
+        // crash handler: nothing is recorded, so nothing can leak later.
+        if (!BuildConfig.TEST_BUILD) return
         if (started) return
         started = true
         appContext = context.applicationContext
@@ -57,9 +59,10 @@ object Diag {
     }
 
     fun append(tag: String, message: String) {
+        if (!BuildConfig.TEST_BUILD) return
         val line = "${stamp()} $tag: ${redact(message)}"
         try {
-            Log.i("XIO", line.take(MAX_LINE))
+            XLog.i("XIO", line.take(MAX_LINE))
         } catch (_: Exception) {
         }
         executor.execute { write(line) }
@@ -104,6 +107,7 @@ object Diag {
     }
 
     fun snapshot(maxBytes: Int = 200_000): String {
+        if (!BuildConfig.TEST_BUILD) return ""
         val dir = directory ?: return ""
         val files = (0..KEEP).map { if (it == 0) File(dir, FILE) else File(dir, "$FILE.$it") }
         val out = StringBuilder()
@@ -124,6 +128,7 @@ object Diag {
 
     /** `logcat` of this process only; apps may read their own UID's buffer. */
     fun logcat(): String {
+        if (!BuildConfig.TEST_BUILD) return ""
         return try {
             val process = ProcessBuilder(
                 "logcat", "-d", "-v", "threadtime", "-t", "4000", "--pid", android.os.Process.myPid().toString()
@@ -148,6 +153,7 @@ object Diag {
 
     /** Zip with the session log, a logcat dump and non-identifying device facts. */
     fun bundle(): File? {
+        if (!BuildConfig.TEST_BUILD) return null
         val context = appContext ?: return null
         val dir = directory ?: return null
         return try {

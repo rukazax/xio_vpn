@@ -275,7 +275,7 @@ object PolicyBridge {
             drain(journal, journal.revokeAll(), reservation)
         } catch (failure: RuntimeException) {
             // The journal stays pendingUnknown/owned: a failed receipt never frees the lane.
-            android.util.Log.w("XIO/Policy", "blocked reconciliation failed: " + (failure.message ?: failure.javaClass.simpleName))
+            XLog.w("XIO/Policy", "blocked reconciliation failed: " + (failure.message ?: failure.javaClass.simpleName))
         }
     }
 

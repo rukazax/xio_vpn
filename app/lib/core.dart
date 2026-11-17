@@ -2442,31 +2442,10 @@ class AppStore extends ChangeNotifier {
       endpointCountries[endpoint] = server.country;
       return;
     }
-    final http = HttpClient()..connectionTimeout = const Duration(seconds: 3);
-    try {
-      final request = await http
-          .getUrl(Uri.https('ipapi.co', '/$host/country/'))
-          .timeout(const Duration(seconds: 3));
-      request.followRedirects = false;
-      final response = await request.close().timeout(
-        const Duration(seconds: 3),
-      );
-      if (response.statusCode == 200) {
-        final bytes = await response
-            .take(1)
-            .first
-            .timeout(const Duration(seconds: 3));
-        if (bytes.length <= 16) {
-          final value = utf8.decode(bytes).trim();
-          if (RegExp(r'^[A-Z]{2}$').hasMatch(value)) {
-            endpointCountries[endpoint] = value;
-          }
-        }
-      }
-    } catch (_) {
-    } finally {
-      http.close(force: true);
-    }
+    // Flags come from data already on the device (profile or server record).
+    // A release build sends no server address to a third party: the geo-IP
+    // lookup to ipapi.co is gone, together with the last outbound telemetry
+    // the client had. An unknown server simply gets no flag.
   }
 
   String credentialId(ManagedServer server) => CredentialVault.id(

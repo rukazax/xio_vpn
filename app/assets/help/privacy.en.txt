@@ -1,7 +1,7 @@
 XIO privacy policy — 2026-10-19
 Developer: Konstantin Aleksandrovich Eryomin, er-ka@mail.ru.
 
-Profiles, SSH secrets and the acknowledgement are stored on this device. VPN traffic is encrypted to the endpoint selected by you. Its operator may observe connection addresses, destinations and metadata. The VPS stores managed users, permissions, status and traffic counters. XIO sends administration commands and user settings over SSH. Server addresses may be sent to ipapi.co for country flags. Connectivity checks visit your selected HTTPS endpoint (youtube.com by default). DNS and Tailscale control/DERP servers are selected by the profile.
+Profiles, SSH secrets and the acknowledgement are stored on this device. VPN traffic is encrypted to the endpoint selected by you. Its operator may observe connection addresses, destinations and metadata. The VPS stores managed users, permissions, status and traffic counters. XIO sends administration commands and user settings over SSH. Connectivity checks visit your selected HTTPS endpoint (youtube.com by default). DNS and Tailscale control/DERP servers are selected by the profile.
 
 This build includes no analytics or advertising SDK and no automatic crash upload to the developer. Export sends credentials to your selected recipient. A server export may include administrative access. Never share it as a normal client profile.
 

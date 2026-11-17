@@ -242,7 +242,7 @@ object Engine {
             budget.remainingMillis()
             val current=vpnNetworks()-previous
             if(current.any{cm.getLinkProperties(it)?.interfaceName!=null&&(policy.mode.startsWith("ip")||cm.activeNetwork==it)}){
-                android.util.Log.i("XIO/Network","VPN route ready in "+(android.os.SystemClock.elapsedRealtime()-waiting)+"ms");return
+                XLog.i("XIO/Network","VPN route ready in "+(android.os.SystemClock.elapsedRealtime()-waiting)+"ms");return
             }
             Thread.sleep(50)
         }
@@ -770,7 +770,7 @@ class MainActivity : FlutterActivity() {
                         }
                         runOnUiThread { result.success(value) }
                     } catch (e: Exception) {
-                        android.util.Log.w("XIO/Engine", call.method + " failed: " + (e.message ?: e.javaClass.simpleName), e)
+                        XLog.w("XIO/Engine", call.method + " failed: " + (e.message ?: e.javaClass.simpleName), e)
                         runOnUiThread {
                             result.error(
                                 if (e is PolicyFailure) e.code else "ENGINE",
@@ -803,7 +803,7 @@ class MainActivity : FlutterActivity() {
                     }
                 }
             } catch (e: Exception) {
-                android.util.Log.w("XIO/Engine", "connect failed: " + (e.message ?: e.javaClass.simpleName), e)
+                XLog.w("XIO/Engine", "connect failed: " + (e.message ?: e.javaClass.simpleName), e)
                 Engine.cancelConnect(request.roundId,request.budget)
                 var cleanup=false
                 try { Engine.disconnectOwned(request.roundId,request.budget,request.round) } catch(_:Exception) { cleanup=true }

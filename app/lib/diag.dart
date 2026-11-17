@@ -43,6 +43,9 @@ class XioDiag {
   static void install() {
     if (_installed) return;
     _installed = true;
+    // Release builds keep no diagnostic state at all: no handlers, no buffer,
+    // no native channel calls. Only a test build (or a debug run) may log.
+    if (!xioTestBuild && !kDebugMode) return;
     final previous = FlutterError.onError;
     FlutterError.onError = (details) {
       log('flutter', '${details.exceptionAsString()} @ ${details.library ?? ''}');
@@ -67,6 +70,9 @@ class XioDiag {
   }
 
   static void log(String tag, String message) {
+    // The whole point of a release build: nothing is recorded anywhere. Not to
+    // the file, not to logcat, not to a buffer.
+    if (!xioTestBuild && !kDebugMode) return;
     final line = '${DateTime.now().toUtc().toIso8601String()} $tag: ${_redact(message)}';
     _dirty = true;
     if (Platform.isAndroid) {
@@ -80,6 +86,7 @@ class XioDiag {
   }
 
   static Future<String> snapshot({int max = 200000}) async {
+    if (!xioTestBuild) return '';
     if (Platform.isAndroid) {
       try {
         return await _native.invokeMethod<String>('diagSnapshot', {'max': max}) ??
@@ -93,7 +100,7 @@ class XioDiag {
 
   /// Local bundle path on Android, null elsewhere/unavailable.
   static Future<String?> bundlePath() async {
-    if (!Platform.isAndroid) return null;
+    if (!xioTestBuild || !Platform.isAndroid) return null;
     try {
       return await _native.invokeMethod<String>('diagBundle');
     } catch (error) {

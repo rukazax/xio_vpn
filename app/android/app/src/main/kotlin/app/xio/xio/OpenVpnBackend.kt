@@ -60,11 +60,11 @@ object OpenVpnBackend {
    phase="evaluate-resolved";val checked=c.eval_config(cfg);check(!checked.error)
    if(!checked.autologin){val creds=ClientAPI_ProvideCreds();creds.username=j.optString("username");creds.password=j.optString("password");check(!c.provide_creds(creds).error)}
    phase="connect"
-   thread=Thread({try{val result=c.connect();if(result.error){android.util.Log.w("XIO/OpenVPN",result.status);c.failed=true}}catch(_:Exception){c.failed=true}finally{secure=false;c.ready.countDown()}},"XIO-OpenVPN").also{it.start()}
+   thread=Thread({try{val result=c.connect();if(result.error){XLog.w("XIO/OpenVPN",result.status);c.failed=true}}catch(_:Exception){c.failed=true}finally{secure=false;c.ready.countDown()}},"XIO-OpenVPN").also{it.start()}
    check(c.ready.await(timeout,TimeUnit.MILLISECONDS)&&!c.failed&&established&&secure){"OpenVPN connection failed"}
    Engine.requireActivation(token)
    service.getSharedPreferences("xio",0).edit().putString("activeId",id).putBoolean("vpnWanted",true).commit();XioVpnService.stateChanged(true,token)
-  }catch(e:Exception){android.util.Log.w("XIO/OpenVPN",phase+" "+e.javaClass.simpleName);stop();throw e}finally{cfg.delete()}
+  }catch(e:Exception){XLog.w("XIO/OpenVPN",phase+" "+e.javaClass.simpleName);stop();throw e}finally{cfg.delete()}
  }
  private class Client(val service:XioVpnService,val token:Long):ClientAPI_OpenVPNClient(){
   val ready=CountDownLatch(1);@Volatile var failed=false
@@ -98,7 +98,7 @@ object OpenVpnBackend {
   override fun tun_builder_persist()=true
   override fun tun_builder_teardown(disconnect:Boolean){if(disconnect)established=false}
   override fun event(event:ClientAPI_Event){
-   android.util.Log.i("XIO/OpenVPN",event.name)
+   XLog.i("XIO/OpenVPN",event.name)
    if(event.name=="CONNECTED" && Engine.acceptsUpPublication(token)){secure=true;handshake=System.currentTimeMillis();ready.countDown()}
    if(event.name in listOf("RECONNECTING","DISCONNECTED"))secure=false
    if(event.fatal){failed=true;secure=false;ready.countDown()}

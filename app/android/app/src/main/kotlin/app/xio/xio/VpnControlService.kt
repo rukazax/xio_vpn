@@ -10,7 +10,7 @@ class VpnControlService : Service() {
  override fun onBind(intent: Intent?): IBinder? = null
  override fun onCreate() {
   super.onCreate()
-  android.util.Log.i("XIO/Tile","controller created")
+  XLog.i("XIO/Tile","controller created")
   getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel("xio.control","XIO VPN",NotificationManager.IMPORTANCE_LOW))
   startForeground(102,Notification.Builder(this,"xio.control").setSmallIcon(R.drawable.ic_vpn).setContentTitle("XIO VPN").setContentText(L10n.text(this,"Запуск VPN…")).setOngoing(true).build())
   Engine.initialize(this)
@@ -33,7 +33,7 @@ class VpnControlService : Service() {
   // A policy publication or a settings write owns admission; refuse without effects.
   try { Engine.registerConnect(round) } catch(e:Exception) {
    Engine.backgroundBusy=false
-   android.util.Log.w("XIO/Tile","tile admission refused: "+e.message)
+   XLog.w("XIO/Tile","tile admission refused: "+e.message)
    stopForeground(STOP_FOREGROUND_REMOVE);stopSelf()
    return START_NOT_STICKY
   }
@@ -44,7 +44,7 @@ class VpnControlService : Service() {
    if(!complete.get()) {
     round.cancel()
     Engine.cancelConnect(roundId)?.let {XioVpnService.stateChanged(false,it)}
-    android.util.Log.w("XIO/Tile","round expired; cleanup incomplete until worker joins")
+    XLog.w("XIO/Tile","round expired; cleanup incomplete until worker joins")
     android.widget.Toast.makeText(this,L10n.text(this,"Не удалось подключиться. Проверьте сервер и разрешение VPN в XIO."),android.widget.Toast.LENGTH_LONG).show()
    }
   }
@@ -86,7 +86,7 @@ class VpnControlService : Service() {
      })
     }
    } catch(e:Exception) {
-    android.util.Log.w("XIO/Tile","controller failed: "+(e as? PolicyFailure)?.code.orEmpty()+" "+e.javaClass.simpleName)
+    XLog.w("XIO/Tile","controller failed: "+(e as? PolicyFailure)?.code.orEmpty()+" "+e.javaClass.simpleName)
     attemptOwner?.let {Engine.cancelConnect(roundId,it)}
     // No new five-second allowance after the original round has expired.
     try {attemptOwner?.let {Engine.disconnectOwned(roundId,it,round)}} catch(_:Exception) {}
