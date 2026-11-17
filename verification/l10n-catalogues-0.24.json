@@ -2,94 +2,94 @@
   "catalogues": [
     {
       "language": "ru",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "d33725ee9c1328794d292f5775a3f080745c0bde727ab3d447a51254722bfdf6"
+      "sha256": "105790a5d05bc45cac420b610869221bb0eab513490ce8a71c1e9932770c00e7"
     },
     {
       "language": "en",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "af58914df958a446438d9560f9497abf7bb2e4cdb83506bd99505bae3e4d700d"
+      "sha256": "525393dda7c4c71fa8ead76caa7f4995cf615381d924736a8fd26acfa0a2718a"
     },
     {
       "language": "de",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "c3a85e91b6d3d8679936b777b1632285cb309aada90d215d94927808cc69ff9d"
+      "sha256": "a13068e56740956848dfe924983fbb026becc972211df14623bb7afa1e0a341f"
     },
     {
       "language": "es",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "c674200fb53842b775df30f565945fe3d7d1681b4a7a82ffe69ca999b7460198"
+      "sha256": "95835fb1f9c1c4e6fa27aeacf2bd7d56b25892383cfe1d30a20f6b0c5684ec04"
     },
     {
       "language": "fr",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "97df7b9b9260ee6561b2e0523747e2052e4c7cd6f1b245f9bb48d6af31d73c07"
+      "sha256": "6ba617ad90706cb5fdea2c01eccc0ecad4c539767f99af064839a3cd7bb5adea"
     },
     {
       "language": "it",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "1d61f0b7f9277cc4cff5ec27eba756859a453408cfe59555286cf65ff2ecf341"
+      "sha256": "f0a7adc66eb59df0772fce5e1e3f4865665638fee1adf2901aec12969a6157e9"
     },
     {
       "language": "pt",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "fecd4f930f557a0a5130ec4b17c317c451a6674d9f7723aff806c2b65a32c372"
+      "sha256": "09744a8a6415675e35cddbac98ff2b0269cef752f31bfb30171807654c03c6d3"
     },
     {
       "language": "zh",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "24f96df930e3b1b66ede83eed04b50bc5aa255e8ab490cd94444cbf8d13d80e2"
+      "sha256": "e2ad83b69c65904fb8c199c507bfbdc3c044dc49d26356ddcfb34096b49665a9"
     },
     {
       "language": "ja",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "67706f13fa5ef57b656ecf7b4c6bb7201cf3ad4b1304365a5b1c335133d33a4e"
+      "sha256": "a05253a98ffa1ab1b695252a7c2a5fc0df89303486cc2d18af2291bc72f9f2d5"
     },
     {
       "language": "ko",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "aa32788fc399074acd4f7eb8670df4cc217595dfcd8d493fa97f91c7031673cd"
+      "sha256": "ebbd8f1ffeba746693b6cb6f44595bf3dfdddeff56c9734e14401e6e408c0667"
     },
     {
       "language": "tr",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "c7171775007f97ccd0eb9cab3ec10ec9b756f8da2f476267b4309e53014df5c9"
+      "sha256": "32c1eac7b7305e724701a62d9f01d8f87e0db671b132c940fa1a6bc7b2ac1c3f"
     },
     {
       "language": "hi",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "6e1952325a95c84edf76e8ee2048f260e42203ef684c501b8d0401023af702f1"
+      "sha256": "67d8b55b3ba7b584650835894e4a9f45ccb7d4e3d37939e9b2974a11d8a74734"
     },
     {
       "language": "ar",
-      "messages": 799,
+      "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "312c560d0cdb517474543551d11af4359ccbadb9a5684784fbe6611c37b8426a"
+      "sha256": "f53d19d4dcaeadf3aa491448f3ae71faba0568a68ceb7f167d611d0e777d7a49"
     }
   ],
   "fontFiles": [

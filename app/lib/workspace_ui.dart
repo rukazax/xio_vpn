@@ -22,6 +22,7 @@ import 'connection_mode_ui.dart';
 import 'core.dart';
 import 'mtproto_ui.dart';
 import 'cascade_ui.dart';
+import 'cascade_wizard.dart';
 import 'managed_service.dart';
 import 'server_address.dart';
 import 'main.dart' show BrandMark, ImportDialog, AndroidControls, LabPage;
@@ -137,6 +138,17 @@ class _WorkspaceShellState extends State<WorkspaceShell>
   }
 
   Timer? updateTimer;
+
+  /// Сервер, который сейчас несёт активное соединение, если его можно
+  /// сопоставить с записью в приложении: профиль → пользователь → сервер.
+  ManagedServer? get activeServer {
+    final profile = store.activeProfile ?? store.selected;
+    if (profile == null) return null;
+    final user = store.users
+        .where((u) => u.profileIds.values.contains(profile.id))
+        .firstOrNull;
+    return store.servers.where((s) => s.id == user?.serverId).firstOrNull;
+  }
   bool updatePrompt = false;
   Future<void> automaticCheck() async {
     if (!mounted ||
@@ -516,6 +528,31 @@ class _WorkspaceShellState extends State<WorkspaceShell>
         icon: const Icon(Icons.add),
         label: const LText('Добавить сервер'),
       ),
+      // Один пункт на оба случая: пока есть активное соединение — чистится его
+      // сервер, иначе открывается подключение к серверу, который выбран для
+      // установки XIO (в том числе ещё не установленный).
+      ListTile(
+        leading: const Icon(Icons.cleaning_services_outlined),
+        title: Text(tr(context, 'Очистить сервер')),
+        subtitle: Text(
+          activeServer == null
+              ? tr(
+                  context,
+                  'Активного соединения нет: очистка сервера, на который ставится XIO',
+                )
+              : '${tr(context, 'Сначала будет отключён активный сервер')}: ${activeServer!.label}',
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => actionGuard(context, () async {
+          final server = activeServer;
+          await openAdmin(
+            context,
+            store,
+            server: server,
+            action: 'purge',
+          );
+        }),
+      ),
       for (final server in store.servers)
         Card(
           child: ListTile(
@@ -554,7 +591,11 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                     context,
                     store,
                     server: server,
-                    action: action == 'remote' ? 'uninstall' : null,
+                    action: action == 'remote'
+                        ? 'uninstall'
+                        : action == 'purge'
+                        ? 'purge'
+                        : null,
                   );
                 }
               }),
@@ -571,6 +612,11 @@ class _WorkspaceShellState extends State<WorkspaceShell>
                   const PopupMenuItem(
                     value: 'remote',
                     child: LText('Удалить XIO VPN с сервера'),
+                  ),
+                if (!server.delegated)
+                  PopupMenuItem(
+                    value: 'purge',
+                    child: Text(tr(context, 'Очистить сервер')),
                   ),
               ],
             ),
@@ -1451,17 +1497,11 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
   late final serverName = TextEditingController(
     text: widget.server?.name ?? '',
   );
-  /// Exit-сервер каскада: только IPv6. Пусто — обычная установка одного VPS.
-  final cascadeExit = TextEditingController();
   final password = TextEditingController(),
       key = TextEditingController(),
       passphrase = TextEditingController();
   final ssh = VpsService();
   bool busy = false, authenticated = false, autoLoading = false;
-  /// Paid cascade install: the app cannot run it here (needs a container
-  /// runtime and, for the bridge, a global IPv6 uplink), so the checkbox
-  /// records intent and the finished install shows the exact command.
-  bool cascadeEnabled = false;
   String? error, result;
   ManagedServer? server;
   ManagedService get service => ManagedService(ssh);
@@ -1582,7 +1622,6 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       key,
       passphrase,
       serverName,
-      cascadeExit,
     ]) {
       c.clear();
       c.dispose();
@@ -1591,48 +1630,6 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       widget.store.applyScreenSecurity();
     }
     super.dispose();
-  }
-
-  /// Ставит каскад на только что установленный bridge тем же установщиком, что
-  /// и в терминале, но по SSH из приложения. Успех выводится только из
-  /// положительных свидетельств: сверенная SHA-256 бутстрапа, явное
-  /// подтверждение установщика и код выхода 0. Адреса сохраняются только после
-  /// подтверждённого успеха; при ошибке экран показывает реальную причину и не
-  /// показывает «Каскад поднят».
-  Future<void> _installCascade(String bridge, String exit) async {
-    final output = await runCascadeInstall(ssh, exit);
-    final saved = await widget.store.setCascadeServers(
-      bridge: bridge,
-      exit: exit,
-    );
-    if (!mounted) return;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: LText(saved ? 'Каскад поднят' : 'Адрес не сохранён'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              LText('bridge: $bridge'),
-              LText('exit: $exit'),
-              const SizedBox(height: 8),
-              SelectableText(
-                output.isEmpty ? 'Установщик не вернул вывода' : output,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
-              ),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const LText('Закрыть'),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> perform(Future<void> Function() action) async {
@@ -1721,6 +1718,7 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
     }
     if (widget.action == 'create') await create();
     if (widget.action == 'uninstall') await uninstall();
+    if (widget.action == 'purge') await purgeServer();
     if (widget.action == 'client-export') {
       await service.issueClientAccess(widget.store, server!, widget.user!);
       final bundle = await widget.store.exportUser(widget.user!);
@@ -1737,6 +1735,46 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
       await service.refresh(widget.store, server!);
       setState(() => result = 'Статистика пользователей обновлена.');
     }
+  }
+
+  /// «Очистить сервер»: убирает с хоста всё, что принадлежит XIO, и возвращает
+  /// его к состоянию до установки. Тот же вызов чистит сервер, на котором XIO
+  /// ещё не было, поэтому он же используется перед установкой.
+  Future<void> purgeServer({bool dryRun = false}) async {
+    if (widget.store.status.active) {
+      final stop = await confirm(
+        tr(context, 'Отключить VPN и очистить сервер?'),
+        tr(
+          context,
+          'Сначала будет разорвано текущее соединение, затем сервер очищается.',
+        ),
+      );
+      if (!stop) return;
+      await widget.store.disconnect();
+    }
+    if (!await confirm(
+      tr(context, 'Очистить сервер?'),
+      tr(
+        context,
+        'Будут удалены все компоненты XIO: VPN-службы и профили, RIVET, каскад, панель управления, ключи, правила XIO и журнал установки XIO. Пакеты ОС, чужие службы и общие журналы сохранятся. Действие необратимо.',
+      ),
+    )) {
+      return;
+    }
+    final result = await service.purge(
+      widget.store,
+      server: server,
+      dryRun: dryRun,
+    );
+    final removed = [
+      for (final entry in (result['removed'] as List? ?? const [])) '$entry',
+    ];
+    setState(
+      () => this.result = dryRun
+          ? '${tr(context, 'Будет удалено объектов')}: ${removed.length}'
+          : '${tr(context, 'Сервер очищен: удалено объектов')}: '
+                '${removed.length}',
+    );
   }
 
   Future<void> uninstall() async {
@@ -1905,54 +1943,18 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                   const SizedBox(height: 16),
                   DnsServersTile(store: widget.store),
                   const SizedBox(height: 8),
-                  SwitchListTile(
-                    value: cascadeEnabled,
-                    onChanged: busy
-                        ? null
-                        : (v) => setState(() => cascadeEnabled = v),
-                    contentPadding: EdgeInsets.zero,
-                    title: const LText('Каскад IPv4-IPv6: добавить второй сервер'),
-                    subtitle: const LText(
-                      'Этот VPS станет bridge, exit подключается по IPv6.',
+                  Text(
+                    tr(
+                      context,
+                      'Каскад ставится отдельным мастером после установки: этап 1 — exit, этап 2 — bridge.',
                     ),
+                    style: const TextStyle(fontSize: 12),
                   ),
-                  if (cascadeEnabled) ...[
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: cascadeExit,
-                      enabled: !busy,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      decoration: InputDecoration(
-                        labelText: tr(
-                          context,
-                          'Exit-сервер (IPv4 или IPv6)',
-                        ),
-                        hintText: '81.177.142.37 или 2a0c:b641:1a0:800::2a2',
-                        helperText: tr(
-                          context,
-                          'IPv6 — каскад только для IPv6-трафика; '
-                          'IPv4 — весь трафик через зарубежный exit.',
-                        ),
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 12),
                   FilledButton(
                     onPressed: busy
                         ? null
                         : () => perform(() async {
-                            // Validate the cascade inputs before any server is
-                            // installed or any record is created: an invalid
-                            // exit address must fail without side effects,
-                            // not after the server already exists.
-                            final exit = cascadeExit.text.trim();
-                            if (cascadeEnabled &&
-                                validateCascadeBridge(exit) == null &&
-                                validateCascadeExit(exit) == null) {
-                              throw const FormatException(
-                                'Нужен IPv4 или IPv6-адрес exit-сервера',
-                              );
-                            }
                             server = await service.install(
                               widget.store,
                               publicHost: publicHost.text.trim().isEmpty
@@ -1960,15 +1962,27 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                                   : publicHost.text,
                             );
                             await create();
-                            if (cascadeEnabled && mounted) {
-                              final bridge = server!.publicHost.isEmpty
-                                  ? server!.host
-                                  : server!.publicHost;
-                              await _installCascade(bridge, exit);
-                            }
                           }),
                     child: const LText('Установить VPN'),
                   ),
+                  // Тот же пункт работает до установки: сервер мог остаться с
+                  // прошлой установки, и его нужно очистить заранее.
+                  if (authenticated) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: busy ? null : () => perform(purgeServer),
+                      icon: const Icon(Icons.cleaning_services_outlined),
+                      label: Text(tr(context, 'Очистить сервер')),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      tr(
+                        context,
+                        'Удаляет остатки XIO, если сервер использовался раньше. Пакеты ОС и чужие службы сохраняются.',
+                      ),
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                  ],
                 ] else ...[
                   TextField(
                     controller: serverName,
@@ -2075,7 +2089,21 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                       child: const LText('Отозвать все протоколы'),
                     ),
                   const SizedBox(height: 20),
-                  if (server?.delegated != true)
+                  if (server?.delegated != true) ...[
+                    OutlinedButton.icon(
+                      onPressed: busy
+                          ? null
+                          : () => CascadeWizardDialog.open(
+                              context,
+                              widget.store,
+                              bridgeHint: server!.publicHost.isEmpty
+                                  ? server!.host
+                                  : server!.publicHost,
+                            ),
+                      icon: const Icon(Icons.hub_outlined),
+                      label: Text(tr(context, 'Мастер каскада · 2 этапа')),
+                    ),
+                    const SizedBox(height: 8),
                     OutlinedButton(
                       onPressed: busy
                           ? null
@@ -2084,6 +2112,21 @@ class _ManagedAdminDialogState extends State<ManagedAdminDialog> {
                             }),
                       child: const LText('Удалить VPN и данные установки'),
                     ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: busy ? null : () => perform(purgeServer),
+                      icon: const Icon(Icons.cleaning_services_outlined),
+                      label: Text(tr(context, 'Очистить сервер')),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      tr(
+                        context,
+                        'Очистка удаляет все компоненты XIO и возвращает сервер к состоянию до установки; пакеты ОС и чужие службы сохраняются.',
+                      ),
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                  ],
                 ],
               ],
               if (result != null) LText(result!),

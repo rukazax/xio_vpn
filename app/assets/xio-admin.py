@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """xio owned WG/AWG deployment; JSON stdin/stdout, no client private keys."""
-import base64,fcntl,hashlib,ipaddress,json,os,re,secrets,shlex,socket,subprocess,sys,time,uuid,shutil
+import base64,fcntl,glob,hashlib,ipaddress,json,os,re,secrets,shlex,socket,subprocess,sys,time,uuid,shutil
 from pathlib import Path
 import importlib.util
 _stack_path=Path(__file__).with_name('stack.py')
@@ -702,8 +702,123 @@ class _NativeCascadeRequestError(RuntimeError):
   self.errorCode=code;self.outcomeUnknown=False
   super().__init__({'OWNER_REQUIRED':'Native cascade requires the owner session','SERVER_IDENTITY':'Server identity changed; reopen setup','INVALID_REQUEST':'Invalid native cascade request'}[code])
 
+# "Clear server": remove every XIO-owned artifact so the host is back to its
+# pre-install state. Deliberately independent of deployment.json: it is used both
+# for an active installation and for a server that is about to receive XIO for
+# the first time. Shared packages, foreign tunnels, unrelated firewall rules and
+# the system journal are never touched.
+PURGE_UNITS=['xio-managed-awg.service','xio-managed-stats.timer','xio-managed-stats.service',
+ 'xio-stack.service','xio-rivet-entry.service','xio-rivet-gateway.service','xio-cascade-bridge.service',
+ 'xio-cascade-exit.service','xio-ready.service','xio-cloak.service','xio-openvpn-tcp.service',
+ 'xio-openvpn-udp.service','xio-webui.service','xio-catalog.timer','xio-catalog.service',
+ 'wg-quick@xio0.service']
+PURGE_PATHS=['/etc/xio-managed','/etc/xio-stack','/etc/xio-rivet','/etc/xio-cascade','/etc/xio-webui',
+ '/usr/local/lib/xio-managed','/usr/local/lib/xio-rivet','/usr/local/lib/xio-stack',
+ '/usr/local/sbin/xio-*','/usr/local/bin/xio-*','/var/lib/xio-cascade','/var/lib/xio-managed',
+ '/var/lib/xio-rivet','/var/log/xio-cascade','/etc/systemd/system/xio-*',
+ '/etc/wireguard/xio0.conf','/etc/sysctl.d/91-xio-managed.conf','/etc/ssh/sshd_config.d/99-xio-cascade.conf',
+ '/etc/nginx/conf.d/xio-webui.conf','/root/.ssh/xio_cascade','/root/.ssh/xio_cascade.pub']
+PURGE_NETS=('10.250.0.0/30','10.78.0.0/24','fd78:1::/64','fd78:2::/64')
+
+def purge_present():
+ present=set()
+ for pattern in PURGE_PATHS:
+  for hit in glob.glob(pattern):present.add(hit)
+ return sorted(present)
+
+def purge_firewall(dry,tun_is_ours=False):
+ removed=[];failed=[]
+ for tool in ('iptables','ip6tables'):
+  for table in ('filter','nat','mangle'):
+   probe=subprocess.run([tool,'-t',table,'-S'],capture_output=True,text=True)
+   if probe.returncode:continue
+   for line in probe.stdout.splitlines():
+    if not line.startswith('-A '):continue
+    # Our rules name the client interface, carry our networks, or live on the
+    # cascade tun0 while it still holds the cascade /30. A foreign tunnel keeps
+    # its own rules.
+    ours=(any(net in line for net in PURGE_NETS) or 'xioawg0' in line or 'xio0' in line
+          or 'xio-managed-v1' in line or (tun_is_ours and 'tun0' in line))
+    if not ours:continue
+    parts=shlex.split(line);chain=parts[1];args=parts[2:]
+    command=[tool,'-t',table,'-D',chain]+args
+    if dry:
+     removed.append(' '.join(command));continue
+    if subprocess.run(command,capture_output=True).returncode==0:removed.append(' '.join(command))
+    else:failed.append(tool+' '+table+' '+chain)
+ return removed,failed
+
+def purge_links(dry):
+ removed=[]
+ try:links={item['ifname']:item for item in json.loads(subprocess.run(['ip','-j','link'],capture_output=True,text=True).stdout)}
+ except Exception:links={}
+ candidates=[name for name in ('xioawg0','xio0') if name in links]
+ # tun0 is ours only when it still carries the cascade /30; a foreign tunnel keeps
+ # its own addresses and is left alone. The address is read explicitly because
+ # `ip -j link` does not always include addr_info.
+ tun_is_ours=False
+ probe=subprocess.run(['ip','-j','addr','show','dev','tun0'],capture_output=True,text=True)
+ try:
+  tun_is_ours=any(str(address.get('local','')).startswith('10.250.0.') for item in json.loads(probe.stdout) for address in item.get('addr_info',[]))
+ except Exception:tun_is_ours=False
+ if tun_is_ours:candidates.append('tun0')
+ for name in candidates:
+  if dry:removed.append('link '+name)
+  elif subprocess.run(['ip','link','del',name],capture_output=True).returncode==0:removed.append('link '+name)
+ return removed,tun_is_ours
+
+def purge(req,dry):
+ warnings=[];graceful=False;d=None
+ try:d=load()
+ except Exception:d=None
+ if d is not None and req.get('serverId') and req['serverId']!=d.get('id'):
+  raise RuntimeError('Server identity changed; reopen setup')
+ if d is not None and not dry:
+  # Graceful removal first: it restores forwarding and removes owned units with
+  # their own receipts. A partial installation may fail here; the hard pass below
+  # still finishes the job and the failure is reported, never hidden.
+  try:remove(d);graceful=True
+  except Exception as error:warnings.append('graceful removal incomplete: '+str(error).splitlines()[0][:160])
+ units=[unit for unit in PURGE_UNITS if subprocess.run(['systemctl','cat',unit],capture_output=True).returncode==0]
+ present=purge_present()
+ links,tun_is_ours=purge_links(dry)
+ firewall,firewall_failed=purge_firewall(dry,tun_is_ours)
+ removed=list(present) if dry else []
+ for command in (['ip','rule','del','table','51888'],['ip','-6','rule','del','table','51888'],
+                 ['ip','route','flush','table','51888'],['ip','-6','route','flush','table','51888']):
+  if dry:removed.append(' '.join(command))
+  elif subprocess.run(command,capture_output=True).returncode==0:removed.append(' '.join(command))
+ if not dry:
+  for unit in units:
+   subprocess.run(['systemctl','disable','--now',unit],capture_output=True)
+   if subprocess.run(['systemctl','is-active','--quiet',unit]).returncode==0:warnings.append('still active: '+unit)
+  for socket_path in ('/run/amneziawg/xioawg0.sock','/run/wireguard/xio0.sock'):
+   if Path(socket_path).exists():
+    Path(socket_path).unlink(missing_ok=True);removed.append(socket_path)
+  for path in present:
+   target=Path(path)
+   try:
+    if target.is_dir():shutil.rmtree(target)
+    else:target.unlink(missing_ok=True)
+    removed.append(path)
+   except Exception as error:warnings.append('not removed: '+path+' ('+str(error)[:80]+')')
+  subprocess.run(['systemctl','daemon-reload'],capture_output=True)
+  if any(path.startswith('/etc/nginx') for path in present):
+   subprocess.run(['systemctl','reload','nginx'],capture_output=True)
+ remaining=[] if dry else purge_present()
+ return {'purged':True,'dryRun':bool(dry),'graceful':graceful,'stopped':units,'removed':removed,
+  'firewall':firewall,'firewallFailed':firewall_failed,'links':links,'warnings':warnings,
+  'remaining':remaining,'clean':(not dry) and not remaining and not firewall_failed}
+
 def dispatch(req,actor=None):
  action=req['action']
+ if action=='purge':
+  # No deployment identity is involved: the same call clears an installed server
+  # and a server that is about to receive XIO. Delegated admins never reach it.
+  assert actor is None,'Operation not permitted'
+  assert set(req)<={'action','serverId','confirm','dryRun'},'Invalid purge request'
+  if req.get('confirm') is not True:raise RuntimeError('Purge requires explicit confirmation')
+  return purge(req,req.get('dryRun') is True)
  if action=='client-grant':
   assert actor is None,'Operation not permitted'
   import client_api

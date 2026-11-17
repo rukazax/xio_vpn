@@ -774,4 +774,56 @@ mv /usr/local/lib/xio-managed/admin.py.next /usr/local/lib/xio-managed/admin.py
     await store.forgetServer(server.id);
     return result;
   }
+
+  /// «Очистить сервер»: removes every XIO-owned artifact so the host is back to
+  /// its pre-install state.
+  ///
+  /// Unlike [uninstall] it does not require an owned installation: the same call
+  /// prepares a fresh server that is about to receive XIO for the first time. The
+  /// bootstrap marker is created when missing, the host itself reports what it
+  /// removed, and a non-empty `remaining` list is treated as a failure instead of
+  /// a success message. Shared packages, foreign tunnels, unrelated firewall
+  /// rules and the system journal are never touched.
+  Future<Map<String, dynamic>> purge(
+    AppStore store, {
+    ManagedServer? server,
+    bool dryRun = false,
+  }) async {
+    if (store.status.active || store.busy) {
+      throw StateError('Сначала отключите VPN');
+    }
+    final script = await assets.load('assets/xio-admin.py');
+    await _runLoggable(
+      r'''set -eu
+umask 077
+mkdir -p /usr/local/lib/xio-managed
+test -f /usr/local/lib/xio-managed/.owner || printf 'xio-managed-v1\n' > /usr/local/lib/xio-managed/.owner
+cat > /usr/local/lib/xio-managed/admin.py.next
+chmod 600 /usr/local/lib/xio-managed/admin.py.next
+mv /usr/local/lib/xio-managed/admin.py.next /usr/local/lib/xio-managed/admin.py
+''',
+      script.buffer.asUint8List(script.offsetInBytes, script.lengthInBytes),
+    );
+    final result = await command({
+      'action': 'purge',
+      'confirm': true,
+      'dryRun': dryRun,
+      if (server != null) 'serverId': server.id,
+    }, timeout: const Duration(minutes: 5));
+    if (!dryRun) {
+      final remaining = [
+        for (final entry in (result['remaining'] as List? ?? const []))
+          '$entry',
+      ];
+      if (result['clean'] != true || remaining.isNotEmpty) {
+        throw StateError(
+          remaining.isEmpty
+              ? 'Сервер не подтвердил очистку'
+              : 'Очистка неполная, осталось: ${remaining.join(', ')}',
+        );
+      }
+      if (server != null) await store.forgetServer(server.id);
+    }
+    return result;
+  }
 }

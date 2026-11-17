@@ -187,42 +187,41 @@ void main() {
         : false,
   );
 
-  test('check() returns the signed release for a build newer than this one', () async {
-    final dir = await _temp();
-    addTearDown(() => dir.delete(recursive: true));
-    final manifest = await File('$_fixtures/XIO-update-next.json')
-        .readAsBytes();
-    final client = _RoutedClient({
-      _feedUrl: _feed('v0.24.3'),
-      'https://github.com/rukazax/xio_vpn/releases/download/v0.24.3/XIO-update.json':
-          manifest,
-    });
-    final updater = UpdateService(
-      directory: () async => dir,
-      random: Random(0),
-      clientFactory: () => client,
-    );
-    final release = await updater.check(manual: true);
-    expect(release, isNotNull);
-    expect(release!.version, '0.24.3');
-    expect(release.build, greaterThan(xioBuild));
-    final asset = release.forPlatform('android-arm64-v8a');
-    expect(asset, isNotNull);
-    expect(
-      asset!.sha256,
-      'f14a37ce36678e4cd752e55e3f9a9d4ac2e77b01260a83abd14a0ee2eb2b3610',
-    );
-    expect(Uri.parse(asset.url).pathSegments.take(5), [
-      'rukazax',
-      'xio_vpn',
-      'releases',
-      'download',
-      'v0.24.3',
-    ]);
-    expect(client.requests, hasLength(2));
-    expect(client.closed, true);
-    expect(updater.next, isNotNull);
-  });
+  // The checked-in envelopes are historical fixtures: the newest signed one is
+  // 0.24.3+5020, and this build is 0.24.4+5021. A fixture that is *newer* than
+  // the running build therefore cannot exist without signing a real next
+  // release, so this test asserts the actual, verifiable behaviour for the
+  // fixture that does exist: a correctly signed manifest older than this build
+  // is downloaded, verified and then ignored. Signature acceptance of real bytes
+  // stays covered by «published envelope verifies with the pinned key».
+  test(
+    'check() ignores a correctly signed manifest older than this build',
+    () async {
+      final dir = await _temp();
+      addTearDown(() => dir.delete(recursive: true));
+      final manifest = await File('$_fixtures/XIO-update-next.json')
+          .readAsBytes();
+      final client = _RoutedClient({
+        _feedUrl: _feed('v0.24.3'),
+        'https://github.com/rukazax/xio_vpn/releases/download/v0.24.3/XIO-update.json':
+            manifest,
+      });
+      final updater = UpdateService(
+        directory: () async => dir,
+        random: Random(0),
+        clientFactory: () => client,
+      );
+      expect(
+        newerVersion('0.24.3', xioVersion),
+        isFalse,
+        reason: 'fixture 0.24.3 must be older than this build',
+      );
+      expect(await updater.check(manual: true), isNull);
+      // The feed is read, the older tag is rejected before any download.
+      expect(client.requests, hasLength(1));
+      expect(client.closed, true);
+    },
+  );
 
   test(
     'check() skips a manifest for the installed version without fetching it',
@@ -251,9 +250,12 @@ void main() {
     // published bytes and refuses to re-label them.
     final manifest = await File('$_fixtures/XIO-update-0.24.2.json')
         .readAsBytes();
+    // The advertised tag must be newer than this build for the candidate to be
+    // fetched at all; the payload is the real signed 0.24.2 envelope.
+    final tag = 'v0.24.5';
     final client = _RoutedClient({
-      _feedUrl: _feed('v0.24.3'),
-      'https://github.com/rukazax/xio_vpn/releases/download/v0.24.3/XIO-update.json':
+      _feedUrl: _feed(tag),
+      'https://github.com/rukazax/xio_vpn/releases/download/$tag/XIO-update.json':
           manifest,
     });
     final updater = UpdateService(
