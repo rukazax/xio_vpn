@@ -591,8 +591,14 @@ func profileOrder(projection *documentProjection) []string {
 	return order
 }
 
-// restrictedNetworkProtocols mirrors the accepted source
-// repo-merge/app/lib/rivet_profile.dart.
+// restrictedNetworkProtocols is the five-entry ordering oracle frozen from the
+// pre-removal Dart source (app/lib/rivet_profile.dart when it still listed
+// cloak), kept only so TestOfferedOrderMixedProtocolOracle can replay that
+// mixed-protocol expectation exactly. It is NOT the production capability set
+// and it does not mirror the current Dart file: shipped validation uses
+// helperSupportedProtocols() from Protocols (runtime.go), which has no cloak.
+// Ordering ranks are relative, so the four shipped protocols keep the same
+// relative order here (xray, rivet-s1, awg, rivet-h3).
 var restrictedNetworkProtocols = []string{"xray", "rivet-s1", "cloak", "awg", "rivet-h3"}
 
 // protocolPreference mirrors rivet_profile.dart protocolPreference with

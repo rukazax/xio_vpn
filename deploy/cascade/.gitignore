@@ -1,0 +1,2 @@
+# Raw ed25519 seed used by the whitelist updater — never commit.
+update-ed25519.key

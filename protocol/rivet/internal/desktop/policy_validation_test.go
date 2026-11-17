@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -386,12 +387,37 @@ func TestOfferedOrderMixedProtocolOracle(t *testing.T) {
 		documentOrder, profiles, owner, false, helperSupportedProtocols()); !errors.Is(err, ErrPolicyStale) {
 		t.Fatalf("unsupported cloak candidate admitted: %v", err)
 	}
-	// Preference table matches the accepted source.
+	// Preference table over the frozen five-entry oracle (see
+	// restrictedNetworkProtocols): relative order matches the shipped four.
 	for protocol, want := range map[string]int{
 		"rivet-h3": 0, "xray": 1, "rivet-s1": 2, "cloak": 3, "awg": 4, "unknown": 100,
 	} {
 		if got := protocolPreference(protocol, "rivet-h3"); got != want {
 			t.Fatalf("preference(%s) = %d, want %d", protocol, got, want)
+		}
+	}
+}
+
+// TestShippedProtocolsExcludeRemovedTransport guards the production capability
+// set against the frozen oracle above: the oracle still names cloak for
+// replaying the old mixed-protocol expectation, but the shipped helper must
+// never advertise a transport this build cannot run.
+func TestShippedProtocolsExcludeRemovedTransport(t *testing.T) {
+	shipped := helperSupportedProtocols()
+	want := []string{"awg", "rivet-h3", "rivet-s1", "xray"}
+	if !reflect.DeepEqual(shipped, want) {
+		t.Fatalf("shipped protocols = %v, want %v", shipped, want)
+	}
+	for _, protocol := range shipped {
+		if protocol == "cloak" || protocol == "openvpn" {
+			t.Fatalf("removed transport %q is still advertised", protocol)
+		}
+	}
+	// helperSupportedProtocols returns a copy; mutating it must not touch Protocols.
+	if len(shipped) > 0 {
+		shipped[0] = "mutated"
+		if Protocols[0] == "mutated" {
+			t.Fatal("helperSupportedProtocols aliases Protocols")
 		}
 	}
 }
