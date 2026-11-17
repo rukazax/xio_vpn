@@ -305,7 +305,7 @@ class _CascadeWizardDialogState extends State<CascadeWizardDialog> {
                       details: [
                         'tun0 10.250.0.1/30 and fd78:2::1/64',
                         'key /root/.ssh/xio_cascade and authorization on exit',
-                        'policy iif xioawg0 → table 51888, SNAT, MSS clamp',
+                        'policy iif xio* → table 51888, fwmark 0x518, SNAT, MSS clamp',
                       ],
                       evidence: _bridgeEvidence,
                       purge: _purgeBridge,

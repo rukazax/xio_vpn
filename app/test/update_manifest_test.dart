@@ -21,6 +21,7 @@ import 'package:crypto/crypto.dart' as hash;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xio/update_service.dart';
+import 'package:xio/version.dart';
 
 class _Headers implements HttpHeaders {
   final values = <String, String>{};
@@ -251,8 +252,12 @@ void main() {
     final manifest = await File('$_fixtures/XIO-update-0.24.2.json')
         .readAsBytes();
     // The advertised tag must be newer than this build for the candidate to be
-    // fetched at all; the payload is the real signed 0.24.2 envelope.
-    final tag = 'v0.24.5';
+    // fetched at all; the payload is the real signed 0.24.2 envelope. Derive the
+    // next patch from the running version so a release bump cannot silently turn
+    // this into a no-op (a hardcoded tag stops being "newer" the moment the app
+    // reaches it).
+    final _v = xioVersion.split('.').map(int.parse).toList();
+    final tag = 'v${_v[0]}.${_v[1]}.${_v[2] + 1}';
     final client = _RoutedClient({
       _feedUrl: _feed(tag),
       'https://github.com/rukazax/xio_vpn/releases/download/$tag/XIO-update.json':
