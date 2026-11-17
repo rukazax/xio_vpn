@@ -135,7 +135,7 @@ void main() {
 
     test('bridge.env получает проверенный exit, туннель подтверждается', () async {
       final ssh = _FakeSsh();
-      ssh.responses['systemctl enable --now xio-cascade-bridge.service'] =
+      ssh.responses['xio-cascade-bridge.service'] =
           'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
       final evidence = await CascadeInstaller(ssh).installBridge('203.0.113.7');
 
@@ -150,7 +150,7 @@ void main() {
 
     test('IPv6-exit передаётся без квадратных скобок', () async {
       final ssh = _FakeSsh();
-      ssh.responses['systemctl enable --now xio-cascade-bridge.service'] =
+      ssh.responses['xio-cascade-bridge.service'] =
           'XIO_CASCADE_BRIDGE_READY tun=10.250.0.1/30 ssh=ok ping=ok\n';
       await CascadeInstaller(ssh).installBridge('[fd79:1::fe]');
       expect(

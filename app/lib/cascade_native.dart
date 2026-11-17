@@ -77,10 +77,19 @@ ip addr replace 10.250.0.1/30 dev "$TUN"
 ip -6 addr replace fd78:2::1/64 dev "$TUN"
 ip rule add iif xioawg0 lookup 51888 priority 1000 2>/dev/null || true
 ip -6 rule add iif xioawg0 lookup 51888 priority 1000 2>/dev/null || true
+# Client traffic forwarded from xioawg0 is covered by the iif rule above. Traffic
+# that a local transport (Xray, RIVET gateway) generates itself has no input
+# interface, so it is matched by SO_MARK instead: such a socket must set
+# XIO_CASCADE_MARK (default 0x518) and then leaves through the same table.
+ip rule add fwmark ${XIO_CASCADE_MARK:-0x518} lookup 51888 priority 1000 2>/dev/null || true
 ip route replace default dev "$TUN" table 51888
 ip -6 route replace default dev "$TUN" table 51888
 iptables -t nat -C POSTROUTING -s 10.78.0.0/24 -o "$TUN" -j MASQUERADE 2>/dev/null || \
   iptables -t nat -I POSTROUTING 1 -s 10.78.0.0/24 -o "$TUN" -j MASQUERADE
+# Locally generated, marked traffic (Xray/RIVET egress) keeps the bridge address
+# as its source, so it needs its own SNAT rule on the cascade tunnel.
+iptables -t nat -C POSTROUTING -o "$TUN" -j MASQUERADE 2>/dev/null || \
+  iptables -t nat -I POSTROUTING 1 -o "$TUN" -j MASQUERADE
 iptables -C FORWARD -i xioawg0 -o "$TUN" -j ACCEPT 2>/dev/null || \
   iptables -I FORWARD 1 -i xioawg0 -o "$TUN" -j ACCEPT
 iptables -C FORWARD -o xioawg0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \
@@ -103,9 +112,11 @@ set -uo pipefail
 TUN=${XIO_CASCADE_TUN:-tun0}
 ip rule del iif xioawg0 lookup 51888 priority 1000 2>/dev/null || true
 ip -6 rule del iif xioawg0 lookup 51888 priority 1000 2>/dev/null || true
+ip rule del fwmark ${XIO_CASCADE_MARK:-0x518} lookup 51888 priority 1000 2>/dev/null || true
 ip route flush table 51888 2>/dev/null || true
 ip -6 route flush table 51888 2>/dev/null || true
 for i in $(seq 1 4); do iptables -t nat -D POSTROUTING -s 10.78.0.0/24 -o "$TUN" -j MASQUERADE 2>/dev/null || break; done
+for i in $(seq 1 4); do iptables -t nat -D POSTROUTING -o "$TUN" -j MASQUERADE 2>/dev/null || break; done
 for i in $(seq 1 4); do iptables -D FORWARD -i xioawg0 -o "$TUN" -j ACCEPT 2>/dev/null || break; done
 for i in $(seq 1 4); do iptables -D FORWARD -o xioawg0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || break; done
 for i in $(seq 1 4); do iptables -t mangle -D FORWARD -o "$TUN" -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu 2>/dev/null || break; done
@@ -297,15 +308,24 @@ cat /root/.ssh/xio_cascade.pub
       await _put('/usr/local/sbin/xio-cascade-bridge-up.sh', cascadeBridgeUpScript, '700');
       await _put('/usr/local/sbin/xio-cascade-bridge-down.sh', cascadeBridgeDownScript, '700');
       await _put('/etc/systemd/system/xio-cascade-bridge.service', cascadeBridgeUnit, '644');
+      // A restart, not just `enable --now`: the unit is Restart=always, so it
+      // may be mid-restart (an exit reinstall breaks the tunnel) and a bare
+      // `is-active` would race it. The wait loop makes the check deterministic.
       final out = await _run(r'''set -eu
 . /etc/xio-cascade/bridge.env
 systemctl daemon-reload
-systemctl enable --now xio-cascade-bridge.service >/dev/null 2>&1
-sleep 3
-systemctl is-active --quiet xio-cascade-bridge.service
-ip -4 addr show tun0 | grep -Fq '10.250.0.1/30'
+systemctl enable xio-cascade-bridge.service >/dev/null 2>&1 || true
+systemctl restart xio-cascade-bridge.service
+up=no
+for _ in $(seq 1 30); do
+  if systemctl is-active --quiet xio-cascade-bridge.service && \
+     ip -4 addr show tun0 2>/dev/null | grep -Fq '10.250.0.1/30'; then up=yes; break; fi
+  sleep 1
+done
+[ "$up" = yes ] || { echo "bridge did not come up" >&2; systemctl status xio-cascade-bridge.service --no-pager -n 5 >&2 || true; exit 1; }
 ssh -i /root/.ssh/xio_cascade -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
   -o ConnectTimeout=8 -o ExitOnForwardFailure=yes root@"$XIO_CASCADE_EXIT_HOST" true
+for _ in $(seq 1 10); do ping -c 1 -W 3 10.250.0.2 >/dev/null 2>&1 && break; sleep 1; done
 ping -c 2 -W 3 10.250.0.2 >/dev/null
 printf '%s tun=%s ssh=ok ping=ok\n' XIO_CASCADE_BRIDGE_READY \
   "$(ip -4 -o addr show tun0 | awk '{print $4}')"

@@ -481,7 +481,13 @@ class _WorkspaceShellState extends State<WorkspaceShell>
           'Вход на IPv4-VPS, выход на втором сервере',
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => openAdmin(context, store),
+        // Мастер, а не общий диалог сервера: каскад ставится двумя этапами и
+        // доступен даже без сохранённого управляемого сервера.
+        onTap: () => CascadeWizardDialog.open(
+          context,
+          store,
+          bridgeHint: store.cascadeBridge,
+        ),
       ),
       const Divider(),
       ListTile(

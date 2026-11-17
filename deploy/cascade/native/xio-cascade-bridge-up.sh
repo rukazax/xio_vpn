@@ -14,10 +14,19 @@ ip addr replace 10.250.0.1/30 dev "$TUN"
 ip -6 addr replace fd78:2::1/64 dev "$TUN"
 ip rule add iif xioawg0 lookup 51888 priority 1000 2>/dev/null || true
 ip -6 rule add iif xioawg0 lookup 51888 priority 1000 2>/dev/null || true
+# Client traffic forwarded from xioawg0 is covered by the iif rule above. Traffic
+# that a local transport (Xray, RIVET gateway) generates itself has no input
+# interface, so it is matched by SO_MARK instead: such a socket must set
+# XIO_CASCADE_MARK (default 0x518) and then leaves through the same table.
+ip rule add fwmark ${XIO_CASCADE_MARK:-0x518} lookup 51888 priority 1000 2>/dev/null || true
 ip route replace default dev "$TUN" table 51888
 ip -6 route replace default dev "$TUN" table 51888
 iptables -t nat -C POSTROUTING -s 10.78.0.0/24 -o "$TUN" -j MASQUERADE 2>/dev/null || \
   iptables -t nat -I POSTROUTING 1 -s 10.78.0.0/24 -o "$TUN" -j MASQUERADE
+# Locally generated, marked traffic (Xray/RIVET egress) keeps the bridge address
+# as its source, so it needs its own SNAT rule on the cascade tunnel.
+iptables -t nat -C POSTROUTING -o "$TUN" -j MASQUERADE 2>/dev/null || \
+  iptables -t nat -I POSTROUTING 1 -o "$TUN" -j MASQUERADE
 iptables -C FORWARD -i xioawg0 -o "$TUN" -j ACCEPT 2>/dev/null || \
   iptables -I FORWARD 1 -i xioawg0 -o "$TUN" -j ACCEPT
 iptables -C FORWARD -o xioawg0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \

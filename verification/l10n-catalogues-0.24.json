@@ -5,91 +5,91 @@
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "105790a5d05bc45cac420b610869221bb0eab513490ce8a71c1e9932770c00e7"
+      "sha256": "c7b00e7bf3582902fe0389897661d4fb1b01d0652f41a2da2e2d591c28269c36"
     },
     {
       "language": "en",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "525393dda7c4c71fa8ead76caa7f4995cf615381d924736a8fd26acfa0a2718a"
+      "sha256": "43a97d4ce827764cea44fe282a6c61884d3f8d04f61594b05ea0f12e98287977"
     },
     {
       "language": "de",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "a13068e56740956848dfe924983fbb026becc972211df14623bb7afa1e0a341f"
+      "sha256": "37c9538d73edc4587889bda88053d7035e13aea9d259878a8447a4767a93bc46"
     },
     {
       "language": "es",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "95835fb1f9c1c4e6fa27aeacf2bd7d56b25892383cfe1d30a20f6b0c5684ec04"
+      "sha256": "2f17acdc7440d8457af447e4873a6f72d769bc36d18e3d592b17b2a120522910"
     },
     {
       "language": "fr",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "6ba617ad90706cb5fdea2c01eccc0ecad4c539767f99af064839a3cd7bb5adea"
+      "sha256": "684aee2f1bee155f294053fbcc59fe3a21f5dd116816dbbc3b4f09a07fe9e44f"
     },
     {
       "language": "it",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "f0a7adc66eb59df0772fce5e1e3f4865665638fee1adf2901aec12969a6157e9"
+      "sha256": "5d840b722d848e93147df3c2caad59dacb89205305cd29ffb60bb41091966e3e"
     },
     {
       "language": "pt",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "09744a8a6415675e35cddbac98ff2b0269cef752f31bfb30171807654c03c6d3"
+      "sha256": "909ba4c97ebb52a146f431be487a3a06b94ccc911f38a4354a58d0ae167be71f"
     },
     {
       "language": "zh",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "e2ad83b69c65904fb8c199c507bfbdc3c044dc49d26356ddcfb34096b49665a9"
+      "sha256": "a6daed8bd7faaf38593174df1600480759f03ac3c44bfd6ebf0f872ef37444bb"
     },
     {
       "language": "ja",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "a05253a98ffa1ab1b695252a7c2a5fc0df89303486cc2d18af2291bc72f9f2d5"
+      "sha256": "61c818acea61e40cdcb7fd6bad7b8995cd733971fff844a37163ad2325024bcc"
     },
     {
       "language": "ko",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "ebbd8f1ffeba746693b6cb6f44595bf3dfdddeff56c9734e14401e6e408c0667"
+      "sha256": "9f469d0e1a9728a74548ba3e5ea4a1dd567eabc8dc5e0c89c3034f56cbcf4cc0"
     },
     {
       "language": "tr",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "32c1eac7b7305e724701a62d9f01d8f87e0db671b132c940fa1a6bc7b2ac1c3f"
+      "sha256": "89b759ed9a27f3041b5e2d4aa78cfe1c60974c23b1188a27d746e98efa0bc5e5"
     },
     {
       "language": "hi",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "67d8b55b3ba7b584650835894e4a9f45ccb7d4e3d37939e9b2974a11d8a74734"
+      "sha256": "f896de7d73b6fc08577d7b1ce17884ecfeb16c96fbb41445f96cd21081fbb279"
     },
     {
       "language": "ar",
       "messages": 835,
       "placeholdersValid": true,
       "bundledGlyphCoverage": true,
-      "sha256": "f53d19d4dcaeadf3aa491448f3ae71faba0568a68ceb7f167d611d0e777d7a49"
+      "sha256": "7eeab3e6fa517c9326280c69abe8e32830da4bd6b7b51c2e31468d76709964b7"
     }
   ],
   "fontFiles": [
