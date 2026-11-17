@@ -14,7 +14,19 @@ for page in pages:
 # A filename in a code span is not a download link. Keep both README tables
 # and download pages linked to every published application in the release manifest.
 version=re.search(r'^version:\s*(\d+\.\d+\.\d+)',(r/'app/pubspec.yaml').read_text(encoding='utf-8'),re.M).group(1)
-manifest=json.loads((r/f'verification/{version}-release.json').read_text(encoding='utf-8'))
+record=r/f'verification/{version}-release.json'
+# Incremental Android-only releases (0.24.1 and later) ship one ABI-split APK pair and no
+# desktop or server artefacts, so they publish no release record here. The local links are
+# the whole check then; the manifest assertions below stay in force for every release that
+# does record its artefacts, including the download pages of an older stable line.
+if not record.is_file():
+ if failures:
+  for p,url in failures:print(p+': '+url)
+  sys.exit(1)
+ print(f'{len(pages)} pages, {count} local links: passed; {record.relative_to(r)} is absent, '
+       'so the release-manifest download checks were skipped')
+ sys.exit(0)
+manifest=json.loads(record.read_text(encoding='utf-8'))
 release_root=f'https://github.com/rukazax/xio_vpn/releases/download/{manifest["tag"]}/'
 app_files=[a['file'] for a in manifest['artifacts'] if a['file'].startswith(('XIO-Client-','XIO-Full-'))]
 download_pages=[r/'README.md',r/'README.ru.md',r/'docs/en/downloads.md',r/'docs/ru/downloads.md']

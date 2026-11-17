@@ -39,7 +39,7 @@ VPS, XIO brings the rest.
 
 ---
 
-## Current state: 0.24.10+5027 (17 Nov 2026)
+## Current state: 0.24.13+5030 (17 Nov 2026)
 
 The phone → Russian VPS → foreign VPS cascade is built, deployed and verified on live servers,
 and automatic failover between routes works again: when the first candidate does not come up the
@@ -47,7 +47,14 @@ app connects the next one and publishes the accepted choice. The client no longe
 OpenVPN/Cloak; the server payload and the sections below still describe the full 0.24.0–0.24.2
 set, including those transports.
 
-0.24.9–0.24.10 change one message, not the routing: with the tunnel up, connection settings now say “the tunnel is active, disconnect the VPN first” instead of claiming another operation is still running, and name settings rather than only the mode.
+0.24.13 turns the cascade into one action: the wizard installs the exit and then the bridge in a
+single pass, authorises the bridge key on the exit through the connection that is already open,
+and stores the addresses only after the bridge confirms the tunnel. Each server card shows its own
+plan, the step that is running and the line that proved the previous one; a failure names the step
+and keeps the output of the command that failed plus `journalctl -u xio-cascade-… -n 40`, captured
+before the connection closes. 0.24.11–0.24.12 are the groundwork behind it: per-ABI APKs with
+logging and geo-IP telemetry off, and a cascade that installs the tools it needs instead of
+assuming them.
 
 | Check | Result |
 |---|---|
@@ -55,9 +62,9 @@ set, including those transports.
 | Exit | `103.102.135.124` (FR), `xio-cascade-exit` active, NAT44/NAT66 |
 | Tunnel | SSH TUN `10.250.0.1 ⇄ 10.250.0.2`, ping 50.8 ms |
 | Phone egress | IPv4 `103.102.135.124`, IPv6 `2a0c:b641:1a0:800::2a2`; direct xray exits `81.177.142.37` |
-| Tests | `flutter test`: 1163 passed, 27 skipped, 0 failed |
+| Tests | `flutter test`: 1174 passed, 27 skipped, 0 failed |
 | Analyse | `flutter analyze`: 0 errors |
-| APK | `XIO-Full-0.24.10-android-arm64-v8a.apk` (release v0.24.10), arm64 + armeabi-v7a |
+| APK | `XIO-Full-0.24.13-android-arm64-v8a.apk` (52.4 MB) and `…-armeabi-v7a.apk` (52.3 MB), release v0.24.13 |
 
 Commands and numbers: [CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-RU-FR-20261117.md) ·
 [ANDROID-VALIDATION-20261117.md](docs/ANDROID-VALIDATION-20261117.md) ·
@@ -65,8 +72,9 @@ Commands and numbers: [CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-R
 
 **Known limits, not hidden:**
 
-- there is no single button that installs the cascade on both servers; bridge and exit are
-  installed as separate steps (`deploy/cascade/native/`);
+- the cascade is installed by one button, but the pass is not resumable: a refusal leaves the
+  SSH connections open for a retry that starts again from the first step of the failed server,
+  and it still needs a ready exit and bridge with root SSH (`deploy/cascade/native/`);
 - automatic failover is verified against a closed port and against a stopped AWG service;
   when every candidate is dead the round still ends with one honest error;
 - the bridge–exit link is an SSH TUN (TCP-over-TCP), not WireGuard: the WireGuard handshake
@@ -439,8 +447,8 @@ without BBR the same pair collapsed to 1.5 Mbit/s at ≈8 % loss. Commands and n
 
 The addresses are stored in the profile, the stations show them, and the dialog offers a ready
 install command. In the verified pair the exit is set by IPv4 in `bridge.env` because the SSH TUN
-runs over IPv4; the app dialog currently accepts only an IPv6 literal in the Exit field. That is
-a UI limitation, not a server-side one.
+runs over IPv4; the dialog accepts an IPv4 address, an IPv6 literal or a host name, so the IPv4
+value is a choice and not a workaround.
 
 **Honest cascade limits:**
 
