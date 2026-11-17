@@ -39,7 +39,7 @@ VPS, XIO brings the rest.
 
 ---
 
-## Current state: 0.24.8+5025 (17 Nov 2026)
+## Current state: 0.24.9+5026 (17 Nov 2026)
 
 The phone → Russian VPS → foreign VPS cascade is built, deployed and verified on live servers,
 and automatic failover between routes works again: when the first candidate does not come up the
@@ -47,15 +47,17 @@ app connects the next one and publishes the accepted choice. The client no longe
 OpenVPN/Cloak; the server payload and the sections below still describe the full 0.24.0–0.24.2
 set, including those transports.
 
+0.24.9 changes one message, not the routing: with the tunnel up, connection settings now say “the tunnel is active, disconnect the VPN first” instead of claiming another operation is still running.
+
 | Check | Result |
 |---|---|
 | Bridge | `81.177.142.37` (RU, Debian 12), `xio-cascade-bridge` active |
 | Exit | `103.102.135.124` (FR), `xio-cascade-exit` active, NAT44/NAT66 |
 | Tunnel | SSH TUN `10.250.0.1 ⇄ 10.250.0.2`, ping 50.8 ms |
 | Phone egress | IPv4 `103.102.135.124`, IPv6 `2a0c:b641:1a0:800::2a2`; direct xray exits `81.177.142.37` |
-| Tests | `flutter test`: 1162 passed, 27 skipped, 0 failed |
+| Tests | `flutter test`: 1163 passed, 27 skipped, 0 failed |
 | Analyse | `flutter analyze`: 0 errors |
-| APK | `XIO-Full-0.24.8-android-arm64-v8a.apk` (release v0.24.8), arm64 + armeabi-v7a |
+| APK | `XIO-Full-0.24.9-android-arm64-v8a.apk` (release v0.24.9), arm64 + armeabi-v7a |
 
 Commands and numbers: [CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-RU-FR-20261117.md) ·
 [ANDROID-VALIDATION-20261117.md](docs/ANDROID-VALIDATION-20261117.md) ·
