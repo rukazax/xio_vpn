@@ -39,22 +39,23 @@ VPS, XIO brings the rest.
 
 ---
 
-## Current state: 0.24.3+5020 (17 Nov 2026)
+## Current state: 0.24.8+5025 (17 Nov 2026)
 
-The phone → Russian VPS → foreign VPS cascade is built, deployed and verified on live servers.
-The app shows it on the main screen: device, bridge and exit with country flags, the real egress
-IP and the exit country. The client no longer offers OpenVPN/Cloak; the server payload and the
-sections below still describe the full 0.24.0–0.24.2 set, including those transports.
+The phone → Russian VPS → foreign VPS cascade is built, deployed and verified on live servers,
+and automatic failover between routes works again: when the first candidate does not come up the
+app connects the next one and publishes the accepted choice. The client no longer offers
+OpenVPN/Cloak; the server payload and the sections below still describe the full 0.24.0–0.24.2
+set, including those transports.
 
 | Check | Result |
 |---|---|
 | Bridge | `81.177.142.37` (RU, Debian 12), `xio-cascade-bridge` active |
 | Exit | `103.102.135.124` (FR), `xio-cascade-exit` active, NAT44/NAT66 |
 | Tunnel | SSH TUN `10.250.0.1 ⇄ 10.250.0.2`, ping 50.8 ms |
-| Phone egress | IPv4 `103.102.135.124`, IPv6 `2a0c:b641:1a0:800::2a2` |
-| Tests | `flutter test`: 1138 passed, 23 skipped, 0 failed |
+| Phone egress | IPv4 `103.102.135.124`, IPv6 `2a0c:b641:1a0:800::2a2`; direct xray exits `81.177.142.37` |
+| Tests | `flutter test`: 1162 passed, 27 skipped, 0 failed |
 | Analyse | `flutter analyze`: 0 errors |
-| APK | `XIO-0.24.3+5020-android-arm64-cascade-20261117.apk`, arm64 |
+| APK | `XIO-Full-0.24.8-android-arm64-v8a.apk` (release v0.24.8), arm64 + armeabi-v7a |
 
 Commands and numbers: [CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-RU-FR-20261117.md) ·
 [ANDROID-VALIDATION-20261117.md](docs/ANDROID-VALIDATION-20261117.md) ·
@@ -64,9 +65,8 @@ Commands and numbers: [CASCADE-ANDROID-RU-FR-20261117.md](docs/CASCADE-ANDROID-R
 
 - there is no single button that installs the cascade on both servers; bridge and exit are
   installed as separate steps (`deploy/cascade/native/`);
-- updating or reinstalling the APK breaks the saved native receipt: a clean install, profile
-  import and connection work, but after a reinstall the app may report
-  “saved plan could not be reconciled”;
+- automatic failover is verified against a closed port and against a stopped AWG service;
+  when every candidate is dead the round still ends with one honest error;
 - the bridge–exit link is an SSH TUN (TCP-over-TCP), not WireGuard: the WireGuard handshake
   succeeds but transport packets are lost; BBR is enabled on the bridge, not on the exit;
 - the mobile profile uses `9.9.9.9` for DNS, not the carrier resolver;
@@ -383,7 +383,7 @@ flowchart LR
   C --> D((Internet<br/>IPv4 / IPv6))
 ```
 
-**What the app shows in 0.24.3.** The main-screen card and the Cascade screen report the same
+**What the app shows in 0.24.8.** The main-screen card and the Cascade screen report the same
 state:
 
 - three stations — 🇷🇺 device → 🇷🇺 bridge → 🇫🇷 exit — with addresses and country flags;
