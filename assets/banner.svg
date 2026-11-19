@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="xio_vpn">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#15243f"/>
+      <stop offset="100%" stop-color="#1f3a6e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4b6bfb"/>
+      <stop offset="100%" stop-color="#8a2be2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" fill="url(#bg)"/>
+  <circle cx="1120" cy="60" r="220" fill="#4b6bfb" opacity="0.12"/>
+  <circle cx="180" cy="300" r="200" fill="#8a2be2" opacity="0.10"/>
+  <rect x="0" y="0" width="1280" height="6" fill="url(#accent)"/>
+  <text x="72" y="128" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="52" font-weight="700" fill="#ffffff">xio_vpn</text>
+  <text x="74" y="176" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="24" fill="#b9c6e6">Свой VPN на своих серверах: Android, Ubuntu, Windows — один интерфейс</text>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#dfe7fb">
+    <rect x="72" y="214" width="115" height="38" rx="19" fill="#ffffff" opacity="0.10"/>
+    <text x="94" y="239">Flutter</text>
+    <rect x="203" y="214" width="115" height="38" rx="19" fill="#ffffff" opacity="0.10"/>
+    <text x="225" y="239">Android</text>
+    <rect x="334" y="214" width="207" height="38" rx="19" fill="#ffffff" opacity="0.10"/>
+    <text x="356" y="239">Windows · Ubuntu</text>
+    <rect x="557" y="214" width="135" height="38" rx="19" fill="#ffffff" opacity="0.10"/>
+    <text x="579" y="239">AmneziaWG</text>
+    <rect x="708" y="214" width="90" height="38" rx="19" fill="#ffffff" opacity="0.10"/>
+    <text x="730" y="239">Xray</text>
+  </g>
+</svg>
